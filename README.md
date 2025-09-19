@@ -84,7 +84,7 @@ The pipeline uses two conda environments:
 **BPTF Environment (`bptf` by default):**
 
 - Python 3.8+
-- BPTF package: `pip install git+https://github.com/aschein/bptf.git`
+- BPTF package: `https://github.com/aschein/bptf`
 - Numpy, scipy (compatible versions with BPTF)
 - Used for step 2 only
 
