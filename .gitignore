@@ -1,0 +1,5 @@
+# Large result files
+results/
+*.npz
+*.npy
+*.csv
