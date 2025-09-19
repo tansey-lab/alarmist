@@ -1,10 +1,11 @@
-# Patch-LRI-BPTF Analysis Pipeline
+# ALARMIST: Assessment of Ligand And Receptor Interaction Motifs in Spatial Transcriptomics
 
 A focused pipeline for spatial transcriptomics analysis using patch-based ligand-receptor interaction (LRI) mapping and Bayesian Poisson Tensor Factorization (BPTF).
 
 ## Overview
 
 This pipeline implements:
+
 1. **Patch-based LRI analysis** - Spatial tissue segmentation and LRI quantification
 2. **BPTF matrix factorization** - Identification of latent microenvironment programs
 3. **BPTF visualization** - Comprehensive plots of motifs, networks, and spatial distributions
@@ -14,37 +15,45 @@ This pipeline implements:
 ## Workflow
 
 ### Step 1: Patch-LRI Analysis
+
 ```bash
 python scripts/01_run_patch_lri_analysis.py --data-file <input.h5ad> --output-dir results/patch_lri
 ```
 
-### Step 2: BPTF Matrix Factorization  
+### Step 2: BPTF Matrix Factorization
+
 ```bash
 python scripts/02_bptf_matrix_factorization.py --input-dir results/patch_lri --output-dir results/bptf --n-components 15
 ```
 
 ### Step 3: BPTF Visualization
+
 ```bash
 python scripts/03_bptf_visualization.py --bptf-dir results/bptf --patch-dir results/patch_lri --data-file <input.h5ad> --output-dir results/plots/bptf_plots
 ```
 
 ### Step 4: Poisson GLM Analysis
+
 ```bash
 python scripts/04_poisson_glm.py --data-file <input.h5ad> --results-dir results/bptf --patch-lri-dir results/patch_lri --output-dir results/glm
 ```
 
 ### Step 5: GLM Results Visualization
+
 ```bash
 python scripts/05_glm_results.py --data-file <input.h5ad> --results-dir results/glm --output-dir results/plots/glm_plots
 ```
 
-### Complete Pipeline
+### Complete Pipeline (might not be runnable)
+
 ```bash
 python run_pipeline.py --data-file <input.h5ad> --output-dir results --n-components 15
 ```
 
-### Pipeline with Conda Environment Management
+### Pipeline with Conda Environment Management (TODO: unify into one env)
+
 The pipeline automatically manages conda environments for different steps:
+
 ```bash
 # Default environments (bptf for BPTF step, tf2.10 for others)
 python run_pipeline.py --data-file <input.h5ad> --output-dir results --n-components 15
@@ -59,41 +68,30 @@ python run_pipeline.py --data-file <input.h5ad> --output-dir results --no-conda
 
 ## Requirements
 
-### Conda Environments
+### Conda Environments (TODO: unify into one env)
 
 The pipeline uses two conda environments:
 
 **Main Environment (`tf2.10` by default):**
+
 - Python 3.8+
 - Standard scientific Python stack (numpy, pandas, scipy, matplotlib)
 - Scanpy for single-cell analysis
-- Liana for LRI databases
+- Liana for accessing LRI databases
 - scikit-learn for statistical modeling
 - Used for steps 1, 3, 4, and 5
 
 **BPTF Environment (`bptf` by default):**
+
 - Python 3.8+
 - BPTF package: `pip install git+https://github.com/aschein/bptf.git`
 - Numpy, scipy (compatible versions with BPTF)
 - Used for step 2 only
 
-### Environment Setup
-```bash
-# Create main environment
-conda create -n tf2.10 python=3.8
-conda activate tf2.10
-pip install -r requirements.txt
-
-# Create BPTF environment
-conda create -n bptf python=3.8
-conda activate bptf
-pip install git+https://github.com/aschein/bptf.git
-pip install numpy scipy pandas
-```
-
-## Input Data Format
+### Input Data Format
 
 Expected input is AnnData (.h5ad) format with:
+
 - `adata.obsm['spatial']`: Spatial coordinates (μm)
 - `adata.obs['cell_type']`: Cell type annotations
 - `adata.obs['tma_id']`: Sample/TMA identifiers
@@ -102,8 +100,7 @@ Expected input is AnnData (.h5ad) format with:
 
 - **Patch size**: 50μm × 50μm (adjustable)
 - **LRI database**: CellChatDB (via liana)
-- **BPTF components**: 15 (optimizable via elbow method)
-- **Permutation tests**: 10+ for robust statistics
+- **BPTF components**: 15 (adjust iteratively based on results)
 
 ## Output Structure
 
@@ -111,12 +108,8 @@ Expected input is AnnData (.h5ad) format with:
 results/
 ├── patch_lri/          # Sparse patch-LRI matrices
 ├── bptf/              # BPTF factorization results
-├── glm/               # GLM differential expression results
+├── glm_results/               # GLM differential expression results
 └── plots/             # All visualization outputs
     ├── bptf_plots/    # BPTF analysis plots
     └── glm_plots/     # GLM results plots
 ```
-
-## Citation
-
-If you use this pipeline, please cite the BPTF method and relevant spatial transcriptomics publications.
