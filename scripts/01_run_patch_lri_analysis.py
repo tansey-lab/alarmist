@@ -34,11 +34,11 @@ def main():
     parser = argparse.ArgumentParser(description='Patch-based ligand-receptor interaction analysis')
     parser.add_argument('--data-file', default='data/processed/preprocessed_xenium_data_subset.h5ad',
                        help='Processed data file')
-    parser.add_argument('--output-dir', default='results/bptf_patch_lri_subset',
+    parser.add_argument('--output-dir', default='results/GBM_cellphone',
                        help='Output directory for results')
     parser.add_argument('--patch-size', type=float, default=50.0,
                        help='Size of spatial patches in micrometers')
-    parser.add_argument('--resource', default='cellchatdb',
+    parser.add_argument('--resource', default='cellphonedb',
                        help='LRI database resource name')
     parser.add_argument('--use-batch-processing', action='store_true',
                        help='Use batch processing for large datasets')

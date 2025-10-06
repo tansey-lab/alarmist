@@ -172,13 +172,13 @@ def filter_same_celltype_by_lri_name(df, lri_col="lri_name"):
 def main():
     """Main visualization function"""
     parser = argparse.ArgumentParser(description='BPTF Visualization Analysis')
-    parser.add_argument('--bptf-dir', required=True,
+    parser.add_argument('--bptf-dir', default='results/GBM_cellphone/bptf',
                        help='Directory containing BPTF results')
-    parser.add_argument('--patch-dir', required=True,
+    parser.add_argument('--patch-dir', default='results/GBM_cellphone',
                        help='Directory containing patch-LRI results')
-    parser.add_argument('--data-file', required=True,
+    parser.add_argument('--data-file', default='/Users/jiayifan/Desktop/Lab/TMA_punch_subfiles/xenium_mm_final_cell_id.h5ad',
                        help='Path to AnnData file')
-    parser.add_argument('--output-dir', default='results/bptf_plots',
+    parser.add_argument('--output-dir', default='results/GBM_cellphone/bptf_plots',
                        help='Output directory for plots')
     parser.add_argument('--suffix', default='',
                        help='Suffix for output filenames')

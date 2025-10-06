@@ -48,6 +48,7 @@ class NeighborhoodLRIAnalyzer:
         self.neighborhoods = None
         self.cell_lri_matrix = None
         self.spliter = spliter
+        self.receptor_genes_list = None
         
     def build_neighborhoods(self, adata: anndata.AnnData) -> Dict[int, np.ndarray]:
         """
@@ -104,7 +105,7 @@ class NeighborhoodLRIAnalyzer:
         print(f"Average neighborhood size: {np.mean([len(n) for n in neighborhoods.values()]):.1f} cells")
         return neighborhoods
     
-    def prepare_lri_database(self, adata: anndata.AnnData) -> List[Tuple]:
+    def prepare_lri_database(self, adata: anndata.AnnData) -> Tuple[List[Tuple], List[List[str]], List[str]]:
         """
         Prepare ligand-receptor pairs from database.
         
@@ -116,22 +117,85 @@ class NeighborhoodLRIAnalyzer:
         Returns
         -------
         lr_pairs : List[Tuple]
-            List of (ligand, receptor) tuples present in the data
+            List of (ligand, receptor_str) tuples
+        receptor_genes_list : List[List[str]]
+            List of receptor gene lists for each LR pair
+        signaling_types : List[str]
+            List of signaling types for each LR pair
         """
         print(f"Loading {self.resource_name} database...")
-        resource = select_resource(self.resource_name)
         
-        # Filter L-R pairs present in the data
-        lr_df = resource[
-            (np.isin(resource.ligand, adata.var_names)) &
-            (np.isin(resource.receptor, adata.var_names))
-        ]
+        # Load from local CSV if cellchatdb or cellphonedb
+        if self.resource_name.lower() == 'cellchatdb':
+            resource = pd.read_csv(self.cellchatdb_path)
+            # Check required columns
+            required_cols = ['ligand', 'receptor', 'signaling_type']
+            if not all(col in resource.columns for col in required_cols):
+                raise ValueError(
+                    f"CellChatDB CSV must contain {required_cols}. "
+                    f"Found columns: {resource.columns.tolist()}"
+                )
+        elif self.resource_name.lower() == 'cellphonedb':
+            resource = pd.read_csv(self.cellphonedb_path)
+            # Check required columns
+            required_cols = ['ligand', 'receptor', 'signaling_type']
+            if not all(col in resource.columns for col in required_cols):
+                raise ValueError(
+                    f"CellPhoneDB CSV must contain {required_cols}. "
+                    f"Found columns: {resource.columns.tolist()}"
+                )
+        else:
+            # Use liana's select_resource for other databases
+            resource = select_resource(self.resource_name)
+            # LIANA doesn't have signaling_type, add it as 'Unknown'
+            if 'signaling_type' not in resource.columns:
+                resource['signaling_type'] = 'Unknown'
         
-        print(f"Initial L-R pairs in data: {len(lr_df)}")
+        # Filter pairs where ligand exists and ALL receptor genes exist
+        lr_pairs = []
+        receptor_genes_list = []
+        signaling_types = []
         
-        lr_pairs = [(row.ligand, row.receptor) for _, row in lr_df.iterrows()]
+        for idx in range(len(resource)):
+            ligand = resource.iloc[idx]['ligand']
+            receptor_str = resource.iloc[idx]['receptor']
+            signaling_type = resource.iloc[idx]['signaling_type']
+            
+            # Skip if ligand or receptor is NaN
+            if pd.isna(ligand) or pd.isna(receptor_str):
+                continue
+            
+            # Convert to string
+            ligand = str(ligand)
+            receptor_str = str(receptor_str)
+            signaling_type = str(signaling_type) if not pd.isna(signaling_type) else 'Unknown'
+            
+            # Parse receptor genes (split by '_')
+            receptor_genes = receptor_str.split('_')
+            
+            # Check if ligand and ALL receptor genes exist in data
+            if (ligand in adata.var_names and 
+                all(rec_gene in adata.var_names for rec_gene in receptor_genes)):
+                lr_pairs.append((ligand, receptor_str))
+                receptor_genes_list.append(receptor_genes)
+                signaling_types.append(signaling_type)
+        
+        print(f"Initial L-R pairs in data: {len(lr_pairs)}")
+        print(f"  Single receptor: {sum(1 for rg in receptor_genes_list if len(rg) == 1)}")
+        print(f"  Multi receptor: {sum(1 for rg in receptor_genes_list if len(rg) > 1)}")
+        
+        # Print signaling type distribution
+        from collections import Counter
+        sig_type_counts = Counter(signaling_types)
+        print(f"\nSignaling type distribution:")
+        for sig_type, count in sig_type_counts.items():
+            print(f"  {sig_type}: {count}")
+        
         self.lr_pairs = lr_pairs
-        return lr_pairs
+        self.receptor_genes_list = receptor_genes_list
+        self.signaling_types = signaling_types  # Store as instance variable
+        
+        return lr_pairs, receptor_genes_list, signaling_types
     
     def create_column_structure(self, adata: anndata.AnnData) -> List[str]:
         """
@@ -162,21 +226,22 @@ class NeighborhoodLRIAnalyzer:
         self.column_names = column_names
         return column_names
     
-    def build_cell_lri_matrix(self, adata: anndata.AnnData) -> csr_matrix:
+    def build_cell_lri_matrix(self, adata: anndata.AnnData, signaling_types: List[str]) -> csr_matrix:
         """
         Build the cell-LRI interaction matrix with full vectorization.
-        Uses the same strategy as build_patch_lri_matrix_with_mode but for neighborhoods.
+        Supports multi-receptor LR pairs (all receptors must be co-expressed).
         
         Parameters
         ----------
         adata : anndata.AnnData
             Spatial transcriptomics data
+        signaling_types : List[str]
+            Signaling type for each LR pair (same order as lr_pairs)
             
         Returns
         -------
         cell_lri_matrix : csr_matrix
             Sparse matrix of shape (n_cells, n_lri_combinations)
-            Rows are in the same order as adata.obs
         """
         print("Building cell-LRI matrix with vectorized neighborhood interactions...")
         
@@ -195,14 +260,15 @@ class NeighborhoodLRIAnalyzer:
         # Parse column metadata
         col_meta = []
         for j, col in enumerate(self.column_names):
-            lig_ct, rec_ct, lig, rec, mode = col.split(self.spliter)
+            lig_ct, rec_ct, lig, rec_str, mode = col.split(self.spliter)
             col_meta.append((
                 j,
                 ct_to_idx[lig_ct],
                 ct_to_idx[rec_ct],
                 gene_to_idx[lig],
-                gene_to_idx[rec],
-                mode
+                rec_str,  # Keep as string
+                mode,
+                signaling_types[j // 2] if lig_ct == rec_ct else signaling_types[j]  # Map to original LR pair
             ))
         
         # ─── 2) Binarize expression ───────────────────────────────────────────────
@@ -214,8 +280,7 @@ class NeighborhoodLRIAnalyzer:
         
         expr_coo = expr_bool.tocoo()
         
-        # ─── 3) Build neighborhood_by_lig and neighborhood_by_rec (vectorized) ────
-        # Build a sparse matrix: (n_cells, n_cells) where entry (i,j)=1 if j is in i's neighborhood
+        # ─── 3) Build cell-neighborhood adjacency matrix ──────────────────────────
         print("Building cell-neighborhood adjacency matrix...")
         rows, cols = [], []
         for cell_idx, neighbors in self.neighborhoods.items():
@@ -227,24 +292,22 @@ class NeighborhoodLRIAnalyzer:
             shape=(n_cells, n_cells)
         ).tocsr()
         
-        # Build neighborhood_by_lig and neighborhood_by_rec per cell type
+        # ─── 4) Build neighborhood_by_lig (vectorized) ────────────────────────────
         neighborhood_by_lig = {}
-        neighborhood_by_rec = {}
-        print("Building neighborhood-by-ligand and neighborhood-by-receptor matrices...")
+        print("Building neighborhood-by-ligand matrices...")
         
         for ct_idx in range(len(self.cell_types)):
-            # Filter by cell type
             mask_cells = (cell_types_idx == ct_idx)
             entry_mask = mask_cells[expr_coo.row]
             sub = coo_matrix(
                 (expr_coo.data[entry_mask],
-                 (expr_coo.row[entry_mask], expr_coo.col[entry_mask])),
+                (expr_coo.row[entry_mask], expr_coo.col[entry_mask])),
                 shape=expr_bool.shape
             )
             
             # Ligands for this cell type
             lig_genes_ct = sorted({
-                lig for (_, lct, _, lig, _, _) in col_meta if lct == ct_idx
+                lig for (_, lct, _, lig, _, _, _) in col_meta if lct == ct_idx
             })
             lig_to_local = {g: i for i, g in enumerate(lig_genes_ct)}
             lig_mask = np.isin(sub.col, lig_genes_ct)
@@ -253,102 +316,160 @@ class NeighborhoodLRIAnalyzer:
             data_vals_ct = sub.data[lig_mask]
             local_cols = np.array([lig_to_local[g] for g in cols_genes], dtype=int)
             
-            # cell × lig_genes_ct
             cell_lig = coo_matrix(
                 (data_vals_ct, (rows_cells, local_cols)),
                 shape=(n_cells, len(lig_genes_ct))
             )
             cell_lig.sum_duplicates()
             
-            # Multiply: (n_cells × n_cells) @ (n_cells × n_lig) = (n_cells × n_lig)
-            # This gives for each cell, the count of ligand-expressing neighbors
+            # (n_cells × n_cells) @ (n_cells × n_lig) = (n_cells × n_lig)
             neighborhood_by_lig[ct_idx] = cell_nbr_matrix.dot(cell_lig.tocsr())
-            
-            # Receptors for this cell type
-            rec_genes_ct = sorted({
-                rec for (_, _, rct, _, rec, _) in col_meta if rct == ct_idx
-            })
-            rec_to_local = {g: i for i, g in enumerate(rec_genes_ct)}
-            rec_mask = np.isin(sub.col, rec_genes_ct)
-            rows_cells = sub.row[rec_mask]
-            cols_genes = sub.col[rec_mask]
-            data_vals_ct = sub.data[rec_mask]
-            local_cols = np.array([rec_to_local[g] for g in cols_genes], dtype=int)
-            
-            # cell × rec_genes_ct
-            cell_rec = coo_matrix(
-                (data_vals_ct, (rows_cells, local_cols)),
-                shape=(n_cells, len(rec_genes_ct))
-            )
-            cell_rec.sum_duplicates()
-            
-            neighborhood_by_rec[ct_idx] = cell_nbr_matrix.dot(cell_rec.tocsr())
         
-        # ─── 4) Local-index caches ────────────────────────────────────────────────
+        # ─── 5) Build neighborhood_by_rec for INDIVIDUAL receptor genes ───────────
+        neighborhood_by_rec = {}
+        print("Building neighborhood-by-receptor matrices (individual genes)...")
+        
+        for ct_idx in range(len(self.cell_types)):
+            mask_cells = (cell_types_idx == ct_idx)
+            entry_mask = mask_cells[expr_coo.row]
+            sub = coo_matrix(
+                (expr_coo.data[entry_mask],
+                (expr_coo.row[entry_mask], expr_coo.col[entry_mask])),
+                shape=expr_bool.shape
+            )
+            
+            # Collect all individual receptor genes for this cell type
+            all_rec_genes_ct = set()
+            for (_, _, rct, _, rec_str, _, _) in col_meta:
+                if rct == ct_idx:
+                    all_rec_genes_ct.update(rec_str.split('_'))
+            
+            all_rec_genes_ct = sorted(all_rec_genes_ct)
+            
+            # Build matrix for each individual receptor gene
+            rec_gene_matrices = {}
+            for rec_gene in all_rec_genes_ct:
+                rec_gene_idx = gene_to_idx[rec_gene]
+                rec_mask = (sub.col == rec_gene_idx)
+                rows_cells = sub.row[rec_mask]
+                data_vals_ct = sub.data[rec_mask]
+                
+                cell_rec = coo_matrix(
+                    (data_vals_ct, (rows_cells, np.zeros(len(rows_cells), dtype=int))),
+                    shape=(n_cells, 1)
+                )
+                cell_rec.sum_duplicates()
+                
+                rec_gene_matrices[rec_gene] = cell_nbr_matrix.dot(cell_rec.tocsr())
+            
+            neighborhood_by_rec[ct_idx] = rec_gene_matrices
+        
+        # ─── 6) Local-index caches ────────────────────────────────────────────────
         lig_ct2local = {
             ct: {g: i for i, g in enumerate(sorted({
-                lig for (_, lct, _, lig, _, _) in col_meta if lct == ct
-            }))}
-            for ct in range(len(self.cell_types))
-        }
-        rec_ct2local = {
-            ct: {g: i for i, g in enumerate(sorted({
-                rec for (_, _, rct, _, rec, _) in col_meta if rct == ct
+                lig for (_, lct, _, lig, _, _, _) in col_meta if lct == ct
             }))}
             for ct in range(len(self.cell_types))
         }
         
-        # ─── 5) Compute autocrine/paracrine ───────────────────────────────────────
+        # ─── 7) Compute autocrine/paracrine ───────────────────────────────────────
         print("Computing LRI interactions...")
         row_inds, col_inds, data_vals = [], [], []
         
-        for j, lig_ct_idx, rec_ct_idx, lig_gene_idx, rec_gene_idx, mode in col_meta:
+        for j, lig_ct_idx, rec_ct_idx, lig_gene_idx, rec_str, mode, sig_type in col_meta:
             if j % 500 == 0:
                 print(f"  Progress: {j}/{n_columns}")
             
-            # Get counts from pre-computed matrices
+            # Get ligand counts (vectorized)
             lig_local = lig_ct2local[lig_ct_idx][lig_gene_idx]
-            rec_local = rec_ct2local[rec_ct_idx][rec_gene_idx]
             count_lig = np.array(
                 neighborhood_by_lig[lig_ct_idx][:, lig_local].toarray()
             ).ravel()
-            count_rec = np.array(
-                neighborhood_by_rec[rec_ct_idx][:, rec_local].toarray()
-            ).ravel()
+            
+            # Get receptor counts (handle multi-receptor with AND logic)
+            rec_genes = rec_str.split('_')
+            if len(rec_genes) == 1:
+                # Single receptor
+                count_rec = np.array(
+                    neighborhood_by_rec[rec_ct_idx][rec_genes[0]].toarray()
+                ).ravel()
+            else:
+                # Multi-receptor: take minimum (AND logic)
+                count_rec = np.array(
+                    neighborhood_by_rec[rec_ct_idx][rec_genes[0]].toarray()
+                ).ravel()
+                for rec_gene in rec_genes[1:]:
+                    count_rec = np.minimum(
+                        count_rec,
+                        np.array(neighborhood_by_rec[rec_ct_idx][rec_gene].toarray()).ravel()
+                    )
             
             # Compute autocrine if same cell type
             if lig_ct_idx == rec_ct_idx:
-                # Co-expression in same cell
-                coexpr = (
-                    expr_bool[:, lig_gene_idx].multiply(expr_bool[:, rec_gene_idx])
-                    .toarray().ravel().astype(int)
-                    *
-                    (cell_types_idx == lig_ct_idx).astype(int)
-                )
+                # Co-expression: ligand AND all receptors in same cell
+                coexpr = expr_bool[:, lig_gene_idx].toarray().ravel().astype(int)
+                for rec_gene in rec_genes:
+                    rec_gene_idx = gene_to_idx[rec_gene]
+                    coexpr = coexpr * expr_bool[:, rec_gene_idx].toarray().ravel().astype(int)
+                
+                # Filter by cell type
+                coexpr = coexpr * (cell_types_idx == lig_ct_idx).astype(int)
+                
                 # Count co-expressing cells in each neighborhood
                 auto = np.array(cell_nbr_matrix.dot(coexpr)).ravel()
             else:
                 auto = np.zeros(n_cells, int)
             
-            # Fill values based on mode
-            if mode == "autocrine":
-                rows = np.nonzero(auto)[0]
-                row_inds.extend(rows.tolist())
-                col_inds.extend([j] * len(rows))
-                data_vals.extend(auto[rows].tolist())
-            else:  # paracrine
-                if lig_ct_idx == rec_ct_idx:
-                    total = count_lig * count_rec
-                    para = total - auto
-                else:
-                    para = count_lig * count_rec
-                
-                rows = np.nonzero(para)[0]
-                row_inds.extend(rows.tolist())
-                col_inds.extend([j] * len(rows))
-                data_vals.extend(para[rows].tolist())
+            # Compute autocrine if same cell type
+        if lig_ct_idx == rec_ct_idx:
+            # Co-expression: ligand AND all receptors in same cell
+            coexpr = expr_bool[:, lig_gene_idx].toarray().ravel().astype(int)
+            for rec_gene in rec_genes:
+                rec_gene_idx = gene_to_idx[rec_gene]
+                coexpr = coexpr * expr_bool[:, rec_gene_idx].toarray().ravel().astype(int)
+            
+            # Filter by cell type
+            coexpr = coexpr * (cell_types_idx == lig_ct_idx).astype(int)
+            
+            # Count co-expressing cells in each neighborhood
+            auto = np.array(cell_nbr_matrix.dot(coexpr)).ravel()
+        else:
+            auto = np.zeros(n_cells, int)
         
-        # ─── 6) Assemble final sparse matrix ──────────────────────────────────────
+        # Fill values based on mode
+        if mode == "juxtacrine":
+            # Cell-Cell Contact: count all interactions (auto + para)
+            if lig_ct_idx == rec_ct_idx:
+                total = count_lig * count_rec
+            else:
+                total = count_lig * count_rec
+            
+            rows = np.nonzero(total)[0]
+            row_inds.extend(rows.tolist())
+            col_inds.extend([j] * len(rows))
+            data_vals.extend(total[rows].tolist())
+            
+        elif mode == "autocrine":
+            # Non-contact autocrine: same-cell co-expression only
+            rows = np.nonzero(auto)[0]
+            row_inds.extend(rows.tolist())
+            col_inds.extend([j] * len(rows))
+            data_vals.extend(auto[rows].tolist())
+            
+        else:  # paracrine
+            # Non-contact paracrine: different-cell interactions
+            if lig_ct_idx == rec_ct_idx:
+                total = count_lig * count_rec
+                para = total - auto
+            else:
+                para = count_lig * count_rec
+            
+            rows = np.nonzero(para)[0]
+            row_inds.extend(rows.tolist())
+            col_inds.extend([j] * len(rows))
+            data_vals.extend(para[rows].tolist())
+        
+        # ─── 8) Assemble final sparse matrix ──────────────────────────────────────
         cell_lri_matrix = csr_matrix(
             (data_vals, (row_inds, col_inds)),
             shape=(n_cells, n_columns),

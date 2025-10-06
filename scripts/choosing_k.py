@@ -300,8 +300,10 @@ def build_connectivity(coords: np.ndarray,
     graph: "knn" or "radius"
     """
     if graph == "knn":
+        print("[Graph] using kNN graph with k =", n_neighbors)
         G = kneighbors_graph(coords, n_neighbors=n_neighbors, mode="connectivity", include_self=include_self)
     elif graph == "radius":
+        print("[Graph] using radius graph with radius =", radius)
         G = radius_neighbors_graph(coords, radius=radius, mode="connectivity", include_self=include_self)
     else:
         raise ValueError("--graph must be 'knn' or 'radius'")
@@ -322,7 +324,7 @@ def parse_args():
                    help="Alternative to --cell-lri-dir: CSV with at least ['x_coord','y_coord'] and optionally 'cell_id'.")
     p.add_argument("--graph", choices=["knn", "radius"], default="radius", help="Graph type for spatial connectivity.")
     p.add_argument("--n-neighbors", type=int, default=15, help="k for kNN graph (if --graph knn).")
-    p.add_argument("--radius", type=float, default=30.0, help="Radius for radius graph (if --graph radius).")
+    p.add_argument("--radius", type=float, default=50.0, help="Radius for radius graph (if --graph radius).")
     p.add_argument("--k-min", type=int, default=2, help="Minimum number of clusters.")
     p.add_argument("--k-max", type=int, default=20, help="Maximum number of clusters.")
     p.add_argument("--bic-proportion", type=float, default=0.5,

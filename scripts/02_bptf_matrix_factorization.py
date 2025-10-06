@@ -323,11 +323,11 @@ def plot_bptf_diagnostics(patch_loadings, lri_factors, output_dir):
 def main():
     """Main BPTF matrix factorization pipeline."""
     parser = argparse.ArgumentParser(description='BPTF matrix factorization for spatial LRI analysis')
-    parser.add_argument('--input-dir', default='results/bptf_patch_lri_subset',
+    parser.add_argument('--input-dir', default='results/GBM_cellphone',
                        help='Input directory with patch LRI results')
     parser.add_argument('--sparse_matrix_name', default='patch_lri_matrix.npz',
                        help='Name of the sparse matrix file in input directory')
-    parser.add_argument('--output-dir', default='results/bptf_patch_lri',
+    parser.add_argument('--output-dir', default='results/GBM_cellphone/bptf',
                        help='Output directory for BPTF results')
     parser.add_argument('--n-components', type=int, default=15,
                        help='Number of latent factors/motifs')
