@@ -405,7 +405,11 @@ def plot_celltype_communication_by_motif(lri_factors, column_names, suffix="", s
 
 
 def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
-    """Plot top LRI interactions per motif with autocrine striping"""
+    """Plot top LRI interactions per motif with three signaling types:
+    - Autocrine: diagonal stripes (///)
+    - Paracrine: no pattern (solid)
+    - Juxtacrine: opposite diagonal stripes (\\\\)
+    """
     # Setup colors
     ct_color_map = get_cell_type_colors(unique_ct)
     
@@ -445,11 +449,22 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
         top_df = dfp_filtered.nlargest(top_n, 'factor').reset_index(drop=True)
         y = np.arange(len(top_df))
 
-        # Draw dual-segment bars
+        # Draw dual-segment bars with patterns for each signaling type
         for yi, row in top_df.iterrows():
             total = row['factor']
             half = total / 2.0
-            is_autocrine = row['signaling_type'] == 'autocrine'
+            
+            # Get signaling type (normalize names)
+            sig_type = row['signaling_type'].lower()
+            if sig_type in ['auto', 'autocrine']:
+                sig_type = 'autocrine'
+                hatch_pattern = '///'
+            elif sig_type in ['juxta', 'juxtacrine']:
+                sig_type = 'juxtacrine'
+                hatch_pattern = '\\\\\\\\'
+            else:  # paracrine or default
+                sig_type = 'paracrine'
+                hatch_pattern = None
 
             # Colors for sender and receiver
             c1 = row['celltype1']
@@ -461,12 +476,12 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
             ax.barh(yi, half, color=col1, height=0.8, edgecolor='none')
             ax.barh(yi, half, left=half, color=col2, height=0.8, edgecolor='none')
             
-            # Add stripes for autocrine
-            if is_autocrine:
+            # Add patterns based on signaling type
+            if hatch_pattern:
                 ax.barh(yi, half, color='none', height=0.8, 
-                       edgecolor='black', linewidth=1, hatch='///')
+                       edgecolor='black', linewidth=1, hatch=hatch_pattern)
                 ax.barh(yi, half, left=half, color='none', height=0.8,
-                       edgecolor='black', linewidth=1, hatch='///')
+                       edgecolor='black', linewidth=1, hatch=hatch_pattern)
 
         # Create labels
         labels = []
@@ -481,11 +496,6 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
         ax.set_yticks(y)
         ax.set_yticklabels(labels, fontsize=9, fontfamily='monospace')
         
-        # # Bold autocrine interactions
-        # for tick, sig in zip(ax.get_yticklabels(), top_df['signaling_type']):
-        #     if sig == 'autocrine':
-        #         tick.set_fontweight('bold')
-
         ax.invert_yaxis()
         ax.set_xlabel('Factor', fontsize=10)
         ax.set_title(f'Motif {prog}', fontsize=12, fontweight='bold')
@@ -494,18 +504,25 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
     for ax in axes[n_prog:]:
         ax.set_visible(False)
 
-    # Create legend
+    # Create legend with all three signaling types
     legend_handles = []
     for ct, col in ct_color_map.items():
         legend_handles.append(Patch(facecolor=col, label=ct, edgecolor='black', linewidth=1))
 
     legend_handles.append(Patch(facecolor='none', edgecolor='none', label=''))
+    
+    # Add pattern legends for all three signaling types
     autocrine_patch = Patch(facecolor='lightgray', edgecolor='black', 
-                           linewidth=1, hatch='///', label='Autocrine (striped)')
-    legend_handles.append(autocrine_patch)
+                           linewidth=1, hatch='///', label='Autocrine')
+    paracrine_patch = Patch(facecolor='lightgray', edgecolor='black', 
+                           linewidth=1, hatch='', label='Paracrine')
+    juxtacrine_patch = Patch(facecolor='lightgray', edgecolor='black', 
+                            linewidth=1, hatch='\\\\\\\\', label='Juxtacrine')
+    
+    legend_handles.extend([autocrine_patch, paracrine_patch, juxtacrine_patch])
 
     fig.legend(handles=legend_handles,
-               title='Cell Types & Patterns',
+               title='Cell Types & Signaling',
                loc='center right',
                bbox_to_anchor=(0.92, 0.5),
                fontsize=8,
@@ -517,7 +534,7 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
     fig.suptitle(
         'Top LR Interactions per Motif\n' + 
         'Format: Sender → Receiver | Ligand → Receptor\n' +
-        '(Striped bars = autocrine)',
+        '(Patterns indicate signaling type)',
         fontsize=14, y=1, fontweight='bold'
     )
 
@@ -527,17 +544,20 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
     
     return fig
 
-
 def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200, 
                      annotate_edges=False, save_path=None):
-    """Plot LRI networks for motifs using Graphviz"""
+    """Plot LRI networks for motifs using Graphviz with three signaling types:
+    - Autocrine: red edges
+    - Paracrine: black edges
+    - Juxtacrine: blue edges
+    """
     # Setup colors
     ct_color_map = {ct: mcolors.to_hex(plt.get_cmap('tab20', len(unique_ct))(i)) 
                    for i, ct in enumerate(unique_ct)}
     
-    motifs = sorted(lri_motifs['motif_idx'].unique())  # Use all motifs
-    n_cols = 5  # Fixed number of columns
-    n_rows = (len(motifs) + n_cols - 1) // n_cols  # Calculate rows needed (ceiling division)
+    motifs = sorted(lri_motifs['motif_idx'].unique())
+    n_cols = 5
+    n_rows = (len(motifs) + n_cols - 1) // n_cols
 
     fig, axes = plt.subplots(n_rows, n_cols,
                              figsize=(n_cols*3, n_rows*3),
@@ -556,6 +576,19 @@ def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200
         # Parse and aggregate
         parsed = df['lri_name'].apply(parse_lri_full).tolist()
         df[['cell1','cell2','ligand','receptor','mode']] = pd.DataFrame(parsed, index=df.index)
+        
+        # Normalize signaling type names
+        def normalize_signaling(mode):
+            mode_lower = str(mode).lower()
+            if mode_lower in ['auto', 'autocrine']:
+                return 'autocrine'
+            elif mode_lower in ['juxta', 'juxtacrine']:
+                return 'juxtacrine'
+            else:
+                return 'paracrine'
+        
+        df['mode'] = df['mode'].apply(normalize_signaling)
+        
         df2 = df.nlargest(top_n, 'factor')
         
         if annotate_edges:
@@ -619,11 +652,18 @@ def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200
             fill = ct_color_map.get(c, '#CCCCCC')
             dot.node(c, fillcolor=fill)
 
-        # Add edges
+        # Add edges with colors based on signaling type
         max_w = agg['weight'].max()
         for _, row in agg.iterrows():
             pen = str(max(0.4, (2.5 * row['weight'] / max_w)))
-            ec = 'red' if row['mode']=='autocrine' else 'black'
+            
+            # Set edge color based on signaling type
+            if row['mode'] == 'autocrine':
+                ec = 'red'
+            elif row['mode'] == 'juxtacrine':
+                ec = 'blue'
+            else:  # paracrine
+                ec = 'black'
             
             if annotate_edges:
                 key = (row['cell1'], row['cell2'], row['mode'])
@@ -652,10 +692,7 @@ def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200
 
     # Legends
     node_handles = [Patch(facecolor=col, label=ct) for ct, col in ct_color_map.items()]
-    # Turn off any remaining empty axes
-    for j in range(len(motifs), len(axes)):
-        axes[j].axis('off')
-
+    
     fig.legend(handles=node_handles,
                title='Cell Types',
                loc='center right',
@@ -664,11 +701,14 @@ def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200
                title_fontsize=8,
                ncol=1)
 
-    par_line = mlines.Line2D([], [], color='black', linewidth=2, label='paracrine')
-    auto_line = mlines.Line2D([], [], color='red', linewidth=2, label='autocrine')
-    fig.legend(handles=[par_line, auto_line],
+    # Add signaling type legend with all three types
+    par_line = mlines.Line2D([], [], color='black', linewidth=2, label='Paracrine')
+    auto_line = mlines.Line2D([], [], color='red', linewidth=2, label='Autocrine')
+    juxta_line = mlines.Line2D([], [], color='blue', linewidth=2, label='Juxtacrine')
+    
+    fig.legend(handles=[auto_line, par_line, juxta_line],
                loc='lower center',
-               ncol=2, frameon=False,
+               ncol=3, frameon=False,
                fontsize=6)
 
     edge_label = " (with LR annotations)" if annotate_edges else ""
@@ -681,11 +721,11 @@ def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200
     
     return fig
 
-
 def plot_all_punches_by_cell_type(adata, cell_type_column='cell_type', 
                                   cell_types_to_show=None, n_cols=8,
                                   spot_size=1, figsize_per_subplot=(6, 6),
                                   title='Cell Type Distribution Across TMAs',
+                                  color_palette=None,
                                   save_path=None):
     """Plot spatial distribution across all TMA punches"""
     print("🎨 PLOTTING ALL TMA PUNCHES BY CELL TYPE")
@@ -715,14 +755,19 @@ def plot_all_punches_by_cell_type(adata, cell_type_column='cell_type',
     print(f"   Figure size: {fig_width:.1f} × {fig_height:.1f} inches")
     
     # Create colors
-    if len(cell_types_to_show) <= 10:
-        colors = sns.color_palette("tab10", len(cell_types_to_show))
-    elif len(cell_types_to_show) <= 20:
-        colors = sns.color_palette("tab20", len(cell_types_to_show))
+    if not color_palette:
+        if len(cell_types_to_show) <= 10:
+            colors = sns.color_palette("tab10", len(cell_types_to_show))
+        elif len(cell_types_to_show) <= 20:
+            colors = sns.color_palette("tab20", len(cell_types_to_show))
+        else:
+            colors1 = sns.color_palette("tab20", 20)
+            colors2 = sns.color_palette("husl", len(cell_types_to_show) - 20)
+            colors = list(colors1) + list(colors2)
     else:
-        colors1 = sns.color_palette("tab20", 20)
-        colors2 = sns.color_palette("husl", len(cell_types_to_show) - 20)
-        colors = list(colors1) + list(colors2)
+        colors = color_palette
+        if len(colors) < len(cell_types_to_show):
+            raise ValueError("Provided color_palette has fewer colors than cell_types_to_show")
     
     color_dict = {ct: colors[i] for i, ct in enumerate(sorted(cell_types_to_show))}
     

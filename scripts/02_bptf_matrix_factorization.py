@@ -333,7 +333,7 @@ def main():
                        help='Number of latent factors/motifs')
     parser.add_argument('--max-iter', type=int, default=200,
                        help='Maximum number of iterations')
-    parser.add_argument('--random-state', type=int, default=0,
+    parser.add_argument('--random-state', type=int, default=1,
                        help='Random seed for reproducibility')
     parser.add_argument('--spliter', type=str,
                        default='|', help='cell-gene or cell|gene ...')

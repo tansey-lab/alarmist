@@ -32,7 +32,8 @@ class PatchLRIAnalyzer:
                 resource_name: str = 'cellchatdb', 
                 spliter: str = '|',
                 cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv',
-                cellphonedb_path: str = 'data/LRdatabase/CellPhoneDBv4.0.human.csv'):
+                cellphonedb_path: str = 'data/LRdatabase/CellPhoneDBv5.0.human.csv',
+                cell_type_column: str = 'cell_type'):
         """
         Initialize the patch-based LRI analyzer.
         
@@ -61,6 +62,7 @@ class PatchLRIAnalyzer:
         self.patch_lri_matrix = None
         self.spliter = spliter
         self.receptor_genes_list = None
+        self.cell_type_column = cell_type_column
         
     def create_spatial_patches(self, adata: anndata.AnnData) -> Tuple[np.ndarray, Dict]:
         """
@@ -211,7 +213,7 @@ class PatchLRIAnalyzer:
         
         return lr_pairs, receptor_genes_list, signaling_types
    
-    def create_column_structure(self, adata: anndata.AnnData, signaling_types: List[str]) -> List[str]:
+    def create_column_structure(self, adata: anndata.AnnData, signaling_types: List[str], cell_type_column:str) -> List[str]:
         """
         Create column names for the patch-LRI matrix.
         
@@ -230,7 +232,7 @@ class PatchLRIAnalyzer:
         column_names : List[str]
             List of column names in format: ligand_ct|receptor_ct|ligand|receptor|mode
         """
-        self.cell_types = adata.obs['cell_type'].cat.categories.tolist()
+        self.cell_types = adata.obs[cell_type_column].cat.categories.tolist()
         column_names = []
         
         for idx, (lig, rec_str) in enumerate(self.lr_pairs):
@@ -284,7 +286,7 @@ class PatchLRIAnalyzer:
         # ─── 2) Index mappings ───────────────────────────────────────────────────────
         ct_to_idx = {ct: i for i, ct in enumerate(self.cell_types)}
         cell_types_idx = np.array(
-            [ct_to_idx[ct] for ct in adata.obs['cell_type']],
+            [ct_to_idx[ct] for ct in adata.obs[self.cell_type_column]],
             dtype=int
         )
         gene_to_idx = {g: i for i, g in enumerate(adata.var_names)}
@@ -538,12 +540,19 @@ class PatchLRIAnalyzer:
         print("Creating metadata dataframes...")
         
         # Create cell-patch correspondence
-        cell_patch_df = pd.DataFrame({
-            'cell_id': adata.obs['cell_id'],
-            'patch_id': self.patch_assignments,
-            'tma_id': adata.obs['tma_id'],
-            'cell_type': adata.obs['cell_type']
-        })
+        if 'tma_id' not in adata.obs.columns:
+            cell_patch_df = pd.DataFrame({
+                'cell_id': adata.obs['cell_id'],
+                'patch_id': self.patch_assignments,
+                'cell_type': adata.obs[self.cell_type_column]
+            })
+        else:
+            cell_patch_df = pd.DataFrame({
+                'cell_id': adata.obs['cell_id'],
+                'patch_id': self.patch_assignments,
+                'tma_id': adata.obs['tma_id'],
+                'cell_type': adata.obs[self.cell_type_column]
+            })
         
         # Create patch-tma correspondence
         # For each patch, find the most common tma_id
@@ -551,25 +560,37 @@ class PatchLRIAnalyzer:
         unique_patches = np.unique(self.patch_assignments)
         unique_patches = [p for p in unique_patches if p in self.patch_coords]
         
+            
         for patch_id in unique_patches:
             patch_cells = cell_patch_df[cell_patch_df['patch_id'] == patch_id]
-            
-            if len(patch_cells) > 0:
-                # Get most common tma_id in this patch
-                tma_counts = patch_cells['tma_id'].value_counts()
-                most_common_tma = tma_counts.index[0]
-                
-                # Get patch center coordinates
+
+            if 'tma_id' not in adata.obs.columns:
                 center_x, center_y = self.patch_coords[patch_id]
                 
                 patch_tma_data.append({
                     'patch_id': patch_id,
-                    'tma_id': most_common_tma,
                     'center_x': center_x,
                     'center_y': center_y,
                     'n_cells': len(patch_cells),
-                    'n_cell_types': patch_cells['cell_type'].nunique()
+                    'n_cell_types': patch_cells[self.cell_type_column].nunique()
                 })
+            else:
+                if len(patch_cells) > 0:
+                    # Get most common tma_id in this patch
+                    tma_counts = patch_cells['tma_id'].value_counts()
+                    most_common_tma = tma_counts.index[0]
+                    
+                    # Get patch center coordinates
+                    center_x, center_y = self.patch_coords[patch_id]
+                    
+                    patch_tma_data.append({
+                        'patch_id': patch_id,
+                        'tma_id': most_common_tma,
+                        'center_x': center_x,
+                        'center_y': center_y,
+                        'n_cells': len(patch_cells),
+                        'n_cell_types': patch_cells[self.cell_type_column].nunique()
+                    })
         
         patch_tma_df = pd.DataFrame(patch_tma_data)
         
@@ -606,7 +627,7 @@ class PatchLRIAnalyzer:
         lr_pairs, receptor_genes_list, signaling_types = self.prepare_lri_database(adata)
         
         # Step 3: Create column structure
-        column_names = self.create_column_structure(adata, signaling_types)
+        column_names = self.create_column_structure(adata, signaling_types, self.cell_type_column)
         
         # Step 4: Build patch-LRI matrix
         patch_lri_matrix = self.build_patch_lri_matrix_with_mode(

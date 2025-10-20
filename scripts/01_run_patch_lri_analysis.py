@@ -32,7 +32,7 @@ def binomial_thinning(sparse_matrix, probs):
 def main():
     """Main patch-based LRI analysis pipeline."""
     parser = argparse.ArgumentParser(description='Patch-based ligand-receptor interaction analysis')
-    parser.add_argument('--data-file', default='data/processed/preprocessed_xenium_data_subset.h5ad',
+    parser.add_argument('--data-file', default='/Users/jiayifan/Desktop/Lab/epithelioid_spatial_new/data/processed/preprocessed_xenium_data_no_ctrl.h5ad',
                        help='Processed data file')
     parser.add_argument('--output-dir', default='results/GBM_cellphone',
                        help='Output directory for results')
@@ -50,6 +50,8 @@ def main():
                        help='Random seed for reproducibility')
     parser.add_argument('--spliter', type=str,
                        default='|', help='cell-gene or cell|gene ...')
+    parser.add_argument('--cell-type-column', type=str,
+                       default='cell_type', help='cell-gene or cell|gene ...')
     
     args = parser.parse_args()
     
@@ -71,14 +73,17 @@ def main():
     print("Loading spatial transcriptomics data...")
     adata = anndata.read_h5ad(args.data_file)
     print(f"Data shape: {adata.shape}")
-    print(f"Cell types: {adata.obs['cell_type'].cat.categories.tolist()}")
-    print(f"TMA IDs: {sorted(adata.obs['tma_id'].unique())}")
+    cell_type_column = args.cell_type_column
+    print(f"Cell types: {adata.obs[cell_type_column].cat.categories.tolist()}")
+    if 'tma_id' in adata.obs:
+        print(f"TMA IDs: {sorted(adata.obs['tma_id'].unique())}")
     
     # Initialize analyzer
     analyzer = PatchLRIAnalyzer(
         patch_size=args.patch_size,
         resource_name=args.resource,
-        spliter=args.spliter
+        spliter=args.spliter,
+        cell_type_column=cell_type_column
     )
     
     # Run analysis
@@ -119,15 +124,16 @@ def main():
     
     # Cell type distribution
     print(f"\nCell type distribution:")
-    cell_type_counts = results['cell_patch_df']['cell_type'].value_counts()
+    cell_type_counts = results['cell_patch_df'][cell_type_column].value_counts()
     for cell_type, count in cell_type_counts.items():
         print(f"  {cell_type}: {count:,} cells")
     
     # TMA distribution
-    print(f"\nTMA distribution:")
-    tma_counts = results['patch_tma_df']['tma_id'].value_counts()
-    for tma_id, count in tma_counts.items():
-        print(f"  TMA {tma_id}: {count} patches")
+    if 'tma_id' in adata.obs:
+        print(f"\nTMA distribution:")
+        tma_counts = results['patch_tma_df']['tma_id'].value_counts()
+        for tma_id, count in tma_counts.items():
+            print(f"  TMA {tma_id}: {count} patches")
     
     print("\n" + "="*60)
     print("STEP 01 COMPLETED SUCCESSFULLY!")

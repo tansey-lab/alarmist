@@ -38,7 +38,7 @@ def main():
                        help='Output directory for results')
     parser.add_argument('--neighborhood-size', type=float, default=50.0,
                        help='Size of square neighborhood in micrometers (edge length)')
-    parser.add_argument('--resource', default='cellchatdb',
+    parser.add_argument('--resource', default='cellphonedb',
                        help='LRI database resource name')
     parser.add_argument('--data-thinning', type=float, default=1.0,
                        help='Thin data to which quantile (or not, set as 1)')

@@ -270,14 +270,14 @@ def main():
     plot_celltype_communication_by_motif(lri_factors, column_names, args.suffix, save_path)
     
     # # 8. Top LRI interactions
-    # print("\n8. Plotting top LRI interactions...")
-    # save_path = os.path.join(args.output_dir, f"top_lri_interactions{suffix}.pdf")
-    # plot_top_lri_interactions(lri_motifs, unique_ct, args.suffix, save_path)
-    # 8. Top LRI interactions (exclude same-cell-type edges for this figure only)
-    print("\n8. Plotting top LRI interactions (excluding same-cell-type)...")
+    print("\n8. Plotting top LRI interactions...")
     save_path = os.path.join(args.output_dir, f"top_lri_interactions{suffix}.pdf")
-    lri_motifs_filtered = filter_same_celltype_by_lri_name(lri_motifs)
-    plot_top_lri_interactions(lri_motifs_filtered, unique_ct, args.suffix, save_path)
+    plot_top_lri_interactions(lri_motifs, unique_ct, args.suffix, save_path)
+    # 8. Top LRI interactions (exclude same-cell-type edges for this figure only)
+    # print("\n8. Plotting top LRI interactions (excluding same-cell-type)...")
+    # save_path = os.path.join(args.output_dir, f"top_lri_interactions{suffix}.pdf")
+    # # lri_motifs_filtered = filter_same_celltype_by_lri_name(lri_motifs)
+    # plot_top_lri_interactions(lri_motifs, unique_ct, args.suffix, save_path)
     
     # 9. LRI networks (without annotations)
     print("\n9. Creating LRI networks...")
