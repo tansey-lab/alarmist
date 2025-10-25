@@ -2,4 +2,15 @@
 results/
 *.npz
 *.npy
-*.csv
+*.csvnotebooks/cpdb_inputs/
+*.h5ad
+*.loom
+*.h5
+*.h5mu
+*.zarr
+*.mtx
+*.np[yz]
+*.rds
+*.pt
+*.parquet
+*.csv.gz
