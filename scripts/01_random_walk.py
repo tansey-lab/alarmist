@@ -187,7 +187,7 @@ def build_neighborhoods_fast_csr(
     assignments = np.full(n_cells, -1, dtype=np.int32)
     nb_id = 0
 
-    # cells that can send at least one LR
+    # get cells that can send at least one LR
     can_send = np.zeros(n_cells, dtype=np.bool_)
     for i in range(n_cells):
         can_send[i] = (sender_ptr[i+1] > sender_ptr[i])
@@ -199,6 +199,7 @@ def build_neighborhoods_fast_csr(
         sender_cells[i] = sender_cells[j]
         sender_cells[j] = tmp
 
+    # main loop over all sender cells
     for s in range(sender_cells.size):
         seed_cell = sender_cells[s]
         if assignments[seed_cell] != -1:
@@ -215,12 +216,13 @@ def build_neighborhoods_fast_csr(
         attempts = 0
         max_attempts = neighborhood_size * 20
 
-        while nb_size < neighborhood_size and attempts < max_attempts:
+        while nb_size < neighborhood_size and attempts < max_attempts: # ← where continue #1 goes to
             attempts += 1
 
             # sender LR slice
             s_beg = sender_ptr[current]
             s_end = sender_ptr[current + 1]
+            # ------------ Special circumstances: if no LRs to send in current cell, pick another sender ------------
             if s_end == s_beg:
                 # pick another sender inside the neighborhood
                 found_sender = False
@@ -231,12 +233,12 @@ def build_neighborhoods_fast_csr(
                         if sender_ptr[cand + 1] > sender_ptr[cand]:
                             current = cand
                             found_sender = True
-                            break
-                if not found_sender:
-                    break
-                continue
+                            break # break #1 → end the entire for loop, go to ①
+                if not found_sender: # ①
+                    break # break #2 → end the entire while loop, go to ②
+                continue # continue #1 → Jump back to the start of the while loop, start next iteration
 
-            # try different LRs for this sender
+            # 1. sample LRs for this sender
             tried = np.zeros(s_end - s_beg, dtype=np.bool_)
             advanced = False
             
@@ -252,7 +254,7 @@ def build_neighborhoods_fast_csr(
                 if r_end == r_beg:
                     continue
 
-                # sample a few receivers to find an unassigned one quickly
+                # 2. sample a few receivers to find an unassigned one
                 local_trials = min(16, r_end - r_beg)
                 for _ in range(local_trials):
                     ridx = r_beg + np.random.randint(r_end - r_beg)
@@ -266,12 +268,13 @@ def build_neighborhoods_fast_csr(
                         advanced = True
                         break
                 
-                # Break outer LR loop if we've advanced
+                # Break outer while LR loop if we've advanced
                 if advanced:
                     break
 
             if not advanced:
-                # fallback: pick another sender in this neighborhood
+                # ------------ Special circumstances:  couldn't find a receiver from any LR ------------
+                # pick another sender in this neighborhood
                 found_sender = False
                 if nb_size > 0:
                     start = np.random.randint(nb_size)
@@ -286,7 +289,7 @@ def build_neighborhoods_fast_csr(
 
         nb_id += 1
 
-    # assign remaining cells as singleton neighborhoods
+    # assign remaining cells as singleton neighborhoods ②
     for i in range(n_cells):
         if assignments[i] == -1:
             assignments[i] = nb_id

@@ -544,6 +544,156 @@ def plot_top_lri_interactions(lri_motifs, unique_ct, suffix="", save_path=None):
     
     return fig
 
+def plot_top_lri_interactions_dot(lri_motifs, unique_ct, suffix="", save_path=None):
+    """Plot top LRI interactions per motif with line bars and colored dots at endpoints.
+    Signaling types are indicated by letters: A (Autocrine), P (Paracrine), J (Juxtacrine)
+    """
+    # Setup colors
+    ct_color_map = get_cell_type_colors(unique_ct)
+    
+    motifs = sorted(lri_motifs['motif_idx'].unique())
+    n_prog = len(motifs)
+    top_n = 25
+
+    # Layout
+    cols = 3
+    rows = int(np.ceil(n_prog / cols))
+    fig, axes = plt.subplots(rows, cols,
+                             figsize=(cols * 10, rows * 6),
+                             constrained_layout=False)
+    axes = axes.flatten()
+
+    fig.subplots_adjust(right=0.85, left=0.15, top=0.94, bottom=0.06, wspace=1.35, hspace=0.4)
+
+    for ax, prog in zip(axes, motifs):
+        dfp = lri_motifs[lri_motifs['motif_idx'] == prog].copy()
+        if dfp.empty:
+            ax.set_visible(False)
+            continue
+
+        # Parse interaction names
+        dfp[['celltype1','celltype2','ligand','receptor','signaling_type']] = (
+            dfp['lri_name'].apply(lambda x: pd.Series(parse_lri_full(x)))
+        )
+
+        # Filter to unique receptors per signaling type
+        dfp_sorted = dfp.sort_values('factor', ascending=False)
+        dfp_filtered = dfp_sorted.drop_duplicates(
+            subset=['signaling_type','receptor'],
+            keep='first'
+        )
+
+        # Get top N
+        top_df = dfp_filtered.nlargest(top_n, 'factor').reset_index(drop=True)
+        y = np.arange(len(top_df))
+
+        # Draw line bars with dots at endpoints
+        for yi, row in top_df.iterrows():
+            total = row['factor']
+            
+            # Get signaling type and determine marker shape
+            sig_type = row['signaling_type'].lower()
+            if sig_type in ['auto', 'autocrine']:
+                marker_shape = 's'  # square for autocrine
+            elif sig_type in ['juxta', 'juxtacrine']:
+                marker_shape = '^'  # triangle for juxtacrine
+            else:  # paracrine or default
+                marker_shape = 'o'  # circle for paracrine
+
+            # Colors for sender and receiver
+            c1 = row['celltype1']
+            col1 = ct_color_map.get(c1, 'gray')
+            c2 = row['celltype2']
+            col2 = ct_color_map.get(c2, 'gray')
+
+            # Draw thin horizontal line (the bar)
+            ax.plot([0, total], [yi, yi], color='gray', linewidth=1.5, zorder=1)
+            
+            # Draw shaped markers at start and end
+            marker_size = 80  # Adjust size as needed
+            ax.scatter(0, yi, color=col1, s=marker_size, marker=marker_shape, 
+                      zorder=2, edgecolors='black', linewidth=0.5)
+            ax.scatter(total, yi, color=col2, s=marker_size, marker=marker_shape,
+                      zorder=2, edgecolors='black', linewidth=0.5)
+
+        # Create labels
+        labels = []
+        for _, row in top_df.iterrows():
+            sender = row['celltype1'].ljust(12)[:12]
+            receiver = row['celltype2'].ljust(12)[:12]
+            ligand = row['ligand'].ljust(10)[:10]
+            receptor = row['receptor'].ljust(10)[:10]
+            label = f"{sender} → {receiver} | {ligand} → {receptor}"
+            labels.append(label)
+        
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels, fontsize=9, fontfamily='monospace')
+        
+        ax.invert_yaxis()
+        ax.set_xlabel('Factor', fontsize=10)
+        ax.set_title(f'Motif {prog}', fontsize=12, fontweight='bold')
+        
+        # Set x-axis limits with some padding
+        if len(top_df) > 0:
+            max_val = top_df['factor'].max()
+            ax.set_xlim(-max_val*0.02, max_val*1.05)
+
+    # Hide unused subplots
+    for ax in axes[n_prog:]:
+        ax.set_visible(False)
+
+    # Create legend
+    legend_handles = []
+    
+    # Cell type legend (colored dots)
+    for ct, col in ct_color_map.items():
+        legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', 
+                                        markerfacecolor=col, markersize=8, 
+                                        markeredgecolor='black', markeredgewidth=0.5,
+                                        label=ct))
+
+    # Add separator
+    legend_handles.append(plt.Line2D([0], [0], color='none', label=''))
+    
+    # Add signaling type legend with marker shapes
+    legend_handles.append(plt.Line2D([0], [0], color='none', label='Signaling Types:'))
+    legend_handles.append(plt.Line2D([0], [0], marker='s', color='w', 
+                                    markerfacecolor='lightgray', markersize=8,
+                                    markeredgecolor='black', markeredgewidth=0.5,
+                                    label='■ = Autocrine'))
+    legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', 
+                                    markerfacecolor='lightgray', markersize=8,
+                                    markeredgecolor='black', markeredgewidth=0.5,
+                                    label='● = Paracrine'))
+    legend_handles.append(plt.Line2D([0], [0], marker='^', color='w', 
+                                    markerfacecolor='lightgray', markersize=8,
+                                    markeredgecolor='black', markeredgewidth=0.5,
+                                    label='▲ = Juxtacrine'))
+
+    fig.legend(handles=legend_handles,
+               title='Cell Types & Signaling',
+               loc='center right',
+               bbox_to_anchor=(0.92, 0.5),
+               fontsize=8,
+               title_fontsize=10,
+               frameon=True,
+               fancybox=True,
+               shadow=False)
+
+    fig.suptitle(
+        'Top LR Interactions per Motif\n' + 
+        'Format: Sender → Receiver | Ligand → Receptor\n' +
+        '(Start marker = Sender, End marker = Receiver, Shape = Signaling type)',
+        fontsize=14, y=1, fontweight='bold'
+    )
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Saved: {save_path}")
+    
+    return fig
+
+
 def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200, 
                      annotate_edges=False, save_path=None):
     """Plot LRI networks for motifs using Graphviz with three signaling types:

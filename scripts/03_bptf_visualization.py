@@ -30,6 +30,8 @@ warnings.filterwarnings('ignore')
 # Import visualization utilities
 from bptf_visualization_utils import *
 
+from patch_lri_analysis import load_patch_lri_results
+
 
 def load_bptf_results(results_dir):
     """Load BPTF results from directory"""
@@ -54,44 +56,6 @@ def load_bptf_results(results_dir):
         'lri_motifs': lri_motifs
     }
 
-
-def load_patch_lri_results(patch_dir, sparse_matrix_name='patch_lri_matrix.npz'):
-    """
-    Load patch-LRI results from directory
-    
-    Expected files:
-    - patch_lri_matrix.npz: Sparse matrix
-    - patch_lri_columns.csv: Column names with 'column_name' column
-    - patch_tma_correspondence.csv: Patch metadata
-    """
-    print(f"Loading patch-LRI results from: {patch_dir}")
-    
-    # Load sparse matrix
-    import scipy.sparse as sp
-    mat_path = os.path.join(patch_dir, sparse_matrix_name)
-    if os.path.exists(mat_path):
-        mat = sp.load_npz(mat_path)
-    else:
-        # Try default name
-        mat = sp.load_npz(os.path.join(patch_dir, 'patch_lri_matrix.npz'))
-    
-    # Load column names and metadata
-    columns_file = os.path.join(patch_dir, 'patch_lri_columns.csv')
-    columns_df = pd.read_csv(columns_file)
-    column_names = columns_df['column_name'].tolist()
-    
-    patch_metadata_df = pd.read_csv(os.path.join(patch_dir, 'patch_tma_correspondence.csv'))
-    
-    print(f"Loaded matrix shape: {mat.shape}")
-    print(f"Matrix sparsity: {100 * (1 - mat.nnz / (mat.shape[0] * mat.shape[1])):.2f}%")
-    
-    return {
-        'patch_lri_matrix': mat,
-        'column_names': column_names,
-        'patch_tma_df': patch_metadata_df
-    }
-
-
 def setup_adata_with_motifs(adata, patch_motifs, patch_dir):
     """Setup AnnData with patch and motif information"""
     print("Setting up AnnData with motif information...")
@@ -105,8 +69,8 @@ def setup_adata_with_motifs(adata, patch_motifs, patch_dir):
         raise ValueError(f"Cell count mismatch: adata {len(adata)}, cell_patch {len(cell_patch)}")
     
     # Verify that the files correspond to the same cells using (cell_id, tma_id) mapping
-    adata_keys = [f"{cid}_{tid}" for cid, tid in zip(adata.obs['cell_id'].astype(str), adata.obs['tma_id'].astype(str))]
-    patch_keys = [f"{cid}_{tid}" for cid, tid in zip(cell_patch['cell_id'].astype(str), cell_patch['tma_id'].astype(str))]
+    adata_keys = [f"{cid}_{tid}" for cid, tid in zip(adata.obs.index.astype(str), adata.obs['tma_id'].astype(str))]
+    patch_keys = [f"{cid}_{tid}" for cid, tid in zip(cell_patch.index.astype(str), cell_patch['tma_id'].astype(str))]
     
     if adata_keys != patch_keys:
         print("Warning: Row order doesn't match exactly, but checking for complete mapping...")
@@ -186,7 +150,9 @@ def main():
                        help='Random seed for reproducibility')
     parser.add_argument('--sparse-matrix-name', default='patch_lri_matrix.npz',
                        help='Name of sparse matrix file')
-    
+    parser.add_argument('--neighborhood', type=bool,
+                       default=False, help='if neighbood-based or patch-based')
+        
     args = parser.parse_args()
     
     # Set random seed
@@ -209,7 +175,7 @@ def main():
     bptf_results = load_bptf_results(args.bptf_dir)
     
     print("\n2. Loading patch-LRI results...")
-    patch_results = load_patch_lri_results(args.patch_dir, args.sparse_matrix_name)
+    patch_results = load_patch_lri_results(args.patch_dir, args.sparse_matrix_name, neighborhood=args.neighborhood)
     
     print("\n3. Loading AnnData...")
     adata = ad.read_h5ad(args.data_file)
@@ -226,7 +192,8 @@ def main():
     lri_factors = bptf_results['lri_factors']
     lri_motifs = bptf_results['lri_motifs']
     column_names = patch_results['column_names']
-    patch_metadata_df = patch_results['patch_tma_df']
+    if not args.neighborhood:
+        patch_metadata_df = patch_results['patch_tma_df']
     
     suffix = f"_{args.suffix}" if args.suffix else ""
     
@@ -236,8 +203,11 @@ def main():
     
     # 1. Cells per patch distribution
     print("\n1. Plotting cells per patch distribution...")
-    save_path = os.path.join(args.output_dir, f"cells_per_patch{suffix}.pdf")
-    plot_cells_per_patch(patch_metadata_df, save_path)
+    if not args.neighborhood:
+        save_path = os.path.join(args.output_dir, f"cells_per_patch{suffix}.pdf")
+        plot_cells_per_patch(patch_metadata_df, save_path)
+    else:
+        print("  Skipping cells per patch plot for neighborhood-based analysis.")
     
     # 2. Factor distributions
     print("\n2. Plotting factor distributions...")
@@ -273,6 +243,8 @@ def main():
     print("\n8. Plotting top LRI interactions...")
     save_path = os.path.join(args.output_dir, f"top_lri_interactions{suffix}.pdf")
     plot_top_lri_interactions(lri_motifs, unique_ct, args.suffix, save_path)
+    save_path = os.path.join(args.output_dir, f"top_lri_interactions_dot{suffix}.pdf")
+    plot_top_lri_interactions_dot(lri_motifs, unique_ct, args.suffix, save_path)
     # 8. Top LRI interactions (exclude same-cell-type edges for this figure only)
     # print("\n8. Plotting top LRI interactions (excluding same-cell-type)...")
     # save_path = os.path.join(args.output_dir, f"top_lri_interactions{suffix}.pdf")

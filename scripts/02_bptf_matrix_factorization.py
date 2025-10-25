@@ -68,118 +68,6 @@ def get_top_lris_per_motif(lri_factors, motif_idx, top_k=20):
     return top_indices.tolist()
 
 
-def analyze_bptf_motifs(patch_loadings, lri_factors, column_names, patch_tma_df, 
-                         output_dir, top_k_motifs=50, top_k_lris=20, spliter="|"):
-    """Analyze and interpret BPTF motifs like the original code"""
-    print(f"Analyzing top {top_k_motifs} BPTF motifs...")
-    
-    # Get top motifs
-    top_motifs = get_top_motifs(patch_loadings, top_k=top_k_motifs)
-    
-    # Analyze each motif
-    motif_interpretations = []
-    
-    for i, motif_idx in enumerate(top_motifs['motif_indices']):
-        print(f"Analyzing BPTF motif {motif_idx} (rank {i+1})...")
-        
-        # Get top LRIs for this motif
-        top_lri_indices = get_top_lris_per_motif(lri_factors, motif_idx, top_k=top_k_lris)
-        top_lri_names = [column_names[idx] for idx in top_lri_indices]
-        top_lri_factors = lri_factors[motif_idx, top_lri_indices]
-        
-        # Get patch distribution
-        motif_loadings = patch_loadings[:, motif_idx]
-        active_patches = np.where(motif_loadings > np.percentile(motif_loadings, 90))[0]
-        
-        # Get TMA distribution
-        if len(active_patches) > 0:
-            active_patch_tmas = patch_tma_df.iloc[active_patches]['tma_id'].value_counts()
-        else:
-            active_patch_tmas = pd.Series(dtype=int)
-        
-        # Parse LRI patterns
-        lri_patterns = {'ligand_cell_types': [], 'receptor_cell_types': [], 
-                       'ligand_genes': [], 'receptor_genes': []}
-        
-        for lri_name in top_lri_names:
-            parts = lri_name.split(spliter)
-            if len(parts) == 4:
-                lig_ct, rec_ct, lig_gene, rec_gene = parts
-                lri_patterns['ligand_cell_types'].append(lig_ct)
-                lri_patterns['receptor_cell_types'].append(rec_ct)
-                lri_patterns['ligand_genes'].append(lig_gene)
-                lri_patterns['receptor_genes'].append(rec_gene)
-        
-        # Summarize patterns
-        lig_ct_counts = pd.Series(lri_patterns['ligand_cell_types']).value_counts()
-        rec_ct_counts = pd.Series(lri_patterns['receptor_cell_types']).value_counts()
-        lig_gene_counts = pd.Series(lri_patterns['ligand_genes']).value_counts()
-        rec_gene_counts = pd.Series(lri_patterns['receptor_genes']).value_counts()
-        
-        motif_interpretation = {
-            'motif_idx': motif_idx,
-            'rank': i + 1,
-            'total_activity': top_motifs['activities'][i],
-            'activity_fraction': top_motifs['activity_fractions'][i],
-            'n_active_patches': len(active_patches),
-            'top_tmas': active_patch_tmas.head(3).to_dict() if len(active_patch_tmas) > 0 else {},
-            'top_ligand_cell_types': lig_ct_counts.head(3).to_dict(),
-            'top_receptor_cell_types': rec_ct_counts.head(3).to_dict(),
-            'top_ligand_genes': lig_gene_counts.head(5).to_dict(),
-            'top_receptor_genes': rec_gene_counts.head(5).to_dict(),
-            'top_lris': list(zip(top_lri_names, top_lri_factors.tolist()))
-        }
-        
-        motif_interpretations.append(motif_interpretation)
-    
-    # Save interpretations
-    interpretation_file = os.path.join(output_dir, 'bptf_motif_interpretations.csv')
-    
-    interpretation_rows = []
-    for interp in motif_interpretations:
-        row = {
-            'motif_idx': interp['motif_idx'],
-            'rank': interp['rank'],
-            'total_activity': interp['total_activity'],
-            'activity_fraction': interp['activity_fraction'],
-            'n_active_patches': interp['n_active_patches'],
-            'top_tmas': str(interp['top_tmas']),
-            'top_ligand_cell_types': str(interp['top_ligand_cell_types']),
-            'top_receptor_cell_types': str(interp['top_receptor_cell_types']),
-            'top_ligand_genes': str(interp['top_ligand_genes']),
-            'top_receptor_genes': str(interp['top_receptor_genes'])
-        }
-        interpretation_rows.append(row)
-    
-    interpretation_df = pd.DataFrame(interpretation_rows)
-    interpretation_df.to_csv(interpretation_file, index=False)
-    
-    # Save detailed LRI lists for each motif (like the original code)
-    for interp in motif_interpretations:
-        motif_idx = interp['motif_idx']
-        lri_file = os.path.join(output_dir, f'bptf_motif_{motif_idx}_top_lris.csv')
-        
-        lri_df = pd.DataFrame([
-            {'lri_name': name, 'factor': factor}
-            for name, factor in interp['top_lris']
-        ])
-        lri_df.to_csv(lri_file, index=False)
-    
-    print(f"BPTF motif interpretations saved to: {interpretation_file}")
-    
-    # Print summary
-    print("\nBPTF motif Summary:")
-    print("="*60)
-    for interp in motif_interpretations[:5]:
-        print(f"motif {interp['motif_idx']} (Rank {interp['rank']}):")
-        print(f"  Activity: {interp['activity_fraction']:.1%} of total")
-        print(f"  Active patches: {interp['n_active_patches']}")
-        print(f"  Top ligand cell types: {list(interp['top_ligand_cell_types'].keys())[:3]}")
-        print(f"  Top receptor cell types: {list(interp['top_receptor_cell_types'].keys())[:3]}")
-        print(f"  Top TMAs: {list(interp['top_tmas'].keys())[:3]}")
-        print()
-
-
 def save_bptf_results(model, patch_loadings, lri_factors, column_names, 
                      patch_metadata_df, output_dir, elbo_hist=None, delta_hist=None):
     """Save all BPTF results"""
@@ -206,7 +94,7 @@ def save_bptf_results(model, patch_loadings, lri_factors, column_names,
     # Analyze patch-motif relationships
     patch_motifs = []
     if 'patch_id' in patch_metadata_df.columns:
-        patch_ids = patch_metadata_df['patch_id'].astype(str).tolist()
+        patch_ids = sorted(patch_metadata_df['patch_id'].astype(str).unique().tolist())
     else:
         patch_ids = [f"patch_{i}" for i in range(len(patch_loadings))]
     
@@ -325,7 +213,7 @@ def main():
     parser = argparse.ArgumentParser(description='BPTF matrix factorization for spatial LRI analysis')
     parser.add_argument('--input-dir', default='results/GBM_cellphone',
                        help='Input directory with patch LRI results')
-    parser.add_argument('--sparse_matrix_name', default='patch_lri_matrix.npz',
+    parser.add_argument('--sparse-matrix-name', default='patch_lri_matrix.npz',
                        help='Name of the sparse matrix file in input directory')
     parser.add_argument('--output-dir', default='results/GBM_cellphone/bptf',
                        help='Output directory for BPTF results')
@@ -337,6 +225,8 @@ def main():
                        help='Random seed for reproducibility')
     parser.add_argument('--spliter', type=str,
                        default='|', help='cell-gene or cell|gene ...')
+    parser.add_argument('--neighborhood', type=bool,
+                       default=False, help='if neighbood-based or patch-based')
     # parser.add_argument('--top-k-motifs', type=int, default=10,
     #                    help='Number of top motifs to analyze in detail')
     # parser.add_argument('--top-k-lris', type=int, default=20,
@@ -370,10 +260,11 @@ def main():
     # Load patch LRI results
     print("Loading patch-LRI results...")
     try:
-        results = load_patch_lri_results(args.input_dir, sparse_matrix_name=args.sparse_matrix_name)
+        results = load_patch_lri_results(args.input_dir, sparse_matrix_name=args.sparse_matrix_name,
+                                        neighborhood=args.neighborhood)
         mat = results['patch_lri_matrix']
         cols = results['column_names']
-        patch_tma_df = results['patch_tma_df']
+        cell_patch_df = results['cell_patch_df']
         
         print(f"Loaded matrix shape: {mat.shape}")
         print(f"Matrix sparsity: {(1 - mat.nnz / np.prod(mat.shape)) * 100:.2f}%")
@@ -419,12 +310,7 @@ def main():
     print("\nSaving BPTF results...")
     try:
         save_bptf_results(model, patch_loadings, lri_factors, cols, 
-                         patch_tma_df, args.output_dir, elbo_hist, delta_hist)
-        
-        # # Analyze motifs in detail
-        # print("\nAnalyzing BPTF motifs...")
-        # analyze_bptf_motifs(patch_loadings, lri_factors, cols, patch_tma_df, 
-        #                      args.output_dir, args.top_k_motifs, args.top_k_lris, args.spliter)
+                         cell_patch_df, args.output_dir, elbo_hist, delta_hist)
         
         # Create plots
         print("\nCreating visualizations...")

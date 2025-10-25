@@ -686,7 +686,7 @@ class PatchLRIAnalyzer:
         }
 
 
-def load_patch_lri_results(output_dir: str, sparse_matrix_name: str = 'patch_lri_matrix.npz') -> Dict:
+def load_patch_lri_results(output_dir: str, sparse_matrix_name: str = 'patch_lri_matrix.npz', neighborhood: bool = False) -> Dict:
     """
     Load previously saved patch-LRI analysis results.
     
@@ -711,10 +711,7 @@ def load_patch_lri_results(output_dir: str, sparse_matrix_name: str = 'patch_lri
     column_names = pd.read_csv(columns_file)['column_name'].tolist()
     
     # Load metadata dataframes
-    patch_tma_file = os.path.join(output_dir, 'patch_tma_correspondence.csv')
     cell_patch_file = os.path.join(output_dir, 'cell_patch_correspondence.csv')
-    
-    patch_tma_df = pd.read_csv(patch_tma_file)
     cell_patch_df = pd.read_csv(cell_patch_file)
     
     # Load parameters
@@ -724,13 +721,24 @@ def load_patch_lri_results(output_dir: str, sparse_matrix_name: str = 'patch_lri
     print(f"Loaded matrix shape: {patch_lri_matrix.shape}")
     print(f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}")
     
-    return {
-        'patch_lri_matrix': patch_lri_matrix,
-        'column_names': column_names,
-        'patch_tma_df': patch_tma_df,
-        'cell_patch_df': cell_patch_df,
-        'parameters': params_df
-    }
+    if neighborhood:
+        return {
+            'patch_lri_matrix': patch_lri_matrix,
+            'column_names': column_names,
+            'cell_patch_df': cell_patch_df,
+            'parameters': params_df
+        }
+    else:
+        patch_tma_file = os.path.join(output_dir, 'patch_tma_correspondence.csv')
+        patch_tma_df = pd.read_csv(patch_tma_file)
+        return {
+            'patch_lri_matrix': patch_lri_matrix,
+            'column_names': column_names,
+            'patch_tma_df': patch_tma_df,
+            'cell_patch_df': cell_patch_df,
+            'parameters': params_df
+        }
+
 
 
 def permute_spatial_obsm(adata, seed=42):
