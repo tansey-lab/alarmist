@@ -332,8 +332,9 @@ class SCNeighborhoodLRIAnalyzer(PatchLRIAnalyzer):
         cell_ids = adata.obs.index.astype(str).values
         cell_nb_df = pd.DataFrame({
             "cell": cell_ids,
-            "neighborhood_id": self.patch_assignments,
-            "cell_type": adata.obs[self.cell_type_column].astype(str).values
+            "patch_id": self.patch_assignments,
+            "cell_type": adata.obs[self.cell_type_column].astype(str).values,
+            "tma_id": adata.obs['tma_id'].values,
         })
 
         # Save outputs
@@ -345,7 +346,7 @@ class SCNeighborhoodLRIAnalyzer(PatchLRIAnalyzer):
         pd.DataFrame({"column_name": column_names}).to_csv(columns_file, index=False)
         print(f"Saved columns: {columns_file}")
 
-        cell_nb_file = os.path.join(output_dir, "cell_neighborhood_correspondence.csv")
+        cell_nb_file = os.path.join(output_dir, "cell_patch_correspondence.csv")
         cell_nb_df.to_csv(cell_nb_file, index=False)
         print(f"Saved correspondence: {cell_nb_file}")
 

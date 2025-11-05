@@ -688,7 +688,8 @@ def plot_top_lri_interactions_dot(lri_motifs, unique_ct, suffix="", save_path=No
     )
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        # plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.savefig(save_path, bbox_inches='tight')
         print(f"Saved: {save_path}")
     
     return fig
@@ -866,7 +867,8 @@ def plot_lri_networks(lri_motifs, unique_ct, suffix="", threshold=500, top_n=200
                  fontsize=12, y=0.98)
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.savefig(save_path, dpi=600, bbox_inches='tight')
+        # plt.savefig(save_path, bbox_inches='tight')
         print(f"Saved: {save_path}")
     
     return fig

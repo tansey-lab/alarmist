@@ -63,6 +63,12 @@ def setup_adata_with_motifs(adata, patch_motifs, patch_dir):
     # Load cell-patch correspondence
     cell_patch_path = os.path.join(patch_dir, 'cell_patch_correspondence.csv')
     cell_patch = pd.read_csv(cell_patch_path)
+
+    adata.obs.index = adata.obs.index.astype(str)
+    cell_patch['cell'] = cell_patch['cell'].astype(str)
+
+    mask = adata.obs.index.isin(cell_patch['cell'])
+    adata = adata[mask].copy()
     
     # Verify alignment using (cell_id, tma_id) pairs for robust mapping
     if len(adata) != len(cell_patch):
@@ -70,7 +76,7 @@ def setup_adata_with_motifs(adata, patch_motifs, patch_dir):
     
     # Verify that the files correspond to the same cells using (cell_id, tma_id) mapping
     adata_keys = [f"{cid}_{tid}" for cid, tid in zip(adata.obs.index.astype(str), adata.obs['tma_id'].astype(str))]
-    patch_keys = [f"{cid}_{tid}" for cid, tid in zip(cell_patch.index.astype(str), cell_patch['tma_id'].astype(str))]
+    patch_keys = [f"{cid}_{tid}" for cid, tid in zip(cell_patch['cell'].astype(str), cell_patch['tma_id'].astype(str))]
     
     if adata_keys != patch_keys:
         print("Warning: Row order doesn't match exactly, but checking for complete mapping...")
@@ -253,16 +259,16 @@ def main():
     
     # 9. LRI networks (without annotations)
     print("\n9. Creating LRI networks...")
-    save_path = os.path.join(args.output_dir, f"lri_networks{suffix}.pdf")
+    save_path = os.path.join(args.output_dir, f"lri_networks{suffix}.png")
     try:
         plot_lri_networks(lri_motifs, unique_ct, args.suffix, 
-                         threshold=2000, top_n=200, annotate_edges=False, save_path=save_path)
+                         threshold=1000, top_n=200, annotate_edges=False, save_path=save_path)
     except Exception as e:
         print(f"Warning: Could not create LRI networks (requires Graphviz): {e}")
     
     # 10. LRI networks with annotations
     print("\n10. Creating LRI networks with annotations...")
-    save_path = os.path.join(args.output_dir, f"lri_networks_annotated{suffix}.pdf")
+    save_path = os.path.join(args.output_dir, f"lri_networks_annotated{suffix}.pgn")
     try:
         plot_lri_networks(lri_motifs, unique_ct, args.suffix,
                          threshold=500, top_n=200, annotate_edges=True, save_path=save_path)

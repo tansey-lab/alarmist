@@ -167,6 +167,12 @@ def main():
     
     # Feed the precomputed neighborhoods
     print("Setting precomputed neighborhoods...")
+    # remove unmatched cells from adata
+    adata.obs.index = adata.obs.index.astype(str)
+    membership['cell'] = membership['cell'].astype(str)
+
+    mask = adata.obs.index.isin(membership['cell'])
+    adata = adata[mask].copy()
     analyzer.use_precomputed_neighborhoods(
         adata, 
         membership, 
@@ -194,7 +200,7 @@ def main():
     print("✅ Analysis complete! Output files:")
     print(f"  Matrix: {os.path.join(args.output_dir, 'neighborhood_lri_matrix.npz')}")
     print(f"  Columns: {os.path.join(args.output_dir, 'neighborhood_lri_columns.csv')}")
-    print(f"  Membership: {os.path.join(args.output_dir, 'cell_neighborhood_correspondence.csv')}")
+    print(f"  Membership: {os.path.join(args.output_dir, 'cell_patch_correspondence.csv')}")
     print(f"  Metadata: {metadata_file}")
 
 if __name__ == "__main__":
