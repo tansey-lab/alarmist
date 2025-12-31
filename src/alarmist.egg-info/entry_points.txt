@@ -1,0 +1,8 @@
+[console_scripts]
+alarmist-bptf = alarmist.cli.bptf_factorization:main
+alarmist-bptf-viz = alarmist.cli.bptf_visualization:main
+alarmist-cell-matrix = alarmist.cli.create_cell_matrix:main
+alarmist-glm = alarmist.cli.poisson_glm:main
+alarmist-glm-viz = alarmist.cli.glm_results:main
+alarmist-patch-lri = alarmist.cli.run_patch_lri_analysis:main
+alarmist-single-cell = alarmist.cli.single_cell_analysis:main
