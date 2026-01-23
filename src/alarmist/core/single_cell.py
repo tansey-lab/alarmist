@@ -7,7 +7,8 @@ Includes GMM-based binarization and cell type composition analysis.
 import numpy as np
 import pandas as pd
 from sklearn.mixture import GaussianMixture
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Union, List
+import anndata
 
 
 def weighted_celltypes_by_motif(
@@ -93,30 +94,33 @@ def weighted_celltypes_by_motif(
 
 
 def gmm_binarize_all_motifs(
-    cell_loadings: np.ndarray,
-    adata,
+    cell_loadings: Union[np.ndarray, Dict[str, np.ndarray]],
+    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData], None] = None,
     eps: float = 1e-10,
-    random_state: int = 0
-) -> pd.DataFrame:
+    random_state: int = 0,
+    return_arrays: bool = False
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict[str, np.ndarray], Dict[str, np.ndarray]]]:
     """
     Use Gaussian Mixture Model to binarize each motif into ON/OFF states.
 
-    For each motif (column in cell_loadings), fit a 2-component GMM on log(loading+eps),
-    assign positive/negative states, and attach results to adata.obs.
+    Supports both single-sample and multi-sample modes. In multi-sample mode,
+    GMM is fit on all samples combined for consistent thresholds across samples.
 
     Parameters
     ----------
-    cell_loadings : np.ndarray
-        Cell loadings matrix (n_cells × n_motifs)
-    adata : anndata.AnnData
-        Annotated data object. Results will be added to adata.obs:
-        - motif_{k}_score_log: log-transformed loading
-        - motif_{k}_state: categorical ('negative', 'positive')
-        - motif_{k}_posprob: probability of positive state
+    cell_loadings : np.ndarray or Dict[str, np.ndarray]
+        Single sample: Cell loadings matrix (n_cells × n_motifs)
+        Multi-sample: Dict mapping sample_id -> cell loadings matrix
+    adata : AnnData, Dict[str, AnnData], or None
+        Single sample: AnnData object. Results added to adata.obs.
+        Multi-sample: Dict mapping sample_id -> AnnData. Results added to each.
+        If None, results are only returned (not attached to any adata).
     eps : float, default 1e-10
         Small constant added before log transform
     random_state : int, default 0
         Random seed for GMM
+    return_arrays : bool, default False
+        If True, also return state and posprob arrays (useful when adata is None)
 
     Returns
     -------
@@ -124,26 +128,79 @@ def gmm_binarize_all_motifs(
         Summary dataframe with GMM component statistics for each motif.
         Columns: [motif, mean0, mean1, weight0, weight1, positive_component]
 
+    If return_arrays=True, returns tuple:
+        (summary_df, states_dict, posprob_dict)
+        - states_dict: Dict[str, np.ndarray] mapping sample_id -> state array (n_cells, n_motifs)
+        - posprob_dict: Dict[str, np.ndarray] mapping sample_id -> posprob array (n_cells, n_motifs)
+        For single sample mode, dict key is 'default'.
+
     Examples
     --------
+    Single sample:
     >>> gmm_summary = gmm_binarize_all_motifs(cell_loadings, adata)
-    >>> print(gmm_summary)
-    >>> # Check states
-    >>> print(adata.obs['motif_0_state'].value_counts())
+
+    Multi-sample (fit GMM on all samples combined):
+    >>> cell_loadings_dict = {'P17_AIS': loadings1, 'P17_LUAD': loadings2}
+    >>> adata_dict = {'P17_AIS': adata1, 'P17_LUAD': adata2}
+    >>> gmm_summary = gmm_binarize_all_motifs(cell_loadings_dict, adata_dict)
+
+    Return arrays without modifying adata:
+    >>> summary, states, posprobs = gmm_binarize_all_motifs(
+    ...     cell_loadings_dict, adata=None, return_arrays=True
+    ... )
     """
-    n_cells, K = cell_loadings.shape
+    # Determine if multi-sample mode
+    is_multi = isinstance(cell_loadings, dict)
+
+    if is_multi:
+        # Multi-sample mode: concatenate all loadings
+        sample_ids = list(cell_loadings.keys())
+        sample_sizes = {sid: cell_loadings[sid].shape[0] for sid in sample_ids}
+
+        # Stack all loadings
+        all_loadings = np.vstack([cell_loadings[sid] for sid in sample_ids])
+        n_cells_total, K = all_loadings.shape
+
+        # Validate adata_dict if provided
+        if adata is not None:
+            if not isinstance(adata, dict):
+                raise ValueError("When cell_loadings is a dict, adata must also be a dict or None")
+            for sid in sample_ids:
+                if sid not in adata:
+                    raise ValueError(f"Sample '{sid}' in cell_loadings but not in adata")
+                if adata[sid].n_obs != sample_sizes[sid]:
+                    raise ValueError(f"Sample '{sid}': adata has {adata[sid].n_obs} cells but loadings has {sample_sizes[sid]}")
+    else:
+        # Single-sample mode
+        sample_ids = ['default']
+        sample_sizes = {'default': cell_loadings.shape[0]}
+        all_loadings = cell_loadings
+        n_cells_total, K = all_loadings.shape
+
+        # Wrap single adata in dict for uniform processing
+        if adata is not None:
+            adata = {'default': adata}
+
+    # Initialize storage for results
+    all_states = np.empty((n_cells_total, K), dtype=object)
+    all_posprobs = np.zeros((n_cells_total, K))
+    all_scores_log = np.zeros((n_cells_total, K))
+
     summary = []
 
+    # Fit GMM for each motif on ALL cells combined
     for k in range(K):
-        raw = cell_loadings[:, k]
+        raw = all_loadings[:, k]
         scores_log = np.log(raw + eps)
+        all_scores_log[:, k] = scores_log
 
         # Handle degenerate motifs (near-constant)
         if np.isfinite(scores_log).sum() < 2 or np.nanstd(scores_log) < 1e-6:
-            state = np.array(["negative"] * n_cells)
-            posprob = np.zeros(n_cells)
-            means = [scores_log.mean(), scores_log.mean()]
+            state = np.array(["negative"] * n_cells_total)
+            posprob = np.zeros(n_cells_total)
+            means = [float(np.nanmean(scores_log)), float(np.nanmean(scores_log))]
             weights = [1.0, 0.0]
+            pos_comp = 0
         else:
             gmm = GaussianMixture(n_components=2, random_state=random_state)
             gmm.fit(scores_log.reshape(-1, 1))
@@ -158,13 +215,8 @@ def gmm_binarize_all_motifs(
             state = np.where(labels == pos_comp, "positive", "negative")
             posprob = probs[:, pos_comp]
 
-        # Attach to adata.obs
-        adata.obs[f"motif_{k}_score_log"] = scores_log
-        adata.obs[f"motif_{k}_state"] = pd.Categorical(
-            state,
-            categories=["negative", "positive"]
-        )
-        adata.obs[f"motif_{k}_posprob"] = posprob
+        all_states[:, k] = state
+        all_posprobs[:, k] = posprob
 
         summary.append({
             "motif": k,
@@ -172,10 +224,51 @@ def gmm_binarize_all_motifs(
             "mean1": means[1],
             "weight0": weights[0],
             "weight1": weights[1],
-            "positive_component": int(np.argmax(means))
+            "positive_component": pos_comp
         })
 
-    return pd.DataFrame(summary)
+    # Split results back to samples and attach to adata
+    states_dict = {}
+    posprob_dict = {}
+    scores_log_dict = {}
+
+    start_idx = 0
+    for sid in sample_ids:
+        n_cells = sample_sizes[sid]
+        end_idx = start_idx + n_cells
+
+        sample_states = all_states[start_idx:end_idx, :]
+        sample_posprobs = all_posprobs[start_idx:end_idx, :]
+        sample_scores_log = all_scores_log[start_idx:end_idx, :]
+
+        states_dict[sid] = sample_states
+        posprob_dict[sid] = sample_posprobs
+        scores_log_dict[sid] = sample_scores_log
+
+        # Attach to adata if provided
+        if adata is not None and sid in adata:
+            for k in range(K):
+                adata[sid].obs[f"motif_{k}_score_log"] = sample_scores_log[:, k]
+                adata[sid].obs[f"motif_{k}_state"] = pd.Categorical(
+                    sample_states[:, k],
+                    categories=["negative", "positive"]
+                )
+                adata[sid].obs[f"motif_{k}_posprob"] = sample_posprobs[:, k]
+
+        start_idx = end_idx
+
+    # For single-sample mode, unwrap from dict
+    if not is_multi:
+        states_dict = states_dict['default']
+        posprob_dict = posprob_dict['default']
+        scores_log_dict = scores_log_dict['default']
+
+    summary_df = pd.DataFrame(summary)
+
+    if return_arrays:
+        return summary_df, states_dict, posprob_dict
+    else:
+        return summary_df
 
 
 def compute_motif_state_counts(adata) -> pd.DataFrame:

@@ -303,6 +303,58 @@ class BaseLRIAnalyzer(ABC):
 
         return filtered_matrix, filtered_column_names
 
+    def _split_adata_by_sample(
+        self,
+        adata: anndata.AnnData,
+        sample_column: str
+    ) -> Dict[str, anndata.AnnData]:
+        """
+        Split a merged AnnData object into a dictionary of AnnData objects by sample.
+
+        Parameters
+        ----------
+        adata : anndata.AnnData
+            Merged AnnData object containing multiple samples
+        sample_column : str
+            Column name in adata.obs that identifies different samples
+
+        Returns
+        -------
+        adata_dict : Dict[str, anndata.AnnData]
+            Dictionary mapping sample_id -> AnnData subset
+        """
+        print(f"Splitting merged AnnData by '{sample_column}'...")
+
+        # Get unique sample IDs
+        sample_ids = adata.obs[sample_column].unique()
+
+        # Handle categorical vs non-categorical
+        if hasattr(sample_ids, 'categories'):
+            sample_ids = sample_ids.categories.tolist()
+        else:
+            sample_ids = sorted([s for s in sample_ids if pd.notna(s)])
+
+        print(f"Found {len(sample_ids)} samples: {sample_ids}")
+
+        adata_dict = {}
+        for sample_id in sample_ids:
+            # Subset adata for this sample
+            mask = adata.obs[sample_column] == sample_id
+            adata_subset = adata[mask].copy()
+
+            # Ensure cell_type column is categorical with only present categories
+            if self.cell_type_column in adata_subset.obs.columns:
+                ct_col = adata_subset.obs[self.cell_type_column]
+                if hasattr(ct_col, 'cat'):
+                    # Remove unused categories
+                    adata_subset.obs[self.cell_type_column] = ct_col.cat.remove_unused_categories()
+
+            adata_dict[str(sample_id)] = adata_subset
+            print(f"  {sample_id}: {adata_subset.n_obs} cells, "
+                  f"{adata_subset.obs[self.cell_type_column].nunique()} cell types")
+
+        return adata_dict
+
 
 class PatchLRIAnalyzer(BaseLRIAnalyzer):
     """
@@ -783,12 +835,18 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
     def run_patchify(
         self,
         adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
-        output_dir: Optional[str] = None
+        output_dir: Optional[str] = None,
+        multi_sample: bool = False,
+        sample_column: Optional[str] = None
     ) -> Dict:
         """
         Run the complete patch-based LRI analysis.
 
-        Supports both single AnnData and multiple AnnData objects (as a dict).
+        Supports three input modes:
+        1. Single AnnData with multi_sample=False: standard single-sample analysis
+        2. Dict of AnnData objects: automatically treated as multi-sample
+        3. Single merged AnnData with multi_sample=True: split by sample_column
+
         For multiple samples, patch IDs are made globally unique and all samples
         share the same column structure based on the intersection of genes.
 
@@ -800,6 +858,14 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             gene set (intersection) and unified column structure.
         output_dir : str, optional
             Directory to save results. If None, results are not saved to disk.
+        multi_sample : bool, default False
+            Whether to treat a single AnnData as containing multiple samples.
+            Automatically set to True if adata is a dict.
+            If True and adata is a single AnnData, sample_column must be provided.
+        sample_column : str, optional
+            Column name in adata.obs that identifies different samples.
+            Required when multi_sample=True and adata is a single AnnData.
+            Ignored when adata is a dict.
 
         Returns
         -------
@@ -818,9 +884,25 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                 - cell_patch_df: cell-patch correspondence with sample_id
                 - sample_info: dict mapping sample_id -> {n_patches, n_cells, ...}
                 - lr_pairs: list of (ligand, receptor) tuples
+
+        Examples
+        --------
+        # Mode 1: Single sample
+        >>> results = analyzer.run_patchify(adata)
+
+        # Mode 2: Dict of samples
+        >>> results = analyzer.run_patchify({'sample_A': adata_a, 'sample_B': adata_b})
+
+        # Mode 3: Merged AnnData with sample column
+        >>> results = analyzer.run_patchify(
+        ...     adata_merged,
+        ...     multi_sample=True,
+        ...     sample_column='patient_id'
+        ... )
         """
         # Route to appropriate method based on input type
         if isinstance(adata, dict):
+            # Dict input: automatically multi-sample mode
             if len(adata) == 0:
                 raise ValueError("adata_dict cannot be empty")
             elif len(adata) == 1:
@@ -833,7 +915,25 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                 return self._run_patchify_multi(adata, output_dir)
         else:
             # Single AnnData object
-            return self._run_patchify_single(adata, output_dir)
+            if multi_sample:
+                # Split by sample_column and run multi-sample mode
+                if sample_column is None:
+                    raise ValueError(
+                        "sample_column must be provided when multi_sample=True "
+                        "and adata is a single AnnData object"
+                    )
+                if sample_column not in adata.obs.columns:
+                    raise ValueError(
+                        f"sample_column '{sample_column}' not found in adata.obs. "
+                        f"Available columns: {list(adata.obs.columns)}"
+                    )
+
+                # Split merged AnnData into dict
+                adata_dict = self._split_adata_by_sample(adata, sample_column)
+                return self._run_patchify_multi(adata_dict, output_dir)
+            else:
+                # Standard single-sample mode
+                return self._run_patchify_single(adata, output_dir)
 
     def _run_patchify_single(
         self,
@@ -1383,13 +1483,29 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         print("Building cell-LRI matrix with vectorized neighborhood interactions...")
 
         n_cells = adata.n_obs
-        
+
         # ─── 1) Index mappings ────────────────────────────────────────────────────
         ct_to_idx = {ct: i for i, ct in enumerate(self.cell_types)}
-        cell_types_idx = np.array(
-            [ct_to_idx[ct] for ct in adata.obs[self.cell_type_column]],
-            dtype=int
-        )
+
+        # Check for nan/missing cell types and map them
+        cell_type_values = adata.obs[self.cell_type_column].values
+        cell_types_idx = []
+        for ct in cell_type_values:
+            if pd.isna(ct):
+                # Assign -1 for nan cell types (will be excluded from analysis)
+                cell_types_idx.append(-1)
+            elif ct not in ct_to_idx:
+                # Cell type not in shared cell types
+                cell_types_idx.append(-1)
+            else:
+                cell_types_idx.append(ct_to_idx[ct])
+        cell_types_idx = np.array(cell_types_idx, dtype=int)
+
+        # Report cells with missing/invalid cell types
+        n_invalid = np.sum(cell_types_idx == -1)
+        if n_invalid > 0:
+            print(f"  Warning: {n_invalid} cells ({n_invalid/len(cell_types_idx)*100:.1f}%) have missing/invalid cell types and will be excluded")
+
         gene_to_idx = {g: i for i, g in enumerate(adata.var_names)}
 
         # ─── 2) Parse column metadata - NOW HANDLES LIGAND COMPLEXES ─────────────
@@ -1682,30 +1798,123 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         
         return cell_metadata_df
 
-    def run_neighborhood(self,
-                         adata: anndata.AnnData,
-                         output_dir: Optional[str] = None,
-                         required_columns: Optional[List[str]] = None) -> Dict:
+    def run_neighborhood(
+        self,
+        adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+        output_dir: Optional[str] = None,
+        required_columns: Optional[List[str]] = None,
+        multi_sample: bool = False,
+        sample_column: Optional[str] = None
+    ) -> Dict:
         """
         Run the complete neighborhood-based LRI analysis.
 
+        Supports three input modes:
+        1. Single AnnData with multi_sample=False: standard single-sample analysis
+        2. Dict of AnnData objects: automatically treated as multi-sample
+        3. Single merged AnnData with multi_sample=True: split by sample_column
+
+        For multiple samples, cell indices are made globally unique and all samples
+        share the same column structure based on the intersection of genes.
+
         Parameters
         ----------
-        adata : anndata.AnnData
-            Spatial transcriptomics data
+        adata : anndata.AnnData or Dict[str, anndata.AnnData]
+            Single AnnData object, or a dictionary mapping sample_id -> AnnData.
+            For multi-sample mode, all samples will be processed with a shared
+            gene set (intersection) and unified column structure.
         output_dir : str, optional
             Directory to save results. If None, results are not saved to disk.
         required_columns : list of str, optional
             If provided, subset the cell-LRI matrix to only these columns (e.g., from patch analysis).
             This ensures column alignment with a reference matrix (like patch-LRI matrix).
             If None, removes zero columns as usual.
+        multi_sample : bool, default False
+            Whether to treat a single AnnData as containing multiple samples.
+            Automatically set to True if adata is a dict.
+            If True and adata is a single AnnData, sample_column must be provided.
+        sample_column : str, optional
+            Column name in adata.obs that identifies different samples.
+            Required when multi_sample=True and adata is a single AnnData.
+            Ignored when adata is a dict.
 
         Returns
         -------
         results : dict
-            Dictionary containing all analysis results
+            For single sample:
+                - cell_lri_matrix: sparse matrix (n_cells x n_columns)
+                - column_names: list of column names
+                - cell_metadata_df: cell metadata DataFrame
+                - neighborhoods: dict of cell neighborhoods
+                - lr_pairs: list of (ligand, receptor) tuples
+            For multiple samples:
+                - cell_lri_matrix: sparse matrix (total_cells x n_columns)
+                - column_names: list of column names
+                - cell_metadata_df: cell metadata with sample_id, global_cell_idx
+                - sample_info: dict mapping sample_id -> {n_cells, ...}
+                - lr_pairs: list of (ligand, receptor) tuples
+
+        Examples
+        --------
+        # Mode 1: Single sample
+        >>> results = analyzer.run_neighborhood(adata)
+
+        # Mode 2: Dict of samples
+        >>> results = analyzer.run_neighborhood({'sample_A': adata_a, 'sample_B': adata_b})
+
+        # Mode 3: Merged AnnData with sample column
+        >>> results = analyzer.run_neighborhood(
+        ...     adata_merged,
+        ...     multi_sample=True,
+        ...     sample_column='patient_id'
+        ... )
         """
-        print("Starting cell neighborhood-based LRI analysis...")
+        # Route to appropriate method based on input type
+        if isinstance(adata, dict):
+            # Dict input: automatically multi-sample mode
+            if len(adata) == 0:
+                raise ValueError("adata_dict cannot be empty")
+            elif len(adata) == 1:
+                # Single sample in dict format - extract and run single mode
+                sample_id, single_adata = next(iter(adata.items()))
+                print(f"Single sample detected ('{sample_id}'), running in single-sample mode")
+                return self._run_neighborhood_single(single_adata, output_dir, required_columns)
+            else:
+                # Multiple samples
+                return self._run_neighborhood_multi(adata, output_dir, required_columns)
+        else:
+            # Single AnnData object
+            if multi_sample:
+                # Split by sample_column and run multi-sample mode
+                if sample_column is None:
+                    raise ValueError(
+                        "sample_column must be provided when multi_sample=True "
+                        "and adata is a single AnnData object"
+                    )
+                if sample_column not in adata.obs.columns:
+                    raise ValueError(
+                        f"sample_column '{sample_column}' not found in adata.obs. "
+                        f"Available columns: {list(adata.obs.columns)}"
+                    )
+
+                # Split merged AnnData into dict
+                adata_dict = self._split_adata_by_sample(adata, sample_column)
+                return self._run_neighborhood_multi(adata_dict, output_dir, required_columns)
+            else:
+                # Standard single-sample mode
+                return self._run_neighborhood_single(adata, output_dir, required_columns)
+
+    def _run_neighborhood_single(
+        self,
+        adata: anndata.AnnData,
+        output_dir: Optional[str] = None,
+        required_columns: Optional[List[str]] = None
+    ) -> Dict:
+        """
+        Run neighborhood-based LRI analysis for a single AnnData object.
+        This is the original run_neighborhood logic.
+        """
+        print("Starting cell neighborhood-based LRI analysis (single sample)...")
         print(f"Neighborhood size: {self.neighborhood_size} µm")
         print(f"Data shape: {adata.shape}")
 
@@ -1713,7 +1922,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         neighborhoods = self.build_neighborhoods(adata)
 
         # Step 2: Prepare LRI database
-        lr_pairs, ligand_genes_list, receptor_genes_list, signaling_types = self.prepare_lri_database(adata)
+        lr_pairs, ligand_genes_list, receptor_genes_list, signaling_types = self.prepare_lri_database(adata=adata)
 
         # Step 3: Create column structure
         column_names = self.create_column_structure(adata, signaling_types)
@@ -1831,6 +2040,294 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             'neighborhoods': neighborhoods,
             'lr_pairs': lr_pairs
         }
+
+    def _get_shared_genes(self, adata_dict: Dict[str, anndata.AnnData]) -> List[str]:
+        """
+        Get the intersection of genes across all AnnData objects.
+        """
+        gene_sets = [set(adata.var_names) for adata in adata_dict.values()]
+        shared_genes = set.intersection(*gene_sets)
+        print(f"Gene intersection across {len(adata_dict)} samples: {len(shared_genes)} genes")
+        for sample_id, adata in adata_dict.items():
+            print(f"  {sample_id}: {len(adata.var_names)} genes")
+        return sorted(shared_genes)
+
+    def _get_shared_cell_types(self, adata_dict: Dict[str, anndata.AnnData]) -> List[str]:
+        """
+        Get the union of cell types across all AnnData objects.
+        """
+        all_cell_types = set()
+        total_nan_cells = 0
+        total_cells = 0
+
+        for sample_id, adata in adata_dict.items():
+            ct_col = adata.obs[self.cell_type_column]
+            if hasattr(ct_col, 'cat'):
+                sample_cell_types = ct_col.cat.categories.tolist()
+            else:
+                sample_cell_types = ct_col.dropna().unique().tolist()
+
+            n_nan = ct_col.isna().sum()
+            total_nan_cells += n_nan
+            total_cells += len(ct_col)
+
+            sample_cell_types = [ct for ct in sample_cell_types if pd.notna(ct)]
+            all_cell_types.update(sample_cell_types)
+            print(f"  {sample_id}: {len(sample_cell_types)} cell types" +
+                  (f" ({n_nan} cells with nan)" if n_nan > 0 else ""))
+
+        if total_nan_cells > 0:
+            print(f"  Warning: {total_nan_cells}/{total_cells} total cells have missing cell types")
+
+        return sorted(all_cell_types)
+
+    def _run_neighborhood_multi(
+        self,
+        adata_dict: Dict[str, anndata.AnnData],
+        output_dir: Optional[str] = None,
+        required_columns: Optional[List[str]] = None
+    ) -> Dict:
+        """
+        Run neighborhood-based LRI analysis for multiple AnnData objects.
+
+        Parameters
+        ----------
+        adata_dict : Dict[str, anndata.AnnData]
+            Dictionary mapping sample_id -> AnnData
+        output_dir : str, optional
+            Directory to save results
+        required_columns : list of str, optional
+            If provided, subset to these columns
+
+        Returns
+        -------
+        results : dict
+            Dictionary containing combined results from all samples
+        """
+        print("=" * 60)
+        print("Starting neighborhood-based LRI analysis (multi-sample mode)")
+        print("=" * 60)
+        print(f"Number of samples: {len(adata_dict)}")
+        print(f"Neighborhood size: {self.neighborhood_size} µm")
+        for sample_id, adata in adata_dict.items():
+            print(f"  {sample_id}: {adata.shape[0]} cells, {adata.shape[1]} genes")
+
+        # Step 1: Get shared genes (intersection)
+        print("\n[Step 1/7] Computing gene intersection...")
+        shared_genes = self._get_shared_genes(adata_dict)
+
+        # Step 2: Get all cell types (union)
+        print("\n[Step 2/7] Computing cell type union...")
+        shared_cell_types = self._get_shared_cell_types(adata_dict)
+        self.cell_types = shared_cell_types
+        print(f"Total unique cell types: {len(shared_cell_types)}")
+
+        # Step 3: Prepare LRI database using shared genes
+        print("\n[Step 3/7] Preparing LRI database with shared genes...")
+        lr_pairs, ligand_genes_list, receptor_genes_list, signaling_types = \
+            self.prepare_lri_database(gene_names=shared_genes)
+
+        # Step 4: Create unified column structure
+        print("\n[Step 4/7] Creating unified column structure...")
+        column_names = self._create_column_structure_from_cell_types(shared_cell_types, signaling_types)
+        self.column_names = column_names
+        print(f"Total LRI columns: {len(column_names)}")
+
+        # Step 5: Process each sample
+        print("\n[Step 5/7] Processing each sample...")
+        all_matrices = []
+        all_cell_metadata = []
+        sample_info = {}
+        global_cell_idx = 0
+
+        for sample_id, adata in adata_dict.items():
+            print(f"\n--- Processing sample: {sample_id} ---")
+
+            # Build neighborhoods for this sample
+            neighborhoods = self.build_neighborhoods(adata)
+
+            # Build cell-LRI matrix using the pre-defined column structure
+            sample_matrix = self.build_cell_lri_matrix(adata, signaling_types)
+
+            n_cells = adata.n_obs
+            coords = adata.obsm['spatial'][:, :2]
+
+            # Create cell metadata for this sample
+            for cell_idx in range(n_cells):
+                all_cell_metadata.append({
+                    'sample_id': sample_id,
+                    'cell_id': adata.obs.index[cell_idx],
+                    'global_cell_idx': global_cell_idx + cell_idx,
+                    'cell_type': adata.obs[self.cell_type_column].iloc[cell_idx],
+                    'x_coord': coords[cell_idx, 0],
+                    'y_coord': coords[cell_idx, 1],
+                    'neighborhood_size': len(neighborhoods[cell_idx])
+                })
+
+            # Store sample info
+            sample_info[sample_id] = {
+                'n_cells': n_cells,
+                'global_cell_idx_start': global_cell_idx,
+                'global_cell_idx_end': global_cell_idx + n_cells - 1,
+                'avg_neighborhood_size': np.mean([len(n) for n in neighborhoods.values()])
+            }
+
+            all_matrices.append(sample_matrix)
+            global_cell_idx += n_cells
+
+        # Step 6: Combine results
+        print("\n[Step 6/7] Combining results...")
+
+        # Vertically stack all matrices
+        combined_matrix = sparse_vstack(all_matrices, format='csr')
+        print(f"Combined matrix shape: {combined_matrix.shape}")
+
+        # Create metadata DataFrame
+        cell_metadata_df = pd.DataFrame(all_cell_metadata)
+
+        # Handle gene expression (if enabled)
+        if self.include_gene_expression:
+            print("Appending gene expression counts to matrix...")
+            all_gene_matrices = []
+            for sample_id, adata in adata_dict.items():
+                raw_counts = self.get_raw_counts(adata)
+                if not sp.issparse(raw_counts):
+                    raw_counts = sp.csr_matrix(raw_counts)
+                else:
+                    raw_counts = raw_counts.tocsr()
+                all_gene_matrices.append(raw_counts)
+
+            combined_gene_matrix = sparse_vstack(all_gene_matrices, format='csr')
+            combined_matrix = sp.hstack([combined_matrix, combined_gene_matrix], format='csr')
+
+            # Use shared genes for column names
+            gene_column_names = [f"GENE{self.spliter}{gene}" for gene in shared_genes]
+            all_column_names = column_names + gene_column_names
+            print(f"  - LRI features: {len(column_names)}")
+            print(f"  - Gene features: {len(gene_column_names)}")
+        else:
+            all_column_names = column_names
+
+        # Step 7: Column filtering
+        print("\n[Step 7/7] Filtering columns...")
+        if required_columns is not None:
+            print(f"Subsetting to {len(required_columns)} required columns...")
+            col_to_idx = {name: i for i, name in enumerate(all_column_names)}
+            common_cols = [name for name in required_columns if name in col_to_idx]
+            col_indices = np.array([col_to_idx[name] for name in common_cols], dtype=int)
+
+            print(f"  Cell matrix columns: {len(all_column_names)}")
+            print(f"  Required columns: {len(required_columns)}")
+            print(f"  Common columns (kept): {len(common_cols)}")
+
+            if len(common_cols) < len(required_columns):
+                missing = len(required_columns) - len(common_cols)
+                print(f"  Warning: {missing} required columns not found")
+
+            combined_matrix = combined_matrix[:, col_indices]
+            all_column_names = common_cols
+        else:
+            combined_matrix, all_column_names = self.remove_zero_columns(combined_matrix, all_column_names)
+
+        # Save results (optional)
+        if output_dir is not None:
+            print("\nSaving results...")
+            os.makedirs(output_dir, exist_ok=True)
+
+            # Save sparse matrix
+            matrix_file = os.path.join(output_dir, 'cell_lri_matrix.npz')
+            sparse.save_npz(matrix_file, combined_matrix)
+
+            # Save column names
+            columns_file = os.path.join(output_dir, 'cell_lri_columns.csv')
+            pd.DataFrame({'column_name': all_column_names}).to_csv(columns_file, index=False)
+
+            # Save metadata
+            metadata_file = os.path.join(output_dir, 'cell_metadata.csv')
+            cell_metadata_df.to_csv(metadata_file, index=False)
+
+            # Save sample info
+            sample_info_file = os.path.join(output_dir, 'sample_info.csv')
+            sample_info_df = pd.DataFrame([
+                {'sample_id': sid, **info} for sid, info in sample_info.items()
+            ])
+            sample_info_df.to_csv(sample_info_file, index=False)
+
+            # Save analysis parameters
+            params_file = os.path.join(output_dir, 'analysis_parameters.csv')
+            params_df = pd.DataFrame({
+                'parameter': [
+                    'neighborhood_size', 'resource_name', 'n_samples', 'total_cells',
+                    'n_lri_combinations', 'n_shared_genes', 'matrix_sparsity',
+                    'include_gene_expression'
+                ],
+                'value': [
+                    self.neighborhood_size,
+                    self.resource_name,
+                    len(adata_dict),
+                    combined_matrix.shape[0],
+                    len(column_names),
+                    len(shared_genes),
+                    f"{(1 - combined_matrix.nnz / np.prod(combined_matrix.shape)) * 100:.2f}%",
+                    self.include_gene_expression
+                ]
+            })
+            params_df.to_csv(params_file, index=False)
+
+            print(f"Results saved to: {output_dir}")
+            print(f"- Cell-LRI matrix: {matrix_file}")
+            print(f"- Column names: {columns_file}")
+            print(f"- Cell metadata: {metadata_file}")
+            print(f"- Sample info: {sample_info_file}")
+            print(f"- Analysis parameters: {params_file}")
+
+        print("\n" + "=" * 60)
+        print("Multi-sample analysis complete!")
+        print(f"Total cells: {combined_matrix.shape[0]}")
+        print(f"Total LRI columns: {combined_matrix.shape[1]}")
+        print("=" * 60)
+
+        return {
+            'cell_lri_matrix': combined_matrix,
+            'column_names': all_column_names,
+            'cell_metadata_df': cell_metadata_df,
+            'sample_info': sample_info,
+            'lr_pairs': lr_pairs
+        }
+
+    def _create_column_structure_from_cell_types(
+        self,
+        cell_types: List[str],
+        signaling_types: List[str]
+    ) -> List[str]:
+        """
+        Create column names using a predefined list of cell types.
+        """
+        column_names = []
+
+        for idx, (lig, rec_str) in enumerate(self.lr_pairs):
+            sig_type = signaling_types[idx]
+
+            for lig_ct in cell_types:
+                for rec_ct in cell_types:
+                    if sig_type == 'Cell-Cell Contact':
+                        column_names.append(
+                            f"{lig_ct}{self.spliter}{rec_ct}{self.spliter}{lig}{self.spliter}{rec_str}{self.spliter}juxtacrine"
+                        )
+                    else:
+                        if lig_ct == rec_ct:
+                            column_names.append(
+                                f"{lig_ct}{self.spliter}{rec_ct}{self.spliter}{lig}{self.spliter}{rec_str}{self.spliter}autocrine"
+                            )
+                            column_names.append(
+                                f"{lig_ct}{self.spliter}{rec_ct}{self.spliter}{lig}{self.spliter}{rec_str}{self.spliter}paracrine"
+                            )
+                        else:
+                            column_names.append(
+                                f"{lig_ct}{self.spliter}{rec_ct}{self.spliter}{lig}{self.spliter}{rec_str}{self.spliter}paracrine"
+                            )
+
+        return column_names
 
 
 # Alias for backward compatibility
