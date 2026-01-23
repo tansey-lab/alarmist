@@ -1,0 +1,73 @@
+[project]
+name = "alarmist"
+version = "0.1.0"
+description = "Spatial ligand-receptor interaction analysis with BPTF matrix factorization for spatial transcriptomics"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Jiayi Fan", email = "jiayifan@example.com"}
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "anndata>=0.8",
+    "scanpy",
+    "matplotlib>=3.5",
+    "seaborn",
+    "liana",
+    "h5py",
+    "pyarrow",
+    "tqdm",
+    "networkx",
+    "pillow",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-mock", "black", "flake8", "ipython"]
+bptf = ["sparse", "bptf"]
+viz = ["graphviz", "pygraphviz"]
+all = ["sparse", "bptf", "graphviz", "pygraphviz"]
+
+[project.urls]
+"Homepage" = "https://github.com/tansey-lab/alarmist"
+"Source" = "https://github.com/tansey-lab/alarmist"
+
+[project.scripts]
+# Patch-based LRI analysis
+alarmist-patch-lri = "alarmist.cli.run_patch_lri_analysis:main"
+alarmist-cell-matrix = "alarmist.cli.create_cell_matrix:main"
+
+# BPTF factorization
+alarmist-bptf = "alarmist.cli.bptf_factorization:main"
+alarmist-bptf-viz = "alarmist.cli.bptf_visualization:main"
+
+# Single-cell analysis
+alarmist-single-cell = "alarmist.cli.single_cell_analysis:main"
+
+# GLM analysis
+alarmist-glm = "alarmist.cli.poisson_glm:main"
+alarmist-glm-viz = "alarmist.cli.glm_results:main"
+
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+alarmist = ["config/lri_databases/*.csv"]
