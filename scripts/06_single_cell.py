@@ -1,6 +1,7 @@
 import os
 import gc
 import numpy as np
+import pandas as pd
 import scipy.sparse as sp
 import sparse
 from pathlib import Path
@@ -21,32 +22,68 @@ if scripts_path not in sys.path:
 
 from neighborhood_lri_analysis import load_cell_lri_results
 
-INPUT_DIR   = 'results/ES_cellphone_15/single_cell'
-OUTPUT_DIR  = 'results/ES_cellphone_15/single_cell/bptf'
+INPUT_DIR   = 'results/ES_immune/single_cell'
+OUTPUT_DIR  = 'results/ES_immune/single_cell/bptf'
 MAX_ITER    = 200
 random_state = 0
 np.random.seed(random_state)
 
+# ---------- Load the patch-level model (for fixed mode=1) ----------
+model = load_bptf('results/ES_immune/bptf/bptf_model.npz/bptf_5.npz')
+K     = model.n_components
+alpha = model.alpha
+model_lri_names = pd.read_csv('/Users/jiayifan/tansey_lab/alarmist/results/ES_immune/patch_lri_columns.csv')
+model_lri_names = np.array(model_lri_names['column_name'])
+
 # ---------- Load data as CSR ----------
 results = load_cell_lri_results(INPUT_DIR)
 mat = results['cell_lri_matrix']
-del results
+lri_names = np.array(results['column_names'])
+# subset mat to same lris as the model has
+# del results
 
-# Keep CSR to reduce index memory
+# ---------- Subset mat to same LRIs as the model ----------
+# Find intersection and preserve the model's order
+# _, idx_in_mat, idx_in_model = np.intersect1d(
+#     lri_names, model_lri_names, return_indices=True
+# )
+
+import numpy as np
+from collections import defaultdict, deque
+
+# 交集基于这列
+a = lri_names
+b = model_lri_names
+
+# 哪些 b 的元素出现在 a 中（按 b 的原始顺序与重复都保留）
+mask = np.isin(b, a)
+idx_in_model = np.flatnonzero(mask)        # b 中匹配到的行号（保留重复与顺序）
+
+# 为 a 中每个取值建一个“待分配索引队列”，用于一一配对（避免把同一个 a 位置配多次）
+pos = defaultdict(deque)
+for i, v in enumerate(a):
+    pos[v].append(i)
+
+# 将 b[mask] 中每个值，配到 a 中该值的“下一个尚未用过”的位置
+idx_in_mat = np.array([pos[v].popleft() if pos[v] else -1 for v in b[mask]], dtype=int)
+# 如果 b 的某个值在 a 中出现次数不足，会得到 -1，你也可以改成 np.nan
+
+mat = mat[:, idx_in_mat]      # reorder / subset columns
+lri_names = lri_names[idx_in_mat]
+print(mat.shape[1], len(model_lri_names))
+assert mat.shape[1] == len(model_lri_names), "Mismatch between LRI sets!"
+
+# ---------- Convert matrix to efficient CSR format ----------
 if not sp.isspmatrix_csr(mat):
     mat = mat.tocsr(copy=False)
+
 mat.data = mat.data.astype(np.float64, copy=False)
 mat.indices = mat.indices.astype(np.int32, copy=False)
 mat.indptr = mat.indptr.astype(np.int64, copy=False)
 
 n_cells, n_lri = mat.shape
-
-# ---------- Load the patch-level model (for fixed mode=1) ----------
-model = load_bptf('results/ES_cellphone_15/bptf/bptf_model.npz/bptf_1.npz')
-K     = model.n_components
-alpha = model.alpha
-
-print(f"Number of cells: {n_cells}, Number of LRIs: {n_lri}, K: {K}, Alpha: {alpha}")
+print(f"Cell-LRI matrix: {n_cells:,} cells × {n_lri:,} LRIs")
+print(f"BPTF model: K={K}, alpha={alpha}")
 
 # Fixed column parameters (mode=1)
 shp1 = model.shp_DK_M[1]

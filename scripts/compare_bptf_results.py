@@ -94,6 +94,66 @@ def subset_lri_factors(result1, result2):
     
     return result1_subset_factors
 
+def align_lri_factors_consensus(result1, result2, key='lri_name'):
+    """
+    Align two BPTF results to the consensus set of LRIs (by name),
+    and return both lri_factors matrices subsetted and column-aligned.
+
+    Args:
+        result1: dict with keys ['lri_motifs', 'lri_factors']
+        result2: dict with keys ['lri_motifs', 'lri_factors']
+        key:     column name in lri_motifs used to match LRIs (default: 'lri_name')
+
+    Returns:
+        f1_aligned: result1['lri_factors'] subsetted to consensus, columns aligned
+        f2_aligned: result2['lri_factors'] subsetted to consensus, columns aligned
+        common_names: list of LRI names in the aligned order
+        idx1: numpy array of column indices taken from result1
+        idx2: numpy array of column indices taken from result2
+    """
+    import numpy as np
+    import pandas as pd
+
+    # --- build name -> idx maps (deduplicate by name, keep first) ---
+    df1 = (result1['lri_motifs'][[key, 'lri_idx']]
+           .drop_duplicates(subset=[key], keep='first'))
+    df2 = (result2['lri_motifs'][[key, 'lri_idx']]
+           .drop_duplicates(subset=[key], keep='first'))
+
+    names1 = set(df1[key].astype(str))
+    names2 = set(df2[key].astype(str))
+    common_names = sorted(names1 & names2)
+
+    if len(common_names) == 0:
+        raise ValueError("No consensus LRIs found between result1 and result2.")
+
+    # index vectors in the SAME order of common_names
+    map1 = df1.set_index(key)['lri_idx']
+    map2 = df2.set_index(key)['lri_idx']
+    idx1 = map1.loc[common_names].to_numpy()
+    idx2 = map2.loc[common_names].to_numpy()
+
+    # subset & align columns
+    f1 = result1['lri_factors']
+    f2 = result2['lri_factors']
+
+    # basic sanity checks
+    if f1.ndim != 2 or f2.ndim != 2:
+        raise ValueError("Expected 2D arrays for lri_factors in both results.")
+    if np.max(idx1) >= f1.shape[1] or np.max(idx2) >= f2.shape[1]:
+        raise IndexError("lri_idx exceeds number of columns in lri_factors.")
+
+    print("[Consensus LRI alignment]")
+    print(f"  result1 lri_factors: {f1.shape} -> ({f1.shape[0]}, {len(idx1)})")
+    print(f"  result2 lri_factors: {f2.shape} -> ({f2.shape[0]}, {len(idx2)})")
+    print(f"  #consensus LRIs: {len(common_names)}")
+
+    f1_aligned = f1[:, idx1]
+    f2_aligned = f2[:, idx2]
+
+    return f1_aligned, f2_aligned, common_names, idx1, idx2
+
+
 
 def plot_cosine_similarity(matrix1, matrix2, name1, name2, save_path=None, annotate=True, fmt="{:.2f}", fs=8):
     """
@@ -242,7 +302,9 @@ def main():
         print(f"Subsetting LRIs from {args.name1} to match {args.name2}...")
         print(f"{'='*60}")
         # matrix1 = subset_lri_factors(result1, result2)
-        matrix2 = subset_lri_factors(result2, result1)
+        # matrix2 = subset_lri_factors(result2, result1)
+        matrix1, matrix2, lri_names, idx1, idx2 = align_lri_factors_consensus(result1, result2)
+
     
     # Generate plots
     print(f"\n{'='*60}")

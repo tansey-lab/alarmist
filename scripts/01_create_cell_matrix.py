@@ -46,6 +46,13 @@ def main():
                        help='Random seed for reproducibility')
     parser.add_argument('--spliter', type=str, default='|',
                        help='Separator for column names (e.g., cell|gene)')
+    parser.add_argument('--include-gene-expression', action='store_true', default=True,
+                       help='Include gene expression counts as additional features')
+    parser.add_argument('--no-gene-expression', dest='include_gene_expression', action='store_false',
+                       help='Do not include gene expression counts')
+    parser.add_argument('--raw-count-location', type=str, default='X',
+                       choices=['X', 'raw', 'layers:counts'],
+                       help='Location of raw counts: X, raw, or layers:counts')
     
     args = parser.parse_args()
     
@@ -68,13 +75,14 @@ def main():
     adata = anndata.read_h5ad(args.data_file)
     print(f"Data shape: {adata.shape}")
     print(f"Cell types: {adata.obs['cell_type'].cat.categories.tolist()}")
-    print(f"TMA IDs: {sorted(adata.obs['tma_id'].unique())}")
     
-    # Initialize analyzer
+    # Initialize analyzer with new parameters
     analyzer = NeighborhoodLRIAnalyzer(
         neighborhood_size=args.neighborhood_size,
         resource_name=args.resource,
-        spliter=args.spliter
+        spliter=args.spliter,
+        include_gene_expression=args.include_gene_expression,  # new
+        raw_count_location=args.raw_count_location  # new
     )
     
     # Run analysis
@@ -128,11 +136,11 @@ def main():
     for cell_type, count in cell_type_counts.items():
         print(f"  {cell_type}: {count:,} cells")
     
-    # TMA distribution
-    print(f"\nTMA distribution:")
-    tma_counts = results['cell_metadata_df']['tma_id'].value_counts()
-    for tma_id, count in tma_counts.items():
-        print(f"  TMA {tma_id}: {count:,} cells")
+    # # TMA distribution
+    # print(f"\nTMA distribution:")
+    # tma_counts = results['cell_metadata_df']['tma_id'].value_counts()
+    # for tma_id, count in tma_counts.items():
+    #     print(f"  TMA {tma_id}: {count:,} cells")
     
     # Neighborhood size distribution by cell type
     print(f"\nAverage neighborhood size by cell type:")

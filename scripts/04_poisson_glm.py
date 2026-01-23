@@ -34,78 +34,107 @@ def load_bptf_results(results_dir: str) -> Dict:
     results = {}
     
     # Load patch loadings (W matrix)
-    results['patch_loadings'] = np.load(os.path.join(results_dir, 'patch_loadings.npy'))
-    
-    # Load patch motifs info
-    results['patch_motifs'] = pd.read_csv(os.path.join(results_dir, 'patch_motifs.csv'))
+    results['cell_loadings'] = np.load(os.path.join(results_dir, 'cell_loadings.npy'))
     
     # Load LRI motifs info
-    results['lri_motifs'] = pd.read_csv(os.path.join(results_dir, 'lri_motifs.csv'))
+    # results['lri_motifs'] = pd.read_csv(os.path.join(results_dir, 'cell_lri_columns.csv'))
     
-    print(f"✓ Loaded results with {results['patch_loadings'].shape[0]} patches, "
-          f"{results['patch_loadings'].shape[1]} motifs")
+    print(f"✓ Loaded results with {results['cell_loadings'].shape[0]} cells, "
+          f"{results['cell_loadings'].shape[1]} motifs")
     
     return results
 
+def extract_lri_genes(lri_names: pd.Series, splitter: str = '|', gene_splitter: str = '_') -> set:
+    """
+    Extract unique ligand and receptor genes from LRI names.
 
-def extract_lri_genes(lri_names: pd.Series, spliter = '|') -> set:
-    """
-    Extract LRI genes from LRI names
+    Expected LRI name format:
+        sender_celltype | receiver_celltype | ligand | receptor | mode
+
+    - Ligand and receptor fields may contain multiple genes joined by `gene_splitter`
+      (e.g., "TGFBR2_TGFBR1").
     
-    Args:
-        lri_names: Series of LRI names
+    Args
+    ----
+    lri_names : pd.Series
+        A series of LRI name strings.
+    splitter : str, default '|'
+        Delimiter separating fields in each LRI name.
+    gene_splitter : str, default '_'
+        Delimiter separating multiple genes within ligand/receptor fields.
+    
+    Returns
+    -------
+    set
+        A set of unique gene symbols extracted from ligand and receptor fields.
     """
+    
     print("Extracting LRI genes...")
-    
+
     lri_genes = set()
+
+    # Show sample names for debugging
     sample_names = lri_names.head(5).tolist()
     print(f"Sample LRI names: {sample_names}")
-    
-    # Try to detect format from first few names
-    sample_splits = [name.split(spliter) for name in sample_names]
-    avg_parts = np.mean([len(parts) for parts in sample_splits])
 
     for name in lri_names:
         if pd.isna(name):
             continue
-            
-        parts = name.split(spliter)
-        lri_genes.update(parts[2:4])
-    
+        
+        parts = str(name).split(splitter)
+        # Expect at least 4 fields: ct1, ct2, ligand, receptor
+        if len(parts) < 4:
+            continue
+        
+        ligand_field = parts[2]
+        receptor_field = parts[3]
+
+        # Split multi-gene ligand/receptor entries
+        ligand_genes = [g.strip() for g in ligand_field.split(gene_splitter) if g.strip()]
+        receptor_genes = [g.strip() for g in receptor_field.split(gene_splitter) if g.strip()]
+
+        # Add to final set
+        lri_genes.update(ligand_genes)
+        lri_genes.update(receptor_genes)
+
     print(f"✓ Extracted {len(lri_genes)} unique LRI genes")
     return lri_genes
 
-
 def run_univariate_de_sklearn_by_celltype(
-    cell_patch: pd.DataFrame,
+    cell_df: pd.DataFrame,
     counts: np.ndarray,
     gene_names: List[str],
     non_lri_genes: List[str],
     n_motifs: int,
     output_dir: Optional[str] = None,
     alpha: float = 0.05,
-    print_every: int = 20
+    print_every: int = 1000
 ) -> Dict[str, pd.DataFrame]:
     """
     Run univariate DE by motif AND cell type using scikit-learn's PoissonRegressor.
-    Saves a CSV for each motif and cell_type combo immediately.
+    Now uses direct cell-level loadings instead of patch-inherited loadings.
     """
     print("Running univariate DE with scikit-learn PoissonRegressor (by cell type)...")
     idx_map = {g: i for i, g in enumerate(gene_names)}
     de_results = {}
 
-    # iterate motifs (example limited to motif 7 if desired)
+    # iterate motifs
     for k in range(n_motifs):
-        for ct in cell_patch['cell_type'].unique():
+        for ct in cell_df['cell_type'].unique():
             if ct == 'granulocyte':
                 print(f"Skipping cell type '{ct}' for motif {k} (granulocytes not included)")
                 continue
-            subset_mask = (cell_patch['cell_type'] == ct)
-            X_all = cell_patch.loc[subset_mask, f'prog_{k}_loading'].values
+            
+            subset_mask = (cell_df['cell_type'] == ct)
+            X_all = cell_df.loc[subset_mask, f'prog_{k}_loading'].values
             counts_all = counts[subset_mask, :]
 
-            valid = ~np.isnan(X_all)
-            # X = np.log(X_all[valid]).reshape(-1, 1)
+            # if negative loadings
+            valid = ~np.isnan(X_all) & (X_all > 0)
+            
+            if valid.sum() == 0:
+                print(f"motif {k}, cell_type '{ct}': no valid positive loadings, skipping")
+                continue
 
             X_log = np.log(X_all[valid])
             # Z-score within this cell type
@@ -115,10 +144,6 @@ def run_univariate_de_sklearn_by_celltype(
 
             Y = counts_all[valid, :]
 
-            if X.size == 0:
-                print(f"motif {k}, cell_type '{ct}': no valid data, skipping")
-                continue
-
             print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells")
             genes, coefs, pvals, ses = [], [], [], []
             total = len(non_lri_genes)
@@ -126,12 +151,12 @@ def run_univariate_de_sklearn_by_celltype(
             for idx, gene in enumerate(non_lri_genes, 1):
                 gi = idx_map.get(gene)
                 if gi is None:
-                    print(gi,'is none')
                     continue
+                    
                 y = Y[:, gi]
-                # try:
+                
                 model = PoissonRegressor(alpha=0.0, fit_intercept=True,
-                                            max_iter=2000, tol=1e-6)
+                                        max_iter=2000, tol=1e-6)
                 model.fit(X, y)
                 beta1 = model.coef_[0]
                 mu = model.predict(X)
@@ -139,12 +164,11 @@ def run_univariate_de_sklearn_by_celltype(
                 se = np.sqrt(1.0 / I) if I > 0 else np.nan
                 z = beta1 / se if se and se > 0 else 0.0
                 pval = 2 * (1 - norm.cdf(abs(z)))
+                
                 genes.append(gene)
                 coefs.append(beta1)
                 pvals.append(pval)
                 ses.append(se)
-                # except:
-                #     pass
 
                 if idx % print_every == 0 or idx == total:
                     print(f"   ✔ {idx}/{total} genes processed")
@@ -152,7 +176,7 @@ def run_univariate_de_sklearn_by_celltype(
             df = pd.DataFrame({
                 'gene': genes,
                 'logFC': coefs,
-                'se': ses,              # natural-log SE
+                'se': ses,
                 'pval': pvals
             })
 
@@ -173,7 +197,6 @@ def run_univariate_de_sklearn_by_celltype(
                 print(f"✓ Saved {fname}")
 
     return de_results
-
 
 def save_cell_type_result(df: pd.DataFrame, motif_idx: int, cell_type: str, output_dir: str):
     """Save results for a single motif-celltype combination immediately"""
@@ -297,18 +320,14 @@ def save_results(results, output_dir: str, mode: str):
         print(f"✓ Saved {filename}")
 
 
-def prepare_cell_data_memory_efficient(cell_patch_file: str, 
-                                       patch_map: pd.DataFrame, 
-                                       patch_loadings: np.ndarray, 
+def prepare_cell_data_memory_efficient(cell_loadings: np.ndarray, 
                                        adata_file: str,
+                                       count_layer: str = 'X',
+                                       cell_metadata_file: str = None,
                                        keep_sparse: bool = True) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
     """
     Memory-efficient cell data preparation with sparse matrix support
-    
-    IMPORTANT: The 'cell_id' column in cell_patch_correspondence.csv now contains
-    actual adata.obs['cell_id'] values. The file maintains the same row order as 
-    adata.obs when possible, enabling direct 1:1 alignment, with (cell_id, tma_id) 
-    pairs used for robust mapping verification.
+    Now directly uses cell-level loadings instead of patch-to-cell mapping
     """
     import scanpy as sc
     import gc
@@ -317,41 +336,6 @@ def prepare_cell_data_memory_efficient(cell_patch_file: str,
     
     # Check initial memory
     print("Initial memory check:")
-    check_memory_usage()
-    
-    print("Loading cell-patch correspondence...")
-    cell_patch = pd.read_csv(cell_patch_file)
-    
-    print("Mapping patch IDs to indices...")
-    cell_patch = cell_patch.merge(patch_map, on='patch_id', how='left')
-    
-    # Check for missing mappings
-    missing_patches = cell_patch['patch_idx'].isna().sum()
-    if missing_patches > 0:
-        print(f"Warning: {missing_patches} cells have missing patch mappings")
-        cell_patch = cell_patch.dropna(subset=['patch_idx'])
-    
-    print(f"Valid cells after filtering: {len(cell_patch)}")
-    
-    # Add motif loadings for each cell
-    print("Adding motif loadings to cells...")
-    n_motifs = patch_loadings.shape[1]
-    
-    def get_loading(patch_idx, k):
-        if pd.isna(patch_idx):
-            return np.nan
-        patch_idx = int(patch_idx)
-        if 0 <= patch_idx < patch_loadings.shape[0]:
-            return patch_loadings[patch_idx, k]
-        else:
-            return np.nan
-    
-    for k in range(n_motifs):
-        cell_patch[f'prog_{k}_loading'] = cell_patch['patch_idx'].apply(
-            lambda i: get_loading(i, k)
-        )
-
-    print("Memory after loading cell metadata:")
     check_memory_usage()
     
     # Load AnnData with memory monitoring
@@ -366,65 +350,80 @@ def prepare_cell_data_memory_efficient(cell_patch_file: str,
     print("Memory after loading full AnnData:")
     check_memory_usage()
     
-    # CRITICAL: Verify cell alignment using actual cell_id values
-    print("Verifying cell-patch correspondence alignment...")
+    print("Verifying cell loadings alignment...")
+    if cell_loadings.shape[0] != adata.shape[0]:
+        raise ValueError(f"Mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
+                        f"adata has {adata.shape[0]} cells")
     
-    # Now cell_patch_correspondence.csv contains actual adata.obs['cell_id'] values
-    # We need to create a proper mapping using (cell_id, tma_id) pairs
-    print(f"AnnData shape: {adata.shape}")
-    print(f"Cell-patch correspondence rows: {len(cell_patch)}")
+    print(f"✓ Cell loadings shape: {cell_loadings.shape}")
+    print(f"✓ AnnData shape: {adata.shape}")
     
-    if len(adata) != len(cell_patch):
-        raise ValueError(f"Mismatch: AnnData has {len(adata)} cells, cell_patch has {len(cell_patch)} rows")
+    # create cell_df, directly use cell_loadings
+    print("Creating cell dataframe with loadings...")
+    n_cells, n_motifs = cell_loadings.shape
     
-    # Verify that cell_id matches adata.obs['cell_id'] and maintain row order compatibility
-    adata_cell_ids = adata.obs['cell_id'].astype(str)
-    adata_tma_ids = adata.obs['tma_id'].astype(str)
-    patch_cell_ids = cell_patch['cell_id'].astype(str)
-    patch_tma_ids = cell_patch['tma_id'].astype(str)
+    # Initialize cell_df with adata metadata
+    cell_df = pd.DataFrame({
+        'cell_id': adata.obs.index.astype(str),
+        'cell_type': adata.obs['cell_type'] if 'cell_type' in adata.obs.columns else 'unknown'
+    })
     
-    # Create mapping keys for verification
-    adata_keys = [f"{cid}_{tid}" for cid, tid in zip(adata_cell_ids, adata_tma_ids)]
-    patch_keys = [f"{cid}_{tid}" for cid, tid in zip(patch_cell_ids, patch_tma_ids)]
+    # If an additional cell-metadata file is provided 
+    # (for example, the original cell_patch_correspondence), 
+    # it can be merged
+    if cell_metadata_file is not None:
+        print(f"Loading additional cell metadata from {cell_metadata_file}...")
+        cell_meta = pd.read_csv(cell_metadata_file)
+        # avoid repetition
+        if 'cell_type' in cell_meta.columns and 'cell_type' not in adata.obs.columns:
+            cell_df['cell_type'] = cell_meta['cell_type'].values
     
-    # Check if they match exactly (in order) - this preserves row alignment
-    if adata_keys == patch_keys:
-        print("✓ Cell-patch correspondence verified - perfect 1:1 alignment with (cell_id, tma_id) keys")
-    else:
-        print("Warning: Row order doesn't match exactly")
-        print("Checking if all cells are present with valid (cell_id, tma_id) mappings...")
-        
-        # Check if all mapping keys exist in both
-        adata_key_set = set(adata_keys)
-        patch_key_set = set(patch_keys)
-        
-        missing_in_adata = patch_key_set - adata_key_set
-        missing_in_patch = adata_key_set - patch_key_set
-        
-        if missing_in_adata:
-            print(f"Error: {len(missing_in_adata)} (cell_id, tma_id) pairs in patch file not found in adata")
-            raise ValueError("Cell ID mapping mismatch detected!")
-        
-        if missing_in_patch:
-            print(f"Error: {len(missing_in_patch)} adata (cell_id, tma_id) pairs not found in patch file") 
-            raise ValueError("Cell ID mapping mismatch detected!")
-        
-        print("All (cell_id, tma_id) pairs present but order differs")
-        print("This maintains correct mapping but order preservation is recommended for the pipeline")
-        
-    print("✓ Cell-patch mapping verified using (cell_id, tma_id) keys")
-    print("Memory after verification:")
+    # Directly add the cell-level loadings to the dataframe
+    print("Adding cell-level motif loadings...")
+    for k in range(n_motifs):
+        cell_df[f'prog_{k}_loading'] = cell_loadings[:, k]
+    
+    print(f"✓ Added {n_motifs} motif loadings for {n_cells} cells")
+    print("Memory after creating cell dataframe:")
     check_memory_usage()
     
-    # Handle count matrix
-    print("Processing count matrix...")
-    counts = adata.layers["counts"]
-    print("Using 'counts' layer (raw counts) for analysis")
+    # Handle count matrix according to count_layer
+    print(f"Processing count matrix from '{count_layer}'...")
+    
+    if count_layer == 'X':
+        counts = adata.X
+        print("Using adata.X for analysis")
+    elif count_layer == 'raw':
+        if adata.raw is None:
+            raise ValueError("adata.raw is None but count_layer='raw' was specified")
+        counts = adata.raw.X
+        print("Using adata.raw.X (raw counts) for analysis")
+    elif count_layer.startswith('layer'):
+        layer_name = count_layer.split(':', 1)[1]
+        if layer_name not in adata.layers:
+            raise ValueError(f"Layer '{layer_name}' not found in adata.layers. "
+                           f"Available layers: {list(adata.layers.keys())}")
+        counts = adata.layers[layer_name]
+        print(f"Using adata.layers['{layer_name}'] for analysis")
+    else:
+        raise ValueError(f"Invalid count_layer value: '{count_layer}'. "
+                       f"Use 'X', 'raw', or 'layer:NAME'")
+    
+    print(f"Count matrix shape: {counts.shape}")
+    print(f"Count matrix type: {type(counts)}")
+    print(f"Is sparse: {sp.issparse(counts)}")
+
+    # Get gene names
+    if count_layer == 'raw' and adata.raw is not None:
+        gene_names = list(adata.raw.var_names)
+        print(f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)")
+    else:
+        gene_names = list(adata.var_names)
+        print(f"Using gene names from adata.var_names ({len(gene_names)} genes)")
     
     if sp.issparse(counts):
         if keep_sparse:
             print("Keeping data in sparse format")
-            # Keep sparse - we'll handle this differently
             counts_sparse = counts
             gene_names = list(adata.var_names)
             
@@ -435,7 +434,7 @@ def prepare_cell_data_memory_efficient(cell_patch_file: str,
             print("Memory after cleanup (sparse):")
             check_memory_usage()
             
-            return cell_patch, counts_sparse, gene_names
+            return cell_df, counts_sparse, gene_names
         else:
             print("Converting sparse to dense (warning: high memory usage)")
             print("Memory before sparse->dense conversion:")
@@ -446,9 +445,6 @@ def prepare_cell_data_memory_efficient(cell_patch_file: str,
             print("Memory after sparse->dense conversion:")
             check_memory_usage()
     
-    # Get gene names
-    gene_names = list(adata.var_names)
-    
     # Clean up
     del adata
     gc.collect()
@@ -456,8 +452,7 @@ def prepare_cell_data_memory_efficient(cell_patch_file: str,
     print("Final memory after cleanup:")
     check_memory_usage()
     
-    return cell_patch, counts, gene_names
-
+    return cell_df, counts, gene_names
 
 
 def check_memory_usage():
@@ -526,6 +521,7 @@ def main():
     
     # Load BPTF results
     bptf_results = load_bptf_results(results_dir)
+    lri_columns = pd.read_csv(os.path.join(patch_lri_dir, 'patch_lri_columns.csv'))
     
     # Load AnnData (you'll need to implement this part based on your data)
     print("Loading AnnData...")
@@ -538,7 +534,7 @@ def main():
         return
     
     # Extract LRI genes
-    lri_genes = extract_lri_genes(bptf_results['lri_motifs']['lri_name'], 
+    lri_genes = extract_lri_genes(lri_columns['column_name'], 
                                  args.spliter)
     
     # Get all non-LRI genes
@@ -549,44 +545,45 @@ def main():
     del adata  # Free memory after loading AnnData
     
     # Prepare cell data
-    patch_map = bptf_results['patch_motifs'][['patch_idx', 'patch_id']].drop_duplicates()
+    # patch_map = bptf_results['patch_motifs'][['patch_idx', 'patch_id']].drop_duplicates()
     
     # CRITICAL: Validate patch indices alignment
     print("Validating patch indices...")
-    print(f"BPTF patch_loadings shape: {bptf_results['patch_loadings'].shape}")
-    print(f"Patch map contains {len(patch_map)} unique patches")
-    print(f"patch_idx range: {patch_map['patch_idx'].min()} to {patch_map['patch_idx'].max()}")
+    print(f"BPTF cell_loadings shape: {bptf_results['cell_loadings'].shape}")
+    # print(f"Patch map contains {len(patch_map)} unique patches")
+    # print(f"patch_idx range: {patch_map['patch_idx'].min()} to {patch_map['patch_idx'].max()}")
     
     # Check if patch indices are within bounds
-    max_patch_idx = patch_map['patch_idx'].max()
-    n_patches_bptf = bptf_results['patch_loadings'].shape[0]
+    # max_patch_idx = patch_map['patch_idx'].max()
+    # n_patches_bptf = bptf_results['patch_loadings'].shape[0]
     
-    if max_patch_idx >= n_patches_bptf:
-        raise ValueError(f"patch_idx max ({max_patch_idx}) exceeds BPTF patch_loadings rows ({n_patches_bptf})")
+    # if max_patch_idx >= n_patches_bptf:
+    #     raise ValueError(f"patch_idx max ({max_patch_idx}) exceeds BPTF patch_loadings rows ({n_patches_bptf})")
     
-    print("✓ Patch indices validation passed")
+    # print("✓ Patch indices validation passed")
     
-    cell_patch_file = os.path.join(patch_lri_dir, "cell_patch_correspondence.csv")
-    cell_patch, counts, gene_names = prepare_cell_data_memory_efficient(
-        cell_patch_file, patch_map, 
-        bptf_results['patch_loadings'], data_file,
+    # cell_patch_file = os.path.join(patch_lri_dir, "cell_patch_correspondence.csv")
+    cell_df, counts, gene_names = prepare_cell_data_memory_efficient(
+        bptf_results['cell_loadings'],  # 直接传入cell_loadings
+        data_file,
+        count_layer = 'layers:counts',
+        # cell_metadata_file=cell_patch_file,  # 可选：如果需要额外的metadata
         keep_sparse=False
     )
-    
-    n_motifs = bptf_results['patch_loadings'].shape[1]
+    n_motifs = bptf_results['cell_loadings'].shape[1]
 
-    print(cell_patch.head())
+    print(cell_df.head())
     
-    # Run DE analysis
-    if args.mode == 'univariate':
-        results = run_univariate_de_sklearn_by_celltype(
-                    cell_patch, counts, gene_names, non_lri_genes, n_motifs,
-                    output_dir=output_dir,
-                    print_every=100
-                )
-    else:
-        print("Multivariate analysis mode is not yet implemented. " \
-        "Please use '--mode univariate' for now.")
+    # Run DE analysis  
+    results = run_univariate_de_sklearn_by_celltype(
+        cell_df,
+        counts, 
+        gene_names, 
+        non_lri_genes, 
+        n_motifs,
+        output_dir=output_dir,
+        print_every=1000
+    )
     
     # Save results
     save_results(results, output_dir, args.mode)

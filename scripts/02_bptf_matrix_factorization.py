@@ -215,11 +215,15 @@ def main():
                        help='Input directory with patch LRI results')
     parser.add_argument('--sparse-matrix-name', default='patch_lri_matrix.npz',
                        help='Name of the sparse matrix file in input directory')
+    parser.add_argument('--column-df-name', default='patch_lri_columns.csv',
+                       help='Name of the column names file in input directory')
+    parser.add_argument('--meta-df-name', default='cell_patch_correspondence.csv',
+                       help='Name of the metadata file in input directory')
     parser.add_argument('--output-dir', default='results/GBM_cellphone/bptf',
                        help='Output directory for BPTF results')
     parser.add_argument('--n-components', type=int, default=15,
                        help='Number of latent factors/motifs')
-    parser.add_argument('--max-iter', type=int, default=200,
+    parser.add_argument('--max-iter', type=int, default=10000,
                        help='Maximum number of iterations')
     parser.add_argument('--random-state', type=int, default=1,
                        help='Random seed for reproducibility')
@@ -227,6 +231,9 @@ def main():
                        default='|', help='cell-gene or cell|gene ...')
     parser.add_argument('--neighborhood', type=bool,
                        default=False, help='if neighbood-based or patch-based')
+    parser.add_argument('--single-cell', type=bool,
+                       default=False, help='if cell-based or patch-based')
+    
     # parser.add_argument('--top-k-motifs', type=int, default=10,
     #                    help='Number of top motifs to analyze in detail')
     # parser.add_argument('--top-k-lris', type=int, default=20,
@@ -261,10 +268,13 @@ def main():
     print("Loading patch-LRI results...")
     try:
         results = load_patch_lri_results(args.input_dir, sparse_matrix_name=args.sparse_matrix_name,
-                                        neighborhood=args.neighborhood)
+                                         column_df_name = args.column_df_name, meta_df_name = args.meta_df_name,
+                                         neighborhood=args.neighborhood, single_cell = args.single_cell)
         mat = results['patch_lri_matrix']
         cols = results['column_names']
-        cell_patch_df = results['cell_patch_df']
+        cell_meta_df = results['cell_patch_df']
+        if not args.single_cell:
+            cell_patch_df = results['patch_tma_df']
         
         print(f"Loaded matrix shape: {mat.shape}")
         print(f"Matrix sparsity: {(1 - mat.nnz / np.prod(mat.shape)) * 100:.2f}%")
@@ -310,7 +320,7 @@ def main():
     print("\nSaving BPTF results...")
     try:
         save_bptf_results(model, patch_loadings, lri_factors, cols, 
-                         cell_patch_df, args.output_dir, elbo_hist, delta_hist)
+                         cell_meta_df, args.output_dir, elbo_hist, delta_hist)
         
         # Create plots
         print("\nCreating visualizations...")
