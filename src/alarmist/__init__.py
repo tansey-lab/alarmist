@@ -49,6 +49,7 @@ from alarmist.plotting import (
     plot_factor_distributions,
     volcano_plot,
     forest_plot,
+    plot_cells_per_patch,
 )
 
 __all__ = [
@@ -74,6 +75,7 @@ __all__ = [
     'plot_bptf_diagnostics',
     'plot_motif_activities',
     'plot_factor_distributions',
+    'plot_cells_per_patch',
 
     # GLM analysis
     'run_poisson_glm_analysis',

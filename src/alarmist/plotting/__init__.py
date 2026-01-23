@@ -22,6 +22,10 @@ from alarmist.plotting.single_cell_plots import (
     plot_motif_spatial
 )
 
+from alarmist.plotting.spatial_plots import (
+    plot_cells_per_patch
+)
+
 from alarmist.plotting.motif_plots import (
     # Utility functions
     parse_lri_full,
@@ -53,6 +57,8 @@ __all__ = [
     'plot_motif_state_counts',
     'plot_positive_motifs_distribution',
     'plot_motif_spatial',
+    # Spatial plots
+    'plot_cells_per_patch',
     # Motif plots
     'parse_lri_full',
     'get_cell_type_colors',
