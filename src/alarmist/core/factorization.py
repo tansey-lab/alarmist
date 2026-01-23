@@ -334,19 +334,16 @@ def process_bptf_results(
         mean_expr = lri_to_mean.get(column_name, 0)
 
         for k in range(len(motif_factors)):
-            factor = motif_factors[k]
-            factor_norm = factor / mean_expr if mean_expr > 0 else factor
-
             lri_motifs_list.append({
                 'lri_idx': j,
                 'motif_idx': k,
                 'lri_name': column_name,
-                'factor': factor,
-                'factor_norm': factor_norm,
+                'factor': motif_factors[k],
                 'mean': mean_expr
             })
 
     lri_motifs = pd.DataFrame(lri_motifs_list)
+    lri_motifs = lri_motifs[lri_motifs['mean'] > 0]
     print(f"Total entries: {len(lri_motifs)}")
 
     # Parse LRI components
@@ -576,17 +573,13 @@ def process_and_save_lri_motif_analysis(
     for j, column_name in enumerate(column_names):
         motif_factors = lri_factors[:, j]
         mean_expr = lri_to_mean.get(column_name, 0)
-        
+
         for k in range(len(motif_factors)):
-            factor = motif_factors[k]
-            factor_norm = factor / mean_expr if mean_expr > 0 else factor
-            
             lri_motifs.append({
                 'lri_idx': j,
                 'motif_idx': k,
                 'lri_name': column_name,
-                'factor': factor,
-                'factor_norm': factor_norm,
+                'factor': motif_factors[k],
                 'mean': mean_expr
             })
     
