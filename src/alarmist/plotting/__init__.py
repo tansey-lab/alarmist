@@ -33,6 +33,8 @@ from alarmist.plotting.motif_plots import (
     plot_lri_clustermap,
     plot_celltype_communication_by_motif,
     plot_top_lri_interactions_dot,
+    plot_single_motif_lri_lollipop,
+    plot_single_motif_cellpair_lollipop,
     plot_top_lri_interactions_by_pathway,
     build_master_edge_gate,
     plot_lri_networks
@@ -59,6 +61,8 @@ __all__ = [
     'plot_lri_clustermap',
     'plot_celltype_communication_by_motif',
     'plot_top_lri_interactions_dot',
+    'plot_single_motif_lri_lollipop',
+    'plot_single_motif_cellpair_lollipop',
     'plot_top_lri_interactions_by_pathway',
     'build_master_edge_gate',
     'plot_lri_networks',

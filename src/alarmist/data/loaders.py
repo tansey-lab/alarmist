@@ -40,8 +40,8 @@ def load_patch_lri_results(input_dir: str,
         Dictionary with:
         - patch_lri_matrix: sparse matrix
         - column_names: list
-        - cell_patch_df: DataFrame
-        - patch_tma_df: DataFrame (if not single_cell)
+        - cell_patch_df: DataFrame (if not single_cell)
+        - parameters: DataFrame
     """
     print(f"Loading patch-LRI results from: {input_dir}")
 
@@ -54,11 +54,6 @@ def load_patch_lri_results(input_dir: str,
     cols_df = pd.read_csv(cols_path)
     column_names = cols_df['column_name'].tolist()
 
-    # Load metadata dataframes
-    if not single_cell:
-        cell_patch_file = os.path.join(input_dir, 'cell_patch_correspondence.csv')
-        cell_patch_df = pd.read_csv(cell_patch_file)
-
     # Load parameters
     params_file = os.path.join(input_dir, 'analysis_parameters.csv')
     params_df = pd.read_csv(params_file)
@@ -69,28 +64,15 @@ def load_patch_lri_results(input_dir: str,
     results = {
         'patch_lri_matrix': patch_lri_matrix,
         'column_names': column_names,
+        'parameters': params_df
     }
 
-    if neighborhood:
-        results['cell_patch_df'] = cell_patch_df
-        results['parameters'] = params_df
-    elif not single_cell:
-        if meta_df_name == 'cell_patch_correspondence.csv':
-            patch_tma_file = os.path.join(input_dir, 'patch_tma_correspondence.csv')
-        else:
-            patch_tma_file = os.path.join(input_dir, meta_df_name)
-        patch_tma_df = pd.read_csv(patch_tma_file)
-        results['patch_tma_df'] = patch_tma_df
-        results['cell_patch_df'] = cell_patch_df
-        results['parameters'] = params_df
-    else:
-        patch_tma_file = os.path.join(input_dir, meta_df_name)
-        patch_tma_df = pd.read_csv(patch_tma_file)
-        results['patch_tma_df'] = patch_tma_df
-        results['parameters'] = params_df
+    # Load cell-patch correspondence for non-single-cell analyses
+    if not single_cell:
+        cell_patch_file = os.path.join(input_dir, meta_df_name)
+        results['cell_patch_df'] = pd.read_csv(cell_patch_file)
 
     return results
-
 
 def load_cell_lri_results(output_dir: str) -> Dict:
     """
@@ -128,6 +110,11 @@ def load_cell_lri_results(output_dir: str) -> Dict:
     params_file = os.path.join(output_dir, 'analysis_parameters.csv')
     params_df = pd.read_csv(params_file)
 
+    # Load sample info if available
+    sample_info_file = os.path.join(output_dir, 'sample_info.csv')
+    if os.path.exists(sample_info_file):
+        sample_info_df = pd.read_csv(sample_info_file)
+
     print(f"Loaded matrix shape: {cell_lri_matrix.shape}")
     print(f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}")
 
@@ -135,7 +122,8 @@ def load_cell_lri_results(output_dir: str) -> Dict:
         'cell_lri_matrix': cell_lri_matrix,
         'column_names': column_names,
         'cell_metadata_df': cell_metadata_df,
-        'parameters': params_df
+        'parameters': params_df,
+        'sample_info': sample_info_df if os.path.exists(sample_info_file) else None
     }
 
 
@@ -151,13 +139,12 @@ def load_bptf_results(results_dir: str) -> Dict:
     Returns
     -------
     dict
-        Dictionary with patch_loadings, lri_factors, patch_motifs, lri_motifs
+        Dictionary with patch_loadings, lri_factors, lri_motifs
     """
     print(f"Loading BPTF results from: {results_dir}")
 
     patch_loadings = np.load(os.path.join(results_dir, 'patch_loadings.npy'))
     lri_factors = np.load(os.path.join(results_dir, 'lri_factors.npy'))
-    patch_motifs = pd.read_csv(os.path.join(results_dir, 'patch_motifs.csv'))
     lri_motifs = pd.read_csv(os.path.join(results_dir, 'lri_motifs.csv'))
 
     print(f"Loaded results:")
@@ -167,6 +154,5 @@ def load_bptf_results(results_dir: str) -> Dict:
     return {
         'patch_loadings': patch_loadings,
         'lri_factors': lri_factors,
-        'patch_motifs': patch_motifs,
         'lri_motifs': lri_motifs
     }

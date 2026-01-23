@@ -11,6 +11,7 @@ Adapted from scripts/bptf_visualization_utils.py for notebook-friendly usage.
 """
 
 import io
+import os
 import warnings
 from typing import List, Optional, Dict, Tuple, Set
 import numpy as np
@@ -235,103 +236,102 @@ def plot_lri_clustermap(lri_factors: np.ndarray,
     plt.suptitle('Clustermap of LRI Cell Type Pairs Across Motifs', y=0.98)
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches='tight', dpi=300)
         print(f"Saved: {save_path}")
 
     return g
 
 
-def plot_celltype_communication_by_motif(lri_factors: np.ndarray,
-                                        column_names: List[str],
-                                        save_path: Optional[str] = None,
-                                        n_cols: int = 5,
-                                        figsize_per_motif: Tuple[float, float] = (5, 4)) -> plt.Figure:
-    """Create cell-cell communication heatmaps for each motif
+def plot_celltype_communication_by_motif(
+    lri_motifs_df: pd.DataFrame,
+    factor_col: str = "factor",
+    save_path: Optional[str] = None,
+    n_cols: int = 5,
+    figsize_per_motif: Tuple[float, float] = (5, 4),
+    cmap: str = "Blues",
+    exclude_celltypes: Optional[List[str]] = None,
+) -> plt.Figure:
+    """Create cell-cell communication heatmaps for each motif.
+
+    For each motif, aggregates factor values by (celltype1, celltype2) pairs
+    and displays as a heatmap showing sender -> receiver communication strength.
 
     Parameters
     ----------
-    lri_factors : np.ndarray
-        LRI factors matrix (n_motifs × n_lris)
-    column_names : list of str
-        LRI column names
+    lri_motifs_df : pd.DataFrame
+        DataFrame with columns: motif_idx, celltype1, celltype2, and factor_col.
+        Typically output from add_lri_components() or load_bptf_results().
+    factor_col : str, default "factor"
+        Column name for factor values (e.g., 'factor', 'factor_norm', 'score')
     save_path : str, optional
         Path to save figure. If None, displays plot.
     n_cols : int, default 5
         Number of columns in subplot grid
     figsize_per_motif : tuple, default (5, 4)
         Size per motif subplot
+    cmap : str, default "Blues"
+        Colormap for heatmaps
+    exclude_celltypes : list of str, optional
+        Cell types to exclude. If None, no exclusion.
+        Pass list like ['granulocyte'] to exclude specific types.
 
     Returns
     -------
     matplotlib.figure.Figure
         Figure object
+
+    Examples
+    --------
+    >>> fig = plot_celltype_communication_by_motif(
+    ...     lri_motifs,
+    ...     factor_col='factor_norm',
+    ...     n_cols=5
+    ... )
+
+    >>> # Use different colormap and exclude specific cell types
+    >>> fig = plot_celltype_communication_by_motif(
+    ...     lri_motifs,
+    ...     factor_col='score',
+    ...     cmap='Reds',
+    ...     exclude_celltypes=['granulocyte', 'unknown']
+    ... )
     """
-    H_obs = lri_factors
-    n_motifs = H_obs.shape[0]
+    required_cols = {"motif_idx", "celltype1", "celltype2", factor_col}
+    missing = required_cols - set(lri_motifs_df.columns)
+    if missing:
+        raise ValueError(f"Missing columns in lri_motifs_df: {sorted(missing)}")
 
-    df_all = pd.DataFrame(
-        H_obs.T,
-        index=column_names,
-        columns=range(n_motifs)
-    ).reset_index().rename(columns={'index':'lri'})
+    # Filter out excluded cell types
+    df = lri_motifs_df.copy()
+    if exclude_celltypes:
+        for ct in exclude_celltypes:
+            mask = (
+                df['celltype1'].str.contains(ct, case=False, na=False) |
+                df['celltype2'].str.contains(ct, case=False, na=False)
+            )
+            df = df[~mask]
 
-    df_all = df_all[~df_all['lri'].str.startswith('GENE')]
-    df_all['cell_pair'] = df_all['lri'].str.split('|').str[:2].str.join('|')
-    pivot = df_all.groupby('cell_pair')[list(range(n_motifs))].sum()
-    pivot_filled = pivot.fillna(0)
-    filtered_pivot = pivot_filled[~pivot_filled.index.str.contains('granulocyte', case=False, na=False)]
+    # Get all motifs
+    motifs = sorted(df['motif_idx'].unique())
+    n_motifs = len(motifs)
 
-    def create_cellpair_heatmap(motif_data, motif_name):
-        """Create heatmap for single motif"""
-        ligand_cts = []
-        receptor_cts = []
-        activities = []
-
-        for cellpair, activity in motif_data.items():
-            if activity == 0 or pd.isna(activity):
-                continue
-
-            if '|' in cellpair:
-                parts = cellpair.split('|')
-            else:
-                parts = [cellpair[:len(cellpair)//2], cellpair[len(cellpair)//2:]]
-
-            if len(parts) >= 2:
-                ligand_ct = parts[0].strip()
-                receptor_ct = parts[1].strip()
-
-                ligand_cts.append(ligand_ct)
-                receptor_cts.append(receptor_ct)
-                activities.append(activity)
-
-        if not ligand_cts:
-            return None
-
-        df_split = pd.DataFrame({
-            'ligand_ct': ligand_cts,
-            'receptor_ct': receptor_cts,
-            'activity': activities
-        })
-
-        heatmap_data = df_split.pivot_table(
-            index='ligand_ct',
-            columns='receptor_ct',
-            values='activity',
-            fill_value=0,
-            aggfunc='sum'
-        )
-
-        return heatmap_data
+    if n_motifs == 0:
+        raise ValueError("No motifs found in data after filtering")
 
     # Setup layout
-    motifs = filtered_pivot.columns
-    n_motifs = len(motifs)
     n_rows = (n_motifs + n_cols - 1) // n_cols
 
     # Create figure
-    fig, axes = plt.subplots(n_rows, n_cols,
-                            figsize=(figsize_per_motif[0]*n_cols, figsize_per_motif[1]*n_rows))
-    if n_rows == 1:
+    fig, axes = plt.subplots(
+        n_rows, n_cols,
+        figsize=(figsize_per_motif[0] * n_cols, figsize_per_motif[1] * n_rows)
+    )
+
+    # Handle single row/col cases
+    if n_motifs == 1:
+        axes = np.array([[axes]])
+    elif n_rows == 1:
         axes = axes.reshape(1, -1)
     elif n_cols == 1:
         axes = axes.reshape(-1, 1)
@@ -342,26 +342,43 @@ def plot_celltype_communication_by_motif(lri_factors: np.ndarray,
         col = idx % n_cols
         ax = axes[row, col]
 
-        motif_data = filtered_pivot[motif]
-        heatmap_data = create_cellpair_heatmap(motif_data, motif)
+        # Filter to this motif
+        dfp = df[df['motif_idx'] == motif]
 
-        if heatmap_data is not None and not heatmap_data.empty:
+        # Aggregate by cell type pairs
+        agg = dfp.groupby(['celltype1', 'celltype2'])[factor_col].sum().reset_index()
+
+        if agg.empty:
+            ax.text(0.5, 0.5, 'No Data', ha='center', va='center', transform=ax.transAxes)
+            ax.set_title(f'Motif {motif}', fontsize=10, fontweight='bold')
+            continue
+
+        # Pivot to heatmap format
+        heatmap_data = agg.pivot_table(
+            index='celltype1',
+            columns='celltype2',
+            values=factor_col,
+            fill_value=0,
+            aggfunc='sum'
+        )
+
+        if heatmap_data.empty:
+            ax.text(0.5, 0.5, 'No Data', ha='center', va='center', transform=ax.transAxes)
+        else:
             sns.heatmap(
                 heatmap_data,
-                cmap='Blues',
-                cbar_kws={'label': 'Activity'},
+                cmap=cmap,
+                cbar_kws={'label': factor_col},
                 linewidths=0.3,
                 square=True,
                 xticklabels=True,
                 yticklabels=True,
                 ax=ax
             )
-        else:
-            ax.text(0.5, 0.5, 'No Data', ha='center', va='center', transform=ax.transAxes)
 
-        ax.set_title(f'{motif}', fontsize=10, fontweight='bold')
-        ax.set_xlabel('Receptor Cell Type', fontsize=8)
-        ax.set_ylabel('Ligand Cell Type', fontsize=8)
+        ax.set_title(f'Motif {motif}', fontsize=10, fontweight='bold')
+        ax.set_xlabel('Receiver', fontsize=8)
+        ax.set_ylabel('Sender', fontsize=8)
         ax.tick_params(axis='x', rotation=45, labelsize=5)
         ax.tick_params(axis='y', rotation=0, labelsize=6)
 
@@ -371,11 +388,16 @@ def plot_celltype_communication_by_motif(lri_factors: np.ndarray,
         col = idx % n_cols
         axes[row, col].set_visible(False)
 
-    plt.suptitle('Cell-Cell Communication Activity by Motif\n(Excluding Granulocyte pairs)',
-                 fontsize=16, fontweight='bold', y=1)
+    # Title
+    exclude_text = f" (excluding: {', '.join(exclude_celltypes)})" if exclude_celltypes else ""
+    plt.suptitle(
+        f'Cell-Cell Communication by Motif\n{factor_col}{exclude_text}',
+        fontsize=14, fontweight='bold', y=1.01
+    )
     plt.tight_layout()
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Saved: {save_path}")
 
@@ -575,10 +597,509 @@ def plot_top_lri_interactions_dot(
     )
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300)
         print(f"Saved: {save_path}")
 
     return fig
+
+
+def plot_single_motif_lri_lollipop(
+    lri_motifs_df: pd.DataFrame,
+    motif_idx: int,
+    unique_ct: List[str],
+    factor_col: str = "factor",
+    top_n: int = 25,
+    sender_type: Optional[str] = None,
+    receiver_type: Optional[str] = None,
+    save_path: Optional[str] = None,
+    figsize: Tuple[float, float] = (10, 8),
+    title: Optional[str] = None,
+    show_legend: bool = True,
+    ax: Optional[plt.Axes] = None,
+) -> plt.Figure:
+    """
+    Plot top LRI interactions for a SINGLE motif as a lollipop chart.
+
+    Parameters
+    ----------
+    lri_motifs_df : pd.DataFrame
+        DataFrame with columns: motif_idx, celltype1, celltype2, ligand, receptor,
+        signaling_type, and factor_col
+    motif_idx : int
+        The motif index to plot
+    unique_ct : list of str
+        List of unique cell types for consistent coloring
+    factor_col : str, default "factor"
+        Column name for the factor values (e.g., 'factor', 'score', 'factor_norm')
+    top_n : int, default 25
+        Number of top LRI interactions to show
+    sender_type : str, optional
+        Filter by sender cell type (celltype1). If None, no filtering.
+    receiver_type : str, optional
+        Filter by receiver cell type (celltype2). If None, no filtering.
+    save_path : str, optional
+        Path to save figure. If None, displays plot.
+    figsize : tuple, default (10, 8)
+        Figure size (width, height)
+    title : str, optional
+        Custom title. If None, auto-generated based on motif and filters.
+    show_legend : bool, default True
+        Whether to show the legend
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, creates new figure.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Figure object (or None if ax was provided)
+
+    Examples
+    --------
+    >>> # All interactions for motif 5
+    >>> fig = plot_single_motif_lri_lollipop(
+    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
+    ...     factor_col='score', top_n=30
+    ... )
+
+    >>> # Only interactions where Tumor cells are the sender
+    >>> fig = plot_single_motif_lri_lollipop(
+    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
+    ...     sender_type='Tumor', top_n=20
+    ... )
+
+    >>> # Only interactions from Macrophage to T cell
+    >>> fig = plot_single_motif_lri_lollipop(
+    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
+    ...     sender_type='Macrophage', receiver_type='T cell', top_n=15
+    ... )
+    """
+    required_cols = {"motif_idx", "celltype1", "celltype2", "ligand", "receptor", "signaling_type", factor_col}
+    missing = required_cols - set(lri_motifs_df.columns)
+    if missing:
+        raise ValueError(f"Missing columns in lri_motifs_df: {sorted(missing)}")
+
+    # Filter to single motif
+    dfp = lri_motifs_df[lri_motifs_df["motif_idx"] == motif_idx].copy()
+    if dfp.empty:
+        raise ValueError(f"No data found for motif_idx={motif_idx}")
+
+    # Filter by sender_type (celltype1) if specified
+    if sender_type is not None:
+        dfp = dfp[dfp["celltype1"] == sender_type]
+        if dfp.empty:
+            raise ValueError(f"No data found for motif_idx={motif_idx} with sender_type='{sender_type}'")
+
+    # Filter by receiver_type (celltype2) if specified
+    if receiver_type is not None:
+        dfp = dfp[dfp["celltype2"] == receiver_type]
+        if dfp.empty:
+            filter_msg = f"receiver_type='{receiver_type}'"
+            if sender_type is not None:
+                filter_msg = f"sender_type='{sender_type}' and {filter_msg}"
+            raise ValueError(f"No data found for motif_idx={motif_idx} with {filter_msg}")
+
+    ct_color_map = get_cell_type_colors(unique_ct)
+
+    # Create figure if no ax provided
+    created_fig = False
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+        created_fig = True
+    else:
+        fig = ax.get_figure()
+
+    # Filter: keep top per (signaling_type, receptor, direction)
+    dfp_sorted = dfp.sort_values(factor_col, ascending=False)
+    dfp_filtered = dfp_sorted.drop_duplicates(
+        subset=["signaling_type", "receptor", "celltype1", "celltype2"],
+        keep="first",
+    )
+
+    top_df = dfp_filtered.nlargest(top_n, factor_col).reset_index(drop=True)
+    y = np.arange(len(top_df))
+
+    # Label spacing (in points)
+    ligand_dx_pts = -15
+    receptor_dx_pts = 10
+
+    # No y tick labels
+    ax.set_yticks(y)
+    ax.set_yticklabels([])
+    ax.tick_params(axis="y", length=0)
+
+    for yi, row in top_df.iterrows():
+        total = float(row[factor_col])
+
+        # Marker shape by signaling type
+        sig_type = str(row["signaling_type"]).lower()
+        if sig_type in ["auto", "autocrine"]:
+            marker_shape = "s"
+        elif sig_type in ["juxta", "juxtacrine"]:
+            marker_shape = "^"
+        else:
+            marker_shape = "o"
+
+        col1 = ct_color_map.get(row["celltype1"], "gray")
+        col2 = ct_color_map.get(row["celltype2"], "gray")
+
+        # Lollipop line
+        ax.plot([0, total], [yi, yi], color="gray", linewidth=1.5, zorder=1)
+
+        # Dots at endpoints
+        marker_size = 100
+        ax.scatter(
+            0, yi,
+            color=col1, s=marker_size, marker=marker_shape,
+            zorder=2, edgecolors="black", linewidth=0.5
+        )
+        ax.scatter(
+            total, yi,
+            color=col2, s=marker_size, marker=marker_shape,
+            zorder=2, edgecolors="black", linewidth=0.5
+        )
+
+        # Ligand label (left of x=0)
+        ax.annotate(
+            str(row["ligand"]),
+            xy=(0, yi),
+            xytext=(ligand_dx_pts, 0),
+            textcoords="offset points",
+            ha="right",
+            va="center",
+            fontsize=10,
+            clip_on=False,
+        )
+
+        # Receptor label (right of endpoint)
+        ax.annotate(
+            str(row["receptor"]),
+            xy=(total, yi),
+            xytext=(receptor_dx_pts, 0),
+            textcoords="offset points",
+            ha="left",
+            va="center",
+            fontsize=10,
+            clip_on=False,
+        )
+
+    ax.invert_yaxis()
+    ax.set_xlabel(factor_col, fontsize=11)
+
+    # Title
+    if title is None:
+        title = f"Motif {motif_idx} - Top {len(top_df)} LRI Interactions"
+        # Add filter info to title
+        filter_parts = []
+        if sender_type is not None:
+            filter_parts.append(f"Sender: {sender_type}")
+        if receiver_type is not None:
+            filter_parts.append(f"Receiver: {receiver_type}")
+        if filter_parts:
+            title += f"\n({', '.join(filter_parts)})"
+    ax.set_title(title, fontsize=13, fontweight="bold")
+
+    # X-axis limits with padding
+    if len(top_df) > 0:
+        max_val = float(top_df[factor_col].max())
+        ax.set_xlim(-max_val * 0.04, max_val * 1.12)
+
+    # Remove top/right spines
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # Legend
+    if show_legend and created_fig:
+        legend_handles = []
+
+        # Cell type colors
+        for ct, col in ct_color_map.items():
+            legend_handles.append(
+                plt.Line2D(
+                    [0], [0], marker="o", color="w",
+                    markerfacecolor=col, markersize=8,
+                    markeredgecolor="black", markeredgewidth=0.5,
+                    label=ct
+                )
+            )
+
+        # Separator and signaling types
+        legend_handles.append(plt.Line2D([0], [0], color="none", label=""))
+        legend_handles.append(plt.Line2D([0], [0], color="none", label="Signaling Types:"))
+        legend_handles.append(
+            plt.Line2D([0], [0], marker="s", color="w",
+                       markerfacecolor="lightgray", markersize=8,
+                       markeredgecolor="black", markeredgewidth=0.5,
+                       label="■ = Autocrine")
+        )
+        legend_handles.append(
+            plt.Line2D([0], [0], marker="o", color="w",
+                       markerfacecolor="lightgray", markersize=8,
+                       markeredgecolor="black", markeredgewidth=0.5,
+                       label="● = Paracrine")
+        )
+        legend_handles.append(
+            plt.Line2D([0], [0], marker="^", color="w",
+                       markerfacecolor="lightgray", markersize=8,
+                       markeredgecolor="black", markeredgewidth=0.5,
+                       label="▲ = Juxtacrine")
+        )
+
+        ax.legend(
+            handles=legend_handles,
+            title="Cell Types & Signaling",
+            loc="center left",
+            bbox_to_anchor=(1.02, 0.5),
+            fontsize=8,
+            title_fontsize=9,
+            frameon=True,
+            fancybox=True,
+        )
+
+    if created_fig:
+        plt.tight_layout()
+
+    if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path, bbox_inches="tight", dpi=300)
+        print(f"Saved: {save_path}")
+
+    return fig if created_fig else None
+
+
+def plot_single_motif_cellpair_lollipop(
+    lri_motifs_df: pd.DataFrame,
+    motif_idx: int,
+    unique_ct: List[str],
+    factor_col: str = "factor",
+    top_n: int = 20,
+    sender_type: Optional[str] = None,
+    receiver_type: Optional[str] = None,
+    save_path: Optional[str] = None,
+    figsize: Tuple[float, float] = (10, 8),
+    title: Optional[str] = None,
+    show_legend: bool = True,
+    ax: Optional[plt.Axes] = None,
+) -> plt.Figure:
+    """
+    Plot aggregated LRI interactions by cell type pairs for a SINGLE motif.
+
+    This function aggregates (sums) the factor values by (celltype1, celltype2) pairs,
+    allowing visualization of which cell type pairs have stronger overall interaction.
+
+    Parameters
+    ----------
+    lri_motifs_df : pd.DataFrame
+        DataFrame with columns: motif_idx, celltype1, celltype2, ligand, receptor,
+        signaling_type, and factor_col
+    motif_idx : int
+        The motif index to plot
+    unique_ct : list of str
+        List of unique cell types for consistent coloring
+    factor_col : str, default "factor"
+        Column name for the factor values to aggregate (e.g., 'factor', 'factor_norm', 'factor_lrnorm')
+    top_n : int, default 20
+        Number of top cell type pairs to show
+    sender_type : str, optional
+        Filter by sender cell type (celltype1). If None, no filtering.
+    receiver_type : str, optional
+        Filter by receiver cell type (celltype2). If None, no filtering.
+    save_path : str, optional
+        Path to save figure. If None, displays plot.
+    figsize : tuple, default (10, 8)
+        Figure size (width, height)
+    title : str, optional
+        Custom title. If None, auto-generated based on motif and filters.
+    show_legend : bool, default True
+        Whether to show the legend
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, creates new figure.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Figure object (or None if ax was provided)
+
+    Examples
+    --------
+    >>> # All cell type pairs for motif 5
+    >>> fig = plot_single_motif_cellpair_lollipop(
+    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
+    ...     factor_col='factor', top_n=15
+    ... )
+
+    >>> # Only pairs where Tumor cells are the sender
+    >>> fig = plot_single_motif_cellpair_lollipop(
+    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
+    ...     sender_type='Tumor', factor_col='factor_norm'
+    ... )
+    """
+    required_cols = {"motif_idx", "celltype1", "celltype2", factor_col}
+    missing = required_cols - set(lri_motifs_df.columns)
+    if missing:
+        raise ValueError(f"Missing columns in lri_motifs_df: {sorted(missing)}")
+
+    # Filter to single motif
+    dfp = lri_motifs_df[lri_motifs_df["motif_idx"] == motif_idx].copy()
+    if dfp.empty:
+        raise ValueError(f"No data found for motif_idx={motif_idx}")
+
+    # Filter by sender_type (celltype1) if specified
+    if sender_type is not None:
+        dfp = dfp[dfp["celltype1"] == sender_type]
+        if dfp.empty:
+            raise ValueError(f"No data found for motif_idx={motif_idx} with sender_type='{sender_type}'")
+
+    # Filter by receiver_type (celltype2) if specified
+    if receiver_type is not None:
+        dfp = dfp[dfp["celltype2"] == receiver_type]
+        if dfp.empty:
+            filter_msg = f"receiver_type='{receiver_type}'"
+            if sender_type is not None:
+                filter_msg = f"sender_type='{sender_type}' and {filter_msg}"
+            raise ValueError(f"No data found for motif_idx={motif_idx} with {filter_msg}")
+
+    # Aggregate by cell type pairs
+    agg_df = dfp.groupby(["celltype1", "celltype2"]).agg({
+        factor_col: "sum"
+    }).reset_index()
+
+    # Sort and get top N
+    agg_df = agg_df.sort_values(factor_col, ascending=False)
+    top_df = agg_df.head(top_n).reset_index(drop=True)
+
+    if top_df.empty:
+        raise ValueError(f"No aggregated data for motif_idx={motif_idx}")
+
+    ct_color_map = get_cell_type_colors(unique_ct)
+
+    # Create figure if no ax provided
+    created_fig = False
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+        created_fig = True
+    else:
+        fig = ax.get_figure()
+
+    y = np.arange(len(top_df))
+
+    # No y tick labels (we'll annotate instead)
+    ax.set_yticks(y)
+    ax.set_yticklabels([])
+    ax.tick_params(axis="y", length=0)
+
+    # Label spacing (in points)
+    sender_dx_pts = -15
+    receiver_dx_pts = 10
+
+    for yi, row in top_df.iterrows():
+        total = float(row[factor_col])
+        ct1 = row["celltype1"]
+        ct2 = row["celltype2"]
+
+        col1 = ct_color_map.get(ct1, "gray")
+        col2 = ct_color_map.get(ct2, "gray")
+
+        # Lollipop line
+        ax.plot([0, total], [yi, yi], color="gray", linewidth=1.5, zorder=1)
+
+        # Dots at endpoints
+        marker_size = 120
+        ax.scatter(
+            0, yi,
+            color=col1, s=marker_size, marker="o",
+            zorder=2, edgecolors="black", linewidth=0.5
+        )
+        ax.scatter(
+            total, yi,
+            color=col2, s=marker_size, marker="o",
+            zorder=2, edgecolors="black", linewidth=0.5
+        )
+
+        # Sender label (left of x=0)
+        ax.annotate(
+            ct1,
+            xy=(0, yi),
+            xytext=(sender_dx_pts, 0),
+            textcoords="offset points",
+            ha="right",
+            va="center",
+            fontsize=10,
+            clip_on=False,
+        )
+
+        # Receiver label (right of endpoint)
+        ax.annotate(
+            ct2,
+            xy=(total, yi),
+            xytext=(receiver_dx_pts, 0),
+            textcoords="offset points",
+            ha="left",
+            va="center",
+            fontsize=10,
+            clip_on=False,
+        )
+
+    ax.invert_yaxis()
+    ax.set_xlabel(f"Aggregated {factor_col}", fontsize=11)
+
+    # Title
+    if title is None:
+        title = f"Motif {motif_idx} - Top {len(top_df)} Cell Type Pairs"
+        # Add filter info to title
+        filter_parts = []
+        if sender_type is not None:
+            filter_parts.append(f"Sender: {sender_type}")
+        if receiver_type is not None:
+            filter_parts.append(f"Receiver: {receiver_type}")
+        if filter_parts:
+            title += f"\n({', '.join(filter_parts)})"
+    ax.set_title(title, fontsize=13, fontweight="bold")
+
+    # X-axis limits with padding
+    if len(top_df) > 0:
+        max_val = float(top_df[factor_col].max())
+        ax.set_xlim(-max_val * 0.04, max_val * 1.12)
+
+    # Remove top/right spines
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # Legend
+    if show_legend and created_fig:
+        legend_handles = []
+
+        # Cell type colors
+        for ct, col in ct_color_map.items():
+            legend_handles.append(
+                plt.Line2D(
+                    [0], [0], marker="o", color="w",
+                    markerfacecolor=col, markersize=8,
+                    markeredgecolor="black", markeredgewidth=0.5,
+                    label=ct
+                )
+            )
+
+        ax.legend(
+            handles=legend_handles,
+            title="Cell Types",
+            loc="center left",
+            bbox_to_anchor=(1.02, 0.5),
+            fontsize=8,
+            title_fontsize=9,
+            frameon=True,
+            fancybox=True,
+        )
+
+    if created_fig:
+        plt.tight_layout()
+
+    if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path, bbox_inches="tight", dpi=300)
+        print(f"Saved: {save_path}")
+
+    return fig if created_fig else None
 
 
 def plot_top_lri_interactions_by_pathway(lri_motifs_df: pd.DataFrame,
@@ -715,6 +1236,7 @@ def plot_top_lri_interactions_by_pathway(lri_motifs_df: pd.DataFrame,
     )
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches='tight', dpi=300)
         print(f"Saved: {save_path}")
 
@@ -946,6 +1468,7 @@ def plot_lri_networks(lri_motifs_df: pd.DataFrame,
                  fontsize=12, y=0.98)
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=600, bbox_inches='tight')
         print(f"Saved: {save_path}")
 

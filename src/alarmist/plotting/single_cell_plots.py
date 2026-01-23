@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scanpy as sc
 from typing import Optional, Dict, Tuple
+import os
 
 
 def plot_motif_celltype_composition(
@@ -15,7 +16,8 @@ def plot_motif_celltype_composition(
     figsize: tuple = (12, 6),
     ylabel: Optional[str] = None,
     title: Optional[str] = None,
-    save_path: Optional[str] = None
+    save_path: Optional[str] = None,
+    cell_type_col: str = "cell_type"
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
     Plot stacked bar chart showing cell type composition for each motif.
@@ -56,7 +58,7 @@ def plot_motif_celltype_composition(
     # Pivot to wide format
     wide = df_tidy.pivot_table(
         index="motif",
-        columns="cell_type",
+        columns=cell_type_col,
         values="weight",
         aggfunc="sum",
         fill_value=0.0
@@ -97,6 +99,7 @@ def plot_motif_celltype_composition(
     plt.tight_layout()
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         print(f"Saved: {save_path}")
 
@@ -162,6 +165,7 @@ def plot_motif_state_counts(
     plt.tight_layout()
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         print(f"Saved: {save_path}")
 
@@ -218,6 +222,7 @@ def plot_positive_motifs_distribution(
     plt.tight_layout()
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         print(f"Saved: {save_path}")
 
@@ -331,6 +336,7 @@ def plot_motif_spatial(
     plt.tight_layout()
 
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         print(f"Saved: {save_path}")
 
