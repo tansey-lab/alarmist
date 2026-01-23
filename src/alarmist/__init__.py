@@ -48,6 +48,7 @@ from alarmist.plotting import (
     plot_bptf_diagnostics,
     plot_motif_activities,
     plot_factor_distributions,
+    plot_lri_factor_scatter,
     volcano_plot,
     forest_plot,
     plot_cells_per_patch,
@@ -77,6 +78,7 @@ __all__ = [
     'plot_bptf_diagnostics',
     'plot_motif_activities',
     'plot_factor_distributions',
+    'plot_lri_factor_scatter',
     'plot_cells_per_patch',
 
     # GLM analysis

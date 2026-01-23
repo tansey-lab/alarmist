@@ -103,6 +103,88 @@ def plot_motif_activities(patch_loadings: np.ndarray, save_path: Optional[str] =
     return fig
 
 
+def plot_lri_factor_scatter(
+    lri_motifs: pd.DataFrame,
+    motif_idx: Optional[int] = None,
+    figsize: tuple = (12, 4),
+    alpha: float = 0.3,
+    s: float = 1,
+    save_path: Optional[str] = None,
+    show: bool = True
+) -> plt.Figure:
+    """
+    Plot scatter plots of LRI factors vs mean expression.
+
+    Creates a 3-panel figure showing relationships between different factor
+    metrics and mean expression values.
+
+    Parameters
+    ----------
+    lri_motifs : pd.DataFrame
+        LRI motifs DataFrame from process_bptf_results, containing columns:
+        factor, factor_lrnorm, score, mean, lr_global_mean, motif_idx
+    motif_idx : int, optional
+        If specified, filter to this motif and use lr_global_mean as y-axis.
+        If None, plot all motifs with mean as y-axis.
+    figsize : tuple, default (12, 4)
+        Figure size
+    alpha : float, default 0.3
+        Point transparency
+    s : float, default 1
+        Point size
+    save_path : str, optional
+        Path to save figure
+    show : bool, default True
+        Whether to display the plot
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure object
+    """
+    # Filter by motif if specified
+    if motif_idx is not None:
+        df = lri_motifs[lri_motifs['motif_idx'] == motif_idx].copy()
+        y_col = 'lr_global_mean'
+        title_suffix = f' (Motif {motif_idx})'
+    else:
+        df = lri_motifs.copy()
+        y_col = 'mean'
+        title_suffix = ' (All Motifs)'
+
+    fig, axes = plt.subplots(1, 3, figsize=figsize)
+
+    # Panel 1: factor vs y
+    axes[0].scatter(df['factor'], df[y_col], alpha=alpha, s=s)
+    axes[0].set_xlabel('factor')
+    axes[0].set_ylabel(y_col)
+    axes[0].set_title(f'Factor vs {y_col}')
+
+    # Panel 2: factor_lrnorm vs y
+    axes[1].scatter(df['factor_lrnorm'], df[y_col], alpha=alpha, s=s)
+    axes[1].set_xlabel('factor_lrnorm')
+    axes[1].set_ylabel(y_col)
+    axes[1].set_title(f'Factor (LR-norm) vs {y_col}')
+
+    # Panel 3: score vs y
+    axes[2].scatter(df['score'], df[y_col], alpha=alpha, s=s)
+    axes[2].set_xlabel('score')
+    axes[2].set_ylabel(y_col)
+    axes[2].set_title(f'Score vs {y_col}')
+
+    plt.suptitle(f'LRI Factor Scatter Plots{title_suffix}', y=1.02)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Saved: {save_path}")
+
+    if show:
+        plt.show()
+
+    return fig
+
+
 def plot_bptf_diagnostics(patch_loadings: np.ndarray,
                          lri_factors: np.ndarray,
                          output_dir: Optional[str] = None):

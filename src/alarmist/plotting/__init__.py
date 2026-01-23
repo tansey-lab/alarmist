@@ -5,7 +5,8 @@ from alarmist.plotting.bptf_plots import (
     plot_bptf_diagnostics,
     plot_motif_activities,
     plot_factor_distributions,
-    plot_factor_sparsity
+    plot_factor_sparsity,
+    plot_lri_factor_scatter
 )
 
 from alarmist.plotting.glm_plots import (
@@ -49,6 +50,7 @@ __all__ = [
     'plot_motif_activities',
     'plot_factor_distributions',
     'plot_factor_sparsity',
+    'plot_lri_factor_scatter',
     'volcano_plot',
     'forest_plot',
     'generate_volcano_plots',
