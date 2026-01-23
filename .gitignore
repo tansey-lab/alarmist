@@ -17,7 +17,6 @@ notebooks/cpdb_inputs/
 *.csv.gz
 *.tsv
 *.h5ad
-*.ipynb
 *.pdf
 *.png
 *.svg
