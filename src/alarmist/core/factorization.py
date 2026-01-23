@@ -18,6 +18,9 @@ except ImportError:
     BPTF_AVAILABLE = False
     warnings.warn("BPTF not available. Install from: https://github.com/aschein/bptf")
 
+from alarmist.plotting import (
+    add_lri_components,
+    annotate_pathways)
 
 def run_bptf(mat: sp.spmatrix,
              n_components: int = 15,
@@ -272,7 +275,6 @@ def save_bptf_results(model: object,
                       patch_loadings: np.ndarray,
                       lri_factors: np.ndarray,
                       column_names: list,
-                      patch_metadata_df: pd.DataFrame,
                       patch_lri_matrix: sp.spmatrix,
                       output_dir: str,
                       elbo_hist: Optional[list] = None,
@@ -320,11 +322,8 @@ def save_bptf_results(model: object,
         })
         history_df.to_csv(os.path.join(output_dir, 'iteration_history.csv'), index=False)
 
-    # Analyze and save patch-motif relationships
-    _save_patch_motif_analysis(patch_loadings, patch_metadata_df, output_dir)
-
     # Analyze and save LRI-motif relationships (with normalization)
-    _save_lri_motif_analysis(lri_factors, column_names, patch_lri_matrix, output_dir)
+    process_and_save_lri_motif_analysis(lri_factors, patch_loadings, column_names, patch_lri_matrix, output_dir)
 
     # Save model parameters
     params_df = pd.DataFrame({
@@ -341,64 +340,159 @@ def save_bptf_results(model: object,
     print(f"All results saved to: {output_dir}")
 
 
-def _save_patch_motif_analysis(patch_loadings, patch_metadata_df, output_dir):
-    """Save patch-motif relationship analysis"""
-    patch_motifs = []
-    if 'patch_id' in patch_metadata_df.columns:
-        patch_ids = sorted(patch_metadata_df['patch_id'].astype(str).unique().tolist())
-    else:
-        patch_ids = [f"patch_{i}" for i in range(len(patch_loadings))]
+def rescale_motif_matrices(
+    W: np.ndarray, 
+    V: np.ndarray, 
+    verify: bool = True,
+    eps: float = 1e-10
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Rescale W and V so each motif's patch loading has max=1.
+    
+    Transformation preserves reconstruction: W @ V = W_tilde @ V_tilde
+    
+    Parameters
+    ----------
+    W : (n_patches, n_motifs) patch loadings
+    V : (n_motifs, n_lris) LRI factors
+    verify : whether to check reconstruction invariance
+    eps : small constant for numerical stability
+    
+    Returns
+    -------
+    W_tilde, V_tilde, c_safe (scaling factors per motif)
+    """
+    c = W.max(axis=0)  # (n_motifs,)
+    c_safe = np.where(c > 0, c, 1.0)
+    
+    W_tilde = W / c_safe[None, :]
+    V_tilde = V * c_safe[:, None]
+    
+    if verify:
+        _verify_reconstruction(W, V, W_tilde, V_tilde, eps=eps)
+    
+    return W_tilde, V_tilde, c_safe
 
-    for i, patch_id in enumerate(patch_ids):
-        total_loading = patch_loadings[i].sum()
-        for k in range(patch_loadings.shape[1]):
-            loading = patch_loadings[i, k]
-            fraction = loading / total_loading if total_loading > 0 else 0
 
-            patch_motifs.append({
-                'patch_idx': i,
-                'patch_id': patch_id,
-                'motif': k,
-                'loading': loading,
-                'loading_normalized': fraction
-            })
+def _verify_reconstruction(
+    W: np.ndarray, 
+    V: np.ndarray, 
+    W_tilde: np.ndarray, 
+    V_tilde: np.ndarray,
+    n_samples: int = 200,
+    seed: int = 0,
+    eps: float = 1e-10
+) -> None:
+    """Sanity check that rescaling preserves reconstruction."""
+    rng = np.random.default_rng(seed)
+    patch_idx = rng.choice(W.shape[0], size=min(n_samples, W.shape[0]), replace=False)
+    lri_idx = rng.choice(V.shape[1], size=min(n_samples, V.shape[1]), replace=False)
+    
+    X1 = W[patch_idx, :] @ V[:, lri_idx]
+    X2 = W_tilde[patch_idx, :] @ V_tilde[:, lri_idx]
+    rel_err = np.linalg.norm(X1 - X2) / (np.linalg.norm(X1) + eps)
+    
+    print(f"Reconstruction error: {rel_err:.2e} (should be ~0)")
+    assert rel_err < 1e-10, f"Reconstruction failed: {rel_err}"
 
-    patch_motifs_df = pd.DataFrame(patch_motifs)
-    patch_motifs_df.to_csv(os.path.join(output_dir, 'patch_motifs.csv'), index=False)
+
+def compute_lr_global_prevalence(df: pd.DataFrame) -> pd.Series:
+    """
+    Compute global prevalence for each (ligand, receptor) pair.
+    
+    Uses unique lri_idx only to avoid overcounting repeated entries across motifs.
+    """
+    unique_lris = df.drop_duplicates(subset=["lri_idx"])
+    return unique_lris.groupby(["ligand", "receptor"])["mean"].sum()
 
 
-def _save_lri_motif_analysis(lri_factors, column_names, patch_lri_matrix, output_dir):
-    """Save LRI-motif relationship analysis with normalization
+def add_normalized_scores(
+    df: pd.DataFrame,
+    motif_scales: np.ndarray,
+    eps: float = 1e-10
+) -> pd.DataFrame:
+    """
+    Add rescaled and normalized score columns to lri_motifs.
+    
+    Columns added:
+    - W_max: motif scaling factor (max patch loading for that motif)
+    - factor_rescaled: factor × W_max
+    - lr_global_mean: background prevalence of (ligand, receptor) pair
+    - score: factor_rescaled / lr_global_mean
+    """
+    df = df.copy()
+    
+    # Motif-wise rescaling
+    df["W_max"] = df["motif_idx"].map(dict(enumerate(motif_scales))).astype(float)
+    df["factor_rescaled"] = df["factor"] * df["W_max"]
+    
+    # LR global prevalence normalization
+    lr_prevalence = compute_lr_global_prevalence(df)
+    lr_keys = list(zip(df["ligand"], df["receptor"]))
+    df["lr_global_mean"] = pd.Series(lr_keys, index=df.index).map(lr_prevalence).astype(float)
 
+    df["factor_lrnorm"] = df["factor"] / (df["lr_global_mean"] + eps)
+    
+    # Final scores
+    df["score"] = df["factor_rescaled"] / (df["lr_global_mean"] + eps)
+    
+    return df
+
+def process_and_save_lri_motif_analysis(
+    lri_factors: np.ndarray,
+    patch_loadings: np.ndarray,
+    column_names: list,
+    patch_lri_matrix,
+    output_dir: str,
+    cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv',
+    save: bool = True,
+    eps: float = 1e-10
+) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+    """
+    Full pipeline: create LRI motifs DataFrame, process, and save.
+    
     Parameters
     ----------
     lri_factors : np.ndarray
         LRI factors (K × n_lris)
+    patch_loadings : np.ndarray
+        Patch loadings (n_patches × K)
     column_names : list
         LRI column names
     patch_lri_matrix : scipy.sparse matrix
         Original patch-LRI matrix for computing column means
     output_dir : str
         Output directory
+    cellchatdb_path : str
+        Path to CellChatDB annotation file
+    save : bool
+        Whether to save outputs to disk
+    eps : float
+        Small constant for numerical stability
+        
+    Returns
+    -------
+    lri_motifs : pd.DataFrame
+        Fully processed LRI motifs with all scores
+    W_tilde : np.ndarray
+        Rescaled patch loadings
+    V_tilde : np.ndarray
+        Rescaled LRI factors
     """
-    # Compute column means for normalization
+    # Step 1: Create initial DataFrame
+    print("Creating LRI motifs DataFrame...")
     column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
     lri_to_mean = dict(zip(column_names, column_means))
-
+    
     lri_motifs = []
     for j, column_name in enumerate(column_names):
-        motif_factors = lri_factors[:, j]  # factors for this LRI across motifs
+        motif_factors = lri_factors[:, j]
         mean_expr = lri_to_mean.get(column_name, 0)
-
+        
         for k in range(len(motif_factors)):
             factor = motif_factors[k]
-
-            # Normalize by column mean
-            if mean_expr > 0:
-                factor_norm = factor / mean_expr
-            else:
-                factor_norm = factor
-
+            factor_norm = factor / mean_expr if mean_expr > 0 else factor
+            
             lri_motifs.append({
                 'lri_idx': j,
                 'motif_idx': k,
@@ -407,17 +501,73 @@ def _save_lri_motif_analysis(lri_factors, column_names, patch_lri_matrix, output
                 'factor_norm': factor_norm,
                 'mean': mean_expr
             })
-
+    
     lri_motifs_df = pd.DataFrame(lri_motifs)
-    lri_motifs_df.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
+    print(f"Total entries: {len(lri_motifs_df)}")
+    
+    # Step 2: Parse LRI components
+    print("Parsing LRI components...")
+    lri_motifs_df = add_lri_components(lri_motifs_df)
+    
+    # Step 3: Annotate pathways
+    print("Annotating pathways...")
+    cellchatdb = pd.read_csv(cellchatdb_path)
+    lri_motifs_df = annotate_pathways(lri_motifs_df, cellchatdb)
+    
+    # Step 4: Rescale matrices
+    print("Rescaling motif matrices...")
+    W_tilde, V_tilde, motif_scales = rescale_motif_matrices(
+        patch_loadings, lri_factors, verify=True, eps=eps
+    )
+    
+    # Step 5: Add normalized scores
+    print("Computing normalized scores...")
+    lri_motifs_df = add_normalized_scores(lri_motifs_df, motif_scales, eps=eps)
+    
+    # Step 6: Save
+    if save:
+        print(f"Saving to {output_dir}...")
+        os.makedirs(output_dir, exist_ok=True)
+        lri_motifs_df.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
+        np.save(os.path.join(output_dir, 'W_tilde.npy'), W_tilde)
+        np.save(os.path.join(output_dir, 'V_tilde.npy'), V_tilde)
+        print("Done!")
 
-    # Save motif summary
-    motif_activities = lri_factors.sum(axis=1)
-    top_motifs = get_top_motifs(lri_factors.T, top_k=len(motif_activities))
 
-    top_motifs_df = pd.DataFrame({
-        'motif_idx': top_motifs['motif_indices'],
-        'total_activity': top_motifs['activities'],
-        'activity_fraction': top_motifs['activity_fractions']
-    })
-    top_motifs_df.to_csv(os.path.join(output_dir, 'top_motifs.csv'), index=False)
+# def _save_lri_motif_analysis(lri_factors, column_names, patch_lri_matrix, output_dir):
+#     """Save LRI-motif relationship analysis with normalization
+
+#     Parameters
+#     ----------
+#     lri_factors : np.ndarray
+#         LRI factors (K × n_lris)
+#     column_names : list
+#         LRI column names
+#     patch_lri_matrix : scipy.sparse matrix
+#         Original patch-LRI matrix for computing column means
+#     output_dir : str
+#         Output directory
+#     """
+#     # Compute column means for normalization
+#     column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
+#     lri_to_mean = dict(zip(column_names, column_means))
+
+#     lri_motifs = []
+#     for j, column_name in enumerate(column_names):
+#         motif_factors = lri_factors[:, j]  # factors for this LRI across motifs
+#         mean_expr = lri_to_mean.get(column_name, 0)
+
+#         for k in range(len(motif_factors)):
+#             factor = motif_factors[k]
+
+#             lri_motifs.append({
+#                 'lri_idx': j,
+#                 'motif_idx': k,
+#                 'lri_name': column_name,
+#                 'factor': factor,
+#                 'mean': mean_expr
+#             })
+
+#     lri_motifs_df = pd.DataFrame(lri_motifs)
+#     lri_motifs_df.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
+
