@@ -12,10 +12,7 @@ from typing import Dict, Optional
 
 def load_patch_lri_results(input_dir: str,
                            sparse_matrix_name: str = 'patch_lri_matrix.npz',
-                           column_df_name: str = 'patch_lri_columns.csv',
-                           meta_df_name: str = 'cell_patch_correspondence.csv',
-                           neighborhood: bool = False,
-                           single_cell: bool = False) -> Dict:
+                           column_df_name: str = 'patch_lri_columns.csv') -> Dict:
     """
     Load patch-based LRI analysis results
 
@@ -27,12 +24,6 @@ def load_patch_lri_results(input_dir: str,
         Name of sparse matrix file
     column_df_name : str
         Name of column names file
-    meta_df_name : str
-        Name of metadata file
-    neighborhood : bool
-        Whether this is neighborhood-based analysis
-    single_cell : bool
-        Whether this is single-cell analysis
 
     Returns
     -------
@@ -40,8 +31,8 @@ def load_patch_lri_results(input_dir: str,
         Dictionary with:
         - patch_lri_matrix: sparse matrix
         - column_names: list
-        - cell_patch_df: DataFrame (if not single_cell)
         - parameters: DataFrame
+        - sample_info: DataFrame (only if multi-sample, i.e., sample_info.csv exists)
     """
     print(f"Loading patch-LRI results from: {input_dir}")
 
@@ -67,10 +58,22 @@ def load_patch_lri_results(input_dir: str,
         'parameters': params_df
     }
 
-    # Load cell-patch correspondence for non-single-cell analyses
-    if not single_cell:
-        cell_patch_file = os.path.join(input_dir, meta_df_name)
-        results['cell_patch_df'] = pd.read_csv(cell_patch_file)
+    # Auto-detect multi-sample: load sample_info if exists
+    sample_info_file = os.path.join(input_dir, 'sample_info.csv')
+    if os.path.exists(sample_info_file):
+        sample_info_df = pd.read_csv(sample_info_file)
+        # Convert to dict format matching run_patchify return
+        sample_info = {}
+        for _, row in sample_info_df.iterrows():
+            sample_id = row['sample_id']
+            sample_info[sample_id] = {
+                'n_cells': row['n_cells'],
+                'n_patches': row['n_patches'],
+                'global_patch_idx_start': row['global_patch_idx_start'],
+                'global_patch_idx_end': row['global_patch_idx_end']
+            }
+        results['sample_info'] = sample_info
+        print(f"Multi-sample detected: {len(sample_info)} samples")
 
     return results
 

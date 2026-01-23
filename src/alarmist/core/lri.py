@@ -757,81 +757,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         print(f"Matrix density: {patch_lri_matrix.nnz / (n_patches * n_columns) * 100:.2f}%")
         return patch_lri_matrix
 
-    def create_metadata_dataframes(self, adata: anndata.AnnData) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Create metadata dataframes for patch-tma correspondence and cell-patch correspondence.
-        
-        Parameters
-        ----------
-        adata : anndata.AnnData
-            Spatial transcriptomics data
-            
-        Returns
-        -------
-        patch_tma_df : pd.DataFrame
-            DataFrame with patch_id and tma_id correspondence
-        cell_patch_df : pd.DataFrame
-            DataFrame with cell_id and patch_id correspondence
-        """
-        print("Creating metadata dataframes...")
-        
-        # Create cell-patch correspondence
-        if 'tma_id' not in adata.obs.columns:
-            cell_patch_df = pd.DataFrame({
-                'cell_id': adata.obs.index,
-                'patch_id': self.patch_assignments,
-                'cell_type': adata.obs[self.cell_type_column]
-            })
-        else:
-            cell_patch_df = pd.DataFrame({
-                'cell_id': adata.obs.index,
-                'patch_id': self.patch_assignments,
-                'tma_id': adata.obs['tma_id'],
-                'cell_type': adata.obs[self.cell_type_column]
-            })
-        
-        # Create patch-tma correspondence
-        # For each patch, find the most common tma_id
-        patch_tma_data = []
-        unique_patches = np.unique(self.patch_assignments)
-        unique_patches = [p for p in unique_patches if p in self.patch_coords]
-        
-            
-        for patch_id in unique_patches:
-            patch_cells = cell_patch_df[cell_patch_df['patch_id'] == patch_id]
-
-            if 'tma_id' not in adata.obs.columns:
-                center_x, center_y = self.patch_coords[patch_id]
-                
-                patch_tma_data.append({
-                    'patch_id': patch_id,
-                    'center_x': center_x,
-                    'center_y': center_y,
-                    'n_cells': len(patch_cells),
-                    'n_cell_types': patch_cells[self.cell_type_column].nunique()
-                })
-            else:
-                if len(patch_cells) > 0:
-                    # Get most common tma_id in this patch
-                    tma_counts = patch_cells['tma_id'].value_counts()
-                    most_common_tma = tma_counts.index[0]
-                    
-                    # Get patch center coordinates
-                    center_x, center_y = self.patch_coords[patch_id]
-                    
-                    patch_tma_data.append({
-                        'patch_id': patch_id,
-                        'tma_id': most_common_tma,
-                        'center_x': center_x,
-                        'center_y': center_y,
-                        'n_cells': len(patch_cells),
-                        'n_cell_types': patch_cells[self.cell_type_column].nunique()
-                    })
-        
-        patch_tma_df = pd.DataFrame(patch_tma_data)
-        
-        return patch_tma_df, cell_patch_df
-    
     def run_patchify(
         self,
         adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
@@ -870,20 +795,15 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         Returns
         -------
         results : dict
-            For single sample:
-                - patch_lri_matrix: sparse matrix (n_patches x n_columns)
-                - column_names: list of column names
-                - patch_tma_df: patch metadata DataFrame
-                - cell_patch_df: cell-patch correspondence DataFrame
-                - patch_info: dict with patch grid info
-                - lr_pairs: list of (ligand, receptor) tuples
-            For multiple samples:
-                - patch_lri_matrix: sparse matrix (total_patches x n_columns)
-                - column_names: list of column names
-                - patch_metadata_df: patch metadata with sample_id, local_patch_id, global_patch_idx
-                - cell_patch_df: cell-patch correspondence with sample_id
-                - sample_info: dict mapping sample_id -> {n_patches, n_cells, ...}
-                - lr_pairs: list of (ligand, receptor) tuples
+            - patch_lri_matrix: sparse matrix (n_patches x n_columns)
+            - column_names: list of column names
+            - sample_info: (multi-sample only) dict mapping sample_id -> {n_patches, n_cells, ...}
+
+        Notes
+        -----
+        The function adds 'patch_idx' column to adata.obs, mapping each cell to its
+        corresponding row in patch_lri_matrix. For multi-sample mode, patch_idx is
+        the global index across all samples.
 
         Examples
         --------
@@ -965,8 +885,20 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         # Step 5: Remove zero columns
         patch_lri_matrix, column_names = self.remove_zero_columns(patch_lri_matrix, column_names)
 
-        # Step 6: Create metadata dataframes
-        patch_tma_df, cell_patch_df = self.create_metadata_dataframes(adata)
+        # Step 6: Add patch_idx to adata.obs
+        # Map each cell to its patch matrix row index
+        unique_patches = np.array([
+            p for p in np.unique(patch_assignments)
+            if p in self.patch_coords
+        ])
+        patch_id_to_idx = {pid: i for i, pid in enumerate(unique_patches)}
+
+        patch_idx_array = np.array([
+            patch_id_to_idx.get(patch_assignments[i], -1)
+            for i in range(adata.n_obs)
+        ])
+        adata.obs['patch_idx'] = patch_idx_array
+        print(f"Added 'patch_idx' to adata.obs ({(patch_idx_array >= 0).sum()} cells assigned to patches)")
 
         # Step 7: Save results (optional)
         if output_dir is not None:
@@ -980,13 +912,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             # Save column names
             columns_file = os.path.join(output_dir, 'patch_lri_columns.csv')
             pd.DataFrame({'column_name': self.column_names}).to_csv(columns_file, index=False)
-
-            # Save metadata dataframes
-            patch_tma_file = os.path.join(output_dir, 'patch_tma_correspondence.csv')
-            cell_patch_file = os.path.join(output_dir, 'cell_patch_correspondence.csv')
-
-            patch_tma_df.to_csv(patch_tma_file, index=False)
-            cell_patch_df.to_csv(cell_patch_file, index=False)
 
             # Save analysis parameters
             params_file = os.path.join(output_dir, 'analysis_parameters.csv')
@@ -1005,17 +930,11 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             print(f"Results saved to: {output_dir}")
             print(f"- Patch-LRI matrix: {matrix_file}")
             print(f"- Column names: {columns_file}")
-            print(f"- Patch-TMA correspondence: {patch_tma_file}")
-            print(f"- Cell-patch correspondence: {cell_patch_file}")
             print(f"- Analysis parameters: {params_file}")
 
         return {
             'patch_lri_matrix': patch_lri_matrix,
-            'column_names': column_names,
-            'patch_tma_df': patch_tma_df,
-            'cell_patch_df': cell_patch_df,
-            'patch_info': patch_info,
-            'lr_pairs': lr_pairs
+            'column_names': column_names
         }
 
     def _get_shared_genes(self, adata_dict: Dict[str, anndata.AnnData]) -> List[str]:
@@ -1136,7 +1055,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         print("\n[Step 5/6] Processing each sample...")
         all_matrices = []
         all_patch_metadata = []
-        all_cell_patch_data = []
         sample_info = {}
         global_patch_idx = 0
 
@@ -1174,24 +1092,14 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                     'n_cells': patch_cell_counts.get(local_patch_id, 0)
                 })
 
-            # Create cell-patch correspondence for this sample
-            for cell_idx in range(adata.n_obs):
-                cell_id = adata.obs.index[cell_idx]
-                local_patch_id = patch_assignments[cell_idx]
-                # Find global_patch_idx for this local_patch_id
-                if local_patch_id in self.patch_coords:
-                    local_idx = np.where(unique_patches == local_patch_id)[0][0]
-                    cell_global_patch_idx = global_patch_idx + local_idx
-                else:
-                    cell_global_patch_idx = -1  # Cell not in valid patch
-
-                all_cell_patch_data.append({
-                    'sample_id': sample_id,
-                    'cell_id': cell_id,
-                    'local_patch_id': local_patch_id,
-                    'global_patch_idx': cell_global_patch_idx,
-                    'cell_type': adata.obs[self.cell_type_column].iloc[cell_idx]
-                })
+            # Add patch_idx to adata.obs (global index)
+            patch_id_to_global_idx = {pid: global_patch_idx + i for i, pid in enumerate(unique_patches)}
+            patch_idx_array = np.array([
+                patch_id_to_global_idx.get(patch_assignments[i], -1)
+                for i in range(adata.n_obs)
+            ])
+            adata.obs['patch_idx'] = patch_idx_array
+            print(f"  Added 'patch_idx' to adata.obs ({(patch_idx_array >= 0).sum()} cells assigned)")
 
             # Store sample info
             sample_info[sample_id] = {
@@ -1211,9 +1119,8 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         combined_matrix = sparse_vstack(all_matrices, format='csr')
         print(f"Combined matrix shape: {combined_matrix.shape}")
 
-        # Create metadata DataFrames
+        # Create metadata DataFrame
         patch_metadata_df = pd.DataFrame(all_patch_metadata)
-        cell_patch_df = pd.DataFrame(all_cell_patch_data)
 
         # Remove zero columns from combined matrix
         combined_matrix, column_names = self.remove_zero_columns(combined_matrix, column_names)
@@ -1231,11 +1138,9 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             columns_file = os.path.join(output_dir, 'patch_lri_columns.csv')
             pd.DataFrame({'column_name': column_names}).to_csv(columns_file, index=False)
 
-            # Save metadata dataframes
+            # Save patch metadata
             patch_metadata_file = os.path.join(output_dir, 'patch_metadata.csv')
-            cell_patch_file = os.path.join(output_dir, 'cell_patch_correspondence.csv')
             patch_metadata_df.to_csv(patch_metadata_file, index=False)
-            cell_patch_df.to_csv(cell_patch_file, index=False)
 
             # Save sample info
             sample_info_file = os.path.join(output_dir, 'sample_info.csv')
@@ -1267,7 +1172,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             print(f"- Patch-LRI matrix: {matrix_file}")
             print(f"- Column names: {columns_file}")
             print(f"- Patch metadata: {patch_metadata_file}")
-            print(f"- Cell-patch correspondence: {cell_patch_file}")
             print(f"- Sample info: {sample_info_file}")
             print(f"- Analysis parameters: {params_file}")
 
@@ -1280,10 +1184,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         return {
             'patch_lri_matrix': combined_matrix,
             'column_names': column_names,
-            'patch_metadata_df': patch_metadata_df,
-            'cell_patch_df': cell_patch_df,
-            'sample_info': sample_info,
-            'lr_pairs': lr_pairs
+            'sample_info': sample_info
         }
 
     def _create_column_structure_from_cell_types(
