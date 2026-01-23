@@ -684,8 +684,12 @@ def differential_expression(X, in_mask, out_mask=None, min_in_group_fraction=0.0
     dict
         Dictionary with 'p_values', 'p_adj', and 'logfoldchanges'
     """
+    # Convert to numpy arrays if pandas Series (scipy sparse indexing requires arrays)
+    in_mask = np.asarray(in_mask)
     if out_mask is None:
         out_mask = ~in_mask
+    else:
+        out_mask = np.asarray(out_mask)
 
     # Filter genes basically never expressed in control
     X_out = X[out_mask]
@@ -1028,7 +1032,7 @@ def glm_volcano(
     fdr_threshold: float = 0.05,
     lfc_threshold: float = 0.2,
     n_top_genes: int = 30,
-    figsize: tuple = (16, 16)
+    figsize: tuple = (16, 20)
 ):
     """
     Generate volcano plots for GLM differential expression results
@@ -1169,13 +1173,13 @@ def _create_volcano_figure_for_motif(
     """Helper to create volcano figure for a single motif"""
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(4, 4, figsize=figsize)
+    fig, axes = plt.subplots(5, 4, figsize=figsize)
     axes = axes.flatten()
 
     # Find all results for this motif
     motif_files = {k: v for k, v in de_results.items() if k.startswith(f'motif_{motif_id}_celltype_')}
 
-    for ax_idx, (key, df) in enumerate(sorted(motif_files.items())[:16]):
+    for ax_idx, (key, df) in enumerate(sorted(motif_files.items())[:20]):
         ct = key.split(f'motif_{motif_id}_celltype_')[1].replace('_de_results', '')
 
         try:
@@ -1202,7 +1206,7 @@ def _create_volcano_figure_for_motif(
         axes[ax_idx].set_title(ct, fontsize=10, pad=5)
 
     # Remove unused subplots
-    for j in range(len(motif_files), 16):
+    for j in range(len(motif_files), 20):
         fig.delaxes(axes[j])
 
     plt.suptitle(f"Motif {motif_id} Volcano Plots (marker genes filtered)", fontsize=14)
@@ -1388,13 +1392,13 @@ def _create_forest_figure_for_motif(
     """Helper to create forest figure for a single motif"""
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(4, 4, figsize=figsize)
+    fig, axes = plt.subplots(5, 4, figsize=figsize)
     axes = axes.flatten()
 
     # Find all results for this motif
     motif_files = {k: v for k, v in de_results.items() if k.startswith(f'motif_{motif_id}_celltype_')}
 
-    for ax_idx, (key, df) in enumerate(sorted(motif_files.items())[:16]):
+    for ax_idx, (key, df) in enumerate(sorted(motif_files.items())[:20]):
         ct = key.split(f'motif_{motif_id}_celltype_')[1].replace('_de_results', '')
 
         try:
@@ -1409,7 +1413,7 @@ def _create_forest_figure_for_motif(
         axes[ax_idx].set_title(ct, fontsize=9)
 
     # Remove unused subplots
-    for j in range(len(motif_files), 16):
+    for j in range(len(motif_files), 20):
         fig.delaxes(axes[j])
 
     plt.suptitle(f"Motif {motif_id} – Forest plots (marker genes filtered)", fontsize=14)
