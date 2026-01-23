@@ -271,11 +271,14 @@ def project_cell_loadings(
     return cell_loadings
 
 
-def save_bptf_results(model: object,
-                      results: dict,
-                      output_dir: str):
+def process_bptf_results(
+    model: object,
+    results: dict,
+    output_dir: Optional[str] = None,
+    cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv'
+) -> Dict:
     """
-    Save all BPTF results to files.
+    Process BPTF model results and optionally save to disk.
 
     Parameters
     ----------
@@ -285,16 +288,28 @@ def save_bptf_results(model: object,
         Results from run_patchify or load_patch_lri_results, containing:
         - patch_lri_matrix: sparse matrix
         - column_names: list of column names
-    output_dir : str
-        Output directory
+    output_dir : str, optional
+        Output directory. If None, results are not saved to disk.
+    cellchatdb_path : str
+        Path to CellChatDB annotation file for pathway annotation
+
+    Returns
+    -------
+    dict
+        Dictionary with:
+        - patch_loadings: np.ndarray (n_patches × K)
+        - lri_factors: np.ndarray (K × n_lris)
+        - patch_loadings_rescaled: np.ndarray (n_patches × K), max=1 per motif
+        - lri_factors_rescaled: np.ndarray (K × n_lris)
+        - lri_motifs: pd.DataFrame with all scores and annotations
 
     Examples
     --------
-    >>> model, elbo_hist, delta_hist = al.run_bptf(results['patch_lri_matrix'], n_components=20)
-    >>> al.save_bptf_results(model, results, output_dir='bptf_results/')
+    >>> model = al.run_bptf(results['patch_lri_matrix'], n_components=20)
+    >>> bptf_results = al.process_bptf_results(model, results, output_dir='bptf_results/')
+    >>> # Or without saving:
+    >>> bptf_results = al.process_bptf_results(model, results)
     """
-    os.makedirs(output_dir, exist_ok=True)
-
     # Extract factors from model
     patch_loadings, lri_factors = extract_factors(model)
 
@@ -302,43 +317,115 @@ def save_bptf_results(model: object,
     column_names = results['column_names']
     patch_lri_matrix = results['patch_lri_matrix']
 
-    # Save model
-    model_path = Path(output_dir) / 'bptf_model.npz'
-    save_bptf(model, model_path)
-    print(f"BPTF model saved to: {model_path}")
+    # Compute rescaled matrices
+    print("Rescaling motif matrices...")
+    patch_loadings_rescaled, lri_factors_rescaled, motif_scales = rescale_motif_matrices(
+        patch_loadings, lri_factors, verify=True
+    )
 
-    # Save factor matrices
-    np.save(os.path.join(output_dir, 'patch_loadings.npy'), patch_loadings)
-    np.save(os.path.join(output_dir, 'lri_factors.npy'), lri_factors)
+    # Create LRI motifs DataFrame
+    print("Creating LRI motifs DataFrame...")
+    column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
+    lri_to_mean = dict(zip(column_names, column_means))
 
-    # Save convergence history if available in model
-    if hasattr(model, 'elbo_hist') and hasattr(model, 'delta_hist'):
-        elbo_hist = model.elbo_hist
-        delta_hist = model.delta_hist
-        if elbo_hist is not None and delta_hist is not None:
-            history_df = pd.DataFrame({
-                'iteration': range(len(elbo_hist)),
-                'elbo': elbo_hist,
-                'delta': delta_hist
+    lri_motifs_list = []
+    for j, column_name in enumerate(column_names):
+        motif_factors = lri_factors[:, j]
+        mean_expr = lri_to_mean.get(column_name, 0)
+
+        for k in range(len(motif_factors)):
+            factor = motif_factors[k]
+            factor_norm = factor / mean_expr if mean_expr > 0 else factor
+
+            lri_motifs_list.append({
+                'lri_idx': j,
+                'motif_idx': k,
+                'lri_name': column_name,
+                'factor': factor,
+                'factor_norm': factor_norm,
+                'mean': mean_expr
             })
-            history_df.to_csv(os.path.join(output_dir, 'iteration_history.csv'), index=False)
 
-    # Analyze and save LRI-motif relationships (with normalization)
-    process_and_save_lri_motif_analysis(lri_factors, patch_loadings, column_names, patch_lri_matrix, output_dir)
+    lri_motifs = pd.DataFrame(lri_motifs_list)
+    print(f"Total entries: {len(lri_motifs)}")
 
-    # Save model parameters
-    params_df = pd.DataFrame({
-        'parameter': ['n_components', 'n_patches', 'n_lris', 'method'],
-        'value': [
-            model.n_components,
-            patch_loadings.shape[0],
-            lri_factors.shape[1],
-            'BPTF'
-        ]
-    })
-    params_df.to_csv(os.path.join(output_dir, 'factorization_parameters.csv'), index=False)
+    # Parse LRI components
+    print("Parsing LRI components...")
+    lri_motifs = add_lri_components(lri_motifs)
 
-    print(f"All results saved to: {output_dir}")
+    # Annotate pathways
+    print("Annotating pathways...")
+    if os.path.exists(cellchatdb_path):
+        cellchatdb = pd.read_csv(cellchatdb_path)
+        lri_motifs = annotate_pathways(lri_motifs, cellchatdb)
+    else:
+        print(f"Warning: CellChatDB not found at {cellchatdb_path}, skipping pathway annotation")
+
+    # Add normalized scores
+    print("Computing normalized scores...")
+    lri_motifs = add_normalized_scores(lri_motifs, motif_scales)
+
+    # Build return dict
+    bptf_results = {
+        'patch_loadings': patch_loadings,
+        'lri_factors': lri_factors,
+        'patch_loadings_rescaled': patch_loadings_rescaled,
+        'lri_factors_rescaled': lri_factors_rescaled,
+        'lri_motifs': lri_motifs
+    }
+
+    # Save if output_dir provided
+    if output_dir is not None:
+        print(f"\nSaving to {output_dir}...")
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Save model
+        model_path = Path(output_dir)
+        save_bptf(model, model_path)
+        print(f"  BPTF model saved")
+
+        # Save factor matrices
+        np.save(os.path.join(output_dir, 'patch_loadings.npy'), patch_loadings)
+        np.save(os.path.join(output_dir, 'lri_factors.npy'), lri_factors)
+        np.save(os.path.join(output_dir, 'patch_loadings_rescaled.npy'), patch_loadings_rescaled)
+        np.save(os.path.join(output_dir, 'lri_factors_rescaled.npy'), lri_factors_rescaled)
+
+        # Save lri_motifs
+        lri_motifs.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
+
+        # Save convergence history if available
+        if hasattr(model, 'elbo_hist') and hasattr(model, 'delta_hist'):
+            elbo_hist = model.elbo_hist
+            delta_hist = model.delta_hist
+            if elbo_hist is not None and delta_hist is not None:
+                history_df = pd.DataFrame({
+                    'iteration': range(len(elbo_hist)),
+                    'elbo': elbo_hist,
+                    'delta': delta_hist
+                })
+                history_df.to_csv(os.path.join(output_dir, 'iteration_history.csv'), index=False)
+
+        # Save model parameters
+        params_df = pd.DataFrame({
+            'parameter': ['n_components', 'n_patches', 'n_lris', 'method'],
+            'value': [
+                model.n_components,
+                patch_loadings.shape[0],
+                lri_factors.shape[1],
+                'BPTF'
+            ]
+        })
+        params_df.to_csv(os.path.join(output_dir, 'factorization_parameters.csv'), index=False)
+
+        print(f"All results saved to: {output_dir}")
+
+    return bptf_results
+
+
+# Keep save_bptf_results as alias for backwards compatibility
+def save_bptf_results(model: object, results: dict, output_dir: str) -> Dict:
+    """Alias for process_bptf_results with output_dir. See process_bptf_results for docs."""
+    return process_bptf_results(model, results, output_dir=output_dir)
 
 
 def rescale_motif_matrices(

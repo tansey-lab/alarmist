@@ -17,6 +17,7 @@ from alarmist.core import (
     extract_factors,
     get_top_motifs,
     save_bptf_results,
+    process_bptf_results,
     project_cell_loadings,
     BPTF_AVAILABLE,
     # GLM Analysis
@@ -63,6 +64,7 @@ __all__ = [
     'extract_factors',
     'get_top_motifs',
     'save_bptf_results',
+    'process_bptf_results',
     'project_cell_loadings',
     'BPTF_AVAILABLE',
 

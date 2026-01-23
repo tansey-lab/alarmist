@@ -130,7 +130,7 @@ def load_cell_lri_results(output_dir: str) -> Dict:
     }
 
 
-def load_bptf_results(results_dir: str) -> Dict:
+def load_bptf_results(results_dir: str, load_rescaled: bool = False) -> Dict:
     """
     Load BPTF factorization results
 
@@ -138,11 +138,18 @@ def load_bptf_results(results_dir: str) -> Dict:
     ----------
     results_dir : str
         Directory containing BPTF results
+    load_rescaled : bool, default False
+        Whether to also load rescaled matrices (patch_loadings_rescaled, lri_factors_rescaled)
 
     Returns
     -------
     dict
-        Dictionary with patch_loadings, lri_factors, lri_motifs
+        Dictionary with:
+        - patch_loadings: np.ndarray
+        - lri_factors: np.ndarray
+        - lri_motifs: pd.DataFrame
+        - patch_loadings_rescaled: np.ndarray (only if load_rescaled=True)
+        - lri_factors_rescaled: np.ndarray (only if load_rescaled=True)
     """
     print(f"Loading BPTF results from: {results_dir}")
 
@@ -154,8 +161,18 @@ def load_bptf_results(results_dir: str) -> Dict:
     print(f"  - Patch loadings: {patch_loadings.shape}")
     print(f"  - LRI factors: {lri_factors.shape}")
 
-    return {
+    results = {
         'patch_loadings': patch_loadings,
         'lri_factors': lri_factors,
         'lri_motifs': lri_motifs
     }
+
+    if load_rescaled:
+        patch_loadings_rescaled = np.load(os.path.join(results_dir, 'patch_loadings_rescaled.npy'))
+        lri_factors_rescaled = np.load(os.path.join(results_dir, 'lri_factors_rescaled.npy'))
+        results['patch_loadings_rescaled'] = patch_loadings_rescaled
+        results['lri_factors_rescaled'] = lri_factors_rescaled
+        print(f"  - Patch loadings rescaled: {patch_loadings_rescaled.shape}")
+        print(f"  - LRI factors rescaled: {lri_factors_rescaled.shape}")
+
+    return results
