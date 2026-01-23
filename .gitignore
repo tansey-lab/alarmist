@@ -2,7 +2,8 @@
 results/
 *.npz
 *.npy
-*.csvnotebooks/cpdb_inputs/
+*.csv
+notebooks/cpdb_inputs/
 *.h5ad
 *.loom
 *.h5
@@ -31,3 +32,4 @@ __pycache__/
 *.nbc
 *.nbi
 .ipynb_checkpoints/
+.Rapp.history
