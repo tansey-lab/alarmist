@@ -272,37 +272,35 @@ def project_cell_loadings(
 
 
 def save_bptf_results(model: object,
-                      patch_loadings: np.ndarray,
-                      lri_factors: np.ndarray,
-                      column_names: list,
-                      patch_lri_matrix: sp.spmatrix,
-                      output_dir: str,
-                      elbo_hist: Optional[list] = None,
-                      delta_hist: Optional[list] = None):
+                      results: dict,
+                      output_dir: str):
     """
-    Save all BPTF results to files
+    Save all BPTF results to files.
 
     Parameters
     ----------
     model : BPTF model
-    patch_loadings : np.ndarray
-        Patch loadings (n_patches × K)
-    lri_factors : np.ndarray
-        LRI factors (K × n_lris)
-    column_names : list
-        LRI column names
-    patch_metadata_df : pd.DataFrame
-        Patch metadata
-    patch_lri_matrix : scipy.sparse matrix
-        Original patch-LRI matrix for computing column means
+        Fitted BPTF model object
+    results : dict
+        Results from run_patchify or load_patch_lri_results, containing:
+        - patch_lri_matrix: sparse matrix
+        - column_names: list of column names
     output_dir : str
         Output directory
-    elbo_hist : list, optional
-        ELBO history
-    delta_hist : list, optional
-        Delta history
+
+    Examples
+    --------
+    >>> model, elbo_hist, delta_hist = al.run_bptf(results['patch_lri_matrix'], n_components=20)
+    >>> al.save_bptf_results(model, results, output_dir='bptf_results/')
     """
     os.makedirs(output_dir, exist_ok=True)
+
+    # Extract factors from model
+    patch_loadings, lri_factors = extract_factors(model)
+
+    # Get data from results
+    column_names = results['column_names']
+    patch_lri_matrix = results['patch_lri_matrix']
 
     # Save model
     model_path = Path(output_dir) / 'bptf_model.npz'
@@ -313,14 +311,17 @@ def save_bptf_results(model: object,
     np.save(os.path.join(output_dir, 'patch_loadings.npy'), patch_loadings)
     np.save(os.path.join(output_dir, 'lri_factors.npy'), lri_factors)
 
-    # Save convergence history
-    if elbo_hist is not None and delta_hist is not None:
-        history_df = pd.DataFrame({
-            'iteration': range(len(elbo_hist)),
-            'elbo': elbo_hist,
-            'delta': delta_hist
-        })
-        history_df.to_csv(os.path.join(output_dir, 'iteration_history.csv'), index=False)
+    # Save convergence history if available in model
+    if hasattr(model, 'elbo_hist') and hasattr(model, 'delta_hist'):
+        elbo_hist = model.elbo_hist
+        delta_hist = model.delta_hist
+        if elbo_hist is not None and delta_hist is not None:
+            history_df = pd.DataFrame({
+                'iteration': range(len(elbo_hist)),
+                'elbo': elbo_hist,
+                'delta': delta_hist
+            })
+            history_df.to_csv(os.path.join(output_dir, 'iteration_history.csv'), index=False)
 
     # Analyze and save LRI-motif relationships (with normalization)
     process_and_save_lri_motif_analysis(lri_factors, patch_loadings, column_names, patch_lri_matrix, output_dir)
