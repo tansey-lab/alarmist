@@ -173,56 +173,99 @@ def annotate_pathways(lri_motifs_df: pd.DataFrame,
 # Visualization Functions
 # ==============================================================================
 
-def plot_lri_clustermap(lri_factors: np.ndarray,
-                       column_names: List[str],
-                       save_path: Optional[str] = None,
-                       figsize: Tuple[int, int] = (20, 40)) -> object:
+def plot_lri_clustermap(
+    lri_motifs_df: pd.DataFrame,
+    factor_col: str = "factor",
+    exclude_celltypes: Optional[List[str]] = None,
+    save_path: Optional[str] = None,
+    figsize: Tuple[int, int] = (20, 40),
+    cmap: str = "Blues",
+    log_scale: bool = True,
+) -> object:
     """Create clustermap of LRI cell type pairs across motifs
 
     Parameters
     ----------
-    lri_factors : np.ndarray
-        LRI factors matrix (n_motifs × n_lris)
-    column_names : list of str
-        LRI column names
+    lri_motifs_df : pd.DataFrame
+        DataFrame with columns: motif_idx, celltype1, celltype2, and factor_col.
+        Typically output from process_bptf_results() or load_bptf_results().
+    factor_col : str, default "factor"
+        Column name for factor values (e.g., 'factor', 'factor_lrnorm', 'score')
+    exclude_celltypes : list of str, optional
+        Cell types to exclude (case-insensitive substring match).
+        Example: ['granulocyte'] to exclude granulocyte-containing pairs.
     save_path : str, optional
         Path to save figure. If None, displays plot.
     figsize : tuple, default (20, 40)
         Figure size
+    cmap : str, default "Blues"
+        Colormap for heatmap
+    log_scale : bool, default True
+        Whether to use log scale for color normalization
 
     Returns
     -------
     seaborn.ClusterGrid
         Clustermap object
+
+    Examples
+    --------
+    >>> g = plot_lri_clustermap(lri_motifs, factor_col='factor')
+    >>> g = plot_lri_clustermap(lri_motifs, factor_col='score', exclude_celltypes=['granulocyte'])
     """
-    H_obs = lri_factors
-    n_motifs = H_obs.shape[0]
+    required_cols = {"motif_idx", "celltype1", "celltype2", factor_col}
+    missing = required_cols - set(lri_motifs_df.columns)
+    if missing:
+        raise ValueError(f"Missing columns in lri_motifs_df: {sorted(missing)}")
 
-    # Create DataFrame
-    df_all = pd.DataFrame(
-        H_obs.T,
-        index=column_names,
-        columns=range(n_motifs)
-    ).reset_index().rename(columns={'index':'lri'})
+    df = lri_motifs_df.copy()
 
-    df_all = df_all[~df_all['lri'].str.startswith('GENE')]
+    # Filter out excluded cell types
+    if exclude_celltypes:
+        for ct in exclude_celltypes:
+            mask = (
+                df['celltype1'].str.contains(ct, case=False, na=False) |
+                df['celltype2'].str.contains(ct, case=False, na=False)
+            )
+            df = df[~mask]
 
-    # Extract cell_pair
-    df_all['cell_pair'] = df_all['lri'].str.split('|').str[:2].str.join('|')
+    # Create cell_pair column
+    df['cell_pair'] = df['celltype1'] + '|' + df['celltype2']
 
-    # Aggregate by cell_pair
-    pivot = df_all.groupby('cell_pair')[list(range(n_motifs))].sum()
-    pivot_filled = pivot.fillna(0)
-    pivot_filled = pivot_filled[~pivot_filled.index.str.contains('granulocyte', case=False, na=False)]
+    # Aggregate by cell_pair and motif_idx
+    agg = df.groupby(['cell_pair', 'motif_idx'])[factor_col].sum().reset_index()
+
+    # Pivot to matrix format (cell_pair × motif)
+    pivot = agg.pivot_table(
+        index='cell_pair',
+        columns='motif_idx',
+        values=factor_col,
+        fill_value=0,
+        aggfunc='sum'
+    )
+
+    if pivot.empty:
+        raise ValueError("No data to plot after filtering")
 
     # Create clustermap
+    if log_scale:
+        # Get min positive value for log scale
+        min_pos = pivot[pivot > 0].min().min()
+        max_val = pivot.max().max()
+        if min_pos > 0 and max_val > min_pos:
+            norm = LogNorm(vmin=min_pos, vmax=max_val)
+        else:
+            norm = None
+            log_scale = False
+    else:
+        norm = None
+
     g = sns.clustermap(
-        pivot_filled,
-        cmap='Blues',
-        norm=LogNorm(vmin=pivot_filled[pivot_filled>0].min().min(),
-                     vmax=pivot_filled.max().max()),
+        pivot,
+        cmap=cmap,
+        norm=norm,
         linewidths=0.5,
-        cbar_kws={'label': 'Activity Value (log scale)'},
+        cbar_kws={'label': f'{factor_col} ({"log scale" if log_scale else "linear"})'},
         figsize=figsize,
         cbar_pos=(1.02, 0.2, 0.03, 0.6),
         xticklabels=True,
@@ -230,10 +273,12 @@ def plot_lri_clustermap(lri_factors: np.ndarray,
     )
 
     g.ax_heatmap.set_xlabel('Motif')
-    g.ax_heatmap.set_ylabel('Ligand-Receptor Cell Type Pair')
+    g.ax_heatmap.set_ylabel('Cell Type Pair (Sender|Receiver)')
     plt.setp(g.ax_heatmap.get_xticklabels(), rotation=45, ha='right')
     plt.setp(g.ax_heatmap.get_yticklabels(), rotation=0)
-    plt.suptitle('Clustermap of LRI Cell Type Pairs Across Motifs', y=0.98)
+
+    exclude_text = f" (excluding: {', '.join(exclude_celltypes)})" if exclude_celltypes else ""
+    plt.suptitle(f'Clustermap of Cell Type Pairs Across Motifs\n{factor_col}{exclude_text}', y=0.98)
 
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
