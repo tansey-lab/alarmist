@@ -22,6 +22,7 @@ Usage:
 
 from typing import Dict, List, Optional, Union, Any
 import matplotlib.pyplot as plt
+import anndata
 
 # Module-level registry for cell type colors
 _CELLTYPE_COLORS: Dict[str, Any] = {}

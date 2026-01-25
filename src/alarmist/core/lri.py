@@ -1256,7 +1256,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                  cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv',
                  cellphonedb_path: str = 'data/LRdatabase/CellPhoneDBv5.0.human.csv',
                  cell_type_column: str = 'cell_type',
-                 include_gene_expression: bool = True,
+                 include_gene_expression: bool = False,
                  raw_count_location: str = 'X'):
         """
         Initialize the neighborhood-based LRI analyzer.
@@ -1745,15 +1745,11 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             For single sample:
                 - cell_lri_matrix: sparse matrix (n_cells x n_columns)
                 - column_names: list of column names
-                - cell_metadata_df: cell metadata DataFrame
                 - neighborhoods: dict of cell neighborhoods
-                - lr_pairs: list of (ligand, receptor) tuples
             For multiple samples:
                 - cell_lri_matrix: sparse matrix (total_cells x n_columns)
                 - column_names: list of column names
-                - cell_metadata_df: cell metadata with sample_id, global_cell_idx
-                - sample_info: dict mapping sample_id -> {n_cells, ...}
-                - lr_pairs: list of (ligand, receptor) tuples
+                - sample_info: dict mapping sample_id -> {n_cells, global_cell_idx_start, global_cell_idx_end, avg_neighborhood_size}
 
         Examples
         --------
@@ -1886,10 +1882,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             # Remove zero columns (default behavior)
             combined_matrix, all_column_names = self.remove_zero_columns(combined_matrix, all_column_names)
 
-        # Step 7: Create metadata dataframe
-        cell_metadata_df = self.create_metadata_dataframe(adata)
-
-        # Step 8: Save results (optional)
+        # Step 7: Save results (optional)
         if output_dir is not None:
             print("Saving results...")
             os.makedirs(output_dir, exist_ok=True)
@@ -1901,10 +1894,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             # Save column names
             columns_file = os.path.join(output_dir, 'cell_lri_columns.csv')
             pd.DataFrame({'column_name': all_column_names}).to_csv(columns_file, index=False)
-
-            # Save metadata
-            metadata_file = os.path.join(output_dir, 'cell_metadata.csv')
-            cell_metadata_df.to_csv(metadata_file, index=False)
 
             # Save analysis parameters
             params_file = os.path.join(output_dir, 'analysis_parameters.csv')
@@ -1921,7 +1910,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                     len(adata.var_names) if self.include_gene_expression else 0,
                     len(all_column_names),
                     f"{(1 - combined_matrix.nnz / np.prod(combined_matrix.shape)) * 100:.2f}%",
-                    f"{cell_metadata_df['neighborhood_size'].mean():.1f}",
+                    f"{np.mean([len(n) for n in neighborhoods.values()]):.1f}",
                     self.include_gene_expression,
                     self.raw_count_location if self.include_gene_expression else 'N/A'
                 ]
@@ -1931,15 +1920,12 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             print(f"Results saved to: {output_dir}")
             print(f"- Cell-LRI matrix: {matrix_file}")
             print(f"- Column names: {columns_file}")
-            print(f"- Cell metadata: {metadata_file}")
             print(f"- Analysis parameters: {params_file}")
 
         return {
             'cell_lri_matrix': combined_matrix,
             'column_names': all_column_names,
-            'cell_metadata_df': cell_metadata_df,
-            'neighborhoods': neighborhoods,
-            'lr_pairs': lr_pairs
+            'neighborhoods': neighborhoods
         }
 
     def _get_shared_genes(self, adata_dict: Dict[str, anndata.AnnData]) -> List[str]:
@@ -2037,7 +2023,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         # Step 5: Process each sample
         print("\n[Step 5/7] Processing each sample...")
         all_matrices = []
-        all_cell_metadata = []
         sample_info = {}
         global_cell_idx = 0
 
@@ -2051,19 +2036,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             sample_matrix = self.build_cell_lri_matrix(adata, signaling_types)
 
             n_cells = adata.n_obs
-            coords = adata.obsm['spatial'][:, :2]
-
-            # Create cell metadata for this sample
-            for cell_idx in range(n_cells):
-                all_cell_metadata.append({
-                    'sample_id': sample_id,
-                    'cell_id': adata.obs.index[cell_idx],
-                    'global_cell_idx': global_cell_idx + cell_idx,
-                    'cell_type': adata.obs[self.cell_type_column].iloc[cell_idx],
-                    'x_coord': coords[cell_idx, 0],
-                    'y_coord': coords[cell_idx, 1],
-                    'neighborhood_size': len(neighborhoods[cell_idx])
-                })
 
             # Store sample info
             sample_info[sample_id] = {
@@ -2082,9 +2054,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         # Vertically stack all matrices
         combined_matrix = sparse_vstack(all_matrices, format='csr')
         print(f"Combined matrix shape: {combined_matrix.shape}")
-
-        # Create metadata DataFrame
-        cell_metadata_df = pd.DataFrame(all_cell_metadata)
 
         # Handle gene expression (if enabled)
         if self.include_gene_expression:
@@ -2143,10 +2112,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             columns_file = os.path.join(output_dir, 'cell_lri_columns.csv')
             pd.DataFrame({'column_name': all_column_names}).to_csv(columns_file, index=False)
 
-            # Save metadata
-            metadata_file = os.path.join(output_dir, 'cell_metadata.csv')
-            cell_metadata_df.to_csv(metadata_file, index=False)
-
             # Save sample info
             sample_info_file = os.path.join(output_dir, 'sample_info.csv')
             sample_info_df = pd.DataFrame([
@@ -2178,7 +2143,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             print(f"Results saved to: {output_dir}")
             print(f"- Cell-LRI matrix: {matrix_file}")
             print(f"- Column names: {columns_file}")
-            print(f"- Cell metadata: {metadata_file}")
             print(f"- Sample info: {sample_info_file}")
             print(f"- Analysis parameters: {params_file}")
 
@@ -2191,9 +2155,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         return {
             'cell_lri_matrix': combined_matrix,
             'column_names': all_column_names,
-            'cell_metadata_df': cell_metadata_df,
-            'sample_info': sample_info,
-            'lr_pairs': lr_pairs
+            'sample_info': sample_info
         }
 
     def _create_column_structure_from_cell_types(

@@ -101,7 +101,8 @@ def project_cell_loadings(
     cell_lri_columns: Optional[np.ndarray] = None,
     max_iter: int = 200,
     chunk_size: int = 50000,
-    verbose: bool = True
+    verbose: bool = True,
+    output_dir: Optional[str] = None
 ) -> np.ndarray:
     """
     Project cell-LRI matrix to cell loadings using a fitted BPTF model.
@@ -126,6 +127,8 @@ def project_cell_loadings(
         Number of cells to process per chunk (for memory efficiency)
     verbose : bool, default True
         Print progress
+    output_dir : str, optional
+        Directory to save cell_loadings.npy. If None, results are not saved.
 
     Returns
     -------
@@ -267,6 +270,15 @@ def project_cell_loadings(
 
     if verbose:
         print(f"✓ Projection complete. Cell loadings shape: {cell_loadings.shape}")
+
+    # Save results if output_dir provided
+    if output_dir is not None:
+        import os
+        os.makedirs(output_dir, exist_ok=True)
+        save_path = os.path.join(output_dir, 'cell_loadings.npy')
+        np.save(save_path, cell_loadings)
+        if verbose:
+            print(f"Cell loadings saved to: {save_path}")
 
     return cell_loadings
 
@@ -494,7 +506,7 @@ def compute_lr_global_prevalence(df: pd.DataFrame) -> pd.Series:
 def add_normalized_scores(
     df: pd.DataFrame,
     motif_scales: np.ndarray,
-    eps: float = 1e-10
+    eps: float = 1
 ) -> pd.DataFrame:
     """
     Add rescaled and normalized score columns to lri_motifs.
@@ -531,7 +543,8 @@ def process_and_save_lri_motif_analysis(
     output_dir: str,
     cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv',
     save: bool = True,
-    eps: float = 1e-10
+    eps_rescale: float = 1e-10,
+    eps_norm: float = 1,
 ) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
     """
     Full pipeline: create LRI motifs DataFrame, process, and save.
@@ -552,9 +565,11 @@ def process_and_save_lri_motif_analysis(
         Path to CellChatDB annotation file
     save : bool
         Whether to save outputs to disk
-    eps : float
-        Small constant for numerical stability
-        
+    eps_rescale : float
+        Small constant for numerical stability in rescaling
+    eps_norm : float
+        Small constant for numerical stability in normalization
+
     Returns
     -------
     lri_motifs : pd.DataFrame
@@ -598,12 +613,12 @@ def process_and_save_lri_motif_analysis(
     # Step 4: Rescale matrices
     print("Rescaling motif matrices...")
     W_tilde, V_tilde, motif_scales = rescale_motif_matrices(
-        patch_loadings, lri_factors, verify=True, eps=eps
+        patch_loadings, lri_factors, verify=True, eps=eps_rescale
     )
     
     # Step 5: Add normalized scores
     print("Computing normalized scores...")
-    lri_motifs_df = add_normalized_scores(lri_motifs_df, motif_scales, eps=eps)
+    lri_motifs_df = add_normalized_scores(lri_motifs_df, motif_scales, eps=eps_norm)
     
     # Step 6: Save
     if save:

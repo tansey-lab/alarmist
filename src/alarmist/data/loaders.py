@@ -92,8 +92,8 @@ def load_cell_lri_results(output_dir: str) -> Dict:
         Dictionary containing:
         - cell_lri_matrix: sparse matrix (n_cells × n_lris)
         - column_names: list of LRI column names
-        - cell_metadata_df: cell metadata
         - parameters: analysis parameters
+        - sample_info: dict (only if multi-sample, i.e., sample_info.csv exists)
     """
     print(f"Loading cell-LRI results from: {output_dir}")
 
@@ -105,29 +105,37 @@ def load_cell_lri_results(output_dir: str) -> Dict:
     columns_file = os.path.join(output_dir, 'cell_lri_columns.csv')
     column_names = pd.read_csv(columns_file)['column_name'].tolist()
 
-    # Load metadata
-    metadata_file = os.path.join(output_dir, 'cell_metadata.csv')
-    cell_metadata_df = pd.read_csv(metadata_file)
-
     # Load parameters
     params_file = os.path.join(output_dir, 'analysis_parameters.csv')
     params_df = pd.read_csv(params_file)
 
-    # Load sample info if available
-    sample_info_file = os.path.join(output_dir, 'sample_info.csv')
-    if os.path.exists(sample_info_file):
-        sample_info_df = pd.read_csv(sample_info_file)
-
     print(f"Loaded matrix shape: {cell_lri_matrix.shape}")
     print(f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}")
 
-    return {
+    results = {
         'cell_lri_matrix': cell_lri_matrix,
         'column_names': column_names,
-        'cell_metadata_df': cell_metadata_df,
-        'parameters': params_df,
-        'sample_info': sample_info_df if os.path.exists(sample_info_file) else None
+        'parameters': params_df
     }
+
+    # Auto-detect multi-sample: load sample_info if exists
+    sample_info_file = os.path.join(output_dir, 'sample_info.csv')
+    if os.path.exists(sample_info_file):
+        sample_info_df = pd.read_csv(sample_info_file)
+        # Convert to dict format matching run_neighborhood return
+        sample_info = {}
+        for _, row in sample_info_df.iterrows():
+            sample_id = row['sample_id']
+            sample_info[sample_id] = {
+                'n_cells': row['n_cells'],
+                'global_cell_idx_start': row['global_cell_idx_start'],
+                'global_cell_idx_end': row['global_cell_idx_end'],
+                'avg_neighborhood_size': row['avg_neighborhood_size']
+            }
+        results['sample_info'] = sample_info
+        print(f"Multi-sample detected: {len(sample_info)} samples")
+
+    return results
 
 
 def load_bptf_results(results_dir: str, load_rescaled: bool = False) -> Dict:
