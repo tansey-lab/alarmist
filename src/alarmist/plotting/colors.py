@@ -65,17 +65,18 @@ def set_celltype_colors(
     if isinstance(source, dict):
         # Direct color mapping
         _CELLTYPE_COLORS = source.copy()
+        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors (custom)")
     elif isinstance(source, list):
         # Generate colors from palette
         _CELLTYPE_COLORS = _generate_colors(source, palette)
+        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors using palette '{palette}'")
     else:
         # Assume AnnData
         if column is None:
             raise ValueError("column parameter required when source is AnnData")
         celltypes = sorted(source.obs[column].unique().tolist())
         _CELLTYPE_COLORS = _generate_colors(celltypes, palette)
-
-    print(f"Set {len(_CELLTYPE_COLORS)} cell type colors using palette '{palette}'")
+        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors from adata.obs['{column}'] using palette '{palette}'")
     return _CELLTYPE_COLORS.copy()
 
 
