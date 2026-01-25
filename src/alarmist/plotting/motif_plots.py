@@ -63,7 +63,7 @@ def parse_lri_full(lri_name: str) -> Tuple[str, str, str, str, str]:
 def get_cell_type_colors(
     unique_ct: List[str],
     palette: str = "tab20"
-) -> Dict[str, str]:
+) -> Dict[str, tuple]:
     """Generate color map for cell types
 
     Parameters
@@ -76,16 +76,15 @@ def get_cell_type_colors(
     Returns
     -------
     dict
-        Mapping from cell type to hex color string
+        Mapping from cell type to RGBA tuple
 
     Note
     ----
     Consider using al.set_celltype_colors() instead for global color consistency.
     """
-    import matplotlib.colors as mcolors
     n = len(unique_ct)
     ct_cmap = plt.get_cmap(palette, n)
-    return {ct: mcolors.to_hex(ct_cmap(i)) for i, ct in enumerate(unique_ct)}
+    return {ct: ct_cmap(i) for i, ct in enumerate(unique_ct)}
 
 
 # ==============================================================================

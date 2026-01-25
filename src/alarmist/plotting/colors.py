@@ -20,19 +20,18 @@ Usage:
     al.clear_celltype_colors()
 """
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 import matplotlib.pyplot as plt
-import anndata
 
 # Module-level registry for cell type colors
-_CELLTYPE_COLORS: Dict[str, str] = {}
+_CELLTYPE_COLORS: Dict[str, Any] = {}
 
 
 def set_celltype_colors(
-    source: Union[List[str], Dict[str, str], "anndata.AnnData"],
+    source: Union[List[str], Dict[str, Any], "anndata.AnnData"],
     column: Optional[str] = None,
     palette: str = "tab20",
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """
     Set global cell type colors for consistent plotting.
 
@@ -81,7 +80,7 @@ def set_celltype_colors(
     return _CELLTYPE_COLORS.copy()
 
 
-def get_celltype_colors() -> Dict[str, str]:
+def get_celltype_colors() -> Dict[str, Any]:
     """
     Get current global cell type color mapping.
 
@@ -100,25 +99,18 @@ def clear_celltype_colors() -> None:
     print("Cleared cell type colors")
 
 
-def _generate_colors(celltypes: List[str], palette: str = "tab20") -> Dict[str, str]:
+def _generate_colors(celltypes: List[str], palette: str = "tab20") -> Dict[str, tuple]:
     """Generate color mapping from a matplotlib palette."""
-    import matplotlib.colors as mcolors
-
     n = len(celltypes)
     cmap = plt.get_cmap(palette, n)
-
-    colors = {}
-    for i, ct in enumerate(celltypes):
-        colors[ct] = mcolors.to_hex(cmap(i))
-
-    return colors
+    return {ct: cmap(i) for i, ct in enumerate(celltypes)}
 
 
 def _get_colors_for_plotting(
-    ct_colors: Optional[Dict[str, str]] = None,
+    ct_colors: Optional[Dict[str, Any]] = None,
     df_celltypes: Optional[List[str]] = None,
     palette: str = "tab20",
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """
     Internal function to get colors for plotting functions.
 
