@@ -99,7 +99,7 @@ def gmm_binarize_all_motifs(
     multi_sample: bool = False,
     sample_column: Optional[str] = None,
     eps: float = 1e-10,
-    random_state: int = 0,
+    random_state: int = 42,
     return_arrays: bool = False
 ) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict[str, np.ndarray], Dict[str, np.ndarray]]]:
     """
@@ -124,6 +124,9 @@ def gmm_binarize_all_motifs(
         Multi-sample dict: Dict mapping sample_id -> AnnData. Results added to each.
         Multi-sample merged: Single AnnData with sample_column in obs.
         If None, results are only returned (not attached to any adata).
+        When provided, adds to adata.obs:
+        - motif_{k}_loading: original cell loading value
+        - motif_{k}_state: 'positive' or 'negative'
     multi_sample : bool, default False
         Whether to treat single AnnData as containing multiple samples.
         Only used when cell_loadings is np.ndarray and adata is single AnnData.
@@ -290,12 +293,11 @@ def gmm_binarize_all_motifs(
     # Handle merged mode: attach results directly to merged adata
     if is_merged_mode and adata_merged_original is not None:
         for k in range(K):
-            adata_merged_original.obs[f"motif_{k}_score_log"] = all_scores_log[:, k]
+            adata_merged_original.obs[f"motif_{k}_loading"] = all_loadings[:, k]
             adata_merged_original.obs[f"motif_{k}_state"] = pd.Categorical(
                 all_states[:, k],
                 categories=["negative", "positive"]
             )
-            adata_merged_original.obs[f"motif_{k}_posprob"] = all_posprobs[:, k]
 
         # For merged mode, return arrays directly (not split by sample)
         summary_df = pd.DataFrame(summary)
@@ -308,7 +310,6 @@ def gmm_binarize_all_motifs(
     # Split results back to samples and attach to adata (dict mode and single mode)
     states_dict = {}
     posprob_dict = {}
-    scores_log_dict = {}
 
     start_idx = 0
     for sid in sample_ids:
@@ -317,21 +318,19 @@ def gmm_binarize_all_motifs(
 
         sample_states = all_states[start_idx:end_idx, :]
         sample_posprobs = all_posprobs[start_idx:end_idx, :]
-        sample_scores_log = all_scores_log[start_idx:end_idx, :]
+        sample_loadings = all_loadings[start_idx:end_idx, :]
 
         states_dict[sid] = sample_states
         posprob_dict[sid] = sample_posprobs
-        scores_log_dict[sid] = sample_scores_log
 
         # Attach to adata if provided
         if adata is not None and sid in adata:
             for k in range(K):
-                adata[sid].obs[f"motif_{k}_score_log"] = sample_scores_log[:, k]
+                adata[sid].obs[f"motif_{k}_loading"] = sample_loadings[:, k]
                 adata[sid].obs[f"motif_{k}_state"] = pd.Categorical(
                     sample_states[:, k],
                     categories=["negative", "positive"]
                 )
-                adata[sid].obs[f"motif_{k}_posprob"] = sample_posprobs[:, k]
 
         start_idx = end_idx
 
@@ -339,7 +338,6 @@ def gmm_binarize_all_motifs(
     if not is_dict_mode:
         states_dict = states_dict['default']
         posprob_dict = posprob_dict['default']
-        scores_log_dict = scores_log_dict['default']
 
     summary_df = pd.DataFrame(summary)
 
