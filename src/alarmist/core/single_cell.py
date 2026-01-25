@@ -347,14 +347,25 @@ def gmm_binarize_all_motifs(
         return summary_df
 
 
-def compute_motif_state_counts(adata) -> pd.DataFrame:
+def compute_motif_state_counts(
+    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+    sample_column: Optional[str] = None
+) -> pd.DataFrame:
     """
     Count positive/negative cells for each motif.
 
+    Supports three input modes:
+    1. Single AnnData: standard single-sample analysis
+    2. Dict of AnnData objects: multi-sample with dict
+    3. Single merged AnnData with sample_column: multi-sample merged
+
     Parameters
     ----------
-    adata : anndata.AnnData
+    adata : anndata.AnnData or Dict[str, anndata.AnnData]
         Must contain motif_{k}_state columns in obs
+    sample_column : str, optional
+        Column name in adata.obs identifying samples (for merged AnnData).
+        If provided with single AnnData, treats it as multi-sample merged.
 
     Returns
     -------
@@ -363,17 +374,35 @@ def compute_motif_state_counts(adata) -> pd.DataFrame:
 
     Examples
     --------
+    >>> # Single sample
     >>> counts_df = compute_motif_state_counts(adata)
-    >>> print(counts_df)
+    >>>
+    >>> # Multi-sample dict
+    >>> counts_df = compute_motif_state_counts(adata_dict)
+    >>>
+    >>> # Multi-sample merged
+    >>> counts_df = compute_motif_state_counts(adata_merged, sample_column='patient_id')
     """
+    # Determine input mode and get combined obs
+    if isinstance(adata, dict):
+        # Mode 2: Dict of AnnData - concatenate all obs
+        obs_list = [ad.obs for ad in adata.values()]
+        combined_obs = pd.concat(obs_list, axis=0)
+    elif sample_column is not None:
+        # Mode 3: Merged AnnData with sample_column (just use obs directly)
+        combined_obs = adata.obs
+    else:
+        # Mode 1: Single AnnData
+        combined_obs = adata.obs
+
     # Extract only motif_state columns
-    motif_state_cols = [col for col in adata.obs.columns if col.endswith("_state")]
+    motif_state_cols = [col for col in combined_obs.columns if col.endswith("_state")]
 
     # Count positive/negative per motif
     counts = {}
     for col in motif_state_cols:
         motif_name = col.replace("_state", "")
-        counts[motif_name] = adata.obs[col].value_counts()
+        counts[motif_name] = combined_obs[col].value_counts()
 
     # Convert to DataFrame and fill missing values with 0
     df_counts = pd.DataFrame(counts).fillna(0).astype(int).T

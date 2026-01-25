@@ -492,3 +492,98 @@ def analyze_motif_celltype_composition(
     )
 
     return fig, ax, tidy_df
+
+
+def analyze_motif_state_counts(
+    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+    sample_column: Optional[str] = None,
+    figsize: tuple = (12, 6),
+    colors: list = ['#66c2a5', '#fc8d62'],
+    title: Optional[str] = None,
+    output_dir: Optional[str] = None
+) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
+    """
+    Analyze and visualize ON/OFF state counts for each motif.
+
+    Supports three input modes:
+    1. Single AnnData: standard single-sample analysis
+    2. Dict of AnnData objects: multi-sample with dict
+    3. Single merged AnnData with sample_column: multi-sample merged
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or Dict[str, anndata.AnnData]
+        Must contain motif_{k}_state columns in obs (from gmm_binarize_all_motifs)
+    sample_column : str, optional
+        Column name in adata.obs identifying samples (for merged AnnData).
+        If provided with single AnnData, treats it as multi-sample merged.
+    figsize : tuple, default (12, 6)
+        Figure size
+    colors : list, default ['#66c2a5', '#fc8d62']
+        Colors for [positive, negative] bars
+    title : str, optional
+        Plot title. If None, auto-generates.
+    output_dir : str, optional
+        Directory to save figure. If None, figure is not saved.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object
+    ax : matplotlib.axes.Axes
+        Axes object
+    counts_df : pd.DataFrame
+        Counts dataframe with columns [positive, negative] and motif names as index
+
+    Examples
+    --------
+    >>> # Single sample
+    >>> fig, ax, counts = al.analyze_motif_state_counts(adata)
+    >>>
+    >>> # Multi-sample with dict
+    >>> fig, ax, counts = al.analyze_motif_state_counts(adata_dict)
+    >>>
+    >>> # Multi-sample with merged AnnData
+    >>> fig, ax, counts = al.analyze_motif_state_counts(
+    ...     adata_merged, sample_column='patient_id'
+    ... )
+    """
+    from alarmist.core.single_cell import compute_motif_state_counts
+
+    # Determine mode for logging
+    if isinstance(adata, dict):
+        mode_str = f"Multi-sample ({len(adata)} samples)"
+        n_cells = sum(ad.n_obs for ad in adata.values())
+    elif sample_column is not None:
+        n_samples = adata.obs[sample_column].nunique()
+        mode_str = f"Multi-sample ({n_samples} samples, merged)"
+        n_cells = adata.n_obs
+    else:
+        mode_str = "Single sample"
+        n_cells = adata.n_obs
+
+    print(f"Computing ON/OFF statistics...")
+    print(f"  Mode: {mode_str}")
+    print(f"  Cells: {n_cells:,}")
+
+    # Compute counts
+    counts_df = compute_motif_state_counts(adata, sample_column=sample_column)
+
+    print(f"  Motifs: {len(counts_df)}")
+
+    # Determine save path
+    save_path = None
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+        save_path = os.path.join(output_dir, 'motif_state_counts.png')
+
+    # Plot
+    fig, ax = plot_motif_state_counts(
+        counts_df,
+        figsize=figsize,
+        colors=colors,
+        title=title if title else f"Positive vs Negative Cells per Motif ({mode_str})",
+        save_path=save_path
+    )
+
+    return fig, ax, counts_df
