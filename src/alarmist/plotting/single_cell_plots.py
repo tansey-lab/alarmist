@@ -233,119 +233,246 @@ def plot_positive_motifs_distribution(
 
 
 def plot_motif_spatial(
-    adata,
-    motif_id,
-    spot_size: float = 20,
-    figsize: tuple = (8, 8),
-    palette: list = ["#bdbdbd", "#1f77b4"],
-    title: Optional[str] = None,
-    save_path: Optional[str] = None
-) -> plt.Figure:
+    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+    motif_idx: Union[int, List[int]],
+    sample_column: Optional[str] = None,
+    cell_type_column: str = 'cell_type',
+    n_cols: int = 4,
+    figsize_per_panel: tuple = (6, 6),
+    point_size: float = 0.5,
+    ct_colors: Optional[Dict] = None,
+    negative_color: str = '#d3d3d3',
+    show_celltype_legend: bool = False,
+    legend_top_n: int = 10,
+    output_dir: Optional[str] = None,
+) -> Union[plt.Figure, List[plt.Figure]]:
     """
     Plot spatial distribution of motif ON/OFF states.
 
+    Positive cells are colored by cell type, negative cells in gray.
+
+    Supports three input modes:
+    1. Single AnnData: single panel
+    2. Dict of AnnData: grid of panels (one per sample)
+    3. Merged AnnData with sample_column: grid of panels (split by sample)
+
     Parameters
     ----------
-    adata : anndata.AnnData
-        Annotated data object with motif_{motif_id}_state in obs
-    motif_id : int or list of int
-        Motif ID(s) to visualize.
-        - If int: shows ON/OFF states for that single motif
-        - If list: shows cells that are ON for ALL motifs in the list
-    spot_size : float, default 20
-        Size of spots in spatial plot
-    figsize : tuple, default (8, 8)
-        Figure size
-    palette : list, default ["#bdbdbd", "#1f77b4"]
-        Colors for [negative, positive] states
-    title : str, optional
-        Plot title. If None, auto-generates based on motif_id
-    save_path : str, optional
-        Path to save figure. If None, displays without saving.
+    adata : anndata.AnnData or Dict[str, anndata.AnnData]
+        Must contain motif_{k}_state columns in obs (from gmm_binarize_all_motifs)
+    motif_idx : int or list of int
+        Motif index(es) to visualize.
+        - If int: plot single motif, return single Figure
+        - If list: plot each motif separately, return list of Figures
+    sample_column : str, optional
+        Column name in adata.obs identifying samples (for merged AnnData).
+        If provided with single AnnData, splits into multiple panels.
+    cell_type_column : str, default 'cell_type'
+        Column name for cell type annotations
+    n_cols : int, default 4
+        Number of columns in the grid (for multi-sample)
+    figsize_per_panel : tuple, default (6, 6)
+        Figure size per panel
+    point_size : float, default 0.5
+        Size of scatter points
+    ct_colors : dict, optional
+        Cell type color mapping. If None, uses global color registry.
+    negative_color : str, default '#d3d3d3'
+        Color for negative (OFF) cells
+    show_celltype_legend : bool, default False
+        Whether to show cell type legend (can be crowded with many types)
+    legend_top_n : int, default 10
+        If showing legend, only show top N cell types
+    output_dir : str, optional
+        Directory to save figures. Files named motif_{k}_spatial.png
 
     Returns
     -------
-    matplotlib.figure.Figure
-        Figure object
+    plt.Figure or List[plt.Figure]
+        Single Figure if motif_idx is int, list of Figures if motif_idx is list
 
     Examples
     --------
-    >>> # Single motif
-    >>> fig = plot_motif_spatial(
-    ...     adata,
-    ...     motif_id=2,
-    ...     title="Motif 2 ON/OFF cells",
-    ...     save_path="motif_2_spatial.pdf"
-    ... )
+    >>> # Single motif, single sample
+    >>> fig = al.plot_motif_spatial(adata, motif_idx=5)
     >>>
-    >>> # Multiple motifs (cells positive for ALL)
-    >>> fig = plot_motif_spatial(
-    ...     adata,
-    ...     motif_id=[2, 5, 8],
-    ...     title="Cells ON for motifs 2, 5, and 8",
-    ...     save_path="motifs_2_5_8_spatial.pdf"
-    ... )
+    >>> # Single motif, multi-sample dict
+    >>> fig = al.plot_motif_spatial(adata_dict, motif_idx=5, output_dir='results/spatial')
+    >>>
+    >>> # Multiple motifs
+    >>> figs = al.plot_motif_spatial(adata_dict, motif_idx=range(20), output_dir='results/spatial')
+    >>>
+    >>> # Merged mode
+    >>> fig = al.plot_motif_spatial(adata_merged, motif_idx=5, sample_column='patient_id')
     """
-    # Handle single motif or list of motifs
-    if isinstance(motif_id, (list, tuple)):
-        # Multiple motifs: find cells positive for ALL
-        motif_ids = list(motif_id)
-        state_cols = [f'motif_{mid}_state' for mid in motif_ids]
+    import matplotlib.lines as mlines
 
-        # Check all required columns exist
-        missing = [col for col in state_cols if col not in adata.obs.columns]
-        if missing:
-            raise ValueError(f"Columns {missing} not found in adata.obs. "
-                           f"Run gmm_binarize_all_motifs() first.")
+    # Handle list of motifs - recursive call
+    if isinstance(motif_idx, (list, tuple, range)):
+        figs = []
+        for k in motif_idx:
+            fig = plot_motif_spatial(
+                adata=adata,
+                motif_idx=k,
+                sample_column=sample_column,
+                cell_type_column=cell_type_column,
+                n_cols=n_cols,
+                figsize_per_panel=figsize_per_panel,
+                point_size=point_size,
+                ct_colors=ct_colors,
+                negative_color=negative_color,
+                show_celltype_legend=show_celltype_legend,
+                legend_top_n=legend_top_n,
+                output_dir=output_dir,
+            )
+            figs.append(fig)
+            print(f"Plotted motif {k}")
+        return figs
 
-        # Create temporary column: positive only if ALL motifs are positive
-        temp_col = '_temp_combined_state'
-        all_positive = adata.obs[state_cols[0]] == 'positive'
-        for col in state_cols[1:]:
-            all_positive = all_positive & (adata.obs[col] == 'positive')
+    # Get color map
+    color_map = _get_colors_for_plotting(ct_colors=ct_colors)
+    if not color_map:
+        raise ValueError(
+            "No cell type colors available. Either:\n"
+            "  1. Call al.set_celltype_colors() first, or\n"
+            "  2. Pass ct_colors parameter"
+        )
 
-        adata.obs[temp_col] = 'negative'
-        adata.obs.loc[all_positive, temp_col] = 'positive'
+    # Convert colors to hex for matplotlib
+    def to_hex(c):
+        if isinstance(c, str):
+            return c
+        elif isinstance(c, tuple) and len(c) >= 3:
+            return '#{:02x}{:02x}{:02x}'.format(int(c[0]*255), int(c[1]*255), int(c[2]*255))
+        return c
 
-        state_col = temp_col
-        default_title = f"Motifs {motif_ids} (ALL positive)"
+    ct_color_hex = {k: to_hex(v) for k, v in color_map.items()}
 
+    # Prepare adata_dict based on input mode
+    if isinstance(adata, dict):
+        # Mode 2: Dict of AnnData
+        adata_dict = adata
+        mode_str = "dict"
+    elif sample_column is not None:
+        # Mode 3: Merged AnnData - split by sample
+        adata_dict = {}
+        for sample_id in adata.obs[sample_column].unique():
+            mask = adata.obs[sample_column] == sample_id
+            adata_dict[sample_id] = adata[mask].copy()
+        mode_str = "merged"
     else:
-        # Single motif
-        state_col = f'motif_{motif_id}_state'
+        # Mode 1: Single AnnData
+        adata_dict = {'sample': adata}
+        mode_str = "single"
 
-        if state_col not in adata.obs.columns:
-            raise ValueError(f"Column '{state_col}' not found in adata.obs. "
-                           f"Run gmm_binarize_all_motifs() first.")
+    n_samples = len(adata_dict)
+    state_col = f'motif_{motif_idx}_state'
 
-        default_title = f"Motif {motif_id} Spatial Distribution"
+    # Determine grid layout
+    if n_samples == 1:
+        n_rows, n_cols_actual = 1, 1
+    else:
+        n_cols_actual = min(n_cols, n_samples)
+        n_rows = (n_samples + n_cols_actual - 1) // n_cols_actual
 
-    fig, ax = plt.subplots(figsize=figsize)
-
-    sc.pl.spatial(
-        adata,
-        color=state_col,
-        spot_size=spot_size,
-        ax=ax,
-        show=False,
-        palette=palette  # gray = negative, blue = positive
+    fig, axes = plt.subplots(
+        n_rows, n_cols_actual,
+        figsize=(figsize_per_panel[0] * n_cols_actual, figsize_per_panel[1] * n_rows),
+        squeeze=False
     )
+    axes = axes.flatten()
 
-    if title:
-        ax.set_title(title)
-    else:
-        ax.set_title(default_title)
+    for i, (sample_id, ad) in enumerate(adata_dict.items()):
+        ax = axes[i]
+        coords = ad.obsm['spatial'][:, :2]
+
+        if state_col not in ad.obs.columns:
+            ax.set_title(f'{sample_id}\n(no motif {motif_idx} data)')
+            ax.axis('off')
+            continue
+
+        states = ad.obs[state_col].astype(str)
+        n_pos = (states == 'positive').sum()
+        n_neg = (states == 'negative').sum()
+        frac_pos = n_pos / len(states) * 100 if len(states) > 0 else 0
+
+        # Plot negatives (background, gray)
+        mask_neg = (states == 'negative').values
+        ax.scatter(
+            coords[mask_neg, 0],
+            coords[mask_neg, 1],
+            c=negative_color,
+            s=point_size,
+            alpha=0.95,
+            marker='o',
+            edgecolors='none',
+            linewidths=0,
+            rasterized=True,
+        )
+
+        # Plot positives (colored by cell type)
+        mask_pos = (states == 'positive').values
+        if mask_pos.any():
+            ct = ad.obs[cell_type_column].astype(str).values
+            pos_colors = np.array([ct_color_hex.get(x, "#000000") for x in ct])[mask_pos]
+
+            ax.scatter(
+                coords[mask_pos, 0],
+                coords[mask_pos, 1],
+                c=pos_colors,
+                s=point_size * 6,
+                alpha=1,
+                marker='o',
+                edgecolors='none',
+                linewidths=0,
+                rasterized=True,
+                zorder=3
+            )
+
+        # Title
+        if mode_str == "single":
+            ax.set_title(f'Motif {motif_idx}: {frac_pos:.1f}% ON')
+        else:
+            ax.set_title(f'{sample_id}\nMotif {motif_idx}: {frac_pos:.1f}% ON')
+
+        ax.set_aspect('equal')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+
+        # Legend
+        off_handle = mlines.Line2D([], [], color=negative_color, marker='o',
+                                   linestyle='None', markersize=6, label=f'OFF (n={n_neg:,})')
+        on_handle = mlines.Line2D([], [], color='black', marker='o',
+                                  linestyle='None', markersize=6, label=f'ON (n={n_pos:,}, {frac_pos:.1f}%)')
+        handles = [off_handle, on_handle]
+
+        if show_celltype_legend and mask_pos.any():
+            ct_on = ad.obs.loc[mask_pos, cell_type_column].astype(str)
+            top_cts = ct_on.value_counts().head(legend_top_n).index.tolist()
+            ct_handles = [
+                mlines.Line2D([], [], color=ct_color_hex.get(ct, "#000000"), marker='o',
+                              linestyle='None', markersize=6, label=ct)
+                for ct in top_cts
+            ]
+            handles += ct_handles
+
+        ax.legend(handles=handles, loc='upper right', fontsize=8, frameon=False)
+
+    # Hide unused axes
+    for j in range(i + 1, len(axes)):
+        axes[j].axis('off')
+
+    if mode_str != "single":
+        plt.suptitle(f'Motif {motif_idx} Spatial Distribution (ON colored by cell type)', fontsize=14, y=1.02)
 
     plt.tight_layout()
 
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+    # Save
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+        save_path = os.path.join(output_dir, f'motif_{motif_idx}_spatial.png')
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Saved: {save_path}")
-
-    # Clean up temporary column if created
-    if isinstance(motif_id, (list, tuple)) and '_temp_combined_state' in adata.obs.columns:
-        adata.obs.drop(columns=['_temp_combined_state'], inplace=True)
 
     return fig
 
