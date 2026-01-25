@@ -96,6 +96,8 @@ def weighted_celltypes_by_motif(
 def gmm_binarize_all_motifs(
     cell_loadings: Union[np.ndarray, Dict[str, np.ndarray]],
     adata: Union[anndata.AnnData, Dict[str, anndata.AnnData], None] = None,
+    multi_sample: bool = False,
+    sample_column: Optional[str] = None,
     eps: float = 1e-10,
     random_state: int = 0,
     return_arrays: bool = False
@@ -103,18 +105,31 @@ def gmm_binarize_all_motifs(
     """
     Use Gaussian Mixture Model to binarize each motif into ON/OFF states.
 
-    Supports both single-sample and multi-sample modes. In multi-sample mode,
-    GMM is fit on all samples combined for consistent thresholds across samples.
+    Supports three input modes:
+    1. Single AnnData: standard single-sample analysis
+    2. Dict of AnnData objects: multi-sample with dict
+    3. Single merged AnnData with sample_column: multi-sample merged
+
+    In multi-sample mode, GMM is fit on all samples combined for consistent
+    thresholds across samples.
 
     Parameters
     ----------
     cell_loadings : np.ndarray or Dict[str, np.ndarray]
         Single sample: Cell loadings matrix (n_cells × n_motifs)
-        Multi-sample: Dict mapping sample_id -> cell loadings matrix
+        Multi-sample dict: Dict mapping sample_id -> cell loadings matrix
+        Multi-sample merged: Cell loadings matrix for merged samples
     adata : AnnData, Dict[str, AnnData], or None
         Single sample: AnnData object. Results added to adata.obs.
-        Multi-sample: Dict mapping sample_id -> AnnData. Results added to each.
+        Multi-sample dict: Dict mapping sample_id -> AnnData. Results added to each.
+        Multi-sample merged: Single AnnData with sample_column in obs.
         If None, results are only returned (not attached to any adata).
+    multi_sample : bool, default False
+        Whether to treat single AnnData as containing multiple samples.
+        Only used when cell_loadings is np.ndarray and adata is single AnnData.
+    sample_column : str, optional
+        Column name in adata.obs identifying samples (for merged AnnData).
+        Required when multi_sample=True.
     eps : float, default 1e-10
         Small constant added before log transform
     random_state : int, default 0
@@ -139,21 +154,28 @@ def gmm_binarize_all_motifs(
     Single sample:
     >>> gmm_summary = gmm_binarize_all_motifs(cell_loadings, adata)
 
-    Multi-sample (fit GMM on all samples combined):
+    Multi-sample with dict:
     >>> cell_loadings_dict = {'P17_AIS': loadings1, 'P17_LUAD': loadings2}
     >>> adata_dict = {'P17_AIS': adata1, 'P17_LUAD': adata2}
     >>> gmm_summary = gmm_binarize_all_motifs(cell_loadings_dict, adata_dict)
+
+    Multi-sample with merged AnnData:
+    >>> gmm_summary = gmm_binarize_all_motifs(
+    ...     cell_loadings, adata_merged,
+    ...     multi_sample=True, sample_column='patient_id'
+    ... )
 
     Return arrays without modifying adata:
     >>> summary, states, posprobs = gmm_binarize_all_motifs(
     ...     cell_loadings_dict, adata=None, return_arrays=True
     ... )
     """
-    # Determine if multi-sample mode
-    is_multi = isinstance(cell_loadings, dict)
+    # Determine input mode
+    is_dict_mode = isinstance(cell_loadings, dict)
+    is_merged_mode = (not is_dict_mode and multi_sample and sample_column is not None)
 
-    if is_multi:
-        # Multi-sample mode: concatenate all loadings
+    if is_dict_mode:
+        # Mode 2: Multi-sample dict mode
         sample_ids = list(cell_loadings.keys())
         sample_sizes = {sid: cell_loadings[sid].shape[0] for sid in sample_ids}
 
@@ -170,8 +192,43 @@ def gmm_binarize_all_motifs(
                     raise ValueError(f"Sample '{sid}' in cell_loadings but not in adata")
                 if adata[sid].n_obs != sample_sizes[sid]:
                     raise ValueError(f"Sample '{sid}': adata has {adata[sid].n_obs} cells but loadings has {sample_sizes[sid]}")
+
+        # Track original adata for merged mode processing
+        adata_merged_original = None
+
+    elif is_merged_mode:
+        # Mode 3: Multi-sample merged mode
+        if adata is None:
+            raise ValueError("adata must be provided when multi_sample=True")
+        if sample_column not in adata.obs.columns:
+            raise ValueError(f"sample_column '{sample_column}' not found in adata.obs")
+
+        # Validate cell count match
+        if adata.n_obs != cell_loadings.shape[0]:
+            raise ValueError(f"adata has {adata.n_obs} cells but cell_loadings has {cell_loadings.shape[0]} rows")
+
+        all_loadings = cell_loadings
+        n_cells_total, K = all_loadings.shape
+
+        # Get sample info from adata
+        sample_labels = adata.obs[sample_column].values
+        unique_samples = adata.obs[sample_column].unique()
+        sample_ids = list(unique_samples)
+
+        # Compute sample sizes and indices
+        sample_sizes = {}
+        sample_indices = {}
+        for sid in sample_ids:
+            mask = sample_labels == sid
+            sample_sizes[sid] = mask.sum()
+            sample_indices[sid] = np.where(mask)[0]
+
+        # Store original merged adata for later
+        adata_merged_original = adata
+        adata = None  # Will handle separately
+
     else:
-        # Single-sample mode
+        # Mode 1: Single-sample mode
         sample_ids = ['default']
         sample_sizes = {'default': cell_loadings.shape[0]}
         all_loadings = cell_loadings
@@ -180,6 +237,9 @@ def gmm_binarize_all_motifs(
         # Wrap single adata in dict for uniform processing
         if adata is not None:
             adata = {'default': adata}
+
+        # Track original adata for merged mode processing
+        adata_merged_original = None
 
     # Initialize storage for results
     all_states = np.empty((n_cells_total, K), dtype=object)
@@ -227,7 +287,25 @@ def gmm_binarize_all_motifs(
             "positive_component": pos_comp
         })
 
-    # Split results back to samples and attach to adata
+    # Handle merged mode: attach results directly to merged adata
+    if is_merged_mode and adata_merged_original is not None:
+        for k in range(K):
+            adata_merged_original.obs[f"motif_{k}_score_log"] = all_scores_log[:, k]
+            adata_merged_original.obs[f"motif_{k}_state"] = pd.Categorical(
+                all_states[:, k],
+                categories=["negative", "positive"]
+            )
+            adata_merged_original.obs[f"motif_{k}_posprob"] = all_posprobs[:, k]
+
+        # For merged mode, return arrays directly (not split by sample)
+        summary_df = pd.DataFrame(summary)
+
+        if return_arrays:
+            return summary_df, all_states, all_posprobs
+        else:
+            return summary_df
+
+    # Split results back to samples and attach to adata (dict mode and single mode)
     states_dict = {}
     posprob_dict = {}
     scores_log_dict = {}
@@ -258,7 +336,7 @@ def gmm_binarize_all_motifs(
         start_idx = end_idx
 
     # For single-sample mode, unwrap from dict
-    if not is_multi:
+    if not is_dict_mode:
         states_dict = states_dict['default']
         posprob_dict = posprob_dict['default']
         scores_log_dict = scores_log_dict['default']
