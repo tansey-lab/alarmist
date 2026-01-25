@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scanpy as sc
 import anndata
-from typing import Optional, Dict, Tuple, Union
+from typing import Optional, Dict, Tuple, Union, List
 import os
 
 from alarmist.plotting.colors import _get_colors_for_plotting
