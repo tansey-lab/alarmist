@@ -84,8 +84,8 @@ def get_cell_type_colors(
     """
     import matplotlib.colors as mcolors
     n = len(unique_ct)
-    ct_cmap = plt.get_cmap(palette, max(n, 20) if 'tab' in palette else n)
-    return {ct: mcolors.to_hex(ct_cmap(i % ct_cmap.N)) for i, ct in enumerate(unique_ct)}
+    ct_cmap = plt.get_cmap(palette, n)
+    return {ct: mcolors.to_hex(ct_cmap(i)) for i, ct in enumerate(unique_ct)}
 
 
 # ==============================================================================

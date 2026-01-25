@@ -22,6 +22,7 @@ Usage:
 
 from typing import Dict, List, Optional, Union
 import matplotlib.pyplot as plt
+import anndata
 
 # Module-level registry for cell type colors
 _CELLTYPE_COLORS: Dict[str, str] = {}
@@ -104,12 +105,11 @@ def _generate_colors(celltypes: List[str], palette: str = "tab20") -> Dict[str, 
     import matplotlib.colors as mcolors
 
     n = len(celltypes)
-    cmap = plt.get_cmap(palette, max(n, 20) if 'tab' in palette else n)
+    cmap = plt.get_cmap(palette, n)
 
     colors = {}
     for i, ct in enumerate(celltypes):
-        rgba = cmap(i % cmap.N)
-        colors[ct] = mcolors.to_hex(rgba)
+        colors[ct] = mcolors.to_hex(cmap(i))
 
     return colors
 
