@@ -6,8 +6,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scanpy as sc
-from typing import Optional, Dict, Tuple
+import anndata
+from typing import Optional, Dict, Tuple, Union
 import os
+
+from alarmist.plotting.colors import _get_colors_for_plotting
 
 
 def plot_motif_celltype_composition(
@@ -345,3 +348,147 @@ def plot_motif_spatial(
         adata.obs.drop(columns=['_temp_combined_state'], inplace=True)
 
     return fig
+
+
+def analyze_motif_celltype_composition(
+    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+    cell_loadings: np.ndarray,
+    cell_type_column: str = 'cell_type',
+    sample_column: Optional[str] = None,
+    normalize: bool = True,
+    ct_colors: Optional[Dict] = None,
+    figsize: tuple = (12, 6),
+    title: Optional[str] = None,
+    output_dir: Optional[str] = None
+) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
+    """
+    Analyze and visualize cell type composition for each motif.
+
+    Supports three input modes:
+    1. Single AnnData: standard single-sample analysis
+    2. Dict of AnnData objects: multi-sample with dict
+    3. Single merged AnnData with sample_column: multi-sample merged
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or Dict[str, anndata.AnnData]
+        Single AnnData object, or a dictionary mapping sample_id -> AnnData.
+    cell_loadings : np.ndarray
+        Cell loadings matrix (n_cells x n_motifs) from project_cell_loadings
+    cell_type_column : str, default 'cell_type'
+        Column name in adata.obs containing cell type annotations
+    sample_column : str, optional
+        Column name in adata.obs identifying samples (for merged AnnData).
+        If provided with single AnnData, treats it as multi-sample.
+    normalize : bool, default True
+        If True, per-motif weights sum to 1 (for percent stacked bar)
+    ct_colors : dict, optional
+        Mapping from cell type to color. If None, uses global color registry
+        or auto-generates from tab20 colormap.
+    figsize : tuple, default (12, 6)
+        Figure size
+    title : str, optional
+        Plot title. If None, auto-generates based on input mode.
+    output_dir : str, optional
+        Directory to save figure. If None, figure is not saved.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object
+    ax : matplotlib.axes.Axes
+        Axes object
+    tidy_df : pd.DataFrame
+        Tidy dataframe with columns [motif, cell_type, weight]
+
+    Examples
+    --------
+    >>> # Single sample
+    >>> fig, ax, df = al.analyze_motif_celltype_composition(
+    ...     adata, cell_loadings,
+    ...     output_dir='results/single_cell'
+    ... )
+    >>>
+    >>> # Multi-sample with dict
+    >>> fig, ax, df = al.analyze_motif_celltype_composition(
+    ...     {'sample_A': adata_a, 'sample_B': adata_b},
+    ...     cell_loadings,
+    ...     output_dir='results/single_cell'
+    ... )
+    >>>
+    >>> # Multi-sample with merged AnnData
+    >>> fig, ax, df = al.analyze_motif_celltype_composition(
+    ...     adata_merged, cell_loadings,
+    ...     sample_column='patient_id',
+    ...     output_dir='results/single_cell'
+    ... )
+    """
+    from alarmist.core.single_cell import weighted_celltypes_by_motif
+
+    # Build cell metadata DataFrame based on input type
+    if isinstance(adata, dict):
+        # Mode 2: Dict of AnnData
+        cell_meta_dfs = []
+        for sample_id, ad in adata.items():
+            df = ad.obs[[cell_type_column]].copy()
+            df.columns = ['cell_type']
+            df['sample_id'] = sample_id
+            cell_meta_dfs.append(df)
+        cell_meta_df = pd.concat(cell_meta_dfs, axis=0).reset_index(drop=True)
+        mode_str = f"Multi-sample ({len(adata)} samples)"
+    elif sample_column is not None:
+        # Mode 3: Merged AnnData with sample_column
+        cell_meta_df = adata.obs[[cell_type_column, sample_column]].copy()
+        cell_meta_df.columns = ['cell_type', 'sample_id']
+        cell_meta_df = cell_meta_df.reset_index(drop=True)
+        n_samples = cell_meta_df['sample_id'].nunique()
+        mode_str = f"Multi-sample ({n_samples} samples, merged)"
+    else:
+        # Mode 1: Single AnnData
+        cell_meta_df = adata.obs[[cell_type_column]].copy()
+        cell_meta_df.columns = ['cell_type']
+        cell_meta_df = cell_meta_df.reset_index(drop=True)
+        mode_str = "Single sample"
+
+    # Validate dimensions
+    if len(cell_meta_df) != cell_loadings.shape[0]:
+        raise ValueError(
+            f"Number of cells in adata ({len(cell_meta_df)}) does not match "
+            f"cell_loadings rows ({cell_loadings.shape[0]})"
+        )
+
+    print(f"Analyzing cell type composition per motif...")
+    print(f"  Mode: {mode_str}")
+    print(f"  Cells: {len(cell_meta_df):,}")
+    print(f"  Motifs: {cell_loadings.shape[1]}")
+
+    # Compute weighted cell types for each motif
+    tidy_df = weighted_celltypes_by_motif(
+        cell_loadings=cell_loadings,
+        metadata_df=cell_meta_df,
+        normalize=normalize
+    )
+
+    # Get colors
+    unique_celltypes = tidy_df['cell_type'].unique().tolist()
+    color_map = _get_colors_for_plotting(
+        ct_colors=ct_colors,
+        df_celltypes=unique_celltypes
+    )
+
+    # Determine save path
+    save_path = None
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+        save_path = os.path.join(output_dir, 'motif_celltype_composition.png')
+
+    # Plot
+    fig, ax = plot_motif_celltype_composition(
+        tidy_df,
+        color_map=color_map,
+        figsize=figsize,
+        title=title if title else f"Cell Type Composition per Motif ({mode_str})",
+        save_path=save_path
+    )
+
+    return fig, ax, tidy_df

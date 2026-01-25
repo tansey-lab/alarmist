@@ -57,6 +57,8 @@ from alarmist.plotting import (
     volcano_plot,
     forest_plot,
     plot_cells_per_patch,
+    # Single cell plots
+    analyze_motif_celltype_composition,
 )
 
 __all__ = [
@@ -113,4 +115,5 @@ __all__ = [
     'gmm_binarize_all_motifs',
     'compute_motif_state_counts',
     'compute_positive_motifs_per_cell',
+    'analyze_motif_celltype_composition',
 ]
