@@ -45,6 +45,11 @@ from alarmist.data.loaders import load_patch_lri_results, load_cell_lri_results,
 
 # Import commonly used plotting functions
 from alarmist.plotting import (
+    # Color management
+    set_celltype_colors,
+    get_celltype_colors,
+    clear_celltype_colors,
+    # Plots
     plot_bptf_diagnostics,
     plot_motif_activities,
     plot_factor_distributions,
@@ -73,6 +78,11 @@ __all__ = [
     'load_patch_lri_results',
     'load_cell_lri_results',
     'load_bptf_results',
+
+    # Color management
+    'set_celltype_colors',
+    'get_celltype_colors',
+    'clear_celltype_colors',
 
     # Plotting
     'plot_bptf_diagnostics',

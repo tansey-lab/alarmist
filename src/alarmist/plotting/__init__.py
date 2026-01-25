@@ -1,6 +1,13 @@
 """
 Visualization and plotting module
 """
+from alarmist.plotting.colors import (
+    set_celltype_colors,
+    get_celltype_colors,
+    clear_celltype_colors,
+    _get_colors_for_plotting,
+)
+
 from alarmist.plotting.bptf_plots import (
     plot_bptf_diagnostics,
     plot_motif_activities,
@@ -46,6 +53,11 @@ from alarmist.plotting.motif_plots import (
 )
 
 __all__ = [
+    # Color management
+    'set_celltype_colors',
+    'get_celltype_colors',
+    'clear_celltype_colors',
+    # BPTF plots
     'plot_bptf_diagnostics',
     'plot_motif_activities',
     'plot_factor_distributions',

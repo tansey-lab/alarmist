@@ -60,21 +60,32 @@ def parse_lri_full(lri_name: str) -> Tuple[str, str, str, str, str]:
         return 'unknown', 'unknown', lri_name, lri_name, 'unknown'
 
 
-def get_cell_type_colors(unique_ct: List[str]) -> Dict[str, tuple]:
+def get_cell_type_colors(
+    unique_ct: List[str],
+    palette: str = "tab20"
+) -> Dict[str, str]:
     """Generate color map for cell types
 
     Parameters
     ----------
     unique_ct : list of str
         List of unique cell type names
+    palette : str, default "tab20"
+        Matplotlib colormap name
 
     Returns
     -------
     dict
-        Mapping from cell type to RGB color tuple
+        Mapping from cell type to hex color string
+
+    Note
+    ----
+    Consider using al.set_celltype_colors() instead for global color consistency.
     """
-    ct_cmap = plt.get_cmap('tab20', len(unique_ct))
-    return {ct: ct_cmap(i) for i, ct in enumerate(unique_ct)}
+    import matplotlib.colors as mcolors
+    n = len(unique_ct)
+    ct_cmap = plt.get_cmap(palette, max(n, 20) if 'tab' in palette else n)
+    return {ct: mcolors.to_hex(ct_cmap(i % ct_cmap.N)) for i, ct in enumerate(unique_ct)}
 
 
 # ==============================================================================
@@ -451,31 +462,48 @@ def plot_celltype_communication_by_motif(
 
 def plot_top_lri_interactions_dot(
     lri_motifs_df: pd.DataFrame,
-    unique_ct: List[str],
     factor_col: str = "factor",
     top_n: int = 35,
     save_path: Optional[str] = None,
     n_cols: int = 3,
     figsize_per_motif: Tuple[float, float] = (12, 9),
+    ct_colors: Optional[Dict[str, str]] = None,
 ) -> plt.Figure:
     """
     Plot top LRI interactions per motif with lollipop lines + colored dots at endpoints.
 
-    Changes vs original:
-      - No long y-axis labels
-      - Ligand label placed further LEFT of the x=0 axis line
-      - Receptor label placed further RIGHT of the right endpoint
-      - Remove top/right subplot spines
+    Parameters
+    ----------
+    lri_motifs_df : pd.DataFrame
+        DataFrame with columns: motif_idx, celltype1, celltype2, ligand, receptor,
+        signaling_type, and factor_col
+    factor_col : str, default "factor"
+        Column name for factor values
+    top_n : int, default 35
+        Number of top interactions to show per motif
+    save_path : str, optional
+        Path to save figure
+    n_cols : int, default 3
+        Number of columns in subplot grid
+    figsize_per_motif : tuple, default (12, 9)
+        Size per motif subplot
+    ct_colors : dict, optional
+        Cell type color mapping. If None, uses global colors from set_celltype_colors()
+        or auto-generates from data.
 
     Signaling types by marker:
       ■ autocrine, ● paracrine, ▲ juxtacrine
     """
+    from alarmist.plotting.colors import _get_colors_for_plotting
+
     required_cols = {"motif_idx", "celltype1", "celltype2", "ligand", "receptor", "signaling_type", factor_col}
     missing = required_cols - set(lri_motifs_df.columns)
     if missing:
         raise ValueError(f"Missing columns in lri_motifs_df: {sorted(missing)}")
 
-    ct_color_map = get_cell_type_colors(unique_ct)
+    # Get cell type colors
+    all_celltypes = list(set(lri_motifs_df['celltype1']) | set(lri_motifs_df['celltype2']))
+    ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
     motifs = sorted(lri_motifs_df["motif_idx"].unique())
     n_prog = len(motifs)
@@ -652,7 +680,6 @@ def plot_top_lri_interactions_dot(
 def plot_single_motif_lri_lollipop(
     lri_motifs_df: pd.DataFrame,
     motif_idx: int,
-    unique_ct: List[str],
     factor_col: str = "factor",
     top_n: int = 25,
     sender_type: Optional[str] = None,
@@ -662,6 +689,7 @@ def plot_single_motif_lri_lollipop(
     title: Optional[str] = None,
     show_legend: bool = True,
     ax: Optional[plt.Axes] = None,
+    ct_colors: Optional[Dict[str, str]] = None,
 ) -> plt.Figure:
     """
     Plot top LRI interactions for a SINGLE motif as a lollipop chart.
@@ -673,10 +701,8 @@ def plot_single_motif_lri_lollipop(
         signaling_type, and factor_col
     motif_idx : int
         The motif index to plot
-    unique_ct : list of str
-        List of unique cell types for consistent coloring
     factor_col : str, default "factor"
-        Column name for the factor values (e.g., 'factor', 'score', 'factor_norm')
+        Column name for the factor values (e.g., 'factor', 'score', 'factor_lrnorm')
     top_n : int, default 25
         Number of top LRI interactions to show
     sender_type : str, optional
@@ -693,6 +719,9 @@ def plot_single_motif_lri_lollipop(
         Whether to show the legend
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, creates new figure.
+    ct_colors : dict, optional
+        Cell type color mapping. If None, uses global colors from set_celltype_colors()
+        or auto-generates from data.
 
     Returns
     -------
@@ -702,23 +731,19 @@ def plot_single_motif_lri_lollipop(
     Examples
     --------
     >>> # All interactions for motif 5
-    >>> fig = plot_single_motif_lri_lollipop(
-    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
-    ...     factor_col='score', top_n=30
-    ... )
+    >>> fig = plot_single_motif_lri_lollipop(lri_motifs, motif_idx=5, factor_col='score', top_n=30)
 
     >>> # Only interactions where Tumor cells are the sender
-    >>> fig = plot_single_motif_lri_lollipop(
-    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
-    ...     sender_type='Tumor', top_n=20
-    ... )
+    >>> fig = plot_single_motif_lri_lollipop(lri_motifs, motif_idx=5, sender_type='Tumor', top_n=20)
 
     >>> # Only interactions from Macrophage to T cell
     >>> fig = plot_single_motif_lri_lollipop(
-    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
+    ...     lri_motifs, motif_idx=5,
     ...     sender_type='Macrophage', receiver_type='T cell', top_n=15
     ... )
     """
+    from alarmist.plotting.colors import _get_colors_for_plotting
+
     required_cols = {"motif_idx", "celltype1", "celltype2", "ligand", "receptor", "signaling_type", factor_col}
     missing = required_cols - set(lri_motifs_df.columns)
     if missing:
@@ -744,7 +769,9 @@ def plot_single_motif_lri_lollipop(
                 filter_msg = f"sender_type='{sender_type}' and {filter_msg}"
             raise ValueError(f"No data found for motif_idx={motif_idx} with {filter_msg}")
 
-    ct_color_map = get_cell_type_colors(unique_ct)
+    # Get cell type colors
+    all_celltypes = list(set(lri_motifs_df['celltype1']) | set(lri_motifs_df['celltype2']))
+    ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
     # Create figure if no ax provided
     created_fig = False
@@ -915,7 +942,6 @@ def plot_single_motif_lri_lollipop(
 def plot_single_motif_cellpair_lollipop(
     lri_motifs_df: pd.DataFrame,
     motif_idx: int,
-    unique_ct: List[str],
     factor_col: str = "factor",
     top_n: int = 20,
     sender_type: Optional[str] = None,
@@ -925,6 +951,7 @@ def plot_single_motif_cellpair_lollipop(
     title: Optional[str] = None,
     show_legend: bool = True,
     ax: Optional[plt.Axes] = None,
+    ct_colors: Optional[Dict[str, str]] = None,
 ) -> plt.Figure:
     """
     Plot aggregated LRI interactions by cell type pairs for a SINGLE motif.
@@ -935,14 +962,11 @@ def plot_single_motif_cellpair_lollipop(
     Parameters
     ----------
     lri_motifs_df : pd.DataFrame
-        DataFrame with columns: motif_idx, celltype1, celltype2, ligand, receptor,
-        signaling_type, and factor_col
+        DataFrame with columns: motif_idx, celltype1, celltype2, and factor_col
     motif_idx : int
         The motif index to plot
-    unique_ct : list of str
-        List of unique cell types for consistent coloring
     factor_col : str, default "factor"
-        Column name for the factor values to aggregate (e.g., 'factor', 'factor_norm', 'factor_lrnorm')
+        Column name for the factor values to aggregate (e.g., 'factor', 'factor_lrnorm')
     top_n : int, default 20
         Number of top cell type pairs to show
     sender_type : str, optional
@@ -959,6 +983,9 @@ def plot_single_motif_cellpair_lollipop(
         Whether to show the legend
     ax : matplotlib.axes.Axes, optional
         Axes to plot on. If None, creates new figure.
+    ct_colors : dict, optional
+        Cell type color mapping. If None, uses global colors from set_celltype_colors()
+        or auto-generates from data.
 
     Returns
     -------
@@ -968,17 +995,15 @@ def plot_single_motif_cellpair_lollipop(
     Examples
     --------
     >>> # All cell type pairs for motif 5
-    >>> fig = plot_single_motif_cellpair_lollipop(
-    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
-    ...     factor_col='factor', top_n=15
-    ... )
+    >>> fig = plot_single_motif_cellpair_lollipop(lri_motifs, motif_idx=5, factor_col='factor', top_n=15)
 
     >>> # Only pairs where Tumor cells are the sender
     >>> fig = plot_single_motif_cellpair_lollipop(
-    ...     lri_motifs, motif_idx=5, unique_ct=unique_ct,
-    ...     sender_type='Tumor', factor_col='factor_norm'
+    ...     lri_motifs, motif_idx=5, sender_type='Tumor', factor_col='factor_lrnorm'
     ... )
     """
+    from alarmist.plotting.colors import _get_colors_for_plotting
+
     required_cols = {"motif_idx", "celltype1", "celltype2", factor_col}
     missing = required_cols - set(lri_motifs_df.columns)
     if missing:
@@ -1016,7 +1041,9 @@ def plot_single_motif_cellpair_lollipop(
     if top_df.empty:
         raise ValueError(f"No aggregated data for motif_idx={motif_idx}")
 
-    ct_color_map = get_cell_type_colors(unique_ct)
+    # Get cell type colors
+    all_celltypes = list(set(lri_motifs_df['celltype1']) | set(lri_motifs_df['celltype2']))
+    ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
     # Create figure if no ax provided
     created_fig = False
@@ -1104,7 +1131,7 @@ def plot_single_motif_cellpair_lollipop(
     # X-axis limits with padding
     if len(top_df) > 0:
         max_val = float(top_df[factor_col].max())
-        ax.set_xlim(-max_val * 0.04, max_val * 1.12)
+        ax.set_xlim(-max_val * 0.03, max_val * 1.12)
 
     # Remove top/right spines
     ax.spines["top"].set_visible(False)
@@ -1147,13 +1174,15 @@ def plot_single_motif_cellpair_lollipop(
     return fig if created_fig else None
 
 
-def plot_top_lri_interactions_by_pathway(lri_motifs_df: pd.DataFrame,
-                                         unique_ct: List[str],
-                                         top_n: int = 35,
-                                         save_path: Optional[str] = None,
-                                         n_cols: int = 3,
-                                         factor_col: str = "factor",
-                                         figsize_per_motif: Tuple[float, float] = (12, 9)) -> plt.Figure:
+def plot_top_lri_interactions_by_pathway(
+    lri_motifs_df: pd.DataFrame,
+    top_n: int = 35,
+    save_path: Optional[str] = None,
+    n_cols: int = 3,
+    factor_col: str = "factor",
+    figsize_per_motif: Tuple[float, float] = (12, 9),
+    ct_colors: Optional[Dict[str, str]] = None,
+) -> plt.Figure:
     """Plot top LRI interactions per motif aggregated by pathway
 
     Same sender, receiver, and pathway combinations are merged (factors summed).
@@ -1162,27 +1191,33 @@ def plot_top_lri_interactions_by_pathway(lri_motifs_df: pd.DataFrame,
     ----------
     lri_motifs_df : pd.DataFrame
         DataFrame with parsed components and pathway column
-    unique_ct : list of str
-        List of unique cell types
     top_n : int, default 35
         Number of top pathways to show per motif
     save_path : str, optional
         Path to save figure. If None, displays plot.
     n_cols : int, default 3
         Number of columns in subplot grid
+    factor_col : str, default "factor"
+        Column name for factor values
     figsize_per_motif : tuple, default (12, 9)
         Size per motif subplot
+    ct_colors : dict, optional
+        Cell type color mapping. If None, uses global colors from set_celltype_colors()
+        or auto-generates from data.
 
     Returns
     -------
     matplotlib.figure.Figure
         Figure object
     """
+    from alarmist.plotting.colors import _get_colors_for_plotting
+
     if 'pathway' not in lri_motifs_df.columns:
         raise ValueError("DataFrame must have 'pathway' column. Use annotate_pathways() first.")
 
     # Setup colors
-    ct_color_map = get_cell_type_colors(unique_ct)
+    all_celltypes = list(set(lri_motifs_df['celltype1']) | set(lri_motifs_df['celltype2']))
+    ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
     motifs = sorted(lri_motifs_df['motif_idx'].unique())
     n_prog = len(motifs)
@@ -1331,29 +1366,31 @@ def build_master_edge_gate(lri_motifs_df: pd.DataFrame,
     return gates
 
 
-def plot_lri_networks(lri_motifs_df: pd.DataFrame,
-                     unique_ct: List[str],
-                     threshold: float = 2000,
-                     top_n: int = 200,
-                     factor_col: str = "factor",
-                     annotate_edges: bool = False,
-                     mode_filter: Optional[str] = None,
-                     edge_gate: Optional[Dict[int, Set[Tuple[str, str]]]] = None,
-                     save_path: Optional[str] = None,
-                     n_cols: int = 5,
-                     figsize_per_motif: Tuple[float, float] = (3, 3)) -> plt.Figure:
+def plot_lri_networks(
+    lri_motifs_df: pd.DataFrame,
+    threshold: float = 2000,
+    top_n: int = 200,
+    factor_col: str = "factor",
+    annotate_edges: bool = False,
+    mode_filter: Optional[str] = None,
+    edge_gate: Optional[Dict[int, Set[Tuple[str, str]]]] = None,
+    save_path: Optional[str] = None,
+    n_cols: int = 5,
+    figsize_per_motif: Tuple[float, float] = (3, 3),
+    ct_colors: Optional[Dict[str, str]] = None,
+) -> plt.Figure:
     """Plot LRI networks for each motif using Graphviz
 
     Parameters
     ----------
     lri_motifs_df : pd.DataFrame
         DataFrame with parsed LRI components
-    unique_ct : list of str
-        List of unique cell types
     threshold : float, default 2000
         Threshold for edge weight filtering
     top_n : int, default 200
         Number of top interactions to consider
+    factor_col : str, default "factor"
+        Column name for factor values
     annotate_edges : bool, default False
         Whether to annotate edges with L-R pairs
     mode_filter : str, optional
@@ -1366,6 +1403,9 @@ def plot_lri_networks(lri_motifs_df: pd.DataFrame,
         Number of columns in subplot grid
     figsize_per_motif : tuple, default (3, 3)
         Size per motif subplot
+    ct_colors : dict, optional
+        Cell type color mapping. If None, uses global colors from set_celltype_colors()
+        or auto-generates from data.
 
     Returns
     -------
@@ -1377,14 +1417,14 @@ def plot_lri_networks(lri_motifs_df: pd.DataFrame,
     ImportError
         If Graphviz is not installed
     """
+    from alarmist.plotting.colors import _get_colors_for_plotting
+
     if not GRAPHVIZ_AVAILABLE:
         raise ImportError("Graphviz required for network plots. Install: pip install graphviz pillow")
 
-    import matplotlib.colors as mcolors
-
     # Setup colors
-    ct_color_map = {ct: mcolors.to_hex(plt.get_cmap('tab20', len(unique_ct))(i))
-                    for i, ct in enumerate(unique_ct)}
+    all_celltypes = list(set(lri_motifs_df['celltype1']) | set(lri_motifs_df['celltype2']))
+    ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
     def _norm_mode(x):
         t = str(x).strip().lower()
