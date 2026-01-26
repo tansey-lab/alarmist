@@ -239,7 +239,7 @@ def plot_motif_spatial(
     cell_type_column: str = 'cell_type',
     n_cols: int = 4,
     figsize_per_panel: tuple = (6, 6),
-    point_size: float = 0.5,
+    point_size: float = 0.2,
     color_by_celltype: bool = True,
     ct_colors: Optional[Dict] = None,
     positive_color: str = '#1f77b4',
@@ -274,7 +274,7 @@ def plot_motif_spatial(
         Number of columns in the grid (for multi-sample)
     figsize_per_panel : tuple, default (6, 6)
         Figure size per panel
-    point_size : float, default 0.5
+    point_size : float, default 0.2
         Size of scatter points
     color_by_celltype : bool, default True
         If True, positive cells colored by cell type.
@@ -520,6 +520,7 @@ def plot_motif_spatial(
         plt.suptitle(suptitle, fontsize=14)
 
     plt.subplots_adjust(wspace=wspace, hspace=hspace, right=0.85)
+    plt.tight_layout()
 
     # Save
     if output_dir is not None:
