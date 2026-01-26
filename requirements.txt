@@ -11,5 +11,6 @@ statsmodels>=0.13.0
 sparse>=0.13.0
 numba>=0.56.0
 joblib>=1.1.0
+tqdm>=4.60.0
 adjustText>=1.0.0
 git+https://github.com/aschein/bptf.git
