@@ -26,6 +26,136 @@ warnings.filterwarnings('ignore')
 from alarmist.plotting import glm_plots
 
 
+def spearman_corr_chunked(
+    X: np.ndarray,
+    Y: np.ndarray,
+    chunk_size: int = 1000
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute Spearman correlation between X (n_samples,) and each column of Y (n_samples, n_genes).
+
+    Uses chunked computation for memory efficiency on large gene sets.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        1D array of predictor values (e.g., motif loadings), shape (n_samples,)
+    Y : np.ndarray
+        2D array of response values (e.g., gene expression), shape (n_samples, n_genes)
+    chunk_size : int, default 1000
+        Number of genes to process per chunk for memory efficiency
+
+    Returns
+    -------
+    tuple
+        (rho, pval) - arrays of Spearman correlation coefficients and p-values
+        Both have shape (n_genes,)
+
+    Notes
+    -----
+    The Spearman correlation is computed using ranks and the standard
+    correlation formula, with p-values computed using the t-distribution
+    approximation.
+    """
+    n_samples, n_genes = Y.shape
+
+    # Convert X to ranks (handling ties with average)
+    X_ranks = stats.rankdata(X, method='average')
+
+    # Pre-allocate output arrays
+    rho = np.zeros(n_genes)
+    pval = np.zeros(n_genes)
+
+    # Process in chunks
+    for start in range(0, n_genes, chunk_size):
+        end = min(start + chunk_size, n_genes)
+        Y_chunk = Y[:, start:end]
+
+        # Convert Y chunk to ranks (column-wise)
+        if sp.issparse(Y_chunk):
+            Y_chunk = Y_chunk.toarray()
+        Y_ranks = np.apply_along_axis(lambda col: stats.rankdata(col, method='average'), 0, Y_chunk)
+
+        # Compute Pearson correlation on ranks (= Spearman)
+        # Standardize
+        X_centered = X_ranks - X_ranks.mean()
+        Y_centered = Y_ranks - Y_ranks.mean(axis=0, keepdims=True)
+
+        X_std = np.sqrt((X_centered ** 2).sum())
+        Y_std = np.sqrt((Y_centered ** 2).sum(axis=0))
+
+        # Avoid division by zero
+        Y_std = np.where(Y_std == 0, 1, Y_std)
+
+        # Correlation
+        r_chunk = (X_centered @ Y_centered) / (X_std * Y_std)
+
+        # Compute p-values using t-distribution approximation
+        # t = r * sqrt((n-2) / (1-r^2))
+        t_stat = r_chunk * np.sqrt((n_samples - 2) / (1 - r_chunk ** 2 + 1e-10))
+        p_chunk = 2 * stats.t.sf(np.abs(t_stat), df=n_samples - 2)
+
+        rho[start:end] = r_chunk
+        pval[start:end] = p_chunk
+
+    return rho, pval
+
+
+def spearman_prefilter_genes(
+    X: np.ndarray,
+    counts: np.ndarray,
+    gene_names: List[str],
+    candidate_genes: List[str],
+    pval_threshold: float = 0.001,
+    chunk_size: int = 1000
+) -> List[str]:
+    """
+    Pre-filter genes using Spearman correlation before running Poisson GLM.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        Predictor values (e.g., log motif loadings), shape (n_cells,)
+    counts : np.ndarray
+        Expression count matrix, shape (n_cells, n_genes)
+    gene_names : List[str]
+        All gene names
+    candidate_genes : List[str]
+        Genes to consider for filtering
+    pval_threshold : float, default 0.001
+        Uncorrected p-value threshold for filtering
+    chunk_size : int, default 1000
+        Chunk size for Spearman computation
+
+    Returns
+    -------
+    List[str]
+        List of genes passing the Spearman filter
+    """
+    # Build index map
+    gene_to_idx = {g: i for i, g in enumerate(gene_names)}
+
+    # Get indices of candidate genes
+    candidate_indices = [gene_to_idx[g] for g in candidate_genes if g in gene_to_idx]
+
+    if len(candidate_indices) == 0:
+        return []
+
+    # Extract counts for candidate genes
+    Y = counts[:, candidate_indices]
+    if sp.issparse(Y):
+        Y = Y.toarray()
+
+    # Compute Spearman correlation
+    _, pvals = spearman_corr_chunked(X, Y, chunk_size=chunk_size)
+
+    # Filter by p-value threshold
+    passing_mask = pvals < pval_threshold
+    passing_genes = [candidate_genes[i] for i, passes in enumerate(passing_mask) if passes]
+
+    return passing_genes
+
+
 def load_bptf_results(results_dir: str) -> Dict:
     """
     Load BPTF results from directory
@@ -116,12 +246,16 @@ def run_univariate_de_sklearn_by_celltype(
     non_lri_genes: List[str],
     n_motifs: int,
     output_dir: Optional[str] = None,
-    alpha: float = 0.05
+    alpha: float = 0.05,
+    prefilter_spearman: bool = False,
+    spearman_pval_threshold: float = 0.001,
+    spearman_chunk_size: int = 1000
 ) -> Dict[str, pd.DataFrame]:
     """
     Run univariate DE by motif AND cell type using scikit-learn's PoissonRegressor
 
-    Uses direct cell-level loadings instead of patch-inherited loadings
+    Uses direct cell-level loadings instead of patch-inherited loadings.
+    Optionally pre-filters genes using Spearman correlation to speed up analysis.
 
     Parameters
     ----------
@@ -139,6 +273,14 @@ def run_univariate_de_sklearn_by_celltype(
         Output directory for results
     alpha : float, default 0.05
         FDR significance threshold
+    prefilter_spearman : bool, default False
+        If True, pre-filter genes using Spearman correlation before running GLM.
+        This can significantly speed up analysis by reducing the number of genes tested.
+    spearman_pval_threshold : float, default 0.001
+        Uncorrected p-value threshold for Spearman pre-filtering.
+        Only genes with Spearman p-value < threshold are tested with GLM.
+    spearman_chunk_size : int, default 1000
+        Chunk size for Spearman correlation computation (memory efficiency).
 
     Returns
     -------
@@ -148,6 +290,9 @@ def run_univariate_de_sklearn_by_celltype(
     import os
 
     print("Running univariate DE with scikit-learn PoissonRegressor (by cell type)...")
+    if prefilter_spearman:
+        print(f"  Spearman pre-filtering enabled (p-value threshold: {spearman_pval_threshold})")
+
     idx_map = {g: i for i, g in enumerate(gene_names)}
     de_results = {}
 
@@ -171,21 +316,39 @@ def run_univariate_de_sklearn_by_celltype(
 
             X_log = np.log(X_all[valid])
             # Z-score within this cell type
-            mu = X_log.mean()
+            mu_x = X_log.mean()
             sigma = X_log.std(ddof=0) if X_log.std(ddof=0) > 0 else 1.0
-            X = ((X_log - mu) / sigma).reshape(-1, 1)
+            X = ((X_log - mu_x) / sigma).reshape(-1, 1)
 
             Y = counts_all[valid, :]
 
-            print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells")
+            # Determine genes to test
+            if prefilter_spearman:
+                # Pre-filter genes using Spearman correlation
+                genes_to_test = spearman_prefilter_genes(
+                    X.ravel(),
+                    Y,
+                    gene_names,
+                    non_lri_genes,
+                    pval_threshold=spearman_pval_threshold,
+                    chunk_size=spearman_chunk_size
+                )
+                print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells, "
+                      f"{len(genes_to_test)}/{len(non_lri_genes)} genes after Spearman filter")
+            else:
+                genes_to_test = non_lri_genes
+                print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells")
+
             genes, coefs, pvals, ses = [], [], [], []
 
-            for gene in tqdm(non_lri_genes, desc=f"  Motif {k}, {ct}", unit="gene", leave=False):
+            for gene in tqdm(genes_to_test, desc=f"  Motif {k}, {ct}", unit="gene", leave=False):
                 gi = idx_map.get(gene)
                 if gi is None:
                     continue
 
                 y = Y[:, gi]
+                if sp.issparse(y):
+                    y = y.toarray().ravel()
 
                 model = PoissonRegressor(alpha=0.0, fit_intercept=True,
                                        max_iter=2000, tol=1e-6)
@@ -494,6 +657,36 @@ def check_memory_usage():
         return None, None
 
 
+def load_glm_results(results_dir: str) -> Dict[str, pd.DataFrame]:
+    """
+    Load GLM DE results from saved CSV files.
+
+    Parameters
+    ----------
+    results_dir : str
+        Directory containing *_de_results.csv files
+
+    Returns
+    -------
+    dict
+        Dictionary mapping motif-celltype keys to DataFrames
+
+    Example
+    -------
+    >>> glm_results = al.load_glm_results("results/glm")
+    """
+    results_path = Path(results_dir)
+    glm_results = {}
+
+    for csv_file in results_path.glob("motif_*_celltype_*_de_results.csv"):
+        # Extract key from filename: motif_0_celltype_Tcell_de_results.csv -> motif_0_celltype_Tcell
+        key = csv_file.stem.replace("_de_results", "")
+        glm_results[key] = pd.read_csv(csv_file)
+
+    print(f"Loaded {len(glm_results)} motif-celltype combinations")
+    return glm_results
+
+
 def save_de_results(results: Dict, output_dir: str, mode: str = 'univariate'):
     """
     Save DE results to files
@@ -551,7 +744,10 @@ def run_poisson_glm_analysis(
     splitter: str = '|',
     alpha: float = 0.05,
     random_state: int = 42,
-    keep_sparse: bool = False
+    keep_sparse: bool = False,
+    prefilter_spearman: bool = False,
+    spearman_pval_threshold: float = 0.001,
+    spearman_chunk_size: int = 1000
 ):
     """
     Run Poisson GLM differential expression analysis
@@ -576,6 +772,15 @@ def run_poisson_glm_analysis(
         Random seed
     keep_sparse : bool, default False
         Keep sparse format for counts
+    prefilter_spearman : bool, default False
+        If True, pre-filter genes using Spearman correlation before running GLM.
+        This can significantly speed up analysis by reducing the number of genes
+        tested per motif-celltype combination.
+    spearman_pval_threshold : float, default 0.001
+        Uncorrected p-value threshold for Spearman pre-filtering.
+        Only genes with Spearman p-value < threshold will be tested with GLM.
+    spearman_chunk_size : int, default 1000
+        Chunk size for Spearman correlation computation (memory efficiency).
 
     Returns
     -------
@@ -584,12 +789,21 @@ def run_poisson_glm_analysis(
 
     Example
     -------
-    >>> # After getting cell loadings from projection
+    >>> # Basic usage
     >>> results = al.run_poisson_glm_analysis(
     ...     cell_loadings=cell_loadings,
     ...     adata=adata,
     ...     lri_column_names=lri_columns['column_name'],
-    ...     output_dir="results/glm"  # Optional
+    ...     output_dir="results/glm"
+    ... )
+    >>>
+    >>> # With Spearman pre-filtering (faster)
+    >>> results = al.run_poisson_glm_analysis(
+    ...     cell_loadings=cell_loadings,
+    ...     adata=adata,
+    ...     lri_column_names=lri_columns['column_name'],
+    ...     prefilter_spearman=True,
+    ...     spearman_pval_threshold=0.001
     ... )
     """
     print("="*60)
@@ -644,7 +858,10 @@ def run_poisson_glm_analysis(
         non_lri_genes,
         n_motifs,
         output_dir=output_dir,
-        alpha=alpha
+        alpha=alpha,
+        prefilter_spearman=prefilter_spearman,
+        spearman_pval_threshold=spearman_pval_threshold,
+        spearman_chunk_size=spearman_chunk_size
     )
 
     # Save results if output_dir provided

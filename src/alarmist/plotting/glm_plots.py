@@ -19,7 +19,7 @@ from typing import Optional, Tuple
 
 
 def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
-                 x_threshold=1, marker='o', n_top=30,
+                 x_threshold=1, marker='o', n_top=10,
                  figsize=(10, 10), fontsize=8, ax=None):
     """
     Draw a volcano plot with customized coloring and labeling
@@ -40,7 +40,7 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
         Log fold change threshold
     marker : str, default 'o'
         Marker style
-    n_top : int, default 30
+    n_top : int, default 10
         Number of top genes to label per direction
     figsize : tuple, default (10, 10)
         Figure size
@@ -54,10 +54,7 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
     matplotlib.axes.Axes
         The axes object
     """
-    if ax is None:
-        fig, ax = plt.subplots(figsize=figsize)
-
-    # Styles
+    # Nature journal settings
     plt.rcParams["font.family"] = "Arial"
     colors = ["#E64B35FF", "#3C5488FF", "#00A087FF", "#4DBBD5FF",
               "#F39B7FFF", "#8491B4FF", "#91D1C2FF", "#DC0000FF",
@@ -66,93 +63,67 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
     sns.set(rc={'figure.figsize': figsize, "font.size": fontsize})
     sns.set_style("white")
 
-    # Data & masks
     threshold_fdr = -np.log10(fdr)
-    x = df[x_col].to_numpy()
-    y = df[y_col].to_numpy()
-    valid = np.isfinite(x) & np.isfinite(y)
+    x = df[x_col].values
+    y = df[y_col].values
 
-    # Basic masks
-    sigmask = (y >= threshold_fdr) & valid
-    effmask = (np.abs(x) >= x_threshold) & valid
-    rightmask = (x >= x_threshold) & valid
-    leftmask = (x <= -x_threshold) & valid
+    sigmask = y >= threshold_fdr
+    effmask = np.abs(x) >= x_threshold
+    rightmask = (x >= x_threshold)
+    leftmask = (x <= -x_threshold)
 
     # Scoring for top candidate selection
-    xr = np.nanmax(np.abs(x[valid])) if np.any(valid) else 1.0
-    yr = np.nanmax(y[valid]) if np.any(valid) else 1.0
-    xr = xr if xr > 0 else 1.0
-    yr = yr if yr > 0 else 1.0
-
-    upper_right = (x / xr) + (y / yr)
-    upper_left = (-x / xr) + (y / yr)
+    upper_right = x / np.abs(x).max() + y / y.max() if np.abs(x).max() > 0 and y.max() > 0 else np.zeros_like(x)
+    upper_left = -x / np.abs(x).max() + y / y.max() if np.abs(x).max() > 0 and y.max() > 0 else np.zeros_like(x)
     top_right = np.argsort(upper_right)[::-1]
     top_left = np.argsort(upper_left)[::-1]
 
-    # Keep only significant on each side
+    indices = np.arange(len(y))
     top_right = top_right[sigmask[top_right] & rightmask[top_right]]
     top_left = top_left[sigmask[top_left] & leftmask[top_left]]
-
-    # Set axis limits BEFORE labeling
-    if np.any(valid):
-        y_max = np.nanmax(y[valid])
-        y_max = max(y_max, threshold_fdr, 1e-8)
-        ax.set_ylim(0, 1.1 * y_max)
-    else:
-        ax.set_ylim(0, threshold_fdr * 1.2)
-
-    # X: use points with |x| < 10 if available
-    if np.any(valid):
-        in10 = (np.abs(x) < 10) & valid
-        if np.any(in10):
-            max_x = np.nanmax(np.abs(x[in10]))
-        else:
-            max_x = np.nanmax(np.abs(x[valid]))
-        max_x = max(max_x, 1e-8)
-        ax.set_xlim(-1.1 * max_x, 1.1 * max_x)
-    else:
-        ax.set_xlim(-1.1 * x_threshold, 1.1 * x_threshold)
-
-    # Plot points
-    indices = np.arange(len(y))
     bottom_right = indices[(~sigmask) & rightmask]
     bottom_left = indices[(~sigmask) & leftmask]
-    middle = indices[valid & (~effmask)]
+    middle = indices[~effmask]
 
-    ax.scatter(x[middle], y[middle], color='gray', alpha=0.2, marker=marker, clip_on=True)
-    ax.scatter(x[bottom_right], y[bottom_right], color='black', alpha=0.7, marker=marker, clip_on=True)
-    ax.scatter(x[bottom_left], y[bottom_left], color='black', alpha=0.7, marker=marker, clip_on=True)
-    ax.scatter(x[top_left], y[top_left], color='blue', alpha=0.7, marker=marker, clip_on=True)
-    ax.scatter(x[top_right], y[top_right], color='red', alpha=0.7, marker=marker, clip_on=True)
-    ax.set_ylabel('-$\\log_{10}(q)$', fontsize=fontsize+4)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
 
-    # Label only points within view
-    if label_col:
-        xmin, xmax = ax.get_xlim()
-        ymin, ymax = ax.get_ylim()
-        in_view = (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax) & valid
+    # Plot the values differently depending on where they lie
+    ax.scatter(x[middle], y[middle], color='gray', alpha=0.2, marker=marker)
+    ax.scatter(x[bottom_right], y[bottom_right], color='black', alpha=0.7, marker=marker)
+    ax.scatter(x[bottom_left], y[bottom_left], color='black', alpha=0.7, marker=marker)
+    ax.scatter(x[top_left], y[top_left], color='blue', alpha=0.7, marker=marker)
+    ax.scatter(x[top_right], y[top_right], color='red', alpha=0.7, marker=marker)
 
-        # Filter top candidates to those in view
-        top_right_in = top_right[in_view[top_right]]
-        top_left_in = top_left[in_view[top_left]]
+    ax.set_ylabel(r'-$\log_{10}(q)$', fontsize=fontsize + 14)
 
-        # Take up to n_top per side
-        head_idx = np.concatenate([top_right_in[:n_top], top_left_in[:n_top]])
-        if head_idx.size > 0:
-            head_df = df.iloc[head_idx]
-            texts = []
-            for xi, yi, lbl in zip(head_df[x_col], head_df[y_col], head_df[label_col]):
-                texts.append(ax.text(xi, yi, lbl, ha='center', va='center',
-                                   fontsize=fontsize, clip_on=True))
-            adjust_text(
-                texts, ax=ax,
-                arrowprops=dict(arrowstyle='-', lw=0.5, color='gray'),
-                expand_points=(3, 3), expand_text=(4, 4),
-                force_text=(0.75, 0.75), force_points=(0.3, 0.3),
-                lim=100
-            )
+    # Set axis limits based on significant hits
+    if effmask.any():
+        ax.set_ylim([0, df.loc[effmask, y_col].max() * 1.1])
+    else:
+        ax.set_ylim([0, y.max() * 1.1 if y.max() > 0 else 1])
 
-    # Thresholds
+    n_hits = (sigmask & effmask).sum()
+    if n_hits > 0:
+        max_abs_sig_x = np.abs(x[sigmask & effmask]).max()
+        ax.set_xlim([-max_abs_sig_x * 1.1, max_abs_sig_x * 1.1])
+    else:
+        ax.set_xlim([-np.abs(x).max() * 1.1, np.abs(x).max() * 1.1])
+
+    # Label top genes with white background boxes
+    if label_col is not None:
+        head_df = df.iloc[np.concatenate([top_right[:n_top], top_left[:n_top]])]
+        texts = []
+        for xi, yi, txt in zip(head_df[x_col], head_df[y_col], head_df[label_col]):
+            texts.append(ax.text(xi, yi, txt, ha='center', va='center', fontsize=fontsize,
+                                 bbox=dict(boxstyle='round,pad=0.2', facecolor='white',
+                                          edgecolor='gray', alpha=0.9)))
+
+        adjust_text(texts, force_text=(0.5, 0.5),
+                   arrowprops=dict(arrowstyle="-", color='black', lw=0.5),
+                   ax=ax, verbose=False)
+
+    # Threshold lines
     ax.axvline(x_threshold, ls='--', color='black', alpha=0.5)
     ax.axvline(-x_threshold, ls='--', color='black', alpha=0.5)
     ax.axhline(threshold_fdr, ls='--', color='black', alpha=0.5)

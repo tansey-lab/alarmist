@@ -36,7 +36,10 @@ from .glm import (
     prepare_cell_data_from_adata,
     prepare_cell_data_memory_efficient,
     check_memory_usage,
-    save_de_results
+    save_de_results,
+    load_glm_results,
+    spearman_corr_chunked,
+    spearman_prefilter_genes
 )
 
 # Single Cell Analysis
@@ -74,6 +77,9 @@ __all__ = [
     'prepare_cell_data_memory_efficient',
     'check_memory_usage',
     'save_de_results',
+    'load_glm_results',
+    'spearman_corr_chunked',
+    'spearman_prefilter_genes',
     # Single Cell
     'weighted_celltypes_by_motif',
     'gmm_binarize_all_motifs',

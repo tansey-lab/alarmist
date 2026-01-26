@@ -34,6 +34,9 @@ from alarmist.core import (
     prepare_cell_data_memory_efficient,
     check_memory_usage,
     save_de_results,
+    load_glm_results,
+    spearman_corr_chunked,
+    spearman_prefilter_genes,
     # Single Cell Analysis
     weighted_celltypes_by_motif,
     gmm_binarize_all_motifs,
@@ -110,6 +113,9 @@ __all__ = [
     'prepare_cell_data_memory_efficient',
     'check_memory_usage',
     'save_de_results',
+    'load_glm_results',
+    'spearman_corr_chunked',
+    'spearman_prefilter_genes',
 
     # Single Cell Analysis
     'weighted_celltypes_by_motif',
