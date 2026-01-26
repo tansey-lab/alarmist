@@ -1,115 +1,116 @@
-# ALARMIST: Assessment of Ligand And Receptor Interaction Motifs in Spatial Transcriptomics
+# ALARMIST
 
-A focused pipeline for spatial transcriptomics analysis using patch-based ligand-receptor interaction (LRI) mapping and Bayesian Poisson Tensor Factorization (BPTF).
+**A**ssessment of **L**igand **A**nd **R**eceptor Interaction **M**otifs **I**n **S**patial **T**ranscriptomics
+
+ALARMIST identifies recurring ligand-receptor interaction (LRI) patterns in spatial transcriptomics data using Bayesian Poisson Tensor Factorization (BPTF).
 
 ## Overview
 
-This pipeline implements:
+ALARMIST discovers **microenvironment motifs** - coordinated patterns of cell-cell communication that recur across tissue regions. The pipeline:
 
-1. **Patch-based LRI analysis** - Spatial tissue segmentation and LRI quantification
-2. **BPTF matrix factorization** - Identification of latent microenvironment programs
-3. **BPTF visualization** - Comprehensive plots of motifs, networks, and spatial distributions
-4. **Poisson GLM analysis** - Differential expression analysis using BPTF factors
-5. **GLM results visualization** - Volcano plots and forest plots with marker gene filtering
+1. **Patchifies** tissue into spatial units and quantifies LRI activity per patch
+2. **Factorizes** the patch-LRI matrix using BPTF to discover latent motifs
+3. **Projects** motifs to single-cell resolution
+4. **Analyzes** downstream impact via Poisson GLM differential expression
 
-## Workflow
-
-### Step 1: Patch-LRI Analysis
+## Installation
 
 ```bash
-python scripts/01_run_patch_lri_analysis.py --data-file <input.h5ad> --output-dir results/patch_lri
+# Clone the repository
+git clone https://github.com/tansey-lab/alarmist.git
+cd alarmist
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install ALARMIST
+pip install -e .
 ```
 
-### Step 2: BPTF Matrix Factorization
+## Quick Start
 
-```bash
-python scripts/02_bptf_matrix_factorization.py --input-dir results/patch_lri --output-dir results/bptf --n-components 15
+```python
+import alarmist as al
+import scanpy as sc
+
+# Load your spatial transcriptomics data
+adata = sc.read_h5ad('your_data.h5ad')
+# Required: adata.obs['cell_type'], adata.obsm['spatial']
+
+# === Step 1: Patchify & Count LRI ===
+analyzer = al.PatchLRIAnalyzer(
+    patch_size=50.0,  # micrometers
+    resource_name='cellchatdb'
+)
+results = analyzer.run_patchify(adata, output_dir='results/')
+
+# === Step 2: BPTF Factorization ===
+model = al.run_bptf(results['patch_lri_matrix'], n_components=15)
+bptf_results = al.process_bptf_results(model, results, output_dir='results/bptf')
+
+# === Step 3: Single-Cell Projection ===
+cell_analyzer = al.NeighborhoodLRIAnalyzer(neighborhood_size=50.0)
+cell_results = cell_analyzer.run_neighborhood(
+    adata,
+    required_columns=results['column_names'],
+    output_dir='results/single_cell'
+)
+cell_loadings = al.project_cell_loadings(
+    model=model,
+    cell_lri_matrix=cell_results['cell_lri_matrix']
+)
+
+# === Step 4: Motif Calling (GMM Binarization) ===
+gmm_summary = al.gmm_binarize_all_motifs(cell_loadings, adata)
+# Now adata.obs contains motif_{k}_state ('positive'/'negative')
+
+# === Step 5: Downstream Analysis ===
+glm_results = al.run_poisson_glm_analysis(
+    cell_loadings=cell_loadings,
+    adata=adata,
+    lri_column_names=results['column_name'],
+    prefilter_spearman=True  # faster
+)
 ```
 
-### Step 3: BPTF Visualization
+## Input Requirements
 
-```bash
-python scripts/03_bptf_visualization.py --bptf-dir results/bptf --patch-dir results/patch_lri --data-file <input.h5ad> --output-dir results/plots/bptf_plots
-```
-
-### Step 4: Poisson GLM Analysis
-
-```bash
-python scripts/04_poisson_glm.py --data-file <input.h5ad> --results-dir results/bptf --patch-lri-dir results/patch_lri --output-dir results/glm
-```
-
-### Step 5: GLM Results Visualization
-
-```bash
-python scripts/05_glm_results.py --data-file <input.h5ad> --results-dir results/glm --output-dir results/plots/glm_plots
-```
-
-### Complete Pipeline (might not be runnable)
-
-```bash
-python run_pipeline.py --data-file <input.h5ad> --output-dir results --n-components 15
-```
-
-### Pipeline with Conda Environment Management (TODO: unify into one env)
-
-The pipeline automatically manages conda environments for different steps:
-
-```bash
-# Default environments (bptf for BPTF step, tf2.10 for others)
-python run_pipeline.py --data-file <input.h5ad> --output-dir results --n-components 15
-
-# Custom environment names
-python run_pipeline.py --data-file <input.h5ad> --output-dir results \
-  --bptf-conda-env my_bptf_env --main-conda-env my_main_env
-
-# Run without conda environment switching
-python run_pipeline.py --data-file <input.h5ad> --output-dir results --no-conda
-```
-
-## Requirements
-
-### Conda Environments (TODO: unify into one env)
-
-The pipeline uses two conda environments:
-
-**Main Environment (`tf2.10` by default):**
-
-- Python 3.8+
-- Standard scientific Python stack (numpy, pandas, scipy, matplotlib)
-- Scanpy for single-cell analysis
-- Liana for accessing LRI databases
-- scikit-learn for statistical modeling
-- Used for steps 1, 3, 4, and 5
-
-**BPTF Environment (`bptf` by default):**
-
-- Python 3.8+
-- BPTF package: `https://github.com/aschein/bptf`
-- Numpy, scipy (compatible versions with BPTF)
-- Used for step 2 only
-
-### Input Data Format
-
-Expected input is AnnData (.h5ad) format with:
-
-- `adata.obsm['spatial']`: Spatial coordinates (μm)
+AnnData (`.h5ad`) with:
+- `adata.obsm['spatial']`: Spatial coordinates (microns)
 - `adata.obs['cell_type']`: Cell type annotations
-- `adata.obs['tma_id']`: Sample/TMA identifiers
+- Raw counts in `adata.X` or `adata.layers['counts']`
 
-## Key Parameters
+## Multi-Sample Support
 
-- **Patch size**: 50μm × 50μm (adjustable)
-- **LRI database**: CellChatDB (via liana)
-- **BPTF components**: 15 (adjust iteratively based on results)
+ALARMIST supports multiple samples via:
 
-## Output Structure
+```python
+# Option 1: Merged AnnData with sample column
+results = analyzer.run_patchify(
+    adata,
+    multi_sample=True,
+    sample_column='sample_id'
+)
+
+# Option 2: Dictionary of AnnData objects
+results = analyzer.run_patchify({
+    'sample_A': adata_a,
+    'sample_B': adata_b
+})
+```
+
+## Tutorials
+
+See [`tutorials/GBM.ipynb`](tutorials/GBM.ipynb) for a complete walkthrough with visualizations.
+
+## Citation
+
+If you use ALARMIST in your research, please cite:
 
 ```
-results/
-├── patch_lri/          # Sparse patch-LRI matrices
-├── bptf/              # BPTF factorization results
-├── glm_results/               # GLM differential expression results
-└── plots/             # All visualization outputs
-    ├── bptf_plots/    # BPTF analysis plots
-    └── glm_plots/     # GLM results plots
+[Citation pending]
 ```
+
+## License
+
+MIT License
