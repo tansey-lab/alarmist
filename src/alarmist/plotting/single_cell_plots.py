@@ -240,18 +240,17 @@ def plot_motif_spatial(
     n_cols: int = 4,
     figsize_per_panel: tuple = (6, 6),
     point_size: float = 0.5,
+    color_by_celltype: bool = True,
     ct_colors: Optional[Dict] = None,
+    positive_color: str = '#1f77b4',
     negative_color: str = '#d3d3d3',
-    show_celltype_legend: bool = False,
-    legend_top_n: int = 10,
+    legend_top_n: int = 15,
     wspace: float = 0.3,
     hspace: float = 0.4,
     output_dir: Optional[str] = None,
 ) -> Union[plt.Figure, List[plt.Figure]]:
     """
     Plot spatial distribution of motif ON/OFF states.
-
-    Positive cells are colored by cell type, negative cells in gray.
 
     Supports three input modes:
     1. Single AnnData: single panel
@@ -277,14 +276,18 @@ def plot_motif_spatial(
         Figure size per panel
     point_size : float, default 0.5
         Size of scatter points
+    color_by_celltype : bool, default True
+        If True, positive cells colored by cell type.
+        If False, positive cells colored with positive_color (blue).
     ct_colors : dict, optional
         Cell type color mapping. If None, uses global color registry.
+        Only used when color_by_celltype=True.
+    positive_color : str, default '#1f77b4'
+        Color for positive (ON) cells when color_by_celltype=False
     negative_color : str, default '#d3d3d3'
         Color for negative (OFF) cells
-    show_celltype_legend : bool, default False
-        Whether to show cell type legend (can be crowded with many types)
-    legend_top_n : int, default 10
-        If showing legend, only show top N cell types
+    legend_top_n : int, default 15
+        When color_by_celltype=True, show top N cell types in legend
     wspace : float, default 0.3
         Horizontal spacing between panels (fraction of panel width)
     hspace : float, default 0.4
@@ -299,17 +302,14 @@ def plot_motif_spatial(
 
     Examples
     --------
-    >>> # Single motif, single sample
-    >>> fig = al.plot_motif_spatial(adata, motif_idx=5)
-    >>>
-    >>> # Single motif, multi-sample dict
+    >>> # Color by cell type (default)
     >>> fig = al.plot_motif_spatial(adata_dict, motif_idx=5, output_dir='results/spatial')
+    >>>
+    >>> # Simple blue/gray coloring
+    >>> fig = al.plot_motif_spatial(adata_dict, motif_idx=5, color_by_celltype=False)
     >>>
     >>> # Multiple motifs
     >>> figs = al.plot_motif_spatial(adata_dict, motif_idx=range(20), output_dir='results/spatial')
-    >>>
-    >>> # Merged mode
-    >>> fig = al.plot_motif_spatial(adata_merged, motif_idx=5, sample_column='patient_id')
     """
     import matplotlib.lines as mlines
 
@@ -325,9 +325,10 @@ def plot_motif_spatial(
                 n_cols=n_cols,
                 figsize_per_panel=figsize_per_panel,
                 point_size=point_size,
+                color_by_celltype=color_by_celltype,
                 ct_colors=ct_colors,
+                positive_color=positive_color,
                 negative_color=negative_color,
-                show_celltype_legend=show_celltype_legend,
                 legend_top_n=legend_top_n,
                 wspace=wspace,
                 hspace=hspace,
@@ -337,24 +338,27 @@ def plot_motif_spatial(
             print(f"Plotted motif {k}")
         return figs
 
-    # Get color map
-    color_map = _get_colors_for_plotting(ct_colors=ct_colors)
-    if not color_map:
-        raise ValueError(
-            "No cell type colors available. Either:\n"
-            "  1. Call al.set_celltype_colors() first, or\n"
-            "  2. Pass ct_colors parameter"
-        )
+    # Get color map if coloring by cell type
+    ct_color_hex = {}
+    if color_by_celltype:
+        color_map = _get_colors_for_plotting(ct_colors=ct_colors)
+        if not color_map:
+            raise ValueError(
+                "No cell type colors available. Either:\n"
+                "  1. Call al.set_celltype_colors() first, or\n"
+                "  2. Pass ct_colors parameter, or\n"
+                "  3. Set color_by_celltype=False"
+            )
 
-    # Convert colors to hex for matplotlib
-    def to_hex(c):
-        if isinstance(c, str):
+        # Convert colors to hex for matplotlib
+        def to_hex(c):
+            if isinstance(c, str):
+                return c
+            elif isinstance(c, tuple) and len(c) >= 3:
+                return '#{:02x}{:02x}{:02x}'.format(int(c[0]*255), int(c[1]*255), int(c[2]*255))
             return c
-        elif isinstance(c, tuple) and len(c) >= 3:
-            return '#{:02x}{:02x}{:02x}'.format(int(c[0]*255), int(c[1]*255), int(c[2]*255))
-        return c
 
-    ct_color_hex = {k: to_hex(v) for k, v in color_map.items()}
+        ct_color_hex = {k: to_hex(v) for k, v in color_map.items()}
 
     # Prepare adata_dict based on input mode
     if isinstance(adata, dict):
@@ -383,12 +387,21 @@ def plot_motif_spatial(
         n_cols_actual = min(n_cols, n_samples)
         n_rows = (n_samples + n_cols_actual - 1) // n_cols_actual
 
+    # Add extra width for legend
+    fig_width = figsize_per_panel[0] * n_cols_actual + 2.5
+    fig_height = figsize_per_panel[1] * n_rows
+
     fig, axes = plt.subplots(
         n_rows, n_cols_actual,
-        figsize=(figsize_per_panel[0] * n_cols_actual, figsize_per_panel[1] * n_rows),
+        figsize=(fig_width, fig_height),
         squeeze=False
     )
     axes = axes.flatten()
+
+    # Collect cell type counts across all samples (for legend)
+    all_ct_counts = {}
+    total_pos = 0
+    total_neg = 0
 
     for i, (sample_id, ad) in enumerate(adata_dict.items()):
         ax = axes[i]
@@ -402,6 +415,8 @@ def plot_motif_spatial(
         states = ad.obs[state_col].astype(str)
         n_pos = (states == 'positive').sum()
         n_neg = (states == 'negative').sum()
+        total_pos += n_pos
+        total_neg += n_neg
         frac_pos = n_pos / len(states) * 100 if len(states) > 0 else 0
 
         # Plot negatives (background, gray)
@@ -418,11 +433,18 @@ def plot_motif_spatial(
             rasterized=True,
         )
 
-        # Plot positives (colored by cell type)
+        # Plot positives
         mask_pos = (states == 'positive').values
         if mask_pos.any():
-            ct = ad.obs[cell_type_column].astype(str).values
-            pos_colors = np.array([ct_color_hex.get(x, "#000000") for x in ct])[mask_pos]
+            if color_by_celltype:
+                ct = ad.obs[cell_type_column].astype(str).values
+                pos_colors = np.array([ct_color_hex.get(x, "#000000") for x in ct])[mask_pos]
+
+                # Count cell types for legend
+                for ct_name in ct[mask_pos]:
+                    all_ct_counts[ct_name] = all_ct_counts.get(ct_name, 0) + 1
+            else:
+                pos_colors = positive_color
 
             ax.scatter(
                 coords[mask_pos, 0],
@@ -441,39 +463,63 @@ def plot_motif_spatial(
         if mode_str == "single":
             ax.set_title(f'Motif {motif_idx}: {frac_pos:.1f}% ON')
         else:
-            ax.set_title(f'{sample_id}\nMotif {motif_idx}: {frac_pos:.1f}% ON')
+            ax.set_title(f'{sample_id}\n{frac_pos:.1f}% ON')
 
         ax.set_aspect('equal')
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
 
-        # Legend
-        off_handle = mlines.Line2D([], [], color=negative_color, marker='o',
-                                   linestyle='None', markersize=6, label=f'OFF (n={n_neg:,})')
-        on_handle = mlines.Line2D([], [], color='black', marker='o',
-                                  linestyle='None', markersize=6, label=f'ON (n={n_pos:,}, {frac_pos:.1f}%)')
-        handles = [off_handle, on_handle]
-
-        if show_celltype_legend and mask_pos.any():
-            ct_on = ad.obs.loc[mask_pos, cell_type_column].astype(str)
-            top_cts = ct_on.value_counts().head(legend_top_n).index.tolist()
-            ct_handles = [
-                mlines.Line2D([], [], color=ct_color_hex.get(ct, "#000000"), marker='o',
-                              linestyle='None', markersize=6, label=ct)
-                for ct in top_cts
-            ]
-            handles += ct_handles
-
-        ax.legend(handles=handles, loc='upper right', fontsize=8, frameon=False)
-
     # Hide unused axes
     for j in range(i + 1, len(axes)):
         axes[j].axis('off')
 
-    if mode_str != "single":
-        plt.suptitle(f'Motif {motif_idx} Spatial Distribution (ON colored by cell type)', fontsize=14, y=1.02)
+    # Create figure-level legend on the right
+    total_cells = total_pos + total_neg
+    total_frac = total_pos / total_cells * 100 if total_cells > 0 else 0
 
-    plt.subplots_adjust(wspace=wspace, hspace=hspace)
+    handles = []
+
+    # ON/OFF handles
+    off_handle = mlines.Line2D([], [], color=negative_color, marker='o',
+                               linestyle='None', markersize=8, label=f'OFF (n={total_neg:,})')
+    handles.append(off_handle)
+
+    if color_by_celltype:
+        on_handle = mlines.Line2D([], [], color='black', marker='o',
+                                  linestyle='None', markersize=8,
+                                  label=f'ON (n={total_pos:,}, {total_frac:.1f}%)')
+        handles.append(on_handle)
+
+        # Add separator
+        handles.append(mlines.Line2D([], [], color='none', label=''))
+
+        # Cell type handles (top N)
+        sorted_cts = sorted(all_ct_counts.items(), key=lambda x: -x[1])
+        for ct_name, ct_count in sorted_cts[:legend_top_n]:
+            ct_handle = mlines.Line2D([], [], color=ct_color_hex.get(ct_name, "#000000"),
+                                      marker='o', linestyle='None', markersize=8, label=ct_name)
+            handles.append(ct_handle)
+    else:
+        on_handle = mlines.Line2D([], [], color=positive_color, marker='o',
+                                  linestyle='None', markersize=8,
+                                  label=f'ON (n={total_pos:,}, {total_frac:.1f}%)')
+        handles.append(on_handle)
+
+    # Place legend outside on the right
+    fig.legend(handles=handles, loc='center left', bbox_to_anchor=(1.0, 0.5),
+               fontsize=10, frameon=False,
+               title="Cell type" if color_by_celltype else "State")
+
+    # Suptitle
+    if color_by_celltype:
+        suptitle = f'Motif {motif_idx} Spatial Distribution (ON colored by cell type)'
+    else:
+        suptitle = f'Motif {motif_idx} Spatial Distribution'
+
+    if mode_str != "single":
+        plt.suptitle(suptitle, fontsize=14)
+
+    plt.subplots_adjust(wspace=wspace, hspace=hspace, right=0.85)
 
     # Save
     if output_dir is not None:
