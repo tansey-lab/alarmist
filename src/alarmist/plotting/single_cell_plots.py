@@ -244,6 +244,8 @@ def plot_motif_spatial(
     negative_color: str = '#d3d3d3',
     show_celltype_legend: bool = False,
     legend_top_n: int = 10,
+    wspace: float = 0.3,
+    hspace: float = 0.4,
     output_dir: Optional[str] = None,
 ) -> Union[plt.Figure, List[plt.Figure]]:
     """
@@ -283,6 +285,10 @@ def plot_motif_spatial(
         Whether to show cell type legend (can be crowded with many types)
     legend_top_n : int, default 10
         If showing legend, only show top N cell types
+    wspace : float, default 0.3
+        Horizontal spacing between panels (fraction of panel width)
+    hspace : float, default 0.4
+        Vertical spacing between panels (fraction of panel height)
     output_dir : str, optional
         Directory to save figures. Files named motif_{k}_spatial.png
 
@@ -323,6 +329,8 @@ def plot_motif_spatial(
                 negative_color=negative_color,
                 show_celltype_legend=show_celltype_legend,
                 legend_top_n=legend_top_n,
+                wspace=wspace,
+                hspace=hspace,
                 output_dir=output_dir,
             )
             figs.append(fig)
@@ -465,7 +473,7 @@ def plot_motif_spatial(
     if mode_str != "single":
         plt.suptitle(f'Motif {motif_idx} Spatial Distribution (ON colored by cell type)', fontsize=14, y=1.02)
 
-    plt.tight_layout()
+    plt.subplots_adjust(wspace=wspace, hspace=hspace)
 
     # Save
     if output_dir is not None:
