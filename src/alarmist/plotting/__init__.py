@@ -29,6 +29,7 @@ from alarmist.plotting.single_cell_plots import (
     plot_positive_motifs_distribution,
     plot_motif_spatial,
     analyze_motif_celltype_composition,
+    analyze_motif_celltype_counts,
     analyze_motif_state_counts
 )
 
@@ -74,6 +75,7 @@ __all__ = [
     'plot_positive_motifs_distribution',
     'plot_motif_spatial',
     'analyze_motif_celltype_composition',
+    'analyze_motif_celltype_counts',
     'analyze_motif_state_counts',
     # Spatial plots
     'plot_cells_per_patch',

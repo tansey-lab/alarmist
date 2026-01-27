@@ -541,7 +541,8 @@ def analyze_motif_celltype_composition(
     ct_colors: Optional[Dict] = None,
     figsize: tuple = (12, 6),
     title: Optional[str] = None,
-    output_dir: Optional[str] = None
+    output_dir: Optional[str] = None,
+    motif_ids: Optional[List[int]] = None
 ) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
     """
     Analyze and visualize cell type composition for each motif.
@@ -573,6 +574,9 @@ def analyze_motif_celltype_composition(
         Plot title. If None, auto-generates based on input mode.
     output_dir : str, optional
         Directory to save figure. If None, figure is not saved.
+    motif_ids : list of int, optional
+        List of motif indices to include in the plot. If None, all motifs
+        are plotted. Example: motif_ids=[0, 1, 5] to plot only motifs 0, 1, 5.
 
     Returns
     -------
@@ -581,13 +585,21 @@ def analyze_motif_celltype_composition(
     ax : matplotlib.axes.Axes
         Axes object
     tidy_df : pd.DataFrame
-        Tidy dataframe with columns [motif, cell_type, weight]
+        Tidy dataframe with columns [motif, cell_type, weight].
+        If motif_ids is specified, only contains the selected motifs.
 
     Examples
     --------
     >>> # Single sample
     >>> fig, ax, df = al.analyze_motif_celltype_composition(
     ...     adata, cell_loadings,
+    ...     output_dir='results/single_cell'
+    ... )
+    >>>
+    >>> # Plot only specific motifs
+    >>> fig, ax, df = al.analyze_motif_celltype_composition(
+    ...     adata, cell_loadings,
+    ...     motif_ids=[0, 1, 5],  # only plot motifs 0, 1, and 5
     ...     output_dir='results/single_cell'
     ... )
     >>>
@@ -642,7 +654,11 @@ def analyze_motif_celltype_composition(
     print(f"Analyzing cell type composition per motif...")
     print(f"  Mode: {mode_str}")
     print(f"  Cells: {len(cell_meta_df):,}")
-    print(f"  Motifs: {cell_loadings.shape[1]}")
+    n_motifs_total = cell_loadings.shape[1]
+    if motif_ids is not None:
+        print(f"  Motifs: {len(motif_ids)} selected (of {n_motifs_total} total)")
+    else:
+        print(f"  Motifs: {n_motifs_total}")
 
     # Compute weighted cell types for each motif
     tidy_df = weighted_celltypes_by_motif(
@@ -650,6 +666,16 @@ def analyze_motif_celltype_composition(
         metadata_df=cell_meta_df,
         normalize=normalize
     )
+
+    # Filter to selected motifs if specified
+    if motif_ids is not None:
+        tidy_df = tidy_df[tidy_df['motif'].isin(motif_ids)].copy()
+        if tidy_df.empty:
+            raise ValueError(
+                f"No motifs found matching motif_ids={motif_ids}. "
+                f"Available motifs: 0-{cell_loadings.shape[1] - 1}"
+            )
+        print(f"  Selected motifs: {sorted(motif_ids)}")
 
     # Get colors
     unique_celltypes = tidy_df['cell_type'].unique().tolist()
@@ -662,14 +688,213 @@ def analyze_motif_celltype_composition(
     save_path = None
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, 'motif_celltype_composition.png')
+        save_path = os.path.join(output_dir, 'motif_celltype_weighted.png')
 
     # Plot
     fig, ax = plot_motif_celltype_composition(
         tidy_df,
         color_map=color_map,
         figsize=figsize,
-        title=title if title else f"Cell Type Composition per Motif ({mode_str})",
+        title=title if title else f"Cell Type Composition (Weighted)",
+        save_path=save_path
+    )
+
+    return fig, ax, tidy_df
+
+
+def analyze_motif_celltype_counts(
+    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+    cell_type_column: str = 'cell_type',
+    sample_column: Optional[str] = None,
+    normalize: bool = True,
+    ct_colors: Optional[Dict] = None,
+    figsize: tuple = (12, 6),
+    title: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    motif_ids: Optional[List[int]] = None
+) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
+    """
+    Analyze and visualize cell type composition based on positive cell counts.
+
+    Unlike analyze_motif_celltype_composition which uses cell loadings as weights,
+    this function counts the number of positive (ON) cells for each cell type
+    per motif based on the binarized motif states from gmm_binarize_all_motifs.
+
+    Supports three input modes:
+    1. Single AnnData: standard single-sample analysis
+    2. Dict of AnnData objects: multi-sample with dict
+    3. Single merged AnnData with sample_column: multi-sample merged
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or Dict[str, anndata.AnnData]
+        Must contain motif_{k}_state columns in obs (from gmm_binarize_all_motifs).
+    cell_type_column : str, default 'cell_type'
+        Column name in adata.obs containing cell type annotations
+    sample_column : str, optional
+        Column name in adata.obs identifying samples (for merged AnnData).
+        If provided with single AnnData, treats it as multi-sample.
+    normalize : bool, default True
+        If True, per-motif counts are normalized to sum to 1 (fraction).
+        If False, shows raw counts.
+    ct_colors : dict, optional
+        Mapping from cell type to color. If None, uses global color registry
+        or auto-generates from tab20 colormap.
+    figsize : tuple, default (12, 6)
+        Figure size
+    title : str, optional
+        Plot title. If None, auto-generates based on input mode.
+    output_dir : str, optional
+        Directory to save figure. If None, figure is not saved.
+    motif_ids : list of int, optional
+        List of motif indices to include in the plot. If None, all motifs
+        with state columns are plotted.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object
+    ax : matplotlib.axes.Axes
+        Axes object
+    tidy_df : pd.DataFrame
+        Tidy dataframe with columns [motif, cell_type, weight].
+        weight represents count (or fraction if normalize=True).
+
+    Examples
+    --------
+    >>> # After running gmm_binarize_all_motifs
+    >>> fig, ax, df = al.analyze_motif_celltype_counts(
+    ...     adata,
+    ...     cell_type_column='cell_type',
+    ...     output_dir='results/single_cell'
+    ... )
+    >>>
+    >>> # Plot only specific motifs
+    >>> fig, ax, df = al.analyze_motif_celltype_counts(
+    ...     adata,
+    ...     motif_ids=[0, 1, 5],
+    ...     output_dir='results/single_cell'
+    ... )
+    >>>
+    >>> # Show raw counts instead of fractions
+    >>> fig, ax, df = al.analyze_motif_celltype_counts(
+    ...     adata,
+    ...     normalize=False
+    ... )
+    """
+    # Combine adata if dict
+    if isinstance(adata, dict):
+        obs_list = []
+        for sample_id, ad in adata.items():
+            obs_df = ad.obs.copy()
+            obs_df['_sample_id'] = sample_id
+            obs_list.append(obs_df)
+        combined_obs = pd.concat(obs_list, axis=0)
+        mode_str = f"Multi-sample ({len(adata)} samples)"
+        n_cells = len(combined_obs)
+    elif sample_column is not None:
+        combined_obs = adata.obs.copy()
+        n_samples = combined_obs[sample_column].nunique()
+        mode_str = f"Multi-sample ({n_samples} samples, merged)"
+        n_cells = len(combined_obs)
+    else:
+        combined_obs = adata.obs.copy()
+        mode_str = "Single sample"
+        n_cells = len(combined_obs)
+
+    # Find all motif state columns
+    state_cols = [c for c in combined_obs.columns if c.startswith('motif_') and c.endswith('_state')]
+    if not state_cols:
+        raise ValueError(
+            "No motif state columns found in adata.obs. "
+            "Run gmm_binarize_all_motifs() first."
+        )
+
+    # Extract motif indices from column names
+    motif_indices = []
+    for col in state_cols:
+        # Extract number from 'motif_X_state'
+        parts = col.replace('motif_', '').replace('_state', '')
+        try:
+            motif_indices.append(int(parts))
+        except ValueError:
+            continue
+
+    motif_indices = sorted(motif_indices)
+    n_motifs_total = len(motif_indices)
+
+    # Filter to selected motifs if specified
+    if motif_ids is not None:
+        motif_indices = [m for m in motif_indices if m in motif_ids]
+        if not motif_indices:
+            raise ValueError(
+                f"No motifs found matching motif_ids={motif_ids}. "
+                f"Available motifs: {sorted([int(c.replace('motif_', '').replace('_state', '')) for c in state_cols])}"
+            )
+
+    print(f"Analyzing cell type counts for positive cells...")
+    print(f"  Mode: {mode_str}")
+    print(f"  Cells: {n_cells:,}")
+    if motif_ids is not None:
+        print(f"  Motifs: {len(motif_indices)} selected (of {n_motifs_total} total)")
+    else:
+        print(f"  Motifs: {n_motifs_total}")
+
+    # Build tidy dataframe: count positive cells by cell type for each motif
+    records = []
+    cell_types = combined_obs[cell_type_column].astype(str).values
+
+    for k in motif_indices:
+        state_col = f'motif_{k}_state'
+        if state_col not in combined_obs.columns:
+            continue
+
+        states = combined_obs[state_col].astype(str).values
+        mask_pos = (states == 'positive')
+
+        # Count cell types among positive cells
+        pos_celltypes = cell_types[mask_pos]
+        ct_counts = pd.Series(pos_celltypes).value_counts()
+
+        for ct, count in ct_counts.items():
+            records.append({'motif': k, 'cell_type': ct, 'weight': count})
+
+    if not records:
+        raise ValueError("No positive cells found for any motif.")
+
+    tidy_df = pd.DataFrame(records)
+
+    # Normalize per motif if requested
+    if normalize:
+        totals = tidy_df.groupby('motif')['weight'].transform('sum')
+        tidy_df['weight'] = tidy_df['weight'] / totals
+
+    if motif_ids is not None:
+        print(f"  Selected motifs: {sorted(motif_indices)}")
+
+    # Get colors
+    unique_celltypes = tidy_df['cell_type'].unique().tolist()
+    color_map = _get_colors_for_plotting(
+        ct_colors=ct_colors,
+        df_celltypes=unique_celltypes
+    )
+
+    # Determine save path
+    save_path = None
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+        save_path = os.path.join(output_dir, 'motif_celltype_counts.png')
+
+    # Determine ylabel based on normalization
+    ylabel = "Fraction of positive cells" if normalize else "Number of positive cells"
+
+    # Plot
+    fig, ax = plot_motif_celltype_composition(
+        tidy_df,
+        color_map=color_map,
+        figsize=figsize,
+        ylabel=ylabel,
+        title=title if title else f"Cell Type Composition (Positive Counts)",
         save_path=save_path
     )
 

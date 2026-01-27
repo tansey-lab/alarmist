@@ -62,6 +62,7 @@ from alarmist.plotting import (
     plot_cells_per_patch,
     # Single cell plots
     analyze_motif_celltype_composition,
+    analyze_motif_celltype_counts,
     analyze_motif_state_counts,
 )
 
@@ -123,5 +124,6 @@ __all__ = [
     'compute_motif_state_counts',
     'compute_positive_motifs_per_cell',
     'analyze_motif_celltype_composition',
+    'analyze_motif_celltype_counts',
     'analyze_motif_state_counts',
 ]
