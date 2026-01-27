@@ -248,6 +248,7 @@ def plot_motif_spatial(
     wspace: float = 0.3,
     hspace: float = 0.4,
     output_dir: Optional[str] = None,
+    intersect: bool = False,
 ) -> Union[plt.Figure, List[plt.Figure]]:
     """
     Plot spatial distribution of motif ON/OFF states.
@@ -264,7 +265,8 @@ def plot_motif_spatial(
     motif_idx : int or list of int
         Motif index(es) to visualize.
         - If int: plot single motif, return single Figure
-        - If list: plot each motif separately, return list of Figures
+        - If list and intersect=False: plot each motif separately, return list of Figures
+        - If list and intersect=True: plot cells positive for ALL motifs, return single Figure
     sample_column : str, optional
         Column name in adata.obs identifying samples (for merged AnnData).
         If provided with single AnnData, splits into multiple panels.
@@ -294,11 +296,17 @@ def plot_motif_spatial(
         Vertical spacing between panels (fraction of panel height)
     output_dir : str, optional
         Directory to save figures. Files named motif_{k}_spatial.png
+    intersect : bool, default False
+        If True and motif_idx is a list, plot cells that are positive for ALL
+        specified motifs (intersection). Returns a single Figure.
+        If False (default), plot each motif separately, returning a list of Figures.
 
     Returns
     -------
     plt.Figure or List[plt.Figure]
-        Single Figure if motif_idx is int, list of Figures if motif_idx is list
+        - Single Figure if motif_idx is int
+        - Single Figure if motif_idx is list and intersect=True
+        - List of Figures if motif_idx is list and intersect=False
 
     Examples
     --------
@@ -308,35 +316,46 @@ def plot_motif_spatial(
     >>> # Simple blue/gray coloring
     >>> fig = al.plot_motif_spatial(adata_dict, motif_idx=5, color_by_celltype=False)
     >>>
-    >>> # Multiple motifs
+    >>> # Multiple motifs - separate figures
     >>> figs = al.plot_motif_spatial(adata_dict, motif_idx=range(20), output_dir='results/spatial')
+    >>>
+    >>> # Multiple motifs - intersection (cells positive for ALL motifs)
+    >>> fig = al.plot_motif_spatial(adata_dict, motif_idx=[0, 5, 10], intersect=True)
     """
     import matplotlib.lines as mlines
 
-    # Handle list of motifs - recursive call
+    # Handle list of motifs
     if isinstance(motif_idx, (list, tuple, range)):
-        figs = []
-        for k in motif_idx:
-            fig = plot_motif_spatial(
-                adata=adata,
-                motif_idx=k,
-                sample_column=sample_column,
-                cell_type_column=cell_type_column,
-                n_cols=n_cols,
-                figsize_per_panel=figsize_per_panel,
-                point_size=point_size,
-                color_by_celltype=color_by_celltype,
-                ct_colors=ct_colors,
-                positive_color=positive_color,
-                negative_color=negative_color,
-                legend_top_n=legend_top_n,
-                wspace=wspace,
-                hspace=hspace,
-                output_dir=output_dir,
-            )
-            figs.append(fig)
-            print(f"Plotted motif {k}")
-        return figs
+        motif_list = list(motif_idx)
+
+        if not intersect:
+            # Default behavior: plot each motif separately
+            figs = []
+            for k in motif_list:
+                fig = plot_motif_spatial(
+                    adata=adata,
+                    motif_idx=k,
+                    sample_column=sample_column,
+                    cell_type_column=cell_type_column,
+                    n_cols=n_cols,
+                    figsize_per_panel=figsize_per_panel,
+                    point_size=point_size,
+                    color_by_celltype=color_by_celltype,
+                    ct_colors=ct_colors,
+                    positive_color=positive_color,
+                    negative_color=negative_color,
+                    legend_top_n=legend_top_n,
+                    wspace=wspace,
+                    hspace=hspace,
+                    output_dir=output_dir,
+                    intersect=False,
+                )
+                figs.append(fig)
+                print(f"Plotted motif {k}")
+            return figs
+
+        # intersect=True: plot cells positive for ALL motifs
+        # We'll handle this below by computing intersection mask
 
     # Get color map if coloring by cell type
     ct_color_hex = {}
@@ -378,7 +397,18 @@ def plot_motif_spatial(
         mode_str = "single"
 
     n_samples = len(adata_dict)
-    state_col = f'motif_{motif_idx}_state'
+
+    # Determine if we're in intersect mode (list of motifs with intersect=True)
+    intersect_mode = intersect and isinstance(motif_idx, (list, tuple, range))
+    if intersect_mode:
+        motif_list = list(motif_idx)
+        state_cols = [f'motif_{k}_state' for k in motif_list]
+        motif_label = f"Motifs {','.join(map(str, motif_list))} (intersection)"
+        motif_label_short = f"motifs_{'_'.join(map(str, motif_list))}_intersect"
+    else:
+        state_cols = [f'motif_{motif_idx}_state']
+        motif_label = f"Motif {motif_idx}"
+        motif_label_short = f"motif_{motif_idx}"
 
     # Determine grid layout
     if n_samples == 1:
@@ -407,20 +437,33 @@ def plot_motif_spatial(
         ax = axes[i]
         coords = ad.obsm['spatial'][:, :2]
 
-        if state_col not in ad.obs.columns:
-            ax.set_title(f'{sample_id}\n(no motif {motif_idx} data)')
+        # Check if all required state columns exist
+        missing_cols = [col for col in state_cols if col not in ad.obs.columns]
+        if missing_cols:
+            if intersect_mode:
+                ax.set_title(f'{sample_id}\n(missing motif data)')
+            else:
+                ax.set_title(f'{sample_id}\n(no motif {motif_idx} data)')
             ax.axis('off')
             continue
 
-        states = ad.obs[state_col].astype(str)
-        n_pos = (states == 'positive').sum()
-        n_neg = (states == 'negative').sum()
+        # Compute positive mask (intersection if multiple motifs)
+        if intersect_mode:
+            # Intersection: positive for ALL motifs
+            mask_pos = np.ones(len(ad), dtype=bool)
+            for col in state_cols:
+                mask_pos &= (ad.obs[col].astype(str) == 'positive').values
+        else:
+            mask_pos = (ad.obs[state_cols[0]].astype(str) == 'positive').values
+
+        mask_neg = ~mask_pos
+        n_pos = mask_pos.sum()
+        n_neg = mask_neg.sum()
         total_pos += n_pos
         total_neg += n_neg
-        frac_pos = n_pos / len(states) * 100 if len(states) > 0 else 0
+        frac_pos = n_pos / len(ad) * 100 if len(ad) > 0 else 0
 
         # Plot negatives (background, gray)
-        mask_neg = (states == 'negative').values
         ax.scatter(
             coords[mask_neg, 0],
             coords[mask_neg, 1],
@@ -434,7 +477,6 @@ def plot_motif_spatial(
         )
 
         # Plot positives
-        mask_pos = (states == 'positive').values
         if mask_pos.any():
             if color_by_celltype:
                 ct = ad.obs[cell_type_column].astype(str).values
@@ -461,7 +503,7 @@ def plot_motif_spatial(
 
         # Title
         if mode_str == "single":
-            ax.set_title(f'Motif {motif_idx}: {frac_pos:.1f}% ON')
+            ax.set_title(f'{motif_label}: {frac_pos:.1f}% ON')
         else:
             ax.set_title(f'{sample_id}\n{frac_pos:.1f}% ON')
 
@@ -512,9 +554,9 @@ def plot_motif_spatial(
 
     # Suptitle
     if color_by_celltype:
-        suptitle = f'Motif {motif_idx} Spatial Distribution (ON colored by cell type)'
+        suptitle = f'{motif_label} Spatial Distribution (ON colored by cell type)'
     else:
-        suptitle = f'Motif {motif_idx} Spatial Distribution'
+        suptitle = f'{motif_label} Spatial Distribution'
 
     if mode_str != "single":
         plt.suptitle(suptitle, fontsize=14)
@@ -525,7 +567,7 @@ def plot_motif_spatial(
     # Save
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, f'motif_{motif_idx}_spatial.png')
+        save_path = os.path.join(output_dir, f'{motif_label_short}_spatial.png')
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Saved: {save_path}")
 
