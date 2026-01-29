@@ -1425,6 +1425,20 @@ def plot_lri_networks(
     all_celltypes = list(set(lri_motifs_df['celltype1']) | set(lri_motifs_df['celltype2']))
     ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
+    # Convert RGBA tuples to hex strings for Graphviz compatibility
+    def _to_hex(color):
+        """Convert color (tuple or string) to hex string for Graphviz."""
+        if isinstance(color, str):
+            return color
+        elif isinstance(color, tuple):
+            # RGBA tuple from matplotlib colormap
+            r, g, b = int(color[0] * 255), int(color[1] * 255), int(color[2] * 255)
+            return f'#{r:02x}{g:02x}{b:02x}'
+        else:
+            return '#CCCCCC'
+
+    ct_color_map_hex = {ct: _to_hex(col) for ct, col in ct_color_map.items()}
+
     def _norm_mode(x):
         t = str(x).strip().lower()
         if t in {"auto", "autocrine", "a"}:
@@ -1511,7 +1525,7 @@ def plot_lri_networks(
 
         cells = sorted(set(agg['celltype1']) | set(agg['celltype2']))
         for c in cells:
-            dot.node(c, fillcolor=ct_color_map.get(c, '#CCCCCC'))
+            dot.node(c, fillcolor=ct_color_map_hex.get(c, '#CCCCCC'))
 
         max_w = agg['weight'].max()
         for _, row in agg.iterrows():
