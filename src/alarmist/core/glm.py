@@ -1411,6 +1411,12 @@ def _create_volcano_figure_for_motif(
         # Filter genes
         df = _filter_genes_for_volcano(df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac)
 
+        # Skip if no genes left or missing columns
+        if df.empty or 'qval' not in df.columns:
+            axes[ax_idx].set_title(f"{ct} (no data)", fontsize=10, pad=5)
+            axes[ax_idx].axis('off')
+            continue
+
         # Compute -log10(q) with jitter
         df['neg_log10_q'] = -np.log10(df['qval'].clip(1e-300))
         m = df['neg_log10_q'] >= 300
