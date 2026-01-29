@@ -212,7 +212,10 @@ def extract_lri_genes(lri_names: pd.Series, splitter: str = '|',
     lri_genes = set()
 
     # Show sample names for debugging
-    sample_names = lri_names.head(5).tolist()
+    if isinstance(lri_names, list):
+        sample_names = lri_names[:5]
+    else:
+        sample_names = lri_names.head(5).tolist()
     print(f"Sample LRI names: {sample_names}")
 
     for name in lri_names:
