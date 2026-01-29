@@ -757,215 +757,12 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         print(f"Matrix density: {patch_lri_matrix.nnz / (n_patches * n_columns) * 100:.2f}%")
         return patch_lri_matrix
 
-    def build_patch_lri_matrix_coexpr(self,
-                            adata: anndata.AnnData,
-                            signaling_types: List[str]) -> csr_matrix:
-        """
-        Build the patch-LRI interaction matrix with TRUE co-expression logic for complexes.
-
-        Unlike build_patch_lri_matrix which uses min(n_geneA, n_geneB) approximation,
-        this method counts cells that truly co-express all subunits of a complex.
-
-        For multi-subunit ligand/receptor complexes:
-        - OLD (min approx): count_lig = min(cells expressing geneA, cells expressing geneB)
-        - NEW (true coexpr): count_lig = cells expressing BOTH geneA AND geneB
-        """
-        print("Building patch-LRI matrix with TRUE co-expression logic...")
-
-        # ─── 1) Prepare basics ────────────────────────────────────────────────────────
-        unique_patches = np.array([
-            p for p in np.unique(self.patch_assignments)
-            if p in self.patch_coords
-        ])
-        patch_idx_map = {pid: i for i, pid in enumerate(unique_patches)}
-        n_patches = len(unique_patches)
-        n_columns = len(self.column_names)
-        n_cells = adata.n_obs
-        print(f"Processing {n_patches} patches × {n_columns} LRI combinations")
-
-        # ─── 2) Index mappings ───────────────────────────────────────────────────────
-        ct_to_idx = {ct: i for i, ct in enumerate(self.cell_types)}
-
-        # Check for nan/missing cell types and map them
-        cell_type_values = adata.obs[self.cell_type_column].values
-        cell_types_idx = []
-        for ct in cell_type_values:
-            if pd.isna(ct):
-                cell_types_idx.append(-1)
-            elif ct not in ct_to_idx:
-                cell_types_idx.append(-1)
-            else:
-                cell_types_idx.append(ct_to_idx[ct])
-        cell_types_idx = np.array(cell_types_idx, dtype=int)
-
-        n_invalid = np.sum(cell_types_idx == -1)
-        if n_invalid > 0:
-            print(f"  Warning: {n_invalid} cells ({n_invalid/len(cell_types_idx)*100:.1f}%) have missing/invalid cell types and will be excluded")
-
-        gene_to_idx = {g: i for i, g in enumerate(adata.var_names)}
-
-        # Parse column metadata
-        col_meta = []
-        for idx, (lig_str, rec_str) in enumerate(self.lr_pairs):
-            sig_type = signaling_types[idx]
-
-            for lig_ct in self.cell_types:
-                for rec_ct in self.cell_types:
-                    if sig_type == 'Cell-Cell Contact':
-                        col_meta.append((
-                            len(col_meta),
-                            ct_to_idx[lig_ct],
-                            ct_to_idx[rec_ct],
-                            lig_str,
-                            rec_str,
-                            'juxtacrine',
-                            sig_type
-                        ))
-                    else:
-                        if lig_ct == rec_ct:
-                            col_meta.append((
-                                len(col_meta),
-                                ct_to_idx[lig_ct],
-                                ct_to_idx[rec_ct],
-                                lig_str,
-                                rec_str,
-                                'autocrine',
-                                sig_type
-                            ))
-                            col_meta.append((
-                                len(col_meta),
-                                ct_to_idx[lig_ct],
-                                ct_to_idx[rec_ct],
-                                lig_str,
-                                rec_str,
-                                'paracrine',
-                                sig_type
-                            ))
-                        else:
-                            col_meta.append((
-                                len(col_meta),
-                                ct_to_idx[lig_ct],
-                                ct_to_idx[rec_ct],
-                                lig_str,
-                                rec_str,
-                                'paracrine',
-                                sig_type
-                            ))
-
-        # ─── 3) Binarize expression ───────────────────────────────────────────────────
-        X = adata.X
-        if sp.issparse(X):
-            expr_bool = (X > 0).astype(int).tocsc()
-        else:
-            expr_bool = csr_matrix((X > 0).astype(int)).tocsc()
-
-        # ─── 4) Build patch_by_cell matrix ────────────────────────────────────────────
-        cell_patches = np.array(self.patch_assignments, dtype=int)
-        pb_rows = [patch_idx_map[p] for p in cell_patches]
-        pb_cols = list(range(n_cells))
-        patch_by_cell = coo_matrix(
-            (np.ones(n_cells, int), (pb_rows, pb_cols)),
-            shape=(n_patches, n_cells)
-        ).tocsr()
-
-        # ─── 5) Pre-compute cell type masks ───────────────────────────────────────────
-        ct_masks = {}
-        for ct_idx in range(len(self.cell_types)):
-            ct_masks[ct_idx] = (cell_types_idx == ct_idx).astype(int)
-
-        # ─── 6) Compute LRI interactions with TRUE co-expression ──────────────────────
-        print("Computing LRI interactions (true co-expression for complexes)...")
-        row_inds, col_inds, data_vals = [], [], []
-
-        for j, lig_ct_idx, rec_ct_idx, lig_str, rec_str, mode, sig_type in tqdm(
-            col_meta, desc="Processing LRI interactions", unit="interaction"
-        ):
-            lig_genes = _split_gene_complex(lig_str)
-            rec_genes = _split_gene_complex(rec_str)
-
-            # ========== Ligand: cell-level AND ==========
-            # Cells of lig_ct that co-express ALL ligand subunits
-            lig_coexpr = ct_masks[lig_ct_idx].copy()
-            all_lig_valid = True
-            for lig_gene in lig_genes:
-                if lig_gene not in gene_to_idx:
-                    all_lig_valid = False
-                    break
-                lig_gene_idx = gene_to_idx[lig_gene]
-                lig_coexpr = lig_coexpr * expr_bool[:, lig_gene_idx].toarray().ravel().astype(int)
-
-            if not all_lig_valid:
-                count_lig = np.zeros(n_patches, dtype=int)
-            else:
-                count_lig = np.array(patch_by_cell.dot(lig_coexpr)).ravel()
-
-            # ========== Receptor: cell-level AND ==========
-            # Cells of rec_ct that co-express ALL receptor subunits
-            rec_coexpr = ct_masks[rec_ct_idx].copy()
-            all_rec_valid = True
-            for rec_gene in rec_genes:
-                if rec_gene not in gene_to_idx:
-                    all_rec_valid = False
-                    break
-                rec_gene_idx = gene_to_idx[rec_gene]
-                rec_coexpr = rec_coexpr * expr_bool[:, rec_gene_idx].toarray().ravel().astype(int)
-
-            if not all_rec_valid:
-                count_rec = np.zeros(n_patches, dtype=int)
-            else:
-                count_rec = np.array(patch_by_cell.dot(rec_coexpr)).ravel()
-
-            # ========== Autocrine: ligand AND receptor in same cell ==========
-            if lig_ct_idx == rec_ct_idx:
-                # Same cell must express ALL ligand AND ALL receptor subunits
-                auto_coexpr = lig_coexpr * rec_coexpr
-                auto = np.array(patch_by_cell.dot(auto_coexpr)).ravel()
-            else:
-                auto = np.zeros(n_patches, dtype=int)
-
-            # ========== Fill matrix based on mode ==========
-            if mode == "juxtacrine":
-                juxta = count_lig * count_rec - auto
-                rows = np.nonzero(juxta)[0]
-                row_inds.extend(rows.tolist())
-                col_inds.extend([j] * len(rows))
-                data_vals.extend(juxta[rows].tolist())
-
-            elif mode == "autocrine":
-                rows = np.nonzero(auto)[0]
-                row_inds.extend(rows.tolist())
-                col_inds.extend([j] * len(rows))
-                data_vals.extend(auto[rows].tolist())
-
-            else:  # paracrine
-                if lig_ct_idx == rec_ct_idx:
-                    para = count_lig * count_rec - auto
-                else:
-                    para = count_lig * count_rec
-
-                rows = np.nonzero(para)[0]
-                row_inds.extend(rows.tolist())
-                col_inds.extend([j] * len(rows))
-                data_vals.extend(para[rows].tolist())
-
-        # ─── 7) Assemble final matrix ─────────────────────────────────────────────────
-        patch_lri_matrix = csr_matrix(
-            (data_vals, (row_inds, col_inds)),
-            shape=(n_patches, n_columns),
-            dtype=int
-        )
-
-        self.patch_lri_matrix = patch_lri_matrix
-        print(f"Matrix density: {patch_lri_matrix.nnz / (n_patches * n_columns) * 100:.2f}%")
-        return patch_lri_matrix
-
     def run_patchify(
         self,
         adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
         output_dir: Optional[str] = None,
         multi_sample: bool = False,
-        sample_column: Optional[str] = None,
-        use_coexpr: bool = False
+        sample_column: Optional[str] = None
     ) -> Dict:
         """
         Run the complete patch-based LRI analysis.
@@ -994,10 +791,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             Column name in adata.obs that identifies different samples.
             Required when multi_sample=True and adata is a single AnnData.
             Ignored when adata is a dict.
-        use_coexpr : bool, default True
-            If True, use true co-expression logic for multi-subunit complexes
-            (counts cells that co-express ALL subunits).
-            If False, use min approximation (legacy behavior).
 
         Returns
         -------
@@ -1036,10 +829,10 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                 # Single sample in dict format - extract and run single mode
                 sample_id, single_adata = next(iter(adata.items()))
                 print(f"Single sample detected ('{sample_id}'), running in single-sample mode")
-                return self._run_patchify_single(single_adata, output_dir, use_coexpr=use_coexpr)
+                return self._run_patchify_single(single_adata, output_dir)
             else:
                 # Multiple samples
-                return self._run_patchify_multi(adata, output_dir, use_coexpr=use_coexpr)
+                return self._run_patchify_multi(adata, output_dir)
         else:
             # Single AnnData object
             if multi_sample:
@@ -1057,32 +850,21 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
 
                 # Split merged AnnData into dict
                 adata_dict = self._split_adata_by_sample(adata, sample_column)
-                return self._run_patchify_multi(adata_dict, output_dir, use_coexpr=use_coexpr)
+                return self._run_patchify_multi(adata_dict, output_dir)
             else:
                 # Standard single-sample mode
-                return self._run_patchify_single(adata, output_dir, use_coexpr=use_coexpr)
+                return self._run_patchify_single(adata, output_dir)
 
     def _run_patchify_single(
         self,
         adata: anndata.AnnData,
-        output_dir: Optional[str] = None,
-        use_coexpr: bool = False
+        output_dir: Optional[str] = None
     ) -> Dict:
         """
         Run patch-based LRI analysis for a single AnnData object.
         This is the original run_patchify logic.
-
-        Parameters
-        ----------
-        use_coexpr : bool, default True
-            If True, use true co-expression logic for multi-subunit complexes.
-            If False, use min approximation (legacy behavior).
         """
         print("Starting patch-based LRI analysis (single sample)...")
-        if use_coexpr:
-            print("Using TRUE co-expression logic for complexes")
-        else:
-            print("Using min approximation for complexes (legacy)")
         print(f"Patch size: {self.patch_size} μm")
         print(f"Data shape: {adata.shape}")
 
@@ -1096,14 +878,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         column_names = self.create_column_structure(adata, signaling_types)
 
         # Step 4: Build patch-LRI matrix
-        if use_coexpr:
-            patch_lri_matrix = self.build_patch_lri_matrix_coexpr(
-                adata, signaling_types
-            )
-        else:
-            patch_lri_matrix = self.build_patch_lri_matrix(
-                adata, signaling_types
-            )
+        patch_lri_matrix = self.build_patch_lri_matrix(adata, signaling_types)
 
         # Step 5: Remove zero columns
         patch_lri_matrix, column_names = self.remove_zero_columns(patch_lri_matrix, column_names)
@@ -1227,8 +1002,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
     def _run_patchify_multi(
         self,
         adata_dict: Dict[str, anndata.AnnData],
-        output_dir: Optional[str] = None,
-        use_coexpr: bool = False
+        output_dir: Optional[str] = None
     ) -> Dict:
         """
         Run patch-based LRI analysis for multiple AnnData objects.
@@ -1239,9 +1013,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             Dictionary mapping sample_id -> AnnData
         output_dir : str, optional
             Directory to save results
-        use_coexpr : bool, default True
-            If True, use true co-expression logic for multi-subunit complexes.
-            If False, use min approximation (legacy behavior).
 
         Returns
         -------
@@ -1250,10 +1021,6 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         """
         print("=" * 60)
         print("Starting patch-based LRI analysis (multi-sample mode)")
-        if use_coexpr:
-            print("Using TRUE co-expression logic for complexes")
-        else:
-            print("Using min approximation for complexes (legacy)")
         print("=" * 60)
         print(f"Number of samples: {len(adata_dict)}")
         print(f"Patch size: {self.patch_size} μm")
@@ -1296,10 +1063,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             patch_assignments, patch_info = self.create_spatial_patches(adata)
 
             # Build patch-LRI matrix using the pre-defined column structure
-            if use_coexpr:
-                sample_matrix = self.build_patch_lri_matrix_coexpr(adata, signaling_types)
-            else:
-                sample_matrix = self.build_patch_lri_matrix(adata, signaling_types)
+            sample_matrix = self.build_patch_lri_matrix(adata, signaling_types)
 
             # Get unique patches in order (matching matrix rows)
             unique_patches = np.array([
@@ -1903,212 +1667,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         print(f"Matrix density: {cell_lri_matrix.nnz / (n_cells * n_columns) * 100:.2f}%")
         return cell_lri_matrix
 
-    def build_cell_lri_matrix_coexpr(self, adata: anndata.AnnData, signaling_types: List[str]) -> csr_matrix:
-        """
-        Build the cell-LRI interaction matrix with TRUE co-expression logic for complexes.
-
-        Unlike build_cell_lri_matrix which uses min(n_geneA, n_geneB) approximation,
-        this method counts cells that truly co-express all subunits of a complex.
-
-        For multi-subunit ligand/receptor complexes:
-        - OLD (min approx): count_lig = min(cells expressing geneA, cells expressing geneB)
-        - NEW (true coexpr): count_lig = cells expressing BOTH geneA AND geneB
-        """
-        print("Building cell-LRI matrix with TRUE co-expression logic...")
-
-        n_cells = adata.n_obs
-
-        # ─── 1) Index mappings ────────────────────────────────────────────────────
-        ct_to_idx = {ct: i for i, ct in enumerate(self.cell_types)}
-
-        # Check for nan/missing cell types and map them
-        cell_type_values = adata.obs[self.cell_type_column].values
-        cell_types_idx = []
-        for ct in cell_type_values:
-            if pd.isna(ct):
-                cell_types_idx.append(-1)
-            elif ct not in ct_to_idx:
-                cell_types_idx.append(-1)
-            else:
-                cell_types_idx.append(ct_to_idx[ct])
-        cell_types_idx = np.array(cell_types_idx, dtype=int)
-
-        n_invalid = np.sum(cell_types_idx == -1)
-        if n_invalid > 0:
-            print(f"  Warning: {n_invalid} cells ({n_invalid/len(cell_types_idx)*100:.1f}%) have missing/invalid cell types and will be excluded")
-
-        gene_to_idx = {g: i for i, g in enumerate(adata.var_names)}
-
-        # ─── 2) Parse column metadata ─────────────────────────────────────────────
-        col_meta = []
-        for idx, (lig_str, rec_str) in enumerate(self.lr_pairs):
-            sig_type = signaling_types[idx]
-
-            # Check if all ligand genes exist
-            lig_genes = _split_gene_complex(lig_str)
-            if any(lg not in gene_to_idx for lg in lig_genes):
-                continue
-
-            # Check if all receptor genes exist
-            rec_genes = _split_gene_complex(rec_str)
-            if any(rg not in gene_to_idx for rg in rec_genes):
-                continue
-
-            for lig_ct in self.cell_types:
-                for rec_ct in self.cell_types:
-                    if sig_type == 'Cell-Cell Contact':
-                        col_meta.append((
-                            len(col_meta),
-                            ct_to_idx[lig_ct],
-                            ct_to_idx[rec_ct],
-                            lig_str,
-                            rec_str,
-                            'juxtacrine',
-                            sig_type
-                        ))
-                    else:
-                        if lig_ct == rec_ct:
-                            col_meta.append((
-                                len(col_meta),
-                                ct_to_idx[lig_ct],
-                                ct_to_idx[rec_ct],
-                                lig_str,
-                                rec_str,
-                                'autocrine',
-                                sig_type
-                            ))
-                            col_meta.append((
-                                len(col_meta),
-                                ct_to_idx[lig_ct],
-                                ct_to_idx[rec_ct],
-                                lig_str,
-                                rec_str,
-                                'paracrine',
-                                sig_type
-                            ))
-                        else:
-                            col_meta.append((
-                                len(col_meta),
-                                ct_to_idx[lig_ct],
-                                ct_to_idx[rec_ct],
-                                lig_str,
-                                rec_str,
-                                'paracrine',
-                                sig_type
-                            ))
-
-        n_columns = len(col_meta)
-        print(f"Processing {n_cells} cells × {n_columns} LRI combinations")
-
-        # ─── 3) Binarize expression ───────────────────────────────────────────────
-        X = adata.X
-        if sp.issparse(X):
-            expr_bool = (X > 0).astype(int).tocsc()
-        else:
-            expr_bool = csr_matrix((X > 0).astype(int)).tocsc()
-
-        # ─── 4) Build cell-neighborhood adjacency matrix ──────────────────────────
-        print("Building cell-neighborhood adjacency matrix...")
-        rows, cols = [], []
-        for cell_idx, neighbors in self.neighborhoods.items():
-            rows.extend([cell_idx] * len(neighbors))
-            cols.extend(neighbors)
-        cell_nbr_matrix = coo_matrix(
-            (np.ones(len(rows), dtype=int), (rows, cols)),
-            shape=(n_cells, n_cells)
-        ).tocsr()
-
-        # ─── 5) Pre-compute cell type masks ───────────────────────────────────────
-        ct_masks = {}
-        for ct_idx in range(len(self.cell_types)):
-            ct_masks[ct_idx] = (cell_types_idx == ct_idx).astype(int)
-
-        # ─── 6) Compute LRI interactions with TRUE co-expression ──────────────────
-        print("Computing LRI interactions (true co-expression for complexes)...")
-        row_inds, col_inds, data_vals = [], [], []
-
-        for j, lig_ct_idx, rec_ct_idx, lig_str, rec_str, mode, sig_type in tqdm(
-            col_meta, desc="Processing LRI interactions", unit="interaction"
-        ):
-            lig_genes = _split_gene_complex(lig_str)
-            rec_genes = _split_gene_complex(rec_str)
-
-            # ========== Ligand: cell-level AND ==========
-            # Cells of lig_ct that co-express ALL ligand subunits
-            lig_coexpr = ct_masks[lig_ct_idx].copy()
-            all_lig_valid = True
-            for lig_gene in lig_genes:
-                if lig_gene not in gene_to_idx:
-                    all_lig_valid = False
-                    break
-                lig_gene_idx = gene_to_idx[lig_gene]
-                lig_coexpr = lig_coexpr * expr_bool[:, lig_gene_idx].toarray().ravel().astype(int)
-
-            if not all_lig_valid:
-                count_lig = np.zeros(n_cells, dtype=int)
-            else:
-                # Aggregate to neighborhood: for each cell, count ligand-expressing neighbors
-                count_lig = np.array(cell_nbr_matrix.dot(lig_coexpr)).ravel()
-
-            # ========== Receptor: cell-level AND ==========
-            # Cells of rec_ct that co-express ALL receptor subunits
-            rec_coexpr = ct_masks[rec_ct_idx].copy()
-            all_rec_valid = True
-            for rec_gene in rec_genes:
-                if rec_gene not in gene_to_idx:
-                    all_rec_valid = False
-                    break
-                rec_gene_idx = gene_to_idx[rec_gene]
-                rec_coexpr = rec_coexpr * expr_bool[:, rec_gene_idx].toarray().ravel().astype(int)
-
-            if not all_rec_valid:
-                count_rec = np.zeros(n_cells, dtype=int)
-            else:
-                # Aggregate to neighborhood: for each cell, count receptor-expressing neighbors
-                count_rec = np.array(cell_nbr_matrix.dot(rec_coexpr)).ravel()
-
-            # ========== Autocrine: ligand AND receptor in same cell ==========
-            if lig_ct_idx == rec_ct_idx:
-                # Same cell must express ALL ligand AND ALL receptor subunits
-                auto_coexpr = lig_coexpr * rec_coexpr
-                auto = np.array(cell_nbr_matrix.dot(auto_coexpr)).ravel()
-            else:
-                auto = np.zeros(n_cells, dtype=int)
-
-            # ========== Fill matrix based on mode ==========
-            if mode == "juxtacrine":
-                juxta = count_lig * count_rec - auto
-                rows_nz = np.nonzero(juxta)[0]
-                row_inds.extend(rows_nz.tolist())
-                col_inds.extend([j] * len(rows_nz))
-                data_vals.extend(juxta[rows_nz].tolist())
-
-            elif mode == "autocrine":
-                rows_nz = np.nonzero(auto)[0]
-                row_inds.extend(rows_nz.tolist())
-                col_inds.extend([j] * len(rows_nz))
-                data_vals.extend(auto[rows_nz].tolist())
-
-            else:  # paracrine
-                if lig_ct_idx == rec_ct_idx:
-                    para = count_lig * count_rec - auto
-                else:
-                    para = count_lig * count_rec
-                rows_nz = np.nonzero(para)[0]
-                row_inds.extend(rows_nz.tolist())
-                col_inds.extend([j] * len(rows_nz))
-                data_vals.extend(para[rows_nz].tolist())
-
-        # ─── 7) Assemble final sparse matrix ──────────────────────────────────────
-        cell_lri_matrix = csr_matrix(
-            (data_vals, (row_inds, col_inds)),
-            shape=(n_cells, n_columns),
-            dtype=int
-        )
-        self.cell_lri_matrix = cell_lri_matrix
-        print(f"Matrix density: {cell_lri_matrix.nnz / (n_cells * n_columns) * 100:.2f}%")
-        return cell_lri_matrix
-
     def create_metadata_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
         """
         Create metadata dataframe with cell information.
@@ -2145,8 +1703,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         output_dir: Optional[str] = None,
         required_columns: Optional[List[str]] = None,
         multi_sample: bool = False,
-        sample_column: Optional[str] = None,
-        use_coexpr: bool = False
+        sample_column: Optional[str] = None
     ) -> Dict:
         """
         Run the complete neighborhood-based LRI analysis.
@@ -2179,10 +1736,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             Column name in adata.obs that identifies different samples.
             Required when multi_sample=True and adata is a single AnnData.
             Ignored when adata is a dict.
-        use_coexpr : bool, default True
-            If True, use true co-expression logic for multi-subunit complexes
-            (counts cells that co-express ALL subunits).
-            If False, use min approximation (legacy behavior).
 
         Returns
         -------
@@ -2220,10 +1773,10 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                 # Single sample in dict format - extract and run single mode
                 sample_id, single_adata = next(iter(adata.items()))
                 print(f"Single sample detected ('{sample_id}'), running in single-sample mode")
-                return self._run_neighborhood_single(single_adata, output_dir, required_columns, use_coexpr)
+                return self._run_neighborhood_single(single_adata, output_dir, required_columns)
             else:
                 # Multiple samples
-                return self._run_neighborhood_multi(adata, output_dir, required_columns, use_coexpr)
+                return self._run_neighborhood_multi(adata, output_dir, required_columns)
         else:
             # Single AnnData object
             if multi_sample:
@@ -2241,17 +1794,16 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
                 # Split merged AnnData into dict
                 adata_dict = self._split_adata_by_sample(adata, sample_column)
-                return self._run_neighborhood_multi(adata_dict, output_dir, required_columns, use_coexpr)
+                return self._run_neighborhood_multi(adata_dict, output_dir, required_columns)
             else:
                 # Standard single-sample mode
-                return self._run_neighborhood_single(adata, output_dir, required_columns, use_coexpr)
+                return self._run_neighborhood_single(adata, output_dir, required_columns)
 
     def _run_neighborhood_single(
         self,
         adata: anndata.AnnData,
         output_dir: Optional[str] = None,
-        required_columns: Optional[List[str]] = None,
-        use_coexpr: bool = False
+        required_columns: Optional[List[str]] = None
     ) -> Dict:
         """
         Run neighborhood-based LRI analysis for a single AnnData object.
@@ -2260,7 +1812,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         print("Starting cell neighborhood-based LRI analysis (single sample)...")
         print(f"Neighborhood size: {self.neighborhood_size} µm")
         print(f"Data shape: {adata.shape}")
-        print(f"Co-expression mode: {'TRUE co-expression' if use_coexpr else 'min approximation (legacy)'}")
 
         # Step 1: Build neighborhoods
         neighborhoods = self.build_neighborhoods(adata)
@@ -2272,10 +1823,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         column_names = self.create_column_structure(adata, signaling_types)
 
         # Step 4: Build cell-LRI matrix
-        if use_coexpr:
-            cell_lri_matrix = self.build_cell_lri_matrix_coexpr(adata, signaling_types)
-        else:
-            cell_lri_matrix = self.build_cell_lri_matrix(adata, signaling_types)
+        cell_lri_matrix = self.build_cell_lri_matrix(adata, signaling_types)
 
         # Step 5: Optionally append gene expression
         if self.include_gene_expression:
@@ -2422,8 +1970,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         self,
         adata_dict: Dict[str, anndata.AnnData],
         output_dir: Optional[str] = None,
-        required_columns: Optional[List[str]] = None,
-        use_coexpr: bool = False
+        required_columns: Optional[List[str]] = None
     ) -> Dict:
         """
         Run neighborhood-based LRI analysis for multiple AnnData objects.
@@ -2436,9 +1983,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             Directory to save results
         required_columns : list of str, optional
             If provided, subset to these columns
-        use_coexpr : bool, default True
-            If True, use true co-expression logic for multi-subunit complexes.
-            If False, use min approximation (legacy behavior).
 
         Returns
         -------
@@ -2448,7 +1992,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         print("=" * 60)
         print("Starting neighborhood-based LRI analysis (multi-sample mode)")
         print("=" * 60)
-        print(f"Co-expression mode: {'TRUE co-expression' if use_coexpr else 'min approximation (legacy)'}")
         print(f"Number of samples: {len(adata_dict)}")
         print(f"Neighborhood size: {self.neighborhood_size} µm")
         for sample_id, adata in adata_dict.items():
@@ -2488,10 +2031,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             neighborhoods = self.build_neighborhoods(adata)
 
             # Build cell-LRI matrix using the pre-defined column structure
-            if use_coexpr:
-                sample_matrix = self.build_cell_lri_matrix_coexpr(adata, signaling_types)
-            else:
-                sample_matrix = self.build_cell_lri_matrix(adata, signaling_types)
+            sample_matrix = self.build_cell_lri_matrix(adata, signaling_types)
 
             n_cells = adata.n_obs
 
