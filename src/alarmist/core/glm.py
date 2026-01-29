@@ -1635,6 +1635,12 @@ def _create_forest_figure_for_motif(
         # Filter genes
         df = _filter_genes_for_volcano(df, ct, adata, all_genes, exclusion_mask, ct_idx, min_expression_frac)
 
+        # Skip if no genes left or missing columns
+        if df.empty or 'qval' not in df.columns:
+            axes[ax_idx].set_title(f"{ct} (no data)", fontsize=9)
+            axes[ax_idx].axis('off')
+            continue
+
         glm_plots.forest_plot(df, ax=axes[ax_idx], n_top=n_top)
         axes[ax_idx].set_title(ct, fontsize=9)
 
