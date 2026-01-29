@@ -47,20 +47,20 @@ all = ["sparse", "bptf", "graphviz", "pygraphviz"]
 "Source" = "https://github.com/tansey-lab/alarmist"
 
 [project.scripts]
-# Patch-based LRI analysis
-alarmist-patch-lri = "alarmist.cli.run_patch_lri_analysis:main"
-alarmist-cell-matrix = "alarmist.cli.create_cell_matrix:main"
+# Step 1: Patchify
+alarmist-patchify = "alarmist.cli.patchify:main"
 
-# BPTF factorization
-alarmist-bptf = "alarmist.cli.bptf_factorization:main"
-alarmist-bptf-viz = "alarmist.cli.bptf_visualization:main"
+# Step 2: BPTF factorization
+alarmist-bptf = "alarmist.cli.bptf:main"
 
-# Single-cell analysis
-alarmist-single-cell = "alarmist.cli.single_cell_analysis:main"
+# Step 3: Single-cell projection (TODO)
+# alarmist-project = "alarmist.cli.project:main"
 
-# GLM analysis
-alarmist-glm = "alarmist.cli.poisson_glm:main"
-alarmist-glm-viz = "alarmist.cli.glm_results:main"
+# Step 4: Motif calling (TODO)
+# alarmist-call = "alarmist.cli.call:main"
+
+# Step 5: GLM analysis (TODO)
+# alarmist-glm = "alarmist.cli.glm:main"
 
 [build-system]
 requires = ["setuptools>=65.0", "wheel"]
