@@ -95,7 +95,7 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
     ax.scatter(x[top_left], y[top_left], color='blue', alpha=0.7, marker=marker)
     ax.scatter(x[top_right], y[top_right], color='red', alpha=0.7, marker=marker)
 
-    ax.set_xlabel('logFC', fontsize=fontsize + 14)
+    ax.set_xlabel(r'$\log_2$ Fold-Change', fontsize=fontsize + 14)
     ax.set_ylabel(r'-$\log_{10}(q)$', fontsize=fontsize + 14)
 
     # Set axis limits based on significant hits
