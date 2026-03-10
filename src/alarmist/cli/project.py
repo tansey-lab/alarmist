@@ -1,7 +1,7 @@
 """
 CLI command: alarmist-project
 
-Project single-cell data onto BPTF motifs by assigning cells to patches.
+Project single-cell data onto BPTF motifs using cell-level LRI computation.
 """
 
 import argparse
@@ -20,12 +20,15 @@ def get_parser():
 Examples:
   # Basic usage
   alarmist-project --adata data.h5ad --bptf-dir results/bptf \\
-      --output-dir results/project
+      --output-dir results/single_cell
 
   # With custom patch-LRI directory
   alarmist-project --adata data.h5ad --bptf-dir results/bptf \\
-      --output-dir results/project \\
-      --patch-lri-dir results/patchify
+      --patch-lri-dir results/patchify --output-dir results/single_cell
+
+  # Multi-sample mode
+  alarmist-project --adata data.h5ad --bptf-dir results/bptf \\
+      --output-dir results/single_cell --multi-sample --sample-column batch
         """,
     )
 
@@ -47,16 +50,33 @@ Examples:
         help="Directory with patch-LRI results (defaults to bptf-dir/../patchify)",
     )
     parser.add_argument(
-        "--normalize",
-        action="store_true",
-        default=True,
-        help="Normalize cell loadings (default: True)",
+        "--cellchatdb",
+        type=str,
+        default=None,
+        help="Path to CellChatDB CSV file (uses built-in if not specified)",
     )
     parser.add_argument(
-        "--no-normalize",
-        action="store_false",
-        dest="normalize",
-        help="Disable normalization of cell loadings",
+        "--multi-sample",
+        action="store_true",
+        help="Enable multi-sample mode for concatenated AnnData",
+    )
+    parser.add_argument(
+        "--sample-column",
+        type=str,
+        default="sample_id",
+        help="Column in adata.obs containing sample IDs (default: sample_id)",
+    )
+    parser.add_argument(
+        "--max-iter",
+        type=int,
+        default=200,
+        help="Maximum iterations for projection (default: 200)",
+    )
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=50000,
+        help="Number of cells per chunk for memory efficiency (default: 50000)",
     )
 
     log_config.add_logging_args(parser)
@@ -79,6 +99,7 @@ def main():
     import numpy as np
     import pandas as pd
     import scanpy as sc
+    from bptf import load_bptf
 
     import alarmist as al
 
@@ -87,126 +108,116 @@ def main():
     adata = sc.read_h5ad(args.adata)
     logger.info(f"Loaded {adata.n_obs} cells, {adata.n_vars} genes")
 
-    # Load BPTF results
-    logger.info(f"Loading BPTF results from {args.bptf_dir}")
-    bptf_results = al.load_bptf_results(args.bptf_dir)
-    patch_loadings = bptf_results["patch_loadings"]  # (n_patches, n_motifs)
-    n_motifs = patch_loadings.shape[1]
-    logger.info(f"Loaded {patch_loadings.shape[0]} patches, {n_motifs} motifs")
-
     # Determine patch-LRI directory
     if args.patch_lri_dir is None:
         bptf_path = Path(args.bptf_dir)
         patch_lri_dir = bptf_path.parent / "patchify"
         if not patch_lri_dir.exists():
             patch_lri_dir = bptf_path.parent / "patch_lri"
-        logger.info(f"Using patch-LRI directory: {patch_lri_dir}")
+        if not patch_lri_dir.exists():
+            logger.error(
+                f"Could not find patch-LRI directory. Tried:\n"
+                f"  {bptf_path.parent / 'patchify'}\n"
+                f"  {bptf_path.parent / 'patch_lri'}\n"
+                f"Please specify --patch-lri-dir explicitly."
+            )
+            sys.exit(1)
     else:
         patch_lri_dir = Path(args.patch_lri_dir)
 
-    # Load patch metadata
-    patch_metadata_file = patch_lri_dir / "patch_metadata.parquet"
-    if not patch_metadata_file.exists():
-        logger.error(f"Patch metadata not found: {patch_metadata_file}")
-        sys.exit(1)
+    logger.info(f"Using patch-LRI directory: {patch_lri_dir}")
 
-    patch_metadata = pd.read_parquet(patch_metadata_file)
-    logger.info(f"Loaded metadata for {len(patch_metadata)} patches")
+    # Load patch-LRI results to get column names for alignment
+    logger.info("Loading patch-LRI results...")
+    patch_results = al.load_patch_lri_results(str(patch_lri_dir))
+    column_names = patch_results["column_names"]
+    logger.info(f"Loaded {len(column_names)} LRI column names for alignment")
 
-    # Get spatial coordinates
-    if "spatial" not in adata.obsm:
-        logger.error("Spatial coordinates not found in adata.obsm['spatial']")
-        sys.exit(1)
-
-    cell_coords = adata.obsm["spatial"]
-
-    # Get patch size from metadata or parameters
+    # Get parameters from patch analysis
     params_file = patch_lri_dir / "analysis_parameters.csv"
     if params_file.exists():
         params_df = pd.read_csv(params_file)
         patch_size_row = params_df[params_df["parameter"] == "patch_size"]
         if len(patch_size_row) > 0:
-            patch_size = float(patch_size_row["value"].iloc[0])
+            neighborhood_size = float(patch_size_row["value"].iloc[0])
         else:
-            # Infer from patch metadata
-            patch_size = (
-                patch_metadata["x_max"].iloc[0] - patch_metadata["x_min"].iloc[0]
-            )
+            logger.error("patch_size not found in analysis_parameters.csv")
+            sys.exit(1)
     else:
-        patch_size = patch_metadata["x_max"].iloc[0] - patch_metadata["x_min"].iloc[0]
+        logger.error(f"Analysis parameters not found: {params_file}")
+        sys.exit(1)
 
-    logger.info(f"Patch size: {patch_size}")
-
-    # Assign cells to patches based on spatial coordinates
-    logger.info("Assigning cells to patches...")
-
-    # Create patch boundaries array for vectorized lookup
-    patch_x_min = patch_metadata["x_min"].values
-    patch_x_max = patch_metadata["x_max"].values
-    patch_y_min = patch_metadata["y_min"].values
-    patch_y_max = patch_metadata["y_max"].values
-
-    # For each cell, find which patch it belongs to
-    cell_x = cell_coords[:, 0]
-    cell_y = cell_coords[:, 1]
-
-    # Initialize cell loadings
-    cell_loadings = np.zeros((len(adata), n_motifs))
-    cells_assigned = 0
-
-    # Assign each cell to its patch
-    for i in range(len(patch_metadata)):
-        # Find cells in this patch
-        in_patch = (
-            (cell_x >= patch_x_min[i])
-            & (cell_x < patch_x_max[i])
-            & (cell_y >= patch_y_min[i])
-            & (cell_y < patch_y_max[i])
-        )
-        n_cells_in_patch = in_patch.sum()
-        if n_cells_in_patch > 0:
-            cell_loadings[in_patch] = patch_loadings[i]
-            cells_assigned += n_cells_in_patch
-
-    logger.info(f"Assigned {cells_assigned}/{len(adata)} cells to patches")
-
-    # Handle cells not in any patch (use nearest patch)
-    unassigned = cell_loadings.sum(axis=1) == 0
-    n_unassigned = unassigned.sum()
-    if n_unassigned > 0:
-        logger.info(f"Assigning {n_unassigned} cells to nearest patch...")
-        from scipy.spatial import cKDTree
-
-        # Build KDTree from patch centers
-        patch_centers = np.column_stack(
-            [(patch_x_min + patch_x_max) / 2, (patch_y_min + patch_y_max) / 2]
-        )
-        tree = cKDTree(patch_centers)
-
-        # Find nearest patch for unassigned cells
-        unassigned_coords = cell_coords[unassigned]
-        _, nearest_patches = tree.query(unassigned_coords)
-        cell_loadings[unassigned] = patch_loadings[nearest_patches]
-
-    # Normalize if requested
-    if args.normalize:
-        logger.info("Normalizing cell loadings...")
-        row_sums = cell_loadings.sum(axis=1, keepdims=True)
-        row_sums[row_sums == 0] = 1  # Avoid division by zero
-        cell_loadings = cell_loadings / row_sums
+    logger.info(f"Using neighborhood size: {neighborhood_size}")
 
     # Create output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save results
-    logger.info("Saving projection results...")
+    # Compute cell-level LRI matrix
+    logger.info("Computing cell-level LRI matrix...")
+    cell_analyzer = al.NeighborhoodLRIAnalyzer(
+        neighborhood_size=neighborhood_size,
+        resource_name="cellchatdb",
+        cell_type_column=args.cell_type_column,
+        cellchatdb_path=args.cellchatdb,
+    )
 
-    # Save cell loadings
+    if args.multi_sample:
+        cell_results = cell_analyzer.run_neighborhood(
+            adata,
+            output_dir=str(output_dir),
+            required_columns=column_names,
+            multi_sample=True,
+            sample_column=args.sample_column,
+        )
+    else:
+        cell_results = cell_analyzer.run_neighborhood(
+            adata,
+            output_dir=str(output_dir),
+            required_columns=column_names,
+        )
+
+    cell_lri_matrix = cell_results["cell_lri_matrix"]
+    logger.info(f"Cell-LRI matrix shape: {cell_lri_matrix.shape}")
+
+    # Load BPTF model
+    logger.info(f"Loading BPTF model from {args.bptf_dir}")
+    bptf_path = Path(args.bptf_dir)
+    model_file = bptf_path / "bptf_1.npz"
+    if not model_file.exists():
+        # Try finding any .npz file
+        npz_files = list(bptf_path.glob("*.npz"))
+        if npz_files:
+            model_file = npz_files[0]
+        else:
+            logger.error(f"No BPTF model found in {args.bptf_dir}")
+            sys.exit(1)
+
+    model = load_bptf(model_file)
+    logger.info(f"Loaded BPTF model with {model.n_components} components")
+
+    # Project cell loadings
+    logger.info("Projecting cell loadings...")
+    np.random.seed(42)
+
+    cell_loadings = al.project_cell_loadings(
+        model=model,
+        cell_lri_matrix=cell_lri_matrix,
+        model_lri_columns=column_names,
+        cell_lri_columns=cell_results.get("column_names"),
+        max_iter=args.max_iter,
+        chunk_size=args.chunk_size,
+        verbose=True,
+        output_dir=str(output_dir),
+    )
+
+    logger.info(f"Cell loadings shape: {cell_loadings.shape}")
+
+    # Save cell loadings as parquet with cell IDs
     cell_loadings_df = pd.DataFrame(
         cell_loadings,
         index=adata.obs_names,
-        columns=[f"motif_{i}" for i in range(n_motifs)],
+        columns=[f"motif_{i}" for i in range(cell_loadings.shape[1])],
     )
     cell_loadings_df.to_parquet(output_dir / "cell_motif_loadings.parquet")
 
@@ -214,9 +225,10 @@ def main():
     adata.obsm["X_motif"] = cell_loadings
     adata.write_h5ad(output_dir / "projected_adata.h5ad")
 
-    # Report results
-    logger.info(f"Cell loadings shape: {cell_loadings.shape}")
-    logger.info(f"Results saved to: {args.output_dir}")
+    logger.info(f"Results saved to: {output_dir}")
+    logger.info("  - cell_loadings.npy")
+    logger.info("  - cell_motif_loadings.parquet")
+    logger.info("  - projected_adata.h5ad")
 
     return 0
 
