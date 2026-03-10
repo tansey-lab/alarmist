@@ -58,3 +58,4 @@ venv/
 
 # Legacy scripts with hardcoded paths (archived)
 archived_scripts/
+src/alarmist.egg-info/**

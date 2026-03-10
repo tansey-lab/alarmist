@@ -10,42 +10,34 @@ Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Science/Research
 Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
 Classifier: License :: OSI Approved :: MIT License
-Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
-Requires-Python: >=3.9
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
 Description-Content-Type: text/markdown
-Requires-Dist: numpy
-Requires-Dist: pandas
-Requires-Dist: scipy
-Requires-Dist: scikit-learn
-Requires-Dist: anndata>=0.8
-Requires-Dist: scanpy
-Requires-Dist: matplotlib>=3.5
-Requires-Dist: seaborn
-Requires-Dist: liana
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: scipy>=1.7.0
+Requires-Dist: scikit-learn>=1.0.0
+Requires-Dist: anndata>=0.8.0
+Requires-Dist: scanpy>=1.8.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: seaborn>=0.11.0
+Requires-Dist: liana>=0.1.0
 Requires-Dist: h5py
 Requires-Dist: pyarrow
-Requires-Dist: tqdm
+Requires-Dist: tqdm>=4.60.0
 Requires-Dist: networkx
 Requires-Dist: pillow
-Provides-Extra: dev
-Requires-Dist: pytest; extra == "dev"
-Requires-Dist: pytest-mock; extra == "dev"
-Requires-Dist: black; extra == "dev"
-Requires-Dist: flake8; extra == "dev"
-Requires-Dist: ipython; extra == "dev"
-Provides-Extra: bptf
-Requires-Dist: sparse; extra == "bptf"
-Requires-Dist: bptf; extra == "bptf"
+Requires-Dist: statsmodels>=0.13.0
+Requires-Dist: sparse>=0.13.0
+Requires-Dist: numba>=0.56.0
+Requires-Dist: joblib>=1.1.0
+Requires-Dist: adjustText>=1.0.0
+Requires-Dist: bptf @ git+https://github.com/aschein/bptf.git
 Provides-Extra: viz
 Requires-Dist: graphviz; extra == "viz"
 Requires-Dist: pygraphviz; extra == "viz"
-Provides-Extra: all
-Requires-Dist: sparse; extra == "all"
-Requires-Dist: bptf; extra == "all"
-Requires-Dist: graphviz; extra == "all"
-Requires-Dist: pygraphviz; extra == "all"
 
 # ALARMIST
 

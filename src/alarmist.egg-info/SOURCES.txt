@@ -14,13 +14,18 @@ src/alarmist/cli/bptf_factorization.py
 src/alarmist/cli/bptf_visualization.py
 src/alarmist/cli/common.py
 src/alarmist/cli/create_cell_matrix.py
+src/alarmist/cli/glm.py
 src/alarmist/cli/glm_results.py
 src/alarmist/cli/log_config.py
 src/alarmist/cli/patchify.py
 src/alarmist/cli/poisson_glm.py
+src/alarmist/cli/project.py
 src/alarmist/cli/run_patch_lri_analysis.py
 src/alarmist/cli/single_cell_analysis.py
+src/alarmist/cli/visualize.py
 src/alarmist/config/__init__.py
+src/alarmist/config/lri_databases/CellChatDBv2.0.human.csv
+src/alarmist/config/lri_databases/CellPhoneDBv5.0.human.csv
 src/alarmist/core/__init__.py
 src/alarmist/core/factorization.py
 src/alarmist/core/glm.py
@@ -37,3 +42,4 @@ src/alarmist/plotting/motif_plots.py
 src/alarmist/plotting/single_cell_plots.py
 src/alarmist/plotting/spatial_plots.py
 src/alarmist/plotting/utils.py
+tests/test_lri.py
