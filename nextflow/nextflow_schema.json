@@ -91,6 +91,61 @@
                 }
             }
         },
+        "alarmist_options": {
+            "title": "ALARMIST pipeline options",
+            "type": "object",
+            "fa_icon": "fas fa-microscope",
+            "description": "Parameters specific to the ALARMIST analysis pipeline.",
+            "properties": {
+                "patch_size": {
+                    "type": "integer",
+                    "default": 50,
+                    "description": "Size of spatial patches for patchify step.",
+                    "fa_icon": "fas fa-th"
+                },
+                "cell_type_column": {
+                    "type": "string",
+                    "default": "cell_type",
+                    "description": "Column name in adata.obs containing cell type annotations.",
+                    "fa_icon": "fas fa-tag"
+                },
+                "resource": {
+                    "type": "string",
+                    "default": "cellphonedb",
+                    "description": "Ligand-receptor database to use.",
+                    "enum": ["cellphonedb", "cellchatdb"],
+                    "fa_icon": "fas fa-database"
+                },
+                "n_components": {
+                    "type": "integer",
+                    "default": 15,
+                    "description": "Number of tensor components for BPTF decomposition.",
+                    "fa_icon": "fas fa-layer-group"
+                },
+                "max_iter": {
+                    "type": "integer",
+                    "default": 200,
+                    "description": "Maximum iterations for BPTF optimization.",
+                    "fa_icon": "fas fa-redo"
+                },
+                "seed": {
+                    "type": "integer",
+                    "default": 42,
+                    "description": "Random seed for reproducibility.",
+                    "fa_icon": "fas fa-dice"
+                },
+                "condition_column": {
+                    "type": "string",
+                    "description": "Column name in adata.obs containing condition/group labels for GLM analysis.",
+                    "fa_icon": "fas fa-flask"
+                },
+                "covariates": {
+                    "type": "string",
+                    "description": "Comma-separated list of covariate column names for GLM analysis.",
+                    "fa_icon": "fas fa-list"
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -204,6 +259,9 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/alarmist_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

@@ -4,23 +4,40 @@ GLM results visualization functions
 Includes volcano plots and forest plots for differential expression results.
 """
 
-import os
 import glob
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import scipy.stats as stats
 import scipy.sparse as sp
-import scanpy as sc
+import seaborn as sns
 from adjustText import adjust_text
 from matplotlib.backends.backend_pdf import PdfPages
-from typing import Optional, Tuple
+
+from alarmist.constants import (
+    COLUMN_NAME_CELL_TYPE,
+    COLUMN_NAME_GENE,
+    COLUMN_NAME_LOGFC,
+    COLUMN_NAME_NEG_LOG10_Q,
+    COLUMN_NAME_QVAL,
+    COLUMN_NAME_SE,
+)
 
 
-def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
-                 x_threshold=1, marker='o', n_top=10,
-                 figsize=(10, 10), fontsize=8, ax=None):
+def volcano_plot(
+    df,
+    x_col,
+    y_col,
+    label_col=None,
+    fdr=0.1,
+    x_threshold=1,
+    marker="o",
+    n_top=10,
+    figsize=(10, 10),
+    fontsize=8,
+    ax=None,
+):
     """
     Draw a volcano plot with customized coloring and labeling
 
@@ -56,11 +73,20 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
     """
     # Nature journal settings
     plt.rcParams["font.family"] = "Arial"
-    colors = ["#E64B35FF", "#3C5488FF", "#00A087FF", "#4DBBD5FF",
-              "#F39B7FFF", "#8491B4FF", "#91D1C2FF", "#DC0000FF",
-              "#7E6148FF", "#B09C85FF"]
+    colors = [
+        "#E64B35FF",
+        "#3C5488FF",
+        "#00A087FF",
+        "#4DBBD5FF",
+        "#F39B7FFF",
+        "#8491B4FF",
+        "#91D1C2FF",
+        "#DC0000FF",
+        "#7E6148FF",
+        "#B09C85FF",
+    ]
     sns.set_palette(sns.color_palette(colors))
-    sns.set(rc={'figure.figsize': figsize, "font.size": fontsize})
+    sns.set(rc={"figure.figsize": figsize, "font.size": fontsize})
     sns.set_style("white")
 
     threshold_fdr = -np.log10(fdr)
@@ -69,12 +95,20 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
 
     sigmask = y >= threshold_fdr
     effmask = np.abs(x) >= x_threshold
-    rightmask = (x >= x_threshold)
-    leftmask = (x <= -x_threshold)
+    rightmask = x >= x_threshold
+    leftmask = x <= -x_threshold
 
     # Scoring for top candidate selection
-    upper_right = x / np.abs(x).max() + y / y.max() if np.abs(x).max() > 0 and y.max() > 0 else np.zeros_like(x)
-    upper_left = -x / np.abs(x).max() + y / y.max() if np.abs(x).max() > 0 and y.max() > 0 else np.zeros_like(x)
+    upper_right = (
+        x / np.abs(x).max() + y / y.max()
+        if np.abs(x).max() > 0 and y.max() > 0
+        else np.zeros_like(x)
+    )
+    upper_left = (
+        -x / np.abs(x).max() + y / y.max()
+        if np.abs(x).max() > 0 and y.max() > 0
+        else np.zeros_like(x)
+    )
     top_right = np.argsort(upper_right)[::-1]
     top_left = np.argsort(upper_left)[::-1]
 
@@ -89,14 +123,16 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
         fig, ax = plt.subplots(figsize=figsize)
 
     # Plot the values differently depending on where they lie
-    ax.scatter(x[middle], y[middle], color='gray', alpha=0.2, marker=marker)
-    ax.scatter(x[bottom_right], y[bottom_right], color='black', alpha=0.7, marker=marker)
-    ax.scatter(x[bottom_left], y[bottom_left], color='black', alpha=0.7, marker=marker)
-    ax.scatter(x[top_left], y[top_left], color='blue', alpha=0.7, marker=marker)
-    ax.scatter(x[top_right], y[top_right], color='red', alpha=0.7, marker=marker)
+    ax.scatter(x[middle], y[middle], color="gray", alpha=0.2, marker=marker)
+    ax.scatter(
+        x[bottom_right], y[bottom_right], color="black", alpha=0.7, marker=marker
+    )
+    ax.scatter(x[bottom_left], y[bottom_left], color="black", alpha=0.7, marker=marker)
+    ax.scatter(x[top_left], y[top_left], color="blue", alpha=0.7, marker=marker)
+    ax.scatter(x[top_right], y[top_right], color="red", alpha=0.7, marker=marker)
 
-    ax.set_xlabel(r'$\log_2$ Fold-Change', fontsize=fontsize + 14)
-    ax.set_ylabel(r'-$\log_{10}(q)$', fontsize=fontsize + 14)
+    ax.set_xlabel(r"$\log_2$ Fold-Change", fontsize=fontsize + 14)
+    ax.set_ylabel(r"-$\log_{10}(q)$", fontsize=fontsize + 14)
 
     # Set axis limits based on significant hits
     if effmask.any():
@@ -116,27 +152,49 @@ def volcano_plot(df, x_col, y_col, label_col=None, fdr=0.1,
         head_df = df.iloc[np.concatenate([top_right[:n_top], top_left[:n_top]])]
         texts = []
         for xi, yi, txt in zip(head_df[x_col], head_df[y_col], head_df[label_col]):
-            texts.append(ax.text(xi, yi, txt, ha='center', va='center', fontsize=fontsize,
-                                 bbox=dict(boxstyle='round,pad=0.2', facecolor='white',
-                                          edgecolor='gray', alpha=0.9)))
+            texts.append(
+                ax.text(
+                    xi,
+                    yi,
+                    txt,
+                    ha="center",
+                    va="center",
+                    fontsize=fontsize,
+                    bbox=dict(
+                        boxstyle="round,pad=0.2",
+                        facecolor="white",
+                        edgecolor="gray",
+                        alpha=0.9,
+                    ),
+                )
+            )
 
-        adjust_text(texts, force_text=(0.5, 0.5),
-                   arrowprops=dict(arrowstyle="-", color='black', lw=0.5),
-                   ax=ax, verbose=False)
+        adjust_text(
+            texts,
+            force_text=(0.5, 0.5),
+            arrowprops=dict(arrowstyle="-", color="black", lw=0.5),
+            ax=ax,
+            verbose=False,
+        )
 
     # Threshold lines
-    ax.axvline(x_threshold, ls='--', color='black', alpha=0.5)
-    ax.axvline(-x_threshold, ls='--', color='black', alpha=0.5)
-    ax.axhline(threshold_fdr, ls='--', color='black', alpha=0.5)
+    ax.axvline(x_threshold, ls="--", color="black", alpha=0.5)
+    ax.axvline(-x_threshold, ls="--", color="black", alpha=0.5)
+    ax.axhline(threshold_fdr, ls="--", color="black", alpha=0.5)
 
     return ax
 
 
-
-def forest_plot(df, ax=None, n_top=20,
-                effect_col='logFC', q_col='qval', gene_col='gene'):
+def forest_plot(
+    df,
+    ax=None,
+    n_top=20,
+    effect_col=COLUMN_NAME_LOGFC,
+    q_col=COLUMN_NAME_QVAL,
+    gene_col=COLUMN_NAME_GENE,
+):
     """
-    Draw a horizontal forest plot of the strongest absolute logFC signals
+    Draw a horizontal forest plot of the strongest absolute logfc signals
 
     Parameters
     ----------
@@ -146,11 +204,11 @@ def forest_plot(df, ax=None, n_top=20,
         Axes to plot on
     n_top : int, default 20
         Number of top genes to show
-    effect_col : str, default 'logFC'
+    effect_col : str, default COLUMN_NAME_LOGFC
         Effect size column
-    q_col : str, default 'qval'
+    q_col : str, default COLUMN_NAME_QVAL
         Q-value column
-    gene_col : str, default 'gene'
+    gene_col : str, default COLUMN_NAME_GENE
         Gene name column
 
     Returns
@@ -162,54 +220,53 @@ def forest_plot(df, ax=None, n_top=20,
         _, ax = plt.subplots(figsize=(6, 8))
 
     # Rank and pick top
-    df['_score'] = np.abs(df[effect_col]) * -np.log10(df[q_col].clip(1e-300))
+    df["_score"] = np.abs(df[effect_col]) * -np.log10(df[q_col].clip(1e-300))
     df = df[np.abs(df[effect_col]) <= 10].copy()
-    top = (df.sort_values('_score', ascending=False)
-             .head(n_top)
-             .sort_values(effect_col))
+    top = df.sort_values("_score", ascending=False).head(n_top).sort_values(effect_col)
 
     y = np.arange(len(top))
-    colors = top[effect_col].map(lambda x: 'red' if x > 0 else 'blue')
+    colors = top[effect_col].map(lambda x: "red" if x > 0 else "blue")
 
     # 95% Wald CI: effect ± 1.96 * SE
-    se_x = top['se']
+    se_x = top[COLUMN_NAME_SE]
     lo = top[effect_col] - 1.96 * se_x
     hi = top[effect_col] + 1.96 * se_x
     xerr = np.vstack([top[effect_col] - lo, hi - top[effect_col]])
 
     # Plot
-    ax.errorbar(x=top[effect_col], y=y, xerr=xerr, fmt='none',
-               elinewidth=1, capsize=3, zorder=2)
+    ax.errorbar(
+        x=top[effect_col], y=y, xerr=xerr, fmt="none", elinewidth=1, capsize=3, zorder=2
+    )
     ax.scatter(top[effect_col], y, c=colors, s=25, zorder=2)
 
     # Gene labels & q-values
     xmax = ax.get_xlim()[1]
     for yi, gene, q in zip(y, top[gene_col], top[q_col]):
-        ax.text(xmax * 1.02, yi, f'{gene}  (q={q:.1e})',
-                va='center', fontsize=7)
+        ax.text(xmax * 1.02, yi, f"{gene}  (q={q:.1e})", va="center", fontsize=7)
 
-    ax.axvline(0, color='black', lw=1)
+    ax.axvline(0, color="black", lw=1)
     ax.set_yticks([])
-    ax.set_xlabel('log$_2$ Fold-Change')
+    ax.set_xlabel("log$_2$ Fold-Change")
     sns.despine(ax=ax, left=True)
-    ax.set_title(f'Top {n_top} DE genes', fontsize=9)
+    ax.set_title(f"Top {n_top} DE genes", fontsize=9)
     plt.tight_layout()
 
     return ax
 
 
-
-def generate_volcano_plots(results_dir: str,
-                           output_dir: Optional[str],
-                           n_motifs: int,
-                           adata,
-                           cell_types,
-                           all_genes,
-                           exclusion_mask,
-                           min_expression_frac: float,
-                           fdr_threshold: float,
-                           lfc_threshold: float,
-                           n_top_genes: int):
+def generate_volcano_plots(
+    results_dir: str,
+    output_dir: str | None,
+    n_motifs: int,
+    adata,
+    cell_types,
+    all_genes,
+    exclusion_mask,
+    min_expression_frac: float,
+    fdr_threshold: float,
+    lfc_threshold: float,
+    n_top_genes: int,
+):
     """Generate volcano plots
 
     Parameters
@@ -245,9 +302,11 @@ def generate_volcano_plots(results_dir: str,
     figures = []
 
     for motif_id in range(n_motifs):
-        files = sorted(glob.glob(os.path.join(
-            results_dir, f"motif_{motif_id}_celltype_*_de_results.csv"
-        )))
+        files = sorted(
+            glob.glob(
+                os.path.join(results_dir, f"motif_{motif_id}_celltype_*_de_results.csv")
+            )
+        )
         if not files:
             print(f"No results found for motif {motif_id}")
             continue
@@ -257,9 +316,11 @@ def generate_volcano_plots(results_dir: str,
 
         for ax, fp in zip(axes, files[:16]):
             df = pd.read_csv(fp)
-            ct = os.path.basename(fp)\
-                    .split(f"motif_{motif_id}_celltype_")[1]\
-                    .replace("_de_results.csv", "")
+            ct = (
+                os.path.basename(fp)
+                .split(f"motif_{motif_id}_celltype_")[1]
+                .replace("_de_results.csv", "")
+            )
 
             print(f"  Motif {motif_id}, {ct}: Original genes = {len(df)}")
 
@@ -270,20 +331,30 @@ def generate_volcano_plots(results_dir: str,
                 continue
 
             # Filter by expression and markers
-            df = filter_genes_for_plot(df, ct, adata, all_genes, exclusion_mask,
-                             cidx, min_expression_frac)
+            df = filter_genes_for_plot(
+                df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac
+            )
 
             # Compute -log10(q) with jitter
-            df['neg_log10_q'] = -np.log10(df['qval'].clip(1e-300))
-            m = df['neg_log10_q'] >= 300
+            df[COLUMN_NAME_NEG_LOG10_Q] = -np.log10(df[COLUMN_NAME_QVAL].clip(1e-300))
+            m = df[COLUMN_NAME_NEG_LOG10_Q] >= 300
             if m.any():
-                df.loc[m, 'neg_log10_q'] = 300 + np.random.normal(0, 15, m.sum())
+                df.loc[m, COLUMN_NAME_NEG_LOG10_Q] = 300 + np.random.normal(
+                    0, 15, m.sum()
+                )
 
             # Plot
             volcano_plot(
-                df, 'logFC', 'neg_log10_q', label_col='gene',
-                fdr=fdr_threshold, x_threshold=0.2,
-                marker='o', n_top=30, fontsize=5, ax=ax
+                df,
+                COLUMN_NAME_LOGFC,
+                COLUMN_NAME_NEG_LOG10_Q,
+                label_col=COLUMN_NAME_GENE,
+                fdr=fdr_threshold,
+                x_threshold=0.2,
+                marker="o",
+                n_top=30,
+                fontsize=5,
+                ax=ax,
             )
             ax.set_title(ct, fontsize=10, pad=5)
 
@@ -291,7 +362,9 @@ def generate_volcano_plots(results_dir: str,
         for j in range(len(files[:16]), 16):
             fig.delaxes(axes[j])
 
-        plt.suptitle(f"Motif {motif_id} Volcano Plots (marker genes filtered)", fontsize=14)
+        plt.suptitle(
+            f"Motif {motif_id} Volcano Plots (marker genes filtered)", fontsize=14
+        )
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         figures.append(fig)
@@ -309,15 +382,16 @@ def generate_volcano_plots(results_dir: str,
         return figures
 
 
-
-def generate_forest_plots(results_dir: str,
-                          output_dir: Optional[str],
-                          n_motifs: int,
-                          adata,
-                          cell_types,
-                          all_genes,
-                          exclusion_mask,
-                          min_expression_frac: float):
+def generate_forest_plots(
+    results_dir: str,
+    output_dir: str | None,
+    n_motifs: int,
+    adata,
+    cell_types,
+    all_genes,
+    exclusion_mask,
+    min_expression_frac: float,
+):
     """Generate forest plots
 
     Parameters
@@ -347,9 +421,11 @@ def generate_forest_plots(results_dir: str,
     figures = []
 
     for motif_id in range(n_motifs):
-        csv_paths = sorted(glob.glob(
-            os.path.join(results_dir, f"motif_{motif_id}_celltype_*_de_results.csv")
-        ))
+        csv_paths = sorted(
+            glob.glob(
+                os.path.join(results_dir, f"motif_{motif_id}_celltype_*_de_results.csv")
+            )
+        )
         if not csv_paths:
             continue
 
@@ -358,9 +434,11 @@ def generate_forest_plots(results_dir: str,
 
         for ax, csv_fp in zip(axes, csv_paths[:16]):
             df = pd.read_csv(csv_fp)
-            ct = os.path.basename(csv_fp)\
-                   .split(f"motif_{motif_id}_celltype_")[1]\
-                   .replace("_de_results.csv", "")
+            ct = (
+                os.path.basename(csv_fp)
+                .split(f"motif_{motif_id}_celltype_")[1]
+                .replace("_de_results.csv", "")
+            )
 
             try:
                 ct_idx = list(cell_types).index(ct)
@@ -368,8 +446,9 @@ def generate_forest_plots(results_dir: str,
                 continue
 
             # Filter genes
-            df = filter_genes_for_plot(df, ct, adata, all_genes, exclusion_mask,
-                             ct_idx, min_expression_frac)
+            df = filter_genes_for_plot(
+                df, ct, adata, all_genes, exclusion_mask, ct_idx, min_expression_frac
+            )
 
             forest_plot(df, ax=ax, n_top=30)
             ax.set_title(ct, fontsize=9)
@@ -378,15 +457,16 @@ def generate_forest_plots(results_dir: str,
         for j in range(len(csv_paths[:16]), 16):
             fig.delaxes(axes[j])
 
-        plt.suptitle(f"Motif {motif_id} – Forest plots (marker genes filtered)",
-                    fontsize=14)
+        plt.suptitle(
+            f"Motif {motif_id} – Forest plots (marker genes filtered)", fontsize=14
+        )
         plt.tight_layout(rect=[0, 0, 1, 0.965])
 
         figures.append(fig)
         print(f"Motif {motif_id} forest plots completed")
 
     if output_dir:
-        out_forest = os.path.join(output_dir, 'forest_plots_filtered.pdf')
+        out_forest = os.path.join(output_dir, "forest_plots_filtered.pdf")
         with PdfPages(out_forest) as pdf:
             for fig in figures:
                 pdf.savefig(fig)
@@ -397,13 +477,14 @@ def generate_forest_plots(results_dir: str,
         return figures
 
 
-
-def filter_genes_for_plot(df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac):
+def filter_genes_for_plot(
+    df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac
+):
     """Filter genes by expression and marker status"""
-    glm_genes_set = set(df['gene'])
+    glm_genes_set = set(df[COLUMN_NAME_GENE])
 
     # Expression filter
-    subX = adata[adata.obs['cell_type'] == ct].X
+    subX = adata[adata.obs[COLUMN_NAME_CELL_TYPE] == ct].X
     if sp.issparse(subX):
         expr_frac = np.asarray((subX > 0).sum(axis=0)).ravel() / subX.shape[0]
     else:
@@ -417,15 +498,14 @@ def filter_genes_for_plot(df, ct, adata, all_genes, exclusion_mask, cidx, min_ex
             if expr_frac[gene_idx] >= min_expression_frac:
                 genes_to_keep.append(gene)
 
-    df = df[df['gene'].isin(genes_to_keep)].copy()
+    df = df[df[COLUMN_NAME_GENE].isin(genes_to_keep)].copy()
     print(f"    After expression filter: {len(df)} genes")
 
     # Marker filter
     other = [i for i in range(len(exclusion_mask)) if i != cidx]
     drop_mask = exclusion_mask[other, :].any(axis=0)
     marker_genes_to_drop = set(all_genes[drop_mask]) & glm_genes_set
-    df = df[~df['gene'].isin(marker_genes_to_drop)]
+    df = df[~df[COLUMN_NAME_GENE].isin(marker_genes_to_drop)]
     print(f"    After marker filter: {len(df)} genes")
 
     return df
-

@@ -4,33 +4,40 @@ Poisson GLM differential expression analysis
 Based on scripts/04_poisson_glm.py
 """
 
-import anndata
-import pandas as pd
-import numpy as np
-import scipy.sparse as sp
-import scipy.stats as stats
-import scanpy as sc
 import gc
 import os
-from typing import Dict, List, Tuple, Optional
-from sklearn.linear_model import PoissonRegressor
-from scipy.stats import norm
-from statsmodels.stats.multitest import multipletests
-from joblib import Parallel, delayed
-from pathlib import Path
-from tqdm import tqdm
 import warnings
-warnings.filterwarnings('ignore')
+from pathlib import Path
 
-# Import plotting functions
+import anndata
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import scipy.sparse as sp
+import scipy.stats as stats
+from scipy.stats import norm
+from sklearn.linear_model import PoissonRegressor
+from statsmodels.stats.multitest import multipletests
+from tqdm import tqdm
+
+from alarmist.constants import (
+    COLUMN_NAME_GENE,
+    COLUMN_NAME_LOGFC,
+    COLUMN_NAME_MOTIF,
+    COLUMN_NAME_NEG_LOG10_Q,
+    COLUMN_NAME_PVAL,
+    COLUMN_NAME_QVAL,
+    COLUMN_NAME_SE,
+    COLUMN_NAME_SIGNIFICANT,
+)
 from alarmist.plotting import glm_plots
+
+warnings.filterwarnings("ignore")
 
 
 def spearman_corr_chunked(
-    X: np.ndarray,
-    Y: np.ndarray,
-    chunk_size: int = 1000
-) -> Tuple[np.ndarray, np.ndarray]:
+    X: np.ndarray, Y: np.ndarray, chunk_size: int = 1000
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute Spearman correlation between X (n_samples,) and each column of Y (n_samples, n_genes).
 
@@ -60,7 +67,7 @@ def spearman_corr_chunked(
     n_samples, n_genes = Y.shape
 
     # Convert X to ranks (handling ties with average)
-    X_ranks = stats.rankdata(X, method='average')
+    X_ranks = stats.rankdata(X, method="average")
 
     # Pre-allocate output arrays
     rho = np.zeros(n_genes)
@@ -74,15 +81,17 @@ def spearman_corr_chunked(
         # Convert Y chunk to ranks (column-wise)
         if sp.issparse(Y_chunk):
             Y_chunk = Y_chunk.toarray()
-        Y_ranks = np.apply_along_axis(lambda col: stats.rankdata(col, method='average'), 0, Y_chunk)
+        Y_ranks = np.apply_along_axis(
+            lambda col: stats.rankdata(col, method="average"), 0, Y_chunk
+        )
 
         # Compute Pearson correlation on ranks (= Spearman)
         # Standardize
         X_centered = X_ranks - X_ranks.mean()
         Y_centered = Y_ranks - Y_ranks.mean(axis=0, keepdims=True)
 
-        X_std = np.sqrt((X_centered ** 2).sum())
-        Y_std = np.sqrt((Y_centered ** 2).sum(axis=0))
+        X_std = np.sqrt((X_centered**2).sum())
+        Y_std = np.sqrt((Y_centered**2).sum(axis=0))
 
         # Avoid division by zero
         Y_std = np.where(Y_std == 0, 1, Y_std)
@@ -92,7 +101,7 @@ def spearman_corr_chunked(
 
         # Compute p-values using t-distribution approximation
         # t = r * sqrt((n-2) / (1-r^2))
-        t_stat = r_chunk * np.sqrt((n_samples - 2) / (1 - r_chunk ** 2 + 1e-10))
+        t_stat = r_chunk * np.sqrt((n_samples - 2) / (1 - r_chunk**2 + 1e-10))
         p_chunk = 2 * stats.t.sf(np.abs(t_stat), df=n_samples - 2)
 
         rho[start:end] = r_chunk
@@ -104,11 +113,11 @@ def spearman_corr_chunked(
 def spearman_prefilter_genes(
     X: np.ndarray,
     counts: np.ndarray,
-    gene_names: List[str],
-    candidate_genes: List[str],
+    gene_names: list[str],
+    candidate_genes: list[str],
     pval_threshold: float = 0.001,
-    chunk_size: int = 1000
-) -> List[str]:
+    chunk_size: int = 1000,
+) -> list[str]:
     """
     Pre-filter genes using Spearman correlation before running Poisson GLM.
 
@@ -151,12 +160,14 @@ def spearman_prefilter_genes(
 
     # Filter by p-value threshold
     passing_mask = pvals < pval_threshold
-    passing_genes = [candidate_genes[i] for i, passes in enumerate(passing_mask) if passes]
+    passing_genes = [
+        candidate_genes[i] for i, passes in enumerate(passing_mask) if passes
+    ]
 
     return passing_genes
 
 
-def load_bptf_results(results_dir: str) -> Dict:
+def load_bptf_results(results_dir: str) -> dict:
     """
     Load BPTF results from directory
 
@@ -177,16 +188,19 @@ def load_bptf_results(results_dir: str) -> Dict:
     results = {}
 
     # Load cell loadings (W matrix)
-    results['cell_loadings'] = np.load(os.path.join(results_dir, 'cell_loadings.npy'))
+    results["cell_loadings"] = np.load(os.path.join(results_dir, "cell_loadings.npy"))
 
-    print(f"✓ Loaded results with {results['cell_loadings'].shape[0]} cells, "
-          f"{results['cell_loadings'].shape[1]} motifs")
+    print(
+        f"✓ Loaded results with {results['cell_loadings'].shape[0]} cells, "
+        f"{results['cell_loadings'].shape[1]} motifs"
+    )
 
     return results
 
 
-def extract_lri_genes(lri_names: pd.Series, splitter: str = '|',
-                     gene_splitter: str = '_') -> set:
+def extract_lri_genes(
+    lri_names: pd.Series, splitter: str = "|", gene_splitter: str = "_"
+) -> set:
     """
     Extract unique ligand and receptor genes from LRI names
 
@@ -231,8 +245,12 @@ def extract_lri_genes(lri_names: pd.Series, splitter: str = '|',
         receptor_field = parts[3]
 
         # Split multi-gene ligand/receptor entries
-        ligand_genes = [g.strip() for g in ligand_field.split(gene_splitter) if g.strip()]
-        receptor_genes = [g.strip() for g in receptor_field.split(gene_splitter) if g.strip()]
+        ligand_genes = [
+            g.strip() for g in ligand_field.split(gene_splitter) if g.strip()
+        ]
+        receptor_genes = [
+            g.strip() for g in receptor_field.split(gene_splitter) if g.strip()
+        ]
 
         # Add to final set
         lri_genes.update(ligand_genes)
@@ -245,15 +263,15 @@ def extract_lri_genes(lri_names: pd.Series, splitter: str = '|',
 def run_univariate_de_sklearn_by_celltype(
     cell_df: pd.DataFrame,
     counts: np.ndarray,
-    gene_names: List[str],
-    non_lri_genes: List[str],
+    gene_names: list[str],
+    non_lri_genes: list[str],
     n_motifs: int,
-    output_dir: Optional[str] = None,
+    output_dir: str | None = None,
     alpha: float = 0.05,
     prefilter_spearman: bool = False,
     spearman_pval_threshold: float = 0.001,
-    spearman_chunk_size: int = 1000
-) -> Dict[str, pd.DataFrame]:
+    spearman_chunk_size: int = 1000,
+) -> dict[str, pd.DataFrame]:
     """
     Run univariate DE by motif AND cell type using scikit-learn's PoissonRegressor
 
@@ -294,27 +312,33 @@ def run_univariate_de_sklearn_by_celltype(
 
     print("Running univariate DE with scikit-learn PoissonRegressor (by cell type)...")
     if prefilter_spearman:
-        print(f"  Spearman pre-filtering enabled (p-value threshold: {spearman_pval_threshold})")
+        print(
+            f"  Spearman pre-filtering enabled (p-value threshold: {spearman_pval_threshold})"
+        )
 
     idx_map = {g: i for i, g in enumerate(gene_names)}
     de_results = {}
 
     # Iterate motifs
     for k in range(n_motifs):
-        for ct in cell_df['cell_type'].unique():
-            if ct == 'granulocyte':
-                print(f"Skipping cell type '{ct}' for motif {k} (granulocytes not included)")
+        for ct in cell_df["cell_type"].unique():
+            if ct == "granulocyte":
+                print(
+                    f"Skipping cell type '{ct}' for motif {k} (granulocytes not included)"
+                )
                 continue
 
-            subset_mask = (cell_df['cell_type'] == ct)
-            X_all = cell_df.loc[subset_mask, f'prog_{k}_loading'].values
+            subset_mask = cell_df["cell_type"] == ct
+            X_all = cell_df.loc[subset_mask, f"prog_{k}_loading"].values
             counts_all = counts[subset_mask, :]
 
             # Filter negative loadings
             valid = ~np.isnan(X_all) & (X_all > 0)
 
             if valid.sum() == 0:
-                print(f"motif {k}, cell_type '{ct}': no valid positive loadings, skipping")
+                print(
+                    f"motif {k}, cell_type '{ct}': no valid positive loadings, skipping"
+                )
                 continue
 
             X_log = np.log(X_all[valid])
@@ -334,17 +358,21 @@ def run_univariate_de_sklearn_by_celltype(
                     gene_names,
                     non_lri_genes,
                     pval_threshold=spearman_pval_threshold,
-                    chunk_size=spearman_chunk_size
+                    chunk_size=spearman_chunk_size,
                 )
-                print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells, "
-                      f"{len(genes_to_test)}/{len(non_lri_genes)} genes after Spearman filter")
+                print(
+                    f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells, "
+                    f"{len(genes_to_test)}/{len(non_lri_genes)} genes after Spearman filter"
+                )
             else:
                 genes_to_test = non_lri_genes
                 print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells")
 
             genes, coefs, pvals, ses = [], [], [], []
 
-            for gene in tqdm(genes_to_test, desc=f"  Motif {k}, {ct}", unit="gene", leave=False):
+            for gene in tqdm(
+                genes_to_test, desc=f"  Motif {k}, {ct}", unit="gene", leave=False
+            ):
                 gi = idx_map.get(gene)
                 if gi is None:
                     continue
@@ -353,13 +381,14 @@ def run_univariate_de_sklearn_by_celltype(
                 if sp.issparse(y):
                     y = y.toarray().ravel()
 
-                model = PoissonRegressor(alpha=0.0, fit_intercept=True,
-                                       max_iter=2000, tol=1e-6)
+                model = PoissonRegressor(
+                    alpha=0.0, fit_intercept=True, max_iter=2000, tol=1e-6
+                )
                 model.fit(X, y)
                 beta1 = model.coef_[0]
                 mu = model.predict(X)
-                I = np.sum(mu * (X.ravel()**2))
-                se = np.sqrt(1.0 / I) if I > 0 else np.nan
+                fisher_info = np.sum(mu * (X.ravel() ** 2))
+                se = np.sqrt(1.0 / fisher_info) if fisher_info > 0 else np.nan
                 z = beta1 / se if se and se > 0 else 0.0
                 pval = 2 * (1 - norm.cdf(abs(z)))
 
@@ -368,20 +397,24 @@ def run_univariate_de_sklearn_by_celltype(
                 pvals.append(pval)
                 ses.append(se)
 
-            df = pd.DataFrame({
-                'gene': genes,
-                'logFC': coefs,
-                'se': ses,
-                'pval': pvals
-            })
+            df = pd.DataFrame(
+                {
+                    COLUMN_NAME_GENE: genes,
+                    COLUMN_NAME_LOGFC: coefs,
+                    COLUMN_NAME_SE: ses,
+                    COLUMN_NAME_PVAL: pvals,
+                }
+            )
 
             if not df.empty:
-                reject, qvals, _, _ = multipletests(df['pval'], alpha=alpha, method='fdr_bh')
-                df['qval'] = qvals
-                df['significant'] = reject
-                df = df.sort_values('qval')
+                reject, qvals, _, _ = multipletests(
+                    df[COLUMN_NAME_PVAL], alpha=alpha, method="fdr_bh"
+                )
+                df[COLUMN_NAME_QVAL] = qvals
+                df[COLUMN_NAME_SIGNIFICANT] = reject
+                df = df.sort_values(COLUMN_NAME_QVAL)
 
-            key = f'motif_{k}_celltype_{ct}'
+            key = f"motif_{k}_celltype_{ct}"
             de_results[key] = df
 
             if output_dir:
@@ -396,10 +429,10 @@ def run_univariate_de_sklearn_by_celltype(
 
 def prepare_cell_data_from_adata(
     cell_loadings: np.ndarray,
-    adata: 'anndata.AnnData',
-    count_layer: str = 'X',
-    keep_sparse: bool = True
-) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
+    adata: "anndata.AnnData",
+    count_layer: str = "X",
+    keep_sparse: bool = True,
+) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Prepare cell data from already-loaded AnnData object
 
@@ -419,14 +452,15 @@ def prepare_cell_data_from_adata(
     tuple
         (cell_df, counts, gene_names)
     """
-    import gc
 
     print("=== Preparing Cell Data ===")
 
     # Validate alignment
     if cell_loadings.shape[0] != adata.shape[0]:
-        raise ValueError(f"Mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
-                        f"adata has {adata.shape[0]} cells")
+        raise ValueError(
+            f"Mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
+            f"adata has {adata.shape[0]} cells"
+        )
 
     print(f"✓ Cell loadings shape: {cell_loadings.shape}")
     print(f"✓ AnnData shape: {adata.shape}")
@@ -435,46 +469,54 @@ def prepare_cell_data_from_adata(
     n_cells, n_motifs = cell_loadings.shape
 
     # Initialize cell_df with adata metadata
-    cell_df = pd.DataFrame({
-        'cell_id': adata.obs.index.astype(str),
-        'cell_type': adata.obs['cell_type'] if 'cell_type' in adata.obs.columns else 'unknown'
-    })
+    cell_df = pd.DataFrame(
+        {
+            "cell_id": adata.obs.index.astype(str),
+            "cell_type": adata.obs["cell_type"]
+            if "cell_type" in adata.obs.columns
+            else "unknown",
+        }
+    )
 
     # Add cell-level motif loadings
     print(f"Adding {n_motifs} motif loadings...")
     for k in range(n_motifs):
-        cell_df[f'prog_{k}_loading'] = cell_loadings[:, k]
+        cell_df[f"prog_{k}_loading"] = cell_loadings[:, k]
 
     print(f"✓ Cell dataframe created: {cell_df.shape}")
 
     # Handle count matrix
     print(f"Processing count matrix from '{count_layer}'...")
 
-    if count_layer == 'X':
+    if count_layer == "X":
         counts = adata.X
         print("Using adata.X for analysis")
-    elif count_layer == 'raw':
+    elif count_layer == "raw":
         if adata.raw is None:
             raise ValueError("adata.raw is None but count_layer='raw' was specified")
         counts = adata.raw.X
         print("Using adata.raw.X (raw counts) for analysis")
-    elif count_layer.startswith('layers:'):
-        layer_name = count_layer.split(':', 1)[1]
+    elif count_layer.startswith("layers:"):
+        layer_name = count_layer.split(":", 1)[1]
         if layer_name not in adata.layers:
-            raise ValueError(f"Layer '{layer_name}' not found in adata.layers. "
-                           f"Available layers: {list(adata.layers.keys())}")
+            raise ValueError(
+                f"Layer '{layer_name}' not found in adata.layers. "
+                f"Available layers: {list(adata.layers.keys())}"
+            )
         counts = adata.layers[layer_name]
         print(f"Using adata.layers['{layer_name}'] for analysis")
     else:
-        raise ValueError(f"Invalid count_layer value: '{count_layer}'. "
-                       f"Use 'X', 'raw', or 'layers:NAME'")
+        raise ValueError(
+            f"Invalid count_layer value: '{count_layer}'. "
+            f"Use 'X', 'raw', or 'layers:NAME'"
+        )
 
     print(f"Count matrix shape: {counts.shape}")
     print(f"Count matrix type: {type(counts)}")
     print(f"Is sparse: {sp.issparse(counts)}")
 
     # Get gene names
-    if count_layer == 'raw' and adata.raw is not None:
+    if count_layer == "raw" and adata.raw is not None:
         gene_names = list(adata.raw.var_names)
         print(f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)")
     else:
@@ -495,10 +537,10 @@ def prepare_cell_data_from_adata(
 def prepare_cell_data_memory_efficient(
     cell_loadings: np.ndarray,
     adata_file: str,
-    count_layer: str = 'X',
+    count_layer: str = "X",
     cell_metadata_file: str = None,
-    keep_sparse: bool = True
-) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
+    keep_sparse: bool = True,
+) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Memory-efficient cell data preparation with sparse matrix support
 
@@ -542,8 +584,10 @@ def prepare_cell_data_memory_efficient(
 
     print("Verifying cell loadings alignment...")
     if cell_loadings.shape[0] != adata.shape[0]:
-        raise ValueError(f"Mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
-                        f"adata has {adata.shape[0]} cells")
+        raise ValueError(
+            f"Mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
+            f"adata has {adata.shape[0]} cells"
+        )
 
     print(f"✓ Cell loadings shape: {cell_loadings.shape}")
     print(f"✓ AnnData shape: {adata.shape}")
@@ -553,22 +597,26 @@ def prepare_cell_data_memory_efficient(
     n_cells, n_motifs = cell_loadings.shape
 
     # Initialize cell_df with adata metadata
-    cell_df = pd.DataFrame({
-        'cell_id': adata.obs.index.astype(str),
-        'cell_type': adata.obs['cell_type'] if 'cell_type' in adata.obs.columns else 'unknown'
-    })
+    cell_df = pd.DataFrame(
+        {
+            "cell_id": adata.obs.index.astype(str),
+            "cell_type": adata.obs["cell_type"]
+            if "cell_type" in adata.obs.columns
+            else "unknown",
+        }
+    )
 
     # Add additional cell metadata if provided
     if cell_metadata_file is not None:
         print(f"Loading additional cell metadata from {cell_metadata_file}...")
         cell_meta = pd.read_csv(cell_metadata_file)
-        if 'cell_type' in cell_meta.columns and 'cell_type' not in adata.obs.columns:
-            cell_df['cell_type'] = cell_meta['cell_type'].values
+        if "cell_type" in cell_meta.columns and "cell_type" not in adata.obs.columns:
+            cell_df["cell_type"] = cell_meta["cell_type"].values
 
     # Add cell-level motif loadings
     print("Adding cell-level motif loadings...")
     for k in range(n_motifs):
-        cell_df[f'prog_{k}_loading'] = cell_loadings[:, k]
+        cell_df[f"prog_{k}_loading"] = cell_loadings[:, k]
 
     print(f"✓ Added {n_motifs} motif loadings for {n_cells} cells")
     print("Memory after creating cell dataframe:")
@@ -577,31 +625,35 @@ def prepare_cell_data_memory_efficient(
     # Handle count matrix
     print(f"Processing count matrix from '{count_layer}'...")
 
-    if count_layer == 'X':
+    if count_layer == "X":
         counts = adata.X
         print("Using adata.X for analysis")
-    elif count_layer == 'raw':
+    elif count_layer == "raw":
         if adata.raw is None:
             raise ValueError("adata.raw is None but count_layer='raw' was specified")
         counts = adata.raw.X
         print("Using adata.raw.X (raw counts) for analysis")
-    elif count_layer.startswith('layers:'):
-        layer_name = count_layer.split(':', 1)[1]
+    elif count_layer.startswith("layers:"):
+        layer_name = count_layer.split(":", 1)[1]
         if layer_name not in adata.layers:
-            raise ValueError(f"Layer '{layer_name}' not found in adata.layers. "
-                           f"Available layers: {list(adata.layers.keys())}")
+            raise ValueError(
+                f"Layer '{layer_name}' not found in adata.layers. "
+                f"Available layers: {list(adata.layers.keys())}"
+            )
         counts = adata.layers[layer_name]
         print(f"Using adata.layers['{layer_name}'] for analysis")
     else:
-        raise ValueError(f"Invalid count_layer value: '{count_layer}'. "
-                       f"Use 'X', 'raw', or 'layers:NAME'")
+        raise ValueError(
+            f"Invalid count_layer value: '{count_layer}'. "
+            f"Use 'X', 'raw', or 'layers:NAME'"
+        )
 
     print(f"Count matrix shape: {counts.shape}")
     print(f"Count matrix type: {type(counts)}")
     print(f"Is sparse: {sp.issparse(counts)}")
 
     # Get gene names
-    if count_layer == 'raw' and adata.raw is not None:
+    if count_layer == "raw" and adata.raw is not None:
         gene_names = list(adata.raw.var_names)
         print(f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)")
     else:
@@ -644,8 +696,9 @@ def prepare_cell_data_memory_efficient(
 def check_memory_usage():
     """Check current memory usage"""
     try:
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         memory_mb = process.memory_info().rss / 1024 / 1024
@@ -660,7 +713,7 @@ def check_memory_usage():
         return None, None
 
 
-def load_glm_results(results_dir: str) -> Dict[str, pd.DataFrame]:
+def load_glm_results(results_dir: str) -> dict[str, pd.DataFrame]:
     """
     Load GLM DE results from saved CSV files.
 
@@ -690,7 +743,7 @@ def load_glm_results(results_dir: str) -> Dict[str, pd.DataFrame]:
     return glm_results
 
 
-def save_de_results(results: Dict, output_dir: str, mode: str = 'univariate'):
+def save_de_results(results: dict, output_dir: str, mode: str = "univariate"):
     """
     Save DE results to files
 
@@ -707,7 +760,7 @@ def save_de_results(results: Dict, output_dir: str, mode: str = 'univariate'):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    if mode == 'univariate':
+    if mode == "univariate":
         for motif, df in results.items():
             filename = f"{motif}_de_results.csv"
             filepath = os.path.join(output_dir, filename)
@@ -720,19 +773,28 @@ def save_de_results(results: Dict, output_dir: str, mode: str = 'univariate'):
         # Create long-format file
         long_data = []
         for motif, df in results.items():
-            motif_num = int(motif.split('_')[1])
+            motif_num = int(motif.split("_")[1])
             df_copy = df.copy()
-            df_copy['motif'] = motif_num
+            df_copy[COLUMN_NAME_MOTIF] = motif_num
             long_data.append(df_copy)
 
         long_df = pd.concat(long_data, ignore_index=True)
-        long_df = long_df[['gene', 'motif', 'logFC', 'pval', 'qval', 'significant']]
-        long_df = long_df.sort_values(['motif', 'qval'])
+        long_df = long_df[
+            [
+                COLUMN_NAME_GENE,
+                COLUMN_NAME_MOTIF,
+                COLUMN_NAME_LOGFC,
+                COLUMN_NAME_PVAL,
+                COLUMN_NAME_QVAL,
+                COLUMN_NAME_SIGNIFICANT,
+            ]
+        ]
+        long_df = long_df.sort_values([COLUMN_NAME_MOTIF, COLUMN_NAME_QVAL])
 
         long_df.to_csv(os.path.join(output_dir, "univariate_de_long.csv"), index=False)
         print("✓ Saved univariate_de_long.csv")
 
-    elif mode == 'multivariate':
+    elif mode == "multivariate":
         filename = "multivariate_de_results.csv"
         results.to_csv(os.path.join(output_dir, filename), index=False)
         print(f"✓ Saved {filename}")
@@ -740,17 +802,17 @@ def save_de_results(results: Dict, output_dir: str, mode: str = 'univariate'):
 
 def run_poisson_glm_analysis(
     cell_loadings: np.ndarray,
-    adata: 'anndata.AnnData',
+    adata: "anndata.AnnData",
     lri_column_names: pd.Series,
-    output_dir: Optional[str] = None,
-    count_layer: str = 'X',
-    splitter: str = '|',
+    output_dir: str | None = None,
+    count_layer: str = "X",
+    splitter: str = "|",
     alpha: float = 0.05,
     random_state: int = 42,
     keep_sparse: bool = False,
     prefilter_spearman: bool = False,
     spearman_pval_threshold: float = 0.001,
-    spearman_chunk_size: int = 1000
+    spearman_chunk_size: int = 1000,
 ):
     """
     Run Poisson GLM differential expression analysis
@@ -809,23 +871,25 @@ def run_poisson_glm_analysis(
     ...     spearman_pval_threshold=0.001
     ... )
     """
-    print("="*60)
+    print("=" * 60)
     print("BPTF DIFFERENTIAL EXPRESSION ANALYSIS")
-    print("="*60)
+    print("=" * 60)
     if output_dir:
         print(f"Output directory: {output_dir}")
     else:
         print("Output directory: None (results not saved)")
     print(f"Random seed: {random_state}")
-    print("="*60)
+    print("=" * 60)
 
     # Set random seed
     np.random.seed(random_state)
 
     # Validate inputs
     if cell_loadings.shape[0] != adata.shape[0]:
-        raise ValueError(f"Shape mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
-                        f"adata has {adata.shape[0]} cells")
+        raise ValueError(
+            f"Shape mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
+            f"adata has {adata.shape[0]} cells"
+        )
 
     print(f"Cell loadings shape: {cell_loadings.shape}")
     print(f"AnnData shape: {adata.shape}")
@@ -834,20 +898,19 @@ def run_poisson_glm_analysis(
     lri_genes = extract_lri_genes(lri_column_names, splitter)
 
     # Get non-LRI genes
-    if count_layer == 'raw' and adata.raw is not None:
+    if count_layer == "raw" and adata.raw is not None:
         all_genes = list(adata.raw.var_names)
     else:
         all_genes = list(adata.var_names)
 
     non_lri_genes = [g for g in all_genes if g not in lri_genes]
-    print(f"Analyzing {len(non_lri_genes)} non-LRI genes (excluding {len(lri_genes)} LRI genes)")
+    print(
+        f"Analyzing {len(non_lri_genes)} non-LRI genes (excluding {len(lri_genes)} LRI genes)"
+    )
 
     # Prepare cell data
     cell_df, counts, gene_names = prepare_cell_data_from_adata(
-        cell_loadings,
-        adata,
-        count_layer=count_layer,
-        keep_sparse=keep_sparse
+        cell_loadings, adata, count_layer=count_layer, keep_sparse=keep_sparse
     )
     n_motifs = cell_loadings.shape[1]
 
@@ -864,12 +927,12 @@ def run_poisson_glm_analysis(
         alpha=alpha,
         prefilter_spearman=prefilter_spearman,
         spearman_pval_threshold=spearman_pval_threshold,
-        spearman_chunk_size=spearman_chunk_size
+        spearman_chunk_size=spearman_chunk_size,
     )
 
     # Save results if output_dir provided
     if output_dir:
-        save_de_results(results, output_dir, mode='univariate')
+        save_de_results(results, output_dir, mode="univariate")
 
     print("✓ Analysis completed!")
 
@@ -881,8 +944,14 @@ def run_poisson_glm_analysis(
 # (From glm/analysis.py)
 # ============================================================================
 
-def differential_expression(X, in_mask, out_mask=None, min_in_group_fraction=0.0001,
-                           min_out_group_fraction=0.0001):
+
+def differential_expression(
+    X,
+    in_mask,
+    out_mask=None,
+    min_in_group_fraction=0.0001,
+    min_out_group_fraction=0.0001,
+):
     """
     Perform differential expression analysis using Mann-Whitney U test
 
@@ -932,7 +1001,9 @@ def differential_expression(X, in_mask, out_mask=None, min_in_group_fraction=0.0
     control_means = np.asarray(X_out.mean(axis=0)).ravel()
     target_means = np.asarray(X_in.mean(axis=0)).ravel()
     logfoldchanges = np.zeros(X.shape[1])
-    logfoldchanges[genes_mask] = np.log2(target_means.clip(1e-300)) - np.log2(control_means.clip(1e-300))
+    logfoldchanges[genes_mask] = np.log2(target_means.clip(1e-300)) - np.log2(
+        control_means.clip(1e-300)
+    )
 
     p_values = np.ones(X.shape[1])
     for j_idx, j in enumerate(np.where(genes_mask)[0]):
@@ -943,11 +1014,10 @@ def differential_expression(X, in_mask, out_mask=None, min_in_group_fraction=0.0
     p_adj = np.ones(X.shape[1])
     p_adj[genes_mask] = stats.false_discovery_control(p_values[genes_mask])
 
-    return {'p_values': p_values, 'p_adj': p_adj, 'logfoldchanges': logfoldchanges}
+    return {"p_values": p_values, "p_adj": p_adj, "logfoldchanges": logfoldchanges}
 
 
-
-def load_exclusion_mask(csv_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def load_exclusion_mask(csv_path: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Load previously saved exclusion mask from CSV
 
@@ -971,7 +1041,9 @@ def load_exclusion_mask(csv_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarr
     cell_types = np.array(exclusion_df.columns)
     exclusion_mask = exclusion_df.values.T  # Transpose to (n_cell_types, n_genes)
 
-    print(f"✓ Loaded exclusion mask for {len(cell_types)} cell types, {len(genes)} genes")
+    print(
+        f"✓ Loaded exclusion mask for {len(cell_types)} cell types, {len(genes)} genes"
+    )
     return cell_types, genes, exclusion_mask
 
 
@@ -980,7 +1052,7 @@ def compute_exclusion_mask(
     marker_lfc=1,
     marker_pvalue=1e-5,
     marker_subsample=50000,
-    output_dir: Optional[str] = None
+    output_dir: str | None = None,
 ):
     """
     Identify marker genes for each cell type to exclude from plots
@@ -1020,7 +1092,7 @@ def compute_exclusion_mask(
     """
     # Compute exclusion mask
     genes = np.array(adata.var_names)
-    cell_types = np.unique(adata.obs['cell_type'])
+    cell_types = np.unique(adata.obs["cell_type"])
     n_types = len(cell_types)
     exclusion_mask = np.zeros((n_types, len(genes)), dtype=bool)
 
@@ -1031,70 +1103,74 @@ def compute_exclusion_mask(
         print(f"Processing {cell_type} ({cidx+1}/{len(cell_types)})...")
 
         # Create boolean masks
-        in_mask = adata.obs['cell_type'] == cell_type
+        in_mask = adata.obs["cell_type"] == cell_type
         out_mask = ~in_mask
 
         # Subsample in-group if too large
         if in_mask.sum() > marker_subsample:
             tmp = np.zeros(len(in_mask), dtype=bool)
-            tmp[np.random.choice(
-                np.where(in_mask)[0],
-                size=marker_subsample, replace=False
-            )] = True
+            tmp[
+                np.random.choice(
+                    np.where(in_mask)[0], size=marker_subsample, replace=False
+                )
+            ] = True
             in_mask = tmp
 
         # Subsample out-group if too large
         if out_mask.sum() > marker_subsample:
             tmp = np.zeros(len(out_mask), dtype=bool)
-            tmp[np.random.choice(
-                np.where(out_mask)[0],
-                size=marker_subsample, replace=False
-            )] = True
+            tmp[
+                np.random.choice(
+                    np.where(out_mask)[0], size=marker_subsample, replace=False
+                )
+            ] = True
             out_mask = tmp
 
         print(f"  {in_mask.sum()} in-group cells, {out_mask.sum()} out-group cells")
 
         # Perform differential expression
-        deg = differential_expression(
-            adata.X, in_mask=in_mask, out_mask=out_mask
-        )
+        deg = differential_expression(adata.X, in_mask=in_mask, out_mask=out_mask)
 
         # Identify markers
-        marker_mask = (
-            (deg['p_adj'] <= marker_pvalue) &
-            (deg['logfoldchanges'] >= marker_lfc)
+        marker_mask = (deg["p_adj"] <= marker_pvalue) & (
+            deg["logfoldchanges"] >= marker_lfc
         )
         exclusion_mask[cidx, marker_mask] = True
         print(f"  Found {marker_mask.sum()} marker genes")
 
-    print(f"✓ Computed exclusion mask for {len(cell_types)} cell types, {len(genes)} genes")
+    print(
+        f"✓ Computed exclusion mask for {len(cell_types)} cell types, {len(genes)} genes"
+    )
 
     # Save if output_dir provided
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
-        csv_path = os.path.join(output_dir, 'exclusion_matrix.csv')
+        csv_path = os.path.join(output_dir, "exclusion_matrix.csv")
 
         exclusion_df = pd.DataFrame(
             exclusion_mask.T,  # Transpose to (n_genes, n_cell_types)
             index=genes,
-            columns=cell_types
+            columns=cell_types,
         )
         exclusion_df.to_csv(csv_path)
         print(f"✓ Saved exclusion matrix to: {csv_path}")
     else:
         print("\nℹ️  Tip: Consider saving the exclusion mask for reuse:")
-        print("   ct, genes, mask = al.compute_exclusion_mask(adata, output_dir='results/markers')")
-        print("   Then load later: pd.read_csv('results/markers/exclusion_matrix.csv', index_col=0)")
+        print(
+            "   ct, genes, mask = al.compute_exclusion_mask(adata, output_dir='results/markers')"
+        )
+        print(
+            "   Then load later: pd.read_csv('results/markers/exclusion_matrix.csv', index_col=0)"
+        )
 
     return cell_types, genes, exclusion_mask
 
 
-
 def analyze_glm_results(
-    adata: 'anndata.AnnData',
-    de_results: Dict[str, pd.DataFrame],
+    adata: "anndata.AnnData",
+    de_results: dict[str, pd.DataFrame],
     n_motifs: int,
-    output_dir: Optional[str] = None,
+    output_dir: str | None = None,
     min_expression_frac: float = 0.02,
     marker_lfc: float = 1.0,
     marker_pvalue: float = 1e-5,
@@ -1103,9 +1179,9 @@ def analyze_glm_results(
     lfc_threshold: float = 0.5,
     n_top_genes: int = 10,
     random_state: int = 42,
-    exclusion_mask: Optional[np.ndarray] = None,
-    cell_types: Optional[np.ndarray] = None,
-    all_genes: Optional[np.ndarray] = None
+    exclusion_mask: np.ndarray | None = None,
+    cell_types: np.ndarray | None = None,
+    all_genes: np.ndarray | None = None,
 ):
     """
     Analyze and visualize GLM differential expression results
@@ -1161,15 +1237,15 @@ def analyze_glm_results(
     """
     import os
 
-    print("="*60)
+    print("=" * 60)
     print("GLM RESULTS ANALYSIS AND VISUALIZATION")
-    print("="*60)
+    print("=" * 60)
     if output_dir:
         print(f"Output directory: {output_dir}")
     else:
         print("Output directory: None (plots not saved)")
     print(f"Number of motifs: {n_motifs}")
-    print("="*60)
+    print("=" * 60)
 
     # Set random seed
     np.random.seed(random_state)
@@ -1184,9 +1260,11 @@ def analyze_glm_results(
             adata,
             marker_lfc=marker_lfc,
             marker_pvalue=marker_pvalue,
-            marker_subsample=marker_subsample
+            marker_subsample=marker_subsample,
         )
-        print(f"Exclusion mask computed for {len(cell_types)} cell types and {len(all_genes)} genes")
+        print(
+            f"Exclusion mask computed for {len(cell_types)} cell types and {len(all_genes)} genes"
+        )
 
         # Save marker genes if output_dir provided
         if output_dir:
@@ -1195,7 +1273,9 @@ def analyze_glm_results(
     else:
         print("\nUsing provided exclusion mask...")
         if cell_types is None or all_genes is None:
-            raise ValueError("If exclusion_mask is provided, cell_types and all_genes must also be provided")
+            raise ValueError(
+                "If exclusion_mask is provided, cell_types and all_genes must also be provided"
+            )
         print(f"Exclusion mask shape: {exclusion_mask.shape}")
 
     # Convert de_results dict to files structure for plotting functions
@@ -1214,24 +1294,40 @@ def analyze_glm_results(
         # Generate volcano plots
         print("\nGenerating volcano plots...")
         glm_plots.generate_volcano_plots(
-            results_temp_dir, output_dir, n_motifs, adata, cell_types, all_genes,
-            exclusion_mask, min_expression_frac, fdr_threshold, lfc_threshold, n_top_genes
+            results_temp_dir,
+            output_dir,
+            n_motifs,
+            adata,
+            cell_types,
+            all_genes,
+            exclusion_mask,
+            min_expression_frac,
+            fdr_threshold,
+            lfc_threshold,
+            n_top_genes,
         )
 
         # Generate forest plots
         print("\nGenerating forest plots...")
         glm_plots.generate_forest_plots(
-            results_temp_dir, output_dir, n_motifs, adata, cell_types, all_genes,
-            exclusion_mask, min_expression_frac
+            results_temp_dir,
+            output_dir,
+            n_motifs,
+            adata,
+            cell_types,
+            all_genes,
+            exclusion_mask,
+            min_expression_frac,
         )
 
         # Clean up temporary files
         import shutil
+
         shutil.rmtree(results_temp_dir)
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("GLM RESULTS ANALYSIS COMPLETED SUCCESSFULLY!")
-        print("="*60)
+        print("=" * 60)
         print(f"Results saved to: {output_dir}")
     else:
         print("\nNo output directory specified - skipping plot generation")
@@ -1239,20 +1335,19 @@ def analyze_glm_results(
     return cell_types, all_genes, exclusion_mask
 
 
-
 def glm_volcano(
-    adata: 'anndata.AnnData',
-    de_results: Dict[str, pd.DataFrame],
+    adata: "anndata.AnnData",
+    de_results: dict[str, pd.DataFrame],
     cell_types: np.ndarray,
     all_genes: np.ndarray,
     exclusion_mask: np.ndarray,
-    motif_id: Optional[List[int]] = None,
-    output_dir: Optional[str] = None,
+    motif_id: list[int] | None = None,
+    output_dir: str | None = None,
     min_expression_frac: float = 0.02,
     fdr_threshold: float = 0.05,
     lfc_threshold: float = 0.2,
     n_top_genes: int = 30,
-    figsize: tuple = (16, 20)
+    figsize: tuple = (16, 20),
 ):
     """
     Generate volcano plots for GLM differential expression results
@@ -1305,12 +1400,15 @@ def glm_volcano(
     ... )
     """
     import os
+
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
     # Validation
     if motif_id is None and output_dir is None:
-        raise ValueError("output_dir is required when motif_id is None (generating all motifs as PDF)")
+        raise ValueError(
+            "output_dir is required when motif_id is None (generating all motifs as PDF)"
+        )
 
     # Determine which motifs to plot
     if motif_id is not None:
@@ -1318,9 +1416,13 @@ def glm_volcano(
         save_as_pdf = False
     else:
         # Extract all unique motif IDs from de_results keys
-        motifs_to_plot = sorted(set(
-            int(key.split('_')[1]) for key in de_results.keys() if key.startswith('motif_')
-        ))
+        motifs_to_plot = sorted(
+            set(
+                int(key.split("_")[1])
+                for key in de_results.keys()
+                if key.startswith("motif_")
+            )
+        )
         save_as_pdf = True
 
     print(f"Generating volcano plots for motifs: {motifs_to_plot}")
@@ -1334,8 +1436,17 @@ def glm_volcano(
             for mid in motifs_to_plot:
                 print(f"  Processing motif {mid}...")
                 fig = _create_volcano_figure_for_motif(
-                    mid, de_results, adata, cell_types, all_genes, exclusion_mask,
-                    min_expression_frac, fdr_threshold, lfc_threshold, n_top_genes, figsize
+                    mid,
+                    de_results,
+                    adata,
+                    cell_types,
+                    all_genes,
+                    exclusion_mask,
+                    min_expression_frac,
+                    fdr_threshold,
+                    lfc_threshold,
+                    n_top_genes,
+                    figsize,
                 )
                 pdf.savefig(fig)
                 plt.close(fig)
@@ -1348,14 +1459,25 @@ def glm_volcano(
         if len(motifs_to_plot) == 1:
             # Single motif - create one figure
             fig = _create_volcano_figure_for_motif(
-                motifs_to_plot[0], de_results, adata, cell_types, all_genes, exclusion_mask,
-                min_expression_frac, fdr_threshold, lfc_threshold, n_top_genes, figsize
+                motifs_to_plot[0],
+                de_results,
+                adata,
+                cell_types,
+                all_genes,
+                exclusion_mask,
+                min_expression_frac,
+                fdr_threshold,
+                lfc_threshold,
+                n_top_genes,
+                figsize,
             )
 
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
-                save_path = os.path.join(output_dir, f"volcano_motif_{motifs_to_plot[0]}.pdf")
-                fig.savefig(save_path, bbox_inches='tight')
+                save_path = os.path.join(
+                    output_dir, f"volcano_motif_{motifs_to_plot[0]}.pdf"
+                )
+                fig.savefig(save_path, bbox_inches="tight")
                 print(f"Volcano plot saved to: {save_path}")
 
             return fig
@@ -1365,14 +1487,26 @@ def glm_volcano(
             for mid in motifs_to_plot:
                 print(f"  Creating volcano plot for motif {mid}...")
                 fig = _create_volcano_figure_for_motif(
-                    mid, de_results, adata, cell_types, all_genes, exclusion_mask,
-                    min_expression_frac, fdr_threshold, lfc_threshold, n_top_genes, figsize
+                    mid,
+                    de_results,
+                    adata,
+                    cell_types,
+                    all_genes,
+                    exclusion_mask,
+                    min_expression_frac,
+                    fdr_threshold,
+                    lfc_threshold,
+                    n_top_genes,
+                    figsize,
                 )
                 figs.append(fig)
 
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
-                pdf_path = os.path.join(output_dir, f"volcano_motifs_{'_'.join(map(str, motifs_to_plot))}.pdf")
+                pdf_path = os.path.join(
+                    output_dir,
+                    f"volcano_motifs_{'_'.join(map(str, motifs_to_plot))}.pdf",
+                )
 
                 with PdfPages(pdf_path) as pdf:
                     for fig in figs:
@@ -1387,8 +1521,17 @@ def glm_volcano(
 
 
 def _create_volcano_figure_for_motif(
-    motif_id, de_results, adata, cell_types, all_genes, exclusion_mask,
-    min_expression_frac, fdr_threshold, lfc_threshold, n_top_genes, figsize
+    motif_id,
+    de_results,
+    adata,
+    cell_types,
+    all_genes,
+    exclusion_mask,
+    min_expression_frac,
+    fdr_threshold,
+    lfc_threshold,
+    n_top_genes,
+    figsize,
 ):
     """Helper to create volcano figure for a single motif"""
     import matplotlib.pyplot as plt
@@ -1397,10 +1540,14 @@ def _create_volcano_figure_for_motif(
     axes = axes.flatten()
 
     # Find all results for this motif
-    motif_files = {k: v for k, v in de_results.items() if k.startswith(f'motif_{motif_id}_celltype_')}
+    motif_files = {
+        k: v
+        for k, v in de_results.items()
+        if k.startswith(f"motif_{motif_id}_celltype_")
+    }
 
     for ax_idx, (key, df) in enumerate(sorted(motif_files.items())[:20]):
-        ct = key.split(f'motif_{motif_id}_celltype_')[1].replace('_de_results', '')
+        ct = key.split(f"motif_{motif_id}_celltype_")[1].replace("_de_results", "")
 
         try:
             cidx = list(cell_types).index(ct)
@@ -1409,25 +1556,34 @@ def _create_volcano_figure_for_motif(
             continue
 
         # Filter genes
-        df = _filter_genes_for_volcano(df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac)
+        df = _filter_genes_for_volcano(
+            df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac
+        )
 
         # Skip if no genes left or missing columns
-        if df.empty or 'qval' not in df.columns:
+        if df.empty or COLUMN_NAME_QVAL not in df.columns:
             axes[ax_idx].set_title(f"{ct} (no data)", fontsize=10, pad=5)
-            axes[ax_idx].axis('off')
+            axes[ax_idx].axis("off")
             continue
 
         # Compute -log10(q) with jitter
-        df['neg_log10_q'] = -np.log10(df['qval'].clip(1e-300))
-        m = df['neg_log10_q'] >= 300
+        df[COLUMN_NAME_NEG_LOG10_Q] = -np.log10(df[COLUMN_NAME_QVAL].clip(1e-300))
+        m = df[COLUMN_NAME_NEG_LOG10_Q] >= 300
         if m.any():
-            df.loc[m, 'neg_log10_q'] = 300 + np.random.normal(0, 15, m.sum())
+            df.loc[m, COLUMN_NAME_NEG_LOG10_Q] = 300 + np.random.normal(0, 15, m.sum())
 
         # Plot
         glm_plots.volcano_plot(
-            df, 'logFC', 'neg_log10_q', label_col='gene',
-            fdr=fdr_threshold, x_threshold=lfc_threshold,
-            marker='o', n_top=n_top_genes, fontsize=5, ax=axes[ax_idx]
+            df,
+            COLUMN_NAME_LOGFC,
+            COLUMN_NAME_NEG_LOG10_Q,
+            label_col=COLUMN_NAME_GENE,
+            fdr=fdr_threshold,
+            x_threshold=lfc_threshold,
+            marker="o",
+            n_top=n_top_genes,
+            fontsize=5,
+            ax=axes[ax_idx],
         )
         axes[ax_idx].set_title(ct, fontsize=10, pad=5)
 
@@ -1441,12 +1597,14 @@ def _create_volcano_figure_for_motif(
     return fig
 
 
-def _filter_genes_for_volcano(df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac):
+def _filter_genes_for_volcano(
+    df, ct, adata, all_genes, exclusion_mask, cidx, min_expression_frac
+):
     """Filter genes by expression and marker status"""
-    glm_genes_set = set(df['gene'])
+    glm_genes_set = set(df[COLUMN_NAME_GENE])
 
     # Expression filter
-    subX = adata[adata.obs['cell_type'] == ct].X
+    subX = adata[adata.obs["cell_type"] == ct].X
     if sp.issparse(subX):
         expr_frac = np.asarray((subX > 0).sum(axis=0)).ravel() / subX.shape[0]
     else:
@@ -1460,28 +1618,28 @@ def _filter_genes_for_volcano(df, ct, adata, all_genes, exclusion_mask, cidx, mi
             if expr_frac[gene_idx] >= min_expression_frac:
                 genes_to_keep.append(gene)
 
-    df = df[df['gene'].isin(genes_to_keep)].copy()
+    df = df[df[COLUMN_NAME_GENE].isin(genes_to_keep)].copy()
 
     # Marker filter
     other = [i for i in range(len(exclusion_mask)) if i != cidx]
     drop_mask = exclusion_mask[other, :].any(axis=0)
     marker_genes_to_drop = set(all_genes[drop_mask]) & glm_genes_set
-    df = df[~df['gene'].isin(marker_genes_to_drop)]
+    df = df[~df[COLUMN_NAME_GENE].isin(marker_genes_to_drop)]
 
     return df
 
 
 def glm_forest(
-    adata: 'anndata.AnnData',
-    de_results: Dict[str, pd.DataFrame],
+    adata: "anndata.AnnData",
+    de_results: dict[str, pd.DataFrame],
     cell_types: np.ndarray,
     all_genes: np.ndarray,
     exclusion_mask: np.ndarray,
-    motif_id: Optional[List[int]] = None,
-    output_dir: Optional[str] = None,
+    motif_id: list[int] | None = None,
+    output_dir: str | None = None,
     min_expression_frac: float = 0.02,
     n_top: int = 30,
-    figsize: tuple = (16, 24)
+    figsize: tuple = (16, 24),
 ):
     """
     Generate forest plots for GLM differential expression results
@@ -1530,12 +1688,15 @@ def glm_forest(
     ... )
     """
     import os
+
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
     # Validation
     if motif_id is None and output_dir is None:
-        raise ValueError("output_dir is required when motif_id is None (generating all motifs as PDF)")
+        raise ValueError(
+            "output_dir is required when motif_id is None (generating all motifs as PDF)"
+        )
 
     # Determine which motifs to plot
     if motif_id is not None:
@@ -1543,9 +1704,13 @@ def glm_forest(
         save_as_pdf = False
     else:
         # Extract all unique motif IDs from de_results keys
-        motifs_to_plot = sorted(set(
-            int(key.split('_')[1]) for key in de_results.keys() if key.startswith('motif_')
-        ))
+        motifs_to_plot = sorted(
+            set(
+                int(key.split("_")[1])
+                for key in de_results.keys()
+                if key.startswith("motif_")
+            )
+        )
         save_as_pdf = True
 
     print(f"Generating forest plots for motifs: {motifs_to_plot}")
@@ -1559,8 +1724,15 @@ def glm_forest(
             for mid in motifs_to_plot:
                 print(f"  Processing motif {mid}...")
                 fig = _create_forest_figure_for_motif(
-                    mid, de_results, adata, cell_types, all_genes, exclusion_mask,
-                    min_expression_frac, n_top, figsize
+                    mid,
+                    de_results,
+                    adata,
+                    cell_types,
+                    all_genes,
+                    exclusion_mask,
+                    min_expression_frac,
+                    n_top,
+                    figsize,
                 )
                 pdf.savefig(fig)
                 plt.close(fig)
@@ -1573,14 +1745,23 @@ def glm_forest(
         if len(motifs_to_plot) == 1:
             # Single motif - create one figure
             fig = _create_forest_figure_for_motif(
-                motifs_to_plot[0], de_results, adata, cell_types, all_genes, exclusion_mask,
-                min_expression_frac, n_top, figsize
+                motifs_to_plot[0],
+                de_results,
+                adata,
+                cell_types,
+                all_genes,
+                exclusion_mask,
+                min_expression_frac,
+                n_top,
+                figsize,
             )
 
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
-                save_path = os.path.join(output_dir, f"forest_motif_{motifs_to_plot[0]}.pdf")
-                fig.savefig(save_path, bbox_inches='tight')
+                save_path = os.path.join(
+                    output_dir, f"forest_motif_{motifs_to_plot[0]}.pdf"
+                )
+                fig.savefig(save_path, bbox_inches="tight")
                 print(f"Forest plot saved to: {save_path}")
 
             return fig
@@ -1590,14 +1771,24 @@ def glm_forest(
             for mid in motifs_to_plot:
                 print(f"  Creating forest plot for motif {mid}...")
                 fig = _create_forest_figure_for_motif(
-                    mid, de_results, adata, cell_types, all_genes, exclusion_mask,
-                    min_expression_frac, n_top, figsize
+                    mid,
+                    de_results,
+                    adata,
+                    cell_types,
+                    all_genes,
+                    exclusion_mask,
+                    min_expression_frac,
+                    n_top,
+                    figsize,
                 )
                 figs.append(fig)
 
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
-                pdf_path = os.path.join(output_dir, f"forest_motifs_{'_'.join(map(str, motifs_to_plot))}.pdf")
+                pdf_path = os.path.join(
+                    output_dir,
+                    f"forest_motifs_{'_'.join(map(str, motifs_to_plot))}.pdf",
+                )
 
                 with PdfPages(pdf_path) as pdf:
                     for fig in figs:
@@ -1612,8 +1803,15 @@ def glm_forest(
 
 
 def _create_forest_figure_for_motif(
-    motif_id, de_results, adata, cell_types, all_genes, exclusion_mask,
-    min_expression_frac, n_top, figsize
+    motif_id,
+    de_results,
+    adata,
+    cell_types,
+    all_genes,
+    exclusion_mask,
+    min_expression_frac,
+    n_top,
+    figsize,
 ):
     """Helper to create forest figure for a single motif"""
     import matplotlib.pyplot as plt
@@ -1622,10 +1820,14 @@ def _create_forest_figure_for_motif(
     axes = axes.flatten()
 
     # Find all results for this motif
-    motif_files = {k: v for k, v in de_results.items() if k.startswith(f'motif_{motif_id}_celltype_')}
+    motif_files = {
+        k: v
+        for k, v in de_results.items()
+        if k.startswith(f"motif_{motif_id}_celltype_")
+    }
 
     for ax_idx, (key, df) in enumerate(sorted(motif_files.items())[:20]):
-        ct = key.split(f'motif_{motif_id}_celltype_')[1].replace('_de_results', '')
+        ct = key.split(f"motif_{motif_id}_celltype_")[1].replace("_de_results", "")
 
         try:
             ct_idx = list(cell_types).index(ct)
@@ -1633,12 +1835,14 @@ def _create_forest_figure_for_motif(
             continue
 
         # Filter genes
-        df = _filter_genes_for_volcano(df, ct, adata, all_genes, exclusion_mask, ct_idx, min_expression_frac)
+        df = _filter_genes_for_volcano(
+            df, ct, adata, all_genes, exclusion_mask, ct_idx, min_expression_frac
+        )
 
         # Skip if no genes left or missing columns
-        if df.empty or 'qval' not in df.columns:
+        if df.empty or COLUMN_NAME_QVAL not in df.columns:
             axes[ax_idx].set_title(f"{ct} (no data)", fontsize=9)
-            axes[ax_idx].axis('off')
+            axes[ax_idx].axis("off")
             continue
 
         glm_plots.forest_plot(df, ax=axes[ax_idx], n_top=n_top)
@@ -1648,7 +1852,9 @@ def _create_forest_figure_for_motif(
     for j in range(len(motif_files), 20):
         fig.delaxes(axes[j])
 
-    plt.suptitle(f"Motif {motif_id} – Forest plots (marker genes filtered)", fontsize=14)
+    plt.suptitle(
+        f"Motif {motif_id} – Forest plots (marker genes filtered)", fontsize=14
+    )
     plt.tight_layout(rect=[0, 0, 1, 0.965])
 
     return fig
@@ -1664,34 +1870,29 @@ def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
         marker_genes = all_genes[exclusion_mask[i, :]]
 
         # Save individual cell type markers
-        marker_df = pd.DataFrame({
-            'gene': marker_genes,
-            'cell_type': cell_type
-        })
-        marker_file = os.path.join(marker_dir,
-                                   f"{cell_type.replace('/', '_').replace(' ', '_')}_markers.csv")
+        marker_df = pd.DataFrame({"gene": marker_genes, "cell_type": cell_type})
+        marker_file = os.path.join(
+            marker_dir, f"{cell_type.replace('/', '_').replace(' ', '_')}_markers.csv"
+        )
         marker_df.to_csv(marker_file, index=False)
 
-        marker_summary.append({
-            'cell_type': cell_type,
-            'n_marker_genes': len(marker_genes),
-            'marker_percentage': len(marker_genes) / len(all_genes) * 100
-        })
-        print(f"  {cell_type}: {len(marker_genes)} marker genes ({len(marker_genes)/len(all_genes)*100:.1f}%)")
+        marker_summary.append(
+            {
+                "cell_type": cell_type,
+                "n_marker_genes": len(marker_genes),
+                "marker_percentage": len(marker_genes) / len(all_genes) * 100,
+            }
+        )
+        print(
+            f"  {cell_type}: {len(marker_genes)} marker genes ({len(marker_genes)/len(all_genes)*100:.1f}%)"
+        )
 
     # Save summary
     summary_df = pd.DataFrame(marker_summary)
     summary_df.to_csv(os.path.join(marker_dir, "marker_genes_summary.csv"), index=False)
 
     # Save exclusion matrix
-    exclusion_df = pd.DataFrame(
-        exclusion_mask.T,
-        index=all_genes,
-        columns=cell_types
-    )
+    exclusion_df = pd.DataFrame(exclusion_mask.T, index=all_genes, columns=cell_types)
     exclusion_df.to_csv(os.path.join(marker_dir, "exclusion_matrix.csv"))
 
     print(f"Marker genes information saved to: {marker_dir}")
-
-
-

@@ -31,6 +31,7 @@ dependencies = [
     "liana>=0.1.0",
     "h5py",
     "pyarrow",
+    "pyyaml>=6.0",
     "tqdm>=4.60.0",
     "networkx",
     "pillow",
@@ -90,10 +91,12 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = [
+    "E501",  # Line too long (handled by formatter, but not always fixable)
     "N803",  # Argument name should be lowercase (common in ML: X for matrices)
     "N806",  # Variable name should be lowercase (common in ML: B, K, M for batch/dim)
     "N812",  # Lowercase imported as non-lowercase (common: torch.nn.functional as F)

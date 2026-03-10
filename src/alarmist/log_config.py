@@ -1,6 +1,7 @@
 """
 Logging configuration for alarmist package
 """
+
 import logging
 import sys
 
@@ -8,11 +9,11 @@ import sys
 def add_logging_args(parser):
     """Add logging arguments to argument parser"""
     parser.add_argument(
-        '--log-level',
+        "--log-level",
         type=str,
-        default='INFO',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Logging level'
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Logging level",
     )
     return parser
 
@@ -24,12 +25,10 @@ def configure_logging(args):
     # Configure root logger
     logging.basicConfig(
         level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
     )
 
     # Set level for alarmist logger
-    logger = logging.getLogger('alarmist')
+    logger = logging.getLogger("alarmist")
     logger.setLevel(log_level)

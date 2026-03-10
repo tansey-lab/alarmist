@@ -7,7 +7,7 @@ process ALARMIST_GLM {
         'ghcr.io/tansey-lab/alarmist:latest' }"
 
     input:
-    tuple val(meta), path(project_results)
+    tuple val(meta), path(project_results), path(patchify_results)
 
     output:
     tuple val(meta), path("${prefix}"), emit: results
@@ -22,6 +22,8 @@ process ALARMIST_GLM {
     """
     alarmist-glm \\
         --input-dir ${project_results} \\
+        --adata ${project_results}/projected_adata.h5ad \\
+        --patch-lri-dir ${patchify_results} \\
         --output-dir ${prefix} \\
         ${args}
 

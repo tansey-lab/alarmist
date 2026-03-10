@@ -1,6 +1,7 @@
 README.md
 pyproject.toml
 src/alarmist/__init__.py
+src/alarmist/constants.py
 src/alarmist/log_config.py
 src/alarmist.egg-info/PKG-INFO
 src/alarmist.egg-info/SOURCES.txt
@@ -42,4 +43,5 @@ src/alarmist/plotting/motif_plots.py
 src/alarmist/plotting/single_cell_plots.py
 src/alarmist/plotting/spatial_plots.py
 src/alarmist/plotting/utils.py
+tests/test_integration.py
 tests/test_lri.py

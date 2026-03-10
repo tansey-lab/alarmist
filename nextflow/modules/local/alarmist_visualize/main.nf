@@ -7,7 +7,7 @@ process ALARMIST_VISUALIZE {
         'ghcr.io/tansey-lab/alarmist:latest' }"
 
     input:
-    tuple val(meta), path(glm_results), path(bptf_results)
+    tuple val(meta), path(glm_results), path(bptf_results), path(project_results), path(patchify_results)
 
     output:
     tuple val(meta), path("${prefix}"), emit: results
@@ -23,6 +23,8 @@ process ALARMIST_VISUALIZE {
     alarmist-visualize \\
         --glm-dir ${glm_results} \\
         --bptf-dir ${bptf_results} \\
+        --project-dir ${project_results} \\
+        --patchify-dir ${patchify_results} \\
         --output-dir ${prefix} \\
         ${args}
 
@@ -36,8 +38,13 @@ process ALARMIST_VISUALIZE {
     prefix = task.ext.prefix ?: "${meta.id}_visualize"
     """
     mkdir -p ${prefix}
-    touch ${prefix}/volcano_plot.png
-    touch ${prefix}/motif_heatmap.png
+    touch ${prefix}/volcano_motif_0_mqc.png
+    touch ${prefix}/forest_motif_0_mqc.png
+    touch ${prefix}/motif_heatmap_mqc.png
+    touch ${prefix}/motif_distributions_mqc.png
+    touch ${prefix}/bptf_diagnostics_mqc.png
+    touch ${prefix}/spatial_celltypes_mqc.png
+    touch ${prefix}/spatial_motif_0_loading_mqc.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

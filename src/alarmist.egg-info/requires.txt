@@ -9,6 +9,7 @@ seaborn>=0.11.0
 liana>=0.1.0
 h5py
 pyarrow
+pyyaml>=6.0
 tqdm>=4.60.0
 networkx
 pillow

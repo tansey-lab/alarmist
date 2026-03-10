@@ -9,14 +9,10 @@ import sys
 def add_logging_args(parser):
     """Add logging-related arguments to parser"""
     parser.add_argument(
-        '-v', '--verbose',
-        action='store_true',
-        help='Enable verbose (DEBUG) logging'
+        "-v", "--verbose", action="store_true", help="Enable verbose (DEBUG) logging"
     )
     parser.add_argument(
-        '-q', '--quiet',
-        action='store_true',
-        help='Suppress all output except errors'
+        "-q", "--quiet", action="store_true", help="Suppress all output except errors"
     )
 
 
@@ -34,7 +30,7 @@ def configure_logging(args):
     logging.Logger
         Configured logger for alarmist
     """
-    logger = logging.getLogger('alarmist')
+    logger = logging.getLogger("alarmist")
 
     # Clear existing handlers
     logger.handlers = []
@@ -43,10 +39,10 @@ def configure_logging(args):
     handler = logging.StreamHandler(sys.stdout)
 
     # Set level based on flags
-    if hasattr(args, 'quiet') and args.quiet:
+    if hasattr(args, "quiet") and args.quiet:
         logger.setLevel(logging.ERROR)
         handler.setLevel(logging.ERROR)
-    elif hasattr(args, 'verbose') and args.verbose:
+    elif hasattr(args, "verbose") and args.verbose:
         logger.setLevel(logging.DEBUG)
         handler.setLevel(logging.DEBUG)
     else:
@@ -55,8 +51,8 @@ def configure_logging(args):
 
     # Create formatter
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
     handler.setFormatter(formatter)
 

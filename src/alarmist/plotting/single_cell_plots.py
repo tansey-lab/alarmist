@@ -2,26 +2,25 @@
 Single cell visualization functions for motif analysis
 """
 
+import os
+
+import anndata
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import scanpy as sc
-import anndata
-from typing import Optional, Dict, Tuple, Union, List
-import os
 
 from alarmist.plotting.colors import _get_colors_for_plotting
 
 
 def plot_motif_celltype_composition(
     df_tidy: pd.DataFrame,
-    color_map: Optional[Dict] = None,
+    color_map: dict | None = None,
     figsize: tuple = (12, 6),
-    ylabel: Optional[str] = None,
-    title: Optional[str] = None,
-    save_path: Optional[str] = None,
-    cell_type_col: str = "cell_type"
-) -> Tuple[plt.Figure, plt.Axes]:
+    ylabel: str | None = None,
+    title: str | None = None,
+    save_path: str | None = None,
+    cell_type_col: str = "cell_type",
+) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot stacked bar chart showing cell type composition for each motif.
 
@@ -64,7 +63,7 @@ def plot_motif_celltype_composition(
         columns=cell_type_col,
         values="weight",
         aggfunc="sum",
-        fill_value=0.0
+        fill_value=0.0,
     )
     wide = wide.loc[sorted(wide.index)]
 
@@ -112,10 +111,10 @@ def plot_motif_celltype_composition(
 def plot_motif_state_counts(
     df_counts: pd.DataFrame,
     figsize: tuple = (12, 6),
-    colors: list = ['#66c2a5', '#fc8d62'],
-    title: Optional[str] = None,
-    save_path: Optional[str] = None
-) -> Tuple[plt.Figure, plt.Axes]:
+    colors: list = ["#66c2a5", "#fc8d62"],
+    title: str | None = None,
+    save_path: str | None = None,
+) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot stacked bar chart of positive vs negative cells per motif.
 
@@ -151,12 +150,7 @@ def plot_motif_state_counts(
     """
     fig, ax = plt.subplots(figsize=figsize)
 
-    df_counts.plot(
-        kind='bar',
-        stacked=True,
-        ax=ax,
-        color=colors
-    )
+    df_counts.plot(kind="bar", stacked=True, ax=ax, color=colors)
 
     ax.set_xlabel("Motif")
     ax.set_ylabel("Number of cells")
@@ -178,9 +172,9 @@ def plot_motif_state_counts(
 def plot_positive_motifs_distribution(
     counts: pd.Series,
     figsize: tuple = (10, 4),
-    title: Optional[str] = None,
-    save_path: Optional[str] = None
-) -> Tuple[plt.Figure, plt.Axes]:
+    title: str | None = None,
+    save_path: str | None = None,
+) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot distribution of number of positive motifs per cell.
 
@@ -214,10 +208,10 @@ def plot_positive_motifs_distribution(
     """
     fig, ax = plt.subplots(figsize=figsize)
 
-    counts.plot(kind='bar', ax=ax)
+    counts.plot(kind="bar", ax=ax)
 
-    ax.set_xlabel('Number of positive motifs per cell')
-    ax.set_ylabel('Number of cells')
+    ax.set_xlabel("Number of positive motifs per cell")
+    ax.set_ylabel("Number of cells")
     if title:
         ax.set_title(title)
     else:
@@ -233,23 +227,23 @@ def plot_positive_motifs_distribution(
 
 
 def plot_motif_spatial(
-    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
-    motif_idx: Union[int, List[int]],
-    sample_column: Optional[str] = None,
-    cell_type_column: str = 'cell_type',
+    adata: anndata.AnnData | dict[str, anndata.AnnData],
+    motif_idx: int | list[int],
+    sample_column: str | None = None,
+    cell_type_column: str = "cell_type",
     n_cols: int = 4,
     figsize_per_panel: tuple = (6, 6),
     point_size: float = 0.2,
     color_by_celltype: bool = True,
-    ct_colors: Optional[Dict] = None,
-    positive_color: str = '#1f77b4',
-    negative_color: str = '#d3d3d3',
+    ct_colors: dict | None = None,
+    positive_color: str = "#1f77b4",
+    negative_color: str = "#d3d3d3",
     legend_top_n: int = 15,
     wspace: float = 0.3,
     hspace: float = 0.4,
-    output_dir: Optional[str] = None,
+    output_dir: str | None = None,
     intersect: bool = False,
-) -> Union[plt.Figure, List[plt.Figure]]:
+) -> plt.Figure | list[plt.Figure]:
     """
     Plot spatial distribution of motif ON/OFF states.
 
@@ -325,7 +319,7 @@ def plot_motif_spatial(
     import matplotlib.lines as mlines
 
     # Handle list of motifs
-    if isinstance(motif_idx, (list, tuple, range)):
+    if isinstance(motif_idx, list | tuple | range):
         motif_list = list(motif_idx)
 
         if not intersect:
@@ -374,7 +368,7 @@ def plot_motif_spatial(
             if isinstance(c, str):
                 return c
             elif isinstance(c, tuple) and len(c) >= 3:
-                return '#{:02x}{:02x}{:02x}'.format(int(c[0]*255), int(c[1]*255), int(c[2]*255))
+                return f"#{int(c[0]*255):02x}{int(c[1]*255):02x}{int(c[2]*255):02x}"
             return c
 
         ct_color_hex = {k: to_hex(v) for k, v in color_map.items()}
@@ -393,20 +387,20 @@ def plot_motif_spatial(
         mode_str = "merged"
     else:
         # Mode 1: Single AnnData
-        adata_dict = {'sample': adata}
+        adata_dict = {"sample": adata}
         mode_str = "single"
 
     n_samples = len(adata_dict)
 
     # Determine if we're in intersect mode (list of motifs with intersect=True)
-    intersect_mode = intersect and isinstance(motif_idx, (list, tuple, range))
+    intersect_mode = intersect and isinstance(motif_idx, list | tuple | range)
     if intersect_mode:
         motif_list = list(motif_idx)
-        state_cols = [f'motif_{k}_state' for k in motif_list]
+        state_cols = [f"motif_{k}_state" for k in motif_list]
         motif_label = f"Motifs {','.join(map(str, motif_list))} (intersection)"
         motif_label_short = f"motifs_{'_'.join(map(str, motif_list))}_intersect"
     else:
-        state_cols = [f'motif_{motif_idx}_state']
+        state_cols = [f"motif_{motif_idx}_state"]
         motif_label = f"Motif {motif_idx}"
         motif_label_short = f"motif_{motif_idx}"
 
@@ -422,9 +416,7 @@ def plot_motif_spatial(
     fig_height = figsize_per_panel[1] * n_rows
 
     fig, axes = plt.subplots(
-        n_rows, n_cols_actual,
-        figsize=(fig_width, fig_height),
-        squeeze=False
+        n_rows, n_cols_actual, figsize=(fig_width, fig_height), squeeze=False
     )
     axes = axes.flatten()
 
@@ -435,16 +427,16 @@ def plot_motif_spatial(
 
     for i, (sample_id, ad) in enumerate(adata_dict.items()):
         ax = axes[i]
-        coords = ad.obsm['spatial'][:, :2]
+        coords = ad.obsm["spatial"][:, :2]
 
         # Check if all required state columns exist
         missing_cols = [col for col in state_cols if col not in ad.obs.columns]
         if missing_cols:
             if intersect_mode:
-                ax.set_title(f'{sample_id}\n(missing motif data)')
+                ax.set_title(f"{sample_id}\n(missing motif data)")
             else:
-                ax.set_title(f'{sample_id}\n(no motif {motif_idx} data)')
-            ax.axis('off')
+                ax.set_title(f"{sample_id}\n(no motif {motif_idx} data)")
+            ax.axis("off")
             continue
 
         # Compute positive mask (intersection if multiple motifs)
@@ -452,9 +444,9 @@ def plot_motif_spatial(
             # Intersection: positive for ALL motifs
             mask_pos = np.ones(len(ad), dtype=bool)
             for col in state_cols:
-                mask_pos &= (ad.obs[col].astype(str) == 'positive').values
+                mask_pos &= (ad.obs[col].astype(str) == "positive").values
         else:
-            mask_pos = (ad.obs[state_cols[0]].astype(str) == 'positive').values
+            mask_pos = (ad.obs[state_cols[0]].astype(str) == "positive").values
 
         mask_neg = ~mask_pos
         n_pos = mask_pos.sum()
@@ -470,8 +462,8 @@ def plot_motif_spatial(
             c=negative_color,
             s=point_size,
             alpha=0.95,
-            marker='o',
-            edgecolors='none',
+            marker="o",
+            edgecolors="none",
             linewidths=0,
             rasterized=True,
         )
@@ -480,7 +472,9 @@ def plot_motif_spatial(
         if mask_pos.any():
             if color_by_celltype:
                 ct = ad.obs[cell_type_column].astype(str).values
-                pos_colors = np.array([ct_color_hex.get(x, "#000000") for x in ct])[mask_pos]
+                pos_colors = np.array([ct_color_hex.get(x, "#000000") for x in ct])[
+                    mask_pos
+                ]
 
                 # Count cell types for legend
                 for ct_name in ct[mask_pos]:
@@ -494,26 +488,26 @@ def plot_motif_spatial(
                 c=pos_colors,
                 s=point_size * 6,
                 alpha=1,
-                marker='o',
-                edgecolors='none',
+                marker="o",
+                edgecolors="none",
                 linewidths=0,
                 rasterized=True,
-                zorder=3
+                zorder=3,
             )
 
         # Title
         if mode_str == "single":
-            ax.set_title(f'{motif_label}: {frac_pos:.1f}% ON')
+            ax.set_title(f"{motif_label}: {frac_pos:.1f}% ON")
         else:
-            ax.set_title(f'{sample_id}\n{frac_pos:.1f}% ON')
+            ax.set_title(f"{sample_id}\n{frac_pos:.1f}% ON")
 
-        ax.set_aspect('equal')
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
+        ax.set_aspect("equal")
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
 
     # Hide unused axes
     for j in range(i + 1, len(axes)):
-        axes[j].axis('off')
+        axes[j].axis("off")
 
     # Create figure-level legend on the right
     total_cells = total_pos + total_neg
@@ -522,41 +516,72 @@ def plot_motif_spatial(
     handles = []
 
     # ON/OFF handles
-    off_handle = mlines.Line2D([], [], color=negative_color, marker='o',
-                               linestyle='None', markersize=8, label=f'OFF (n={total_neg:,})')
+    off_handle = mlines.Line2D(
+        [],
+        [],
+        color=negative_color,
+        marker="o",
+        linestyle="None",
+        markersize=8,
+        label=f"OFF (n={total_neg:,})",
+    )
     handles.append(off_handle)
 
     if color_by_celltype:
-        on_handle = mlines.Line2D([], [], color='black', marker='o',
-                                  linestyle='None', markersize=8,
-                                  label=f'ON (n={total_pos:,}, {total_frac:.1f}%)')
+        on_handle = mlines.Line2D(
+            [],
+            [],
+            color="black",
+            marker="o",
+            linestyle="None",
+            markersize=8,
+            label=f"ON (n={total_pos:,}, {total_frac:.1f}%)",
+        )
         handles.append(on_handle)
 
         # Add separator
-        handles.append(mlines.Line2D([], [], color='none', label=''))
+        handles.append(mlines.Line2D([], [], color="none", label=""))
 
         # Cell type handles (top N)
         sorted_cts = sorted(all_ct_counts.items(), key=lambda x: -x[1])
         for ct_name, ct_count in sorted_cts[:legend_top_n]:
-            ct_handle = mlines.Line2D([], [], color=ct_color_hex.get(ct_name, "#000000"),
-                                      marker='o', linestyle='None', markersize=8, label=ct_name)
+            ct_handle = mlines.Line2D(
+                [],
+                [],
+                color=ct_color_hex.get(ct_name, "#000000"),
+                marker="o",
+                linestyle="None",
+                markersize=8,
+                label=ct_name,
+            )
             handles.append(ct_handle)
     else:
-        on_handle = mlines.Line2D([], [], color=positive_color, marker='o',
-                                  linestyle='None', markersize=8,
-                                  label=f'ON (n={total_pos:,}, {total_frac:.1f}%)')
+        on_handle = mlines.Line2D(
+            [],
+            [],
+            color=positive_color,
+            marker="o",
+            linestyle="None",
+            markersize=8,
+            label=f"ON (n={total_pos:,}, {total_frac:.1f}%)",
+        )
         handles.append(on_handle)
 
     # Place legend outside on the right
-    fig.legend(handles=handles, loc='center left', bbox_to_anchor=(1.0, 0.5),
-               fontsize=10, frameon=False,
-               title="Cell type" if color_by_celltype else "State")
+    fig.legend(
+        handles=handles,
+        loc="center left",
+        bbox_to_anchor=(1.0, 0.5),
+        fontsize=10,
+        frameon=False,
+        title="Cell type" if color_by_celltype else "State",
+    )
 
     # Suptitle
     if color_by_celltype:
-        suptitle = f'{motif_label} Spatial Distribution (ON colored by cell type)'
+        suptitle = f"{motif_label} Spatial Distribution (ON colored by cell type)"
     else:
-        suptitle = f'{motif_label} Spatial Distribution'
+        suptitle = f"{motif_label} Spatial Distribution"
 
     if mode_str != "single":
         plt.suptitle(suptitle, fontsize=14)
@@ -567,25 +592,25 @@ def plot_motif_spatial(
     # Save
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, f'{motif_label_short}_spatial.png')
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        save_path = os.path.join(output_dir, f"{motif_label_short}_spatial.png")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
         print(f"Saved: {save_path}")
 
     return fig
 
 
 def analyze_motif_celltype_composition(
-    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
+    adata: anndata.AnnData | dict[str, anndata.AnnData],
     cell_loadings: np.ndarray,
-    cell_type_column: str = 'cell_type',
-    sample_column: Optional[str] = None,
+    cell_type_column: str = "cell_type",
+    sample_column: str | None = None,
     normalize: bool = True,
-    ct_colors: Optional[Dict] = None,
+    ct_colors: dict | None = None,
     figsize: tuple = (12, 6),
-    title: Optional[str] = None,
-    output_dir: Optional[str] = None,
-    motif_ids: Optional[List[int]] = None
-) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
+    title: str | None = None,
+    output_dir: str | None = None,
+    motif_ids: list[int] | None = None,
+) -> tuple[plt.Figure, plt.Axes, pd.DataFrame]:
     """
     Analyze and visualize cell type composition for each motif.
 
@@ -667,22 +692,22 @@ def analyze_motif_celltype_composition(
         cell_meta_dfs = []
         for sample_id, ad in adata.items():
             df = ad.obs[[cell_type_column]].copy()
-            df.columns = ['cell_type']
-            df['sample_id'] = sample_id
+            df.columns = ["cell_type"]
+            df["sample_id"] = sample_id
             cell_meta_dfs.append(df)
         cell_meta_df = pd.concat(cell_meta_dfs, axis=0).reset_index(drop=True)
         mode_str = f"Multi-sample ({len(adata)} samples)"
     elif sample_column is not None:
         # Mode 3: Merged AnnData with sample_column
         cell_meta_df = adata.obs[[cell_type_column, sample_column]].copy()
-        cell_meta_df.columns = ['cell_type', 'sample_id']
+        cell_meta_df.columns = ["cell_type", "sample_id"]
         cell_meta_df = cell_meta_df.reset_index(drop=True)
-        n_samples = cell_meta_df['sample_id'].nunique()
+        n_samples = cell_meta_df["sample_id"].nunique()
         mode_str = f"Multi-sample ({n_samples} samples, merged)"
     else:
         # Mode 1: Single AnnData
         cell_meta_df = adata.obs[[cell_type_column]].copy()
-        cell_meta_df.columns = ['cell_type']
+        cell_meta_df.columns = ["cell_type"]
         cell_meta_df = cell_meta_df.reset_index(drop=True)
         mode_str = "Single sample"
 
@@ -693,7 +718,7 @@ def analyze_motif_celltype_composition(
             f"cell_loadings rows ({cell_loadings.shape[0]})"
         )
 
-    print(f"Analyzing cell type composition per motif...")
+    print("Analyzing cell type composition per motif...")
     print(f"  Mode: {mode_str}")
     print(f"  Cells: {len(cell_meta_df):,}")
     n_motifs_total = cell_loadings.shape[1]
@@ -704,14 +729,12 @@ def analyze_motif_celltype_composition(
 
     # Compute weighted cell types for each motif
     tidy_df = weighted_celltypes_by_motif(
-        cell_loadings=cell_loadings,
-        metadata_df=cell_meta_df,
-        normalize=normalize
+        cell_loadings=cell_loadings, metadata_df=cell_meta_df, normalize=normalize
     )
 
     # Filter to selected motifs if specified
     if motif_ids is not None:
-        tidy_df = tidy_df[tidy_df['motif'].isin(motif_ids)].copy()
+        tidy_df = tidy_df[tidy_df["motif"].isin(motif_ids)].copy()
         if tidy_df.empty:
             raise ValueError(
                 f"No motifs found matching motif_ids={motif_ids}. "
@@ -720,41 +743,40 @@ def analyze_motif_celltype_composition(
         print(f"  Selected motifs: {sorted(motif_ids)}")
 
     # Get colors
-    unique_celltypes = tidy_df['cell_type'].unique().tolist()
+    unique_celltypes = tidy_df["cell_type"].unique().tolist()
     color_map = _get_colors_for_plotting(
-        ct_colors=ct_colors,
-        df_celltypes=unique_celltypes
+        ct_colors=ct_colors, df_celltypes=unique_celltypes
     )
 
     # Determine save path
     save_path = None
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, 'motif_celltype_weighted.png')
+        save_path = os.path.join(output_dir, "motif_celltype_weighted.png")
 
     # Plot
     fig, ax = plot_motif_celltype_composition(
         tidy_df,
         color_map=color_map,
         figsize=figsize,
-        title=title if title else f"Cell Type Composition (Weighted)",
-        save_path=save_path
+        title=title if title else "Cell Type Composition (Weighted)",
+        save_path=save_path,
     )
 
     return fig, ax, tidy_df
 
 
 def analyze_motif_celltype_counts(
-    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
-    cell_type_column: str = 'cell_type',
-    sample_column: Optional[str] = None,
+    adata: anndata.AnnData | dict[str, anndata.AnnData],
+    cell_type_column: str = "cell_type",
+    sample_column: str | None = None,
     normalize: bool = True,
-    ct_colors: Optional[Dict] = None,
+    ct_colors: dict | None = None,
     figsize: tuple = (12, 6),
-    title: Optional[str] = None,
-    output_dir: Optional[str] = None,
-    motif_ids: Optional[List[int]] = None
-) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
+    title: str | None = None,
+    output_dir: str | None = None,
+    motif_ids: list[int] | None = None,
+) -> tuple[plt.Figure, plt.Axes, pd.DataFrame]:
     """
     Analyze and visualize cell type composition based on positive cell counts.
 
@@ -829,7 +851,7 @@ def analyze_motif_celltype_counts(
         obs_list = []
         for sample_id, ad in adata.items():
             obs_df = ad.obs.copy()
-            obs_df['_sample_id'] = sample_id
+            obs_df["_sample_id"] = sample_id
             obs_list.append(obs_df)
         combined_obs = pd.concat(obs_list, axis=0)
         mode_str = f"Multi-sample ({len(adata)} samples)"
@@ -845,7 +867,11 @@ def analyze_motif_celltype_counts(
         n_cells = len(combined_obs)
 
     # Find all motif state columns
-    state_cols = [c for c in combined_obs.columns if c.startswith('motif_') and c.endswith('_state')]
+    state_cols = [
+        c
+        for c in combined_obs.columns
+        if c.startswith("motif_") and c.endswith("_state")
+    ]
     if not state_cols:
         raise ValueError(
             "No motif state columns found in adata.obs. "
@@ -856,7 +882,7 @@ def analyze_motif_celltype_counts(
     motif_indices = []
     for col in state_cols:
         # Extract number from 'motif_X_state'
-        parts = col.replace('motif_', '').replace('_state', '')
+        parts = col.replace("motif_", "").replace("_state", "")
         try:
             motif_indices.append(int(parts))
         except ValueError:
@@ -874,7 +900,7 @@ def analyze_motif_celltype_counts(
                 f"Available motifs: {sorted([int(c.replace('motif_', '').replace('_state', '')) for c in state_cols])}"
             )
 
-    print(f"Analyzing cell type counts for positive cells...")
+    print("Analyzing cell type counts for positive cells...")
     print(f"  Mode: {mode_str}")
     print(f"  Cells: {n_cells:,}")
     if motif_ids is not None:
@@ -887,19 +913,19 @@ def analyze_motif_celltype_counts(
     cell_types = combined_obs[cell_type_column].astype(str).values
 
     for k in motif_indices:
-        state_col = f'motif_{k}_state'
+        state_col = f"motif_{k}_state"
         if state_col not in combined_obs.columns:
             continue
 
         states = combined_obs[state_col].astype(str).values
-        mask_pos = (states == 'positive')
+        mask_pos = states == "positive"
 
         # Count cell types among positive cells
         pos_celltypes = cell_types[mask_pos]
         ct_counts = pd.Series(pos_celltypes).value_counts()
 
         for ct, count in ct_counts.items():
-            records.append({'motif': k, 'cell_type': ct, 'weight': count})
+            records.append({"motif": k, "cell_type": ct, "weight": count})
 
     if not records:
         raise ValueError("No positive cells found for any motif.")
@@ -908,24 +934,23 @@ def analyze_motif_celltype_counts(
 
     # Normalize per motif if requested
     if normalize:
-        totals = tidy_df.groupby('motif')['weight'].transform('sum')
-        tidy_df['weight'] = tidy_df['weight'] / totals
+        totals = tidy_df.groupby("motif")["weight"].transform("sum")
+        tidy_df["weight"] = tidy_df["weight"] / totals
 
     if motif_ids is not None:
         print(f"  Selected motifs: {sorted(motif_indices)}")
 
     # Get colors
-    unique_celltypes = tidy_df['cell_type'].unique().tolist()
+    unique_celltypes = tidy_df["cell_type"].unique().tolist()
     color_map = _get_colors_for_plotting(
-        ct_colors=ct_colors,
-        df_celltypes=unique_celltypes
+        ct_colors=ct_colors, df_celltypes=unique_celltypes
     )
 
     # Determine save path
     save_path = None
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, 'motif_celltype_counts.png')
+        save_path = os.path.join(output_dir, "motif_celltype_counts.png")
 
     # Determine ylabel based on normalization
     ylabel = "Fraction of positive cells" if normalize else "Number of positive cells"
@@ -936,21 +961,21 @@ def analyze_motif_celltype_counts(
         color_map=color_map,
         figsize=figsize,
         ylabel=ylabel,
-        title=title if title else f"Cell Type Composition (Positive Counts)",
-        save_path=save_path
+        title=title if title else "Cell Type Composition (Positive Counts)",
+        save_path=save_path,
     )
 
     return fig, ax, tidy_df
 
 
 def analyze_motif_state_counts(
-    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
-    sample_column: Optional[str] = None,
+    adata: anndata.AnnData | dict[str, anndata.AnnData],
+    sample_column: str | None = None,
     figsize: tuple = (12, 6),
-    colors: list = ['#66c2a5', '#fc8d62'],
-    title: Optional[str] = None,
-    output_dir: Optional[str] = None
-) -> Tuple[plt.Figure, plt.Axes, pd.DataFrame]:
+    colors: list = ["#66c2a5", "#fc8d62"],
+    title: str | None = None,
+    output_dir: str | None = None,
+) -> tuple[plt.Figure, plt.Axes, pd.DataFrame]:
     """
     Analyze and visualize ON/OFF state counts for each motif.
 
@@ -1011,7 +1036,7 @@ def analyze_motif_state_counts(
         mode_str = "Single sample"
         n_cells = adata.n_obs
 
-    print(f"Computing ON/OFF statistics...")
+    print("Computing ON/OFF statistics...")
     print(f"  Mode: {mode_str}")
     print(f"  Cells: {n_cells:,}")
 
@@ -1024,7 +1049,7 @@ def analyze_motif_state_counts(
     save_path = None
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, 'motif_state_counts.png')
+        save_path = os.path.join(output_dir, "motif_state_counts.png")
 
     # Plot
     fig, ax = plot_motif_state_counts(
@@ -1032,7 +1057,7 @@ def analyze_motif_state_counts(
         figsize=figsize,
         colors=colors,
         title=title if title else f"Positive vs Negative Cells per Motif ({mode_str})",
-        save_path=save_path
+        save_path=save_path,
     )
 
     return fig, ax, counts_df

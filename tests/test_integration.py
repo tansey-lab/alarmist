@@ -1,7 +1,8 @@
 """Integration tests using ovarian cancer sample data."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Path to test fixture
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ovarian_cancer_sample.h5ad"
@@ -10,8 +11,9 @@ FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ovarian_cancer_sample.h5ad"
 @pytest.fixture
 def sample_adata():
     """Load the test AnnData fixture."""
-    import scanpy as sc
-    return sc.read_h5ad(FIXTURE_PATH)
+    import anndata
+
+    return anndata.read_h5ad(FIXTURE_PATH)
 
 
 @pytest.mark.skipif(not FIXTURE_PATH.exists(), reason="Test fixture not available")
@@ -22,10 +24,7 @@ class TestPatchLRIAnalyzer:
         """Test analyzer initialization."""
         from alarmist import PatchLRIAnalyzer
 
-        analyzer = PatchLRIAnalyzer(
-            patch_size=50.0,
-            resource_name='cellchatdb'
-        )
+        analyzer = PatchLRIAnalyzer(patch_size=50.0, resource_name="cellchatdb")
         assert analyzer.patch_size == 50.0
 
     def test_prepare_lri_database(self, sample_adata):
@@ -49,12 +48,14 @@ class TestDataLoading:
     def test_adata_structure(self, sample_adata):
         """Verify test data has required structure."""
         # Check spatial coordinates
-        assert 'spatial' in sample_adata.obsm, "Missing spatial coordinates"
+        assert "spatial" in sample_adata.obsm, "Missing spatial coordinates"
 
         # Check cell type/label column exists (various naming conventions)
-        cell_type_cols = ['cell_type', 'cell_labels', 'celltype', 'annotation']
+        cell_type_cols = ["cell_type", "cell_labels", "celltype", "annotation"]
         has_cell_type = any(col in sample_adata.obs.columns for col in cell_type_cols)
-        assert has_cell_type, f"Missing cell type column. Found: {list(sample_adata.obs.columns)}"
+        assert (
+            has_cell_type
+        ), f"Missing cell type column. Found: {list(sample_adata.obs.columns)}"
 
         # Check we have cells and genes
         assert sample_adata.n_obs > 0, "No cells in data"

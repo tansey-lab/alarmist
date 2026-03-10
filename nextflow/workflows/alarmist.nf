@@ -44,21 +44,32 @@ workflow ALARMIST {
     ch_versions = ch_versions.mix(ALARMIST_BPTF.out.versions.first())
 
     // Step 3: Project - Project single cells onto motifs
-    // Combine original adata with BPTF results
+    // Combine original adata with patchify and BPTF results
     ch_project_input = ch_samplesheet
+        .join(ALARMIST_PATCHIFY.out.results)
         .join(ALARMIST_BPTF.out.results)
     ALARMIST_PROJECT(ch_project_input)
     ch_versions = ch_versions.mix(ALARMIST_PROJECT.out.versions.first())
 
     // Step 4: GLM - Run statistical analysis
-    ALARMIST_GLM(ALARMIST_PROJECT.out.results)
+    ch_glm_input = ALARMIST_PROJECT.out.results
+        .join(ALARMIST_PATCHIFY.out.results)
+    ALARMIST_GLM(ch_glm_input)
     ch_versions = ch_versions.mix(ALARMIST_GLM.out.versions.first())
 
     // Step 5: Visualize - Generate plots
+    // Join all results: glm, bptf, project, patchify
     ch_visualize_input = ALARMIST_GLM.out.results
         .join(ALARMIST_BPTF.out.results)
+        .join(ALARMIST_PROJECT.out.results)
+        .join(ALARMIST_PATCHIFY.out.results)
     ALARMIST_VISUALIZE(ch_visualize_input)
     ch_versions = ch_versions.mix(ALARMIST_VISUALIZE.out.versions.first())
+
+    // Collect visualize plots for MultiQC
+    ch_multiqc_files = ch_multiqc_files.mix(
+        ALARMIST_VISUALIZE.out.results.map { meta, path -> path }
+    )
 
     //
     // Collate and save software versions

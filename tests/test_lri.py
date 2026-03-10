@@ -1,19 +1,19 @@
 """Tests for ligand-receptor interaction module."""
 
-import pytest
 import pandas as pd
-import numpy as np
 
 
 def test_import():
     """Test that alarmist can be imported."""
     import alarmist
+
     assert alarmist is not None
 
 
 def test_lri_import():
     """Test that core LRI module can be imported."""
     from alarmist.core import lri
+
     assert lri is not None
 
 
@@ -23,11 +23,13 @@ def test_extract_lri_genes():
 
     # Test with Series input
     # Expected format: sender_celltype | receiver_celltype | ligand | receptor | mode
-    lri_names = pd.Series([
-        "CellTypeA|CellTypeB|LIGAND1|RECEPTOR1|secreted",
-        "CellTypeA|CellTypeC|LIGAND2|RECEPTOR2|secreted",
-        "CellTypeB|CellTypeC|LIGAND3|RECEPTOR3|contact",
-    ])
+    lri_names = pd.Series(
+        [
+            "CellTypeA|CellTypeB|LIGAND1|RECEPTOR1|secreted",
+            "CellTypeA|CellTypeC|LIGAND2|RECEPTOR2|secreted",
+            "CellTypeB|CellTypeC|LIGAND3|RECEPTOR3|contact",
+        ]
+    )
 
     genes = extract_lri_genes(lri_names)
     assert "LIGAND1" in genes

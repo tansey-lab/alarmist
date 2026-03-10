@@ -13,8 +13,8 @@ from alarmist.cli import common, log_config
 def get_parser():
     """Create argument parser for glm command"""
     parser = argparse.ArgumentParser(
-        prog='alarmist-glm',
-        description='Run Poisson GLM differential expression analysis on BPTF motifs',
+        prog="alarmist-glm",
+        description="Run Poisson GLM differential expression analysis on BPTF motifs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -24,61 +24,53 @@ Examples:
   # With condition column for differential analysis
   alarmist-glm --input-dir results/project --adata data.h5ad --output-dir results/glm \\
       --condition-column treatment
-        """
+        """,
     )
 
     # Input/output arguments
     parser.add_argument(
-        '--input-dir', '-i',
+        "--input-dir",
+        "-i",
         type=str,
         required=True,
-        help='Directory containing projection results (from alarmist-project) or BPTF results'
+        help="Directory containing projection results (from alarmist-project)",
     )
     parser.add_argument(
-        '--adata',
-        type=str,
-        required=True,
-        help='Path to AnnData h5ad file'
+        "--adata", type=str, required=True, help="Path to AnnData h5ad file"
     )
     common.add_output_arguments(parser)
 
     # Analysis parameters
     parser.add_argument(
-        '--bptf-dir',
+        "--patch-lri-dir",
         type=str,
         default=None,
-        help='BPTF results directory (defaults to input-dir/../bptf)'
+        help="Patch-LRI results directory (defaults to input-dir/../patchify)",
     )
     parser.add_argument(
-        '--patch-lri-dir',
+        "--condition-column",
         type=str,
         default=None,
-        help='Patch-LRI results directory (defaults to input-dir/../patch_lri)'
+        help="Column in adata.obs for condition/group comparison",
     )
     parser.add_argument(
-        '--condition-column',
+        "--covariates",
         type=str,
+        nargs="+",
         default=None,
-        help='Column in adata.obs for condition/group comparison'
+        help="Additional covariate columns from adata.obs",
     )
     parser.add_argument(
-        '--covariates',
+        "--count-layer",
         type=str,
-        nargs='+',
-        default=None,
-        help='Additional covariate columns from adata.obs'
+        default="X",
+        help='Which layer to use: "X", "raw", or "layers:NAME" (default: X)',
     )
     parser.add_argument(
-        '--count-layer',
-        type=str,
-        default='layers:counts',
-        help='Which layer to use: "X", "raw", or "layers:NAME" (default: layers:counts)'
-    )
-    parser.add_argument(
-        '--alpha',
+        "--alpha",
         type=float,
         default=0.05,
-        help='FDR significance threshold (default: 0.05)'
+        help="FDR significance threshold (default: 0.05)",
     )
 
     common.add_seed_argument(parser)
@@ -98,53 +90,61 @@ def main():
     # Import heavy dependencies only after argument parsing
     logger.info("Loading dependencies...")
     from pathlib import Path
+
     import numpy as np
+    import pandas as pd
+    import scanpy as sc
+
     import alarmist as al
 
     # Set random seed
     np.random.seed(args.seed)
     logger.info(f"Random seed: {args.seed}")
 
-    # Determine directory structure
+    # Load input directory
     input_path = Path(args.input_dir)
 
-    # Try to find BPTF directory
-    if args.bptf_dir:
-        bptf_dir = args.bptf_dir
-    else:
-        # Try common locations
-        candidates = [
-            input_path / 'bptf',
-            input_path.parent / 'bptf',
-            input_path,
-        ]
-        bptf_dir = None
-        for c in candidates:
-            if (c / 'lri_factors.parquet').exists() or (c / 'model.pkl').exists():
-                bptf_dir = str(c)
-                break
-        if bptf_dir is None:
-            bptf_dir = str(input_path)
-    logger.info(f"Using BPTF directory: {bptf_dir}")
+    # Load cell loadings from project results
+    cell_loadings_file = input_path / "cell_motif_loadings.parquet"
+    if not cell_loadings_file.exists():
+        logger.error(f"Cell loadings not found: {cell_loadings_file}")
+        sys.exit(1)
 
-    # Try to find patch-LRI directory
+    logger.info(f"Loading cell loadings from {cell_loadings_file}")
+    cell_loadings_df = pd.read_parquet(cell_loadings_file)
+    cell_loadings = cell_loadings_df.values
+    logger.info(f"Loaded cell loadings shape: {cell_loadings.shape}")
+
+    # Load AnnData
+    logger.info(f"Loading AnnData from {args.adata}")
+    adata = sc.read_h5ad(args.adata)
+    logger.info(f"Loaded {adata.n_obs} cells, {adata.n_vars} genes")
+
+    # Find patch-LRI directory for column names
     if args.patch_lri_dir:
-        patch_lri_dir = args.patch_lri_dir
+        patch_lri_dir = Path(args.patch_lri_dir)
     else:
         candidates = [
-            input_path / 'patch_lri',
-            input_path.parent / 'patch_lri',
-            input_path / 'patchify',
-            input_path.parent / 'patchify',
+            input_path.parent / "patchify",
+            input_path.parent / "patch_lri",
+            input_path / "patchify",
+            input_path / "patch_lri",
         ]
         patch_lri_dir = None
         for c in candidates:
-            if c.exists():
-                patch_lri_dir = str(c)
+            if c.exists() and (c / "patch_lri_columns.csv").exists():
+                patch_lri_dir = c
                 break
         if patch_lri_dir is None:
-            patch_lri_dir = str(input_path)
-    logger.info(f"Using patch-LRI directory: {patch_lri_dir}")
+            logger.error("Could not find patch-LRI directory with column names")
+            sys.exit(1)
+
+    # Load LRI column names
+    lri_columns_file = patch_lri_dir / "patch_lri_columns.csv"
+    logger.info(f"Loading LRI column names from {lri_columns_file}")
+    lri_columns_df = pd.read_csv(lri_columns_file)
+    lri_column_names = lri_columns_df["column_name"]
+    logger.info(f"Loaded {len(lri_column_names)} LRI columns")
 
     # Create output directory
     output_dir = Path(args.output_dir)
@@ -153,18 +153,17 @@ def main():
     # Run GLM analysis
     logger.info("Running Poisson GLM analysis...")
     try:
-        results = al.run_poisson_glm_analysis(
-            bptf_dir=bptf_dir,
-            patch_lri_dir=patch_lri_dir,
-            data_file=args.adata,
+        al.run_poisson_glm_analysis(
+            cell_loadings=cell_loadings,
+            adata=adata,
+            lri_column_names=lri_column_names,
             output_dir=str(output_dir),
             count_layer=args.count_layer,
             alpha=args.alpha,
             random_state=args.seed,
         )
 
-        logger.info(f"GLM analysis complete")
-        logger.info(f"Total motif-celltype combinations analyzed: {len(results)}")
+        logger.info("GLM analysis complete")
         logger.info(f"Results saved to: {args.output_dir}")
 
     except Exception as e:

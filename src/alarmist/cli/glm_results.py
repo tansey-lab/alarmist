@@ -17,66 +17,86 @@ logger = logging.getLogger(__name__)
 def get_parser():
     """Create argument parser"""
     parser = argparse.ArgumentParser(
-        description='GLM results analysis and visualization'
+        description="GLM results analysis and visualization"
     )
 
     # Input/Output
-    parser.add_argument('--data-file',
-                       required=True,
-                       help='Input h5ad file with expression data')
-    parser.add_argument('--results-dir',
-                       required=True,
-                       help='Directory containing GLM results CSVs')
-    parser.add_argument('--output-dir',
-                       required=True,
-                       help='Output directory for plots and analysis')
+    parser.add_argument(
+        "--data-file", required=True, help="Input h5ad file with expression data"
+    )
+    parser.add_argument(
+        "--results-dir", required=True, help="Directory containing GLM results CSVs"
+    )
+    parser.add_argument(
+        "--output-dir", required=True, help="Output directory for plots and analysis"
+    )
 
     # Analysis parameters
-    parser.add_argument('--n-motifs',
-                       type=int,
-                       default=20,
-                       help='Number of motifs to analyze (default: 20)')
-    parser.add_argument('--min-expression-frac',
-                       type=float,
-                       default=0.02,
-                       help='Minimum expression fraction in cell type (default: 0.02)')
+    parser.add_argument(
+        "--n-motifs",
+        type=int,
+        default=20,
+        help="Number of motifs to analyze (default: 20)",
+    )
+    parser.add_argument(
+        "--min-expression-frac",
+        type=float,
+        default=0.02,
+        help="Minimum expression fraction in cell type (default: 0.02)",
+    )
 
     # Marker gene parameters
-    parser.add_argument('--marker-lfc',
-                       type=float,
-                       default=1.0,
-                       help='Log fold change threshold for marker genes (default: 1.0)')
-    parser.add_argument('--marker-pvalue',
-                       type=float,
-                       default=1e-5,
-                       help='P-value threshold for marker genes (default: 1e-5)')
-    parser.add_argument('--marker-subsample',
-                       type=int,
-                       default=50000,
-                       help='Maximum cells to use for marker gene detection (default: 50000)')
-    parser.add_argument('--force-recompute-markers',
-                       action='store_true',
-                       help='Force recompute marker genes even if cached')
+    parser.add_argument(
+        "--marker-lfc",
+        type=float,
+        default=1.0,
+        help="Log fold change threshold for marker genes (default: 1.0)",
+    )
+    parser.add_argument(
+        "--marker-pvalue",
+        type=float,
+        default=1e-5,
+        help="P-value threshold for marker genes (default: 1e-5)",
+    )
+    parser.add_argument(
+        "--marker-subsample",
+        type=int,
+        default=50000,
+        help="Maximum cells to use for marker gene detection (default: 50000)",
+    )
+    parser.add_argument(
+        "--force-recompute-markers",
+        action="store_true",
+        help="Force recompute marker genes even if cached",
+    )
 
     # Plotting parameters
-    parser.add_argument('--fdr-threshold',
-                       type=float,
-                       default=0.05,
-                       help='FDR threshold for volcano plots (default: 0.05)')
-    parser.add_argument('--lfc-threshold',
-                       type=float,
-                       default=0.5,
-                       help='Log fold change threshold for volcano plots (default: 0.5)')
-    parser.add_argument('--n-top-genes',
-                       type=int,
-                       default=10,
-                       help='Number of top genes to label in volcano plots (default: 10)')
+    parser.add_argument(
+        "--fdr-threshold",
+        type=float,
+        default=0.05,
+        help="FDR threshold for volcano plots (default: 0.05)",
+    )
+    parser.add_argument(
+        "--lfc-threshold",
+        type=float,
+        default=0.5,
+        help="Log fold change threshold for volcano plots (default: 0.5)",
+    )
+    parser.add_argument(
+        "--n-top-genes",
+        type=int,
+        default=10,
+        help="Number of top genes to label in volcano plots (default: 10)",
+    )
 
     # Random seed
-    parser.add_argument('--random-state',
-                       type=int,
-                       default=42,
-                       help='Random seed for reproducibility (default: 42)')
+    parser.add_argument(
+        "--random-state",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42)",
+    )
 
     # Logging
     log_config.add_logging_args(parser)
@@ -89,15 +109,15 @@ def main():
     args = get_parser().parse_args()
     log_config.configure_logging(args)
 
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info("GLM RESULTS ANALYSIS AND VISUALIZATION")
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info(f"Data file: {args.data_file}")
     logger.info(f"Results directory: {args.results_dir}")
     logger.info(f"Output directory: {args.output_dir}")
     logger.info(f"Number of motifs: {args.n_motifs}")
     logger.info(f"Random seed: {args.random_state}")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     # Run analysis
     try:
@@ -114,12 +134,12 @@ def main():
             lfc_threshold=args.lfc_threshold,
             n_top_genes=args.n_top_genes,
             random_state=args.random_state,
-            force_recompute_markers=args.force_recompute_markers
+            force_recompute_markers=args.force_recompute_markers,
         )
 
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info("ANALYSIS COMPLETED SUCCESSFULLY!")
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info(f"Cell types analyzed: {len(cell_types)}")
         logger.info(f"Total genes: {len(all_genes)}")
         logger.info(f"Results saved to: {args.output_dir}")
@@ -129,5 +149,5 @@ def main():
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

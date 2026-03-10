@@ -1,0 +1,2 @@
+sample_id,adata_path
+ovarian_sample,/Users/quinnj2/Code/alarmist/tests/fixtures/ovarian_cancer_sample.h5ad

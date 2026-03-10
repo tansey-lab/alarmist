@@ -2,31 +2,33 @@
 BPTF (Bayesian Poisson Tensor Factorization) wrapper functions
 """
 
+import os
+import warnings
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from pathlib import Path
-import warnings
-import os
-from typing import Optional, Tuple, Dict
 
 try:
     import sparse
-    from bptf import BPTF, save_bptf, load_bptf
+    from bptf import BPTF, save_bptf
+
     BPTF_AVAILABLE = True
 except ImportError:
     BPTF_AVAILABLE = False
     warnings.warn("BPTF not available. Install from: https://github.com/aschein/bptf")
 
-from alarmist.plotting import (
-    add_lri_components,
-    annotate_pathways)
+from alarmist.plotting import add_lri_components, annotate_pathways
 
-def run_bptf(mat: sp.spmatrix,
-             n_components: int = 15,
-             max_iter: int = 10000,
-             verbose: bool = True,
-             random_state: int = 0) -> object:
+
+def run_bptf(
+    mat: sp.spmatrix,
+    n_components: int = 15,
+    max_iter: int = 10000,
+    verbose: bool = True,
+    random_state: int = 0,
+) -> object:
     """
     Run BPTF matrix factorization
 
@@ -48,7 +50,9 @@ def run_bptf(mat: sp.spmatrix,
     model : BPTF model object
     """
     if not BPTF_AVAILABLE:
-        raise ImportError("BPTF not available. Install: pip install git+https://github.com/aschein/bptf.git")
+        raise ImportError(
+            "BPTF not available. Install: pip install git+https://github.com/aschein/bptf.git"
+        )
 
     # Convert to sparse.COO format
     if isinstance(mat, sp.spmatrix):
@@ -64,7 +68,7 @@ def run_bptf(mat: sp.spmatrix,
     return model
 
 
-def extract_factors(model: object) -> Tuple[np.ndarray, np.ndarray]:
+def extract_factors(model: object) -> tuple[np.ndarray, np.ndarray]:
     """
     Extract factor matrices from BPTF model
 
@@ -82,27 +86,29 @@ def extract_factors(model: object) -> Tuple[np.ndarray, np.ndarray]:
     return patch_loadings, lri_factors
 
 
-def get_top_motifs(patch_loadings: np.ndarray, top_k: int = 10) -> Dict:
+def get_top_motifs(patch_loadings: np.ndarray, top_k: int = 10) -> dict:
     """Get top motifs by total activity"""
     motif_activities = patch_loadings.sum(axis=0)
     top_indices = np.argsort(motif_activities)[::-1][:top_k]
 
     return {
-        'motif_indices': top_indices.tolist(),
-        'activities': motif_activities[top_indices].tolist(),
-        'activity_fractions': (motif_activities[top_indices] / motif_activities.sum()).tolist()
+        "motif_indices": top_indices.tolist(),
+        "activities": motif_activities[top_indices].tolist(),
+        "activity_fractions": (
+            motif_activities[top_indices] / motif_activities.sum()
+        ).tolist(),
     }
 
 
 def project_cell_loadings(
     model: object,
     cell_lri_matrix: sp.spmatrix,
-    model_lri_columns: Optional[np.ndarray] = None,
-    cell_lri_columns: Optional[np.ndarray] = None,
+    model_lri_columns: np.ndarray | None = None,
+    cell_lri_columns: np.ndarray | None = None,
     max_iter: int = 200,
     chunk_size: int = 50000,
     verbose: bool = True,
-    output_dir: Optional[str] = None
+    output_dir: str | None = None,
 ) -> np.ndarray:
     """
     Project cell-LRI matrix to cell loadings using a fitted BPTF model.
@@ -143,15 +149,18 @@ def project_cell_loadings(
     - Only mode=0 (cell loadings) is updated; mode=1 (LRI factors) stays fixed
     """
     if not BPTF_AVAILABLE:
-        raise ImportError("BPTF not available. Install: pip install git+https://github.com/aschein/bptf.git")
+        raise ImportError(
+            "BPTF not available. Install: pip install git+https://github.com/aschein/bptf.git"
+        )
 
     import gc
 
     # Align LRI columns if names provided
     if model_lri_columns is not None and cell_lri_columns is not None:
         # Quick check: if columns are already aligned, skip alignment
-        if (len(model_lri_columns) == len(cell_lri_columns) and
-            all(a == b for a, b in zip(model_lri_columns, cell_lri_columns))):
+        if len(model_lri_columns) == len(cell_lri_columns) and all(
+            a == b for a, b in zip(model_lri_columns, cell_lri_columns)
+        ):
             if verbose:
                 print(f"✓ Columns already aligned ({len(model_lri_columns)} LRIs)")
         else:
@@ -167,7 +176,7 @@ def project_cell_loadings(
 
             # Which b elements appear in a (preserving b's order and duplicates)
             mask = np.isin(b, a)
-            idx_in_model = np.flatnonzero(mask)
+            _idx_in_model = np.flatnonzero(mask)
 
             # Build queue for one-to-one matching
             pos = defaultdict(deque)
@@ -175,18 +184,24 @@ def project_cell_loadings(
                 pos[v].append(i)
 
             # Match each b[mask] value to next unused position in a
-            idx_in_mat = np.array([pos[v].popleft() if pos[v] else -1 for v in b[mask]], dtype=int)
+            idx_in_mat = np.array(
+                [pos[v].popleft() if pos[v] else -1 for v in b[mask]], dtype=int
+            )
 
             if (idx_in_mat == -1).any():
-                raise ValueError("Some model LRIs not found in cell matrix. "
-                               "Use run_neighborhood(..., required_columns=patch_columns) to ensure alignment.")
+                raise ValueError(
+                    "Some model LRIs not found in cell matrix. "
+                    "Use run_neighborhood(..., required_columns=patch_columns) to ensure alignment."
+                )
 
             # Reorder cell matrix columns to match model
             cell_lri_matrix = cell_lri_matrix[:, idx_in_mat]
 
             if cell_lri_matrix.shape[1] != len(model_lri_columns):
-                raise ValueError(f"Column mismatch: cell matrix has {cell_lri_matrix.shape[1]} "
-                               f"columns after alignment, model expects {len(model_lri_columns)}")
+                raise ValueError(
+                    f"Column mismatch: cell matrix has {cell_lri_matrix.shape[1]} "
+                    f"columns after alignment, model expects {len(model_lri_columns)}"
+                )
 
             if verbose:
                 print(f"✓ Aligned to {cell_lri_matrix.shape[1]} LRI columns")
@@ -274,8 +289,9 @@ def project_cell_loadings(
     # Save results if output_dir provided
     if output_dir is not None:
         import os
+
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, 'cell_loadings.npy')
+        save_path = os.path.join(output_dir, "cell_loadings.npy")
         np.save(save_path, cell_loadings)
         if verbose:
             print(f"Cell loadings saved to: {save_path}")
@@ -286,9 +302,9 @@ def project_cell_loadings(
 def process_bptf_results(
     model: object,
     results: dict,
-    output_dir: Optional[str] = None,
-    cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv'
-) -> Dict:
+    output_dir: str | None = None,
+    cellchatdb_path: str = "data/LRdatabase/CellChatDBv2.0.human.csv",
+) -> dict:
     """
     Process BPTF model results and optionally save to disk.
 
@@ -326,13 +342,13 @@ def process_bptf_results(
     patch_loadings, lri_factors = extract_factors(model)
 
     # Get data from results
-    column_names = results['column_names']
-    patch_lri_matrix = results['patch_lri_matrix']
+    column_names = results["column_names"]
+    patch_lri_matrix = results["patch_lri_matrix"]
 
     # Compute rescaled matrices
     print("Rescaling motif matrices...")
-    patch_loadings_rescaled, lri_factors_rescaled, motif_scales = rescale_motif_matrices(
-        patch_loadings, lri_factors, verify=True
+    patch_loadings_rescaled, lri_factors_rescaled, motif_scales = (
+        rescale_motif_matrices(patch_loadings, lri_factors, verify=True)
     )
 
     # Create LRI motifs DataFrame
@@ -346,16 +362,18 @@ def process_bptf_results(
         mean_expr = lri_to_mean.get(column_name, 0)
 
         for k in range(len(motif_factors)):
-            lri_motifs_list.append({
-                'lri_idx': j,
-                'motif_idx': k,
-                'lri_name': column_name,
-                'factor': motif_factors[k],
-                'mean': mean_expr
-            })
+            lri_motifs_list.append(
+                {
+                    "lri_idx": j,
+                    "motif_idx": k,
+                    "lri_name": column_name,
+                    "factor": motif_factors[k],
+                    "mean": mean_expr,
+                }
+            )
 
     lri_motifs = pd.DataFrame(lri_motifs_list)
-    lri_motifs = lri_motifs[lri_motifs['mean'] > 0]
+    lri_motifs = lri_motifs[lri_motifs["mean"] > 0]
     print(f"Total entries: {len(lri_motifs)}")
 
     # Parse LRI components
@@ -368,7 +386,9 @@ def process_bptf_results(
         cellchatdb = pd.read_csv(cellchatdb_path)
         lri_motifs = annotate_pathways(lri_motifs, cellchatdb)
     else:
-        print(f"Warning: CellChatDB not found at {cellchatdb_path}, skipping pathway annotation")
+        print(
+            f"Warning: CellChatDB not found at {cellchatdb_path}, skipping pathway annotation"
+        )
 
     # Add normalized scores
     print("Computing normalized scores...")
@@ -376,11 +396,11 @@ def process_bptf_results(
 
     # Build return dict
     bptf_results = {
-        'patch_loadings': patch_loadings,
-        'lri_factors': lri_factors,
-        'patch_loadings_rescaled': patch_loadings_rescaled,
-        'lri_factors_rescaled': lri_factors_rescaled,
-        'lri_motifs': lri_motifs
+        "patch_loadings": patch_loadings,
+        "lri_factors": lri_factors,
+        "patch_loadings_rescaled": patch_loadings_rescaled,
+        "lri_factors_rescaled": lri_factors_rescaled,
+        "lri_motifs": lri_motifs,
     }
 
     # Save if output_dir provided
@@ -391,40 +411,53 @@ def process_bptf_results(
         # Save model
         model_path = Path(output_dir)
         save_bptf(model, model_path)
-        print(f"  BPTF model saved")
+        print("  BPTF model saved")
 
         # Save factor matrices
-        np.save(os.path.join(output_dir, 'patch_loadings.npy'), patch_loadings)
-        np.save(os.path.join(output_dir, 'lri_factors.npy'), lri_factors)
-        np.save(os.path.join(output_dir, 'patch_loadings_rescaled.npy'), patch_loadings_rescaled)
-        np.save(os.path.join(output_dir, 'lri_factors_rescaled.npy'), lri_factors_rescaled)
+        np.save(os.path.join(output_dir, "patch_loadings.npy"), patch_loadings)
+        np.save(os.path.join(output_dir, "lri_factors.npy"), lri_factors)
+        np.save(
+            os.path.join(output_dir, "patch_loadings_rescaled.npy"),
+            patch_loadings_rescaled,
+        )
+        np.save(
+            os.path.join(output_dir, "lri_factors_rescaled.npy"), lri_factors_rescaled
+        )
 
         # Save lri_motifs
-        lri_motifs.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
+        lri_motifs.to_csv(os.path.join(output_dir, "lri_motifs.csv"), index=False)
 
         # Save convergence history if available
-        if hasattr(model, 'elbo_hist') and hasattr(model, 'delta_hist'):
+        if hasattr(model, "elbo_hist") and hasattr(model, "delta_hist"):
             elbo_hist = model.elbo_hist
             delta_hist = model.delta_hist
             if elbo_hist is not None and delta_hist is not None:
-                history_df = pd.DataFrame({
-                    'iteration': range(len(elbo_hist)),
-                    'elbo': elbo_hist,
-                    'delta': delta_hist
-                })
-                history_df.to_csv(os.path.join(output_dir, 'iteration_history.csv'), index=False)
+                history_df = pd.DataFrame(
+                    {
+                        "iteration": range(len(elbo_hist)),
+                        "elbo": elbo_hist,
+                        "delta": delta_hist,
+                    }
+                )
+                history_df.to_csv(
+                    os.path.join(output_dir, "iteration_history.csv"), index=False
+                )
 
         # Save model parameters
-        params_df = pd.DataFrame({
-            'parameter': ['n_components', 'n_patches', 'n_lris', 'method'],
-            'value': [
-                model.n_components,
-                patch_loadings.shape[0],
-                lri_factors.shape[1],
-                'BPTF'
-            ]
-        })
-        params_df.to_csv(os.path.join(output_dir, 'factorization_parameters.csv'), index=False)
+        params_df = pd.DataFrame(
+            {
+                "parameter": ["n_components", "n_patches", "n_lris", "method"],
+                "value": [
+                    model.n_components,
+                    patch_loadings.shape[0],
+                    lri_factors.shape[1],
+                    "BPTF",
+                ],
+            }
+        )
+        params_df.to_csv(
+            os.path.join(output_dir, "factorization_parameters.csv"), index=False
+        )
 
         print(f"All results saved to: {output_dir}")
 
@@ -432,63 +465,60 @@ def process_bptf_results(
 
 
 # Keep save_bptf_results as alias for backwards compatibility
-def save_bptf_results(model: object, results: dict, output_dir: str) -> Dict:
+def save_bptf_results(model: object, results: dict, output_dir: str) -> dict:
     """Alias for process_bptf_results with output_dir. See process_bptf_results for docs."""
     return process_bptf_results(model, results, output_dir=output_dir)
 
 
 def rescale_motif_matrices(
-    W: np.ndarray, 
-    V: np.ndarray, 
-    verify: bool = True,
-    eps: float = 1e-10
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    W: np.ndarray, V: np.ndarray, verify: bool = True, eps: float = 1e-10
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Rescale W and V so each motif's patch loading has max=1.
-    
+
     Transformation preserves reconstruction: W @ V = W_tilde @ V_tilde
-    
+
     Parameters
     ----------
     W : (n_patches, n_motifs) patch loadings
     V : (n_motifs, n_lris) LRI factors
     verify : whether to check reconstruction invariance
     eps : small constant for numerical stability
-    
+
     Returns
     -------
     W_tilde, V_tilde, c_safe (scaling factors per motif)
     """
     c = W.max(axis=0)  # (n_motifs,)
     c_safe = np.where(c > 0, c, 1.0)
-    
+
     W_tilde = W / c_safe[None, :]
     V_tilde = V * c_safe[:, None]
-    
+
     if verify:
         _verify_reconstruction(W, V, W_tilde, V_tilde, eps=eps)
-    
+
     return W_tilde, V_tilde, c_safe
 
 
 def _verify_reconstruction(
-    W: np.ndarray, 
-    V: np.ndarray, 
-    W_tilde: np.ndarray, 
+    W: np.ndarray,
+    V: np.ndarray,
+    W_tilde: np.ndarray,
     V_tilde: np.ndarray,
     n_samples: int = 200,
     seed: int = 0,
-    eps: float = 1e-10
+    eps: float = 1e-10,
 ) -> None:
     """Sanity check that rescaling preserves reconstruction."""
     rng = np.random.default_rng(seed)
     patch_idx = rng.choice(W.shape[0], size=min(n_samples, W.shape[0]), replace=False)
     lri_idx = rng.choice(V.shape[1], size=min(n_samples, V.shape[1]), replace=False)
-    
+
     X1 = W[patch_idx, :] @ V[:, lri_idx]
     X2 = W_tilde[patch_idx, :] @ V_tilde[:, lri_idx]
     rel_err = np.linalg.norm(X1 - X2) / (np.linalg.norm(X1) + eps)
-    
+
     print(f"Reconstruction error: {rel_err:.2e} (should be ~0)")
     assert rel_err < 1e-10, f"Reconstruction failed: {rel_err}"
 
@@ -496,7 +526,7 @@ def _verify_reconstruction(
 def compute_lr_global_prevalence(df: pd.DataFrame) -> pd.Series:
     """
     Compute global prevalence for each (ligand, receptor) pair.
-    
+
     Uses unique lri_idx only to avoid overcounting repeated entries across motifs.
     """
     unique_lris = df.drop_duplicates(subset=["lri_idx"])
@@ -504,13 +534,11 @@ def compute_lr_global_prevalence(df: pd.DataFrame) -> pd.Series:
 
 
 def add_normalized_scores(
-    df: pd.DataFrame,
-    motif_scales: np.ndarray,
-    eps: float = 1
+    df: pd.DataFrame, motif_scales: np.ndarray, eps: float = 1
 ) -> pd.DataFrame:
     """
     Add rescaled and normalized score columns to lri_motifs.
-    
+
     Columns added:
     - W_max: motif scaling factor (max patch loading for that motif)
     - factor_rescaled: factor × W_max
@@ -518,22 +546,25 @@ def add_normalized_scores(
     - score: factor_rescaled / lr_global_mean
     """
     df = df.copy()
-    
+
     # Motif-wise rescaling
     df["W_max"] = df["motif_idx"].map(dict(enumerate(motif_scales))).astype(float)
     df["factor_rescaled"] = df["factor"] * df["W_max"]
-    
+
     # LR global prevalence normalization
     lr_prevalence = compute_lr_global_prevalence(df)
     lr_keys = list(zip(df["ligand"], df["receptor"]))
-    df["lr_global_mean"] = pd.Series(lr_keys, index=df.index).map(lr_prevalence).astype(float)
+    df["lr_global_mean"] = (
+        pd.Series(lr_keys, index=df.index).map(lr_prevalence).astype(float)
+    )
 
     df["factor_lrnorm"] = df["factor"] / (df["lr_global_mean"] + eps)
-    
+
     # Final scores
     df["score"] = df["factor_rescaled"] / (df["lr_global_mean"] + eps)
-    
+
     return df
+
 
 def process_and_save_lri_motif_analysis(
     lri_factors: np.ndarray,
@@ -541,14 +572,14 @@ def process_and_save_lri_motif_analysis(
     column_names: list,
     patch_lri_matrix,
     output_dir: str,
-    cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv',
+    cellchatdb_path: str = "data/LRdatabase/CellChatDBv2.0.human.csv",
     save: bool = True,
     eps_rescale: float = 1e-10,
     eps_norm: float = 1,
-) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
     """
     Full pipeline: create LRI motifs DataFrame, process, and save.
-    
+
     Parameters
     ----------
     lri_factors : np.ndarray
@@ -583,50 +614,52 @@ def process_and_save_lri_motif_analysis(
     print("Creating LRI motifs DataFrame...")
     column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
     lri_to_mean = dict(zip(column_names, column_means))
-    
+
     lri_motifs = []
     for j, column_name in enumerate(column_names):
         motif_factors = lri_factors[:, j]
         mean_expr = lri_to_mean.get(column_name, 0)
 
         for k in range(len(motif_factors)):
-            lri_motifs.append({
-                'lri_idx': j,
-                'motif_idx': k,
-                'lri_name': column_name,
-                'factor': motif_factors[k],
-                'mean': mean_expr
-            })
-    
+            lri_motifs.append(
+                {
+                    "lri_idx": j,
+                    "motif_idx": k,
+                    "lri_name": column_name,
+                    "factor": motif_factors[k],
+                    "mean": mean_expr,
+                }
+            )
+
     lri_motifs_df = pd.DataFrame(lri_motifs)
     print(f"Total entries: {len(lri_motifs_df)}")
-    
+
     # Step 2: Parse LRI components
     print("Parsing LRI components...")
     lri_motifs_df = add_lri_components(lri_motifs_df)
-    
+
     # Step 3: Annotate pathways
     print("Annotating pathways...")
     cellchatdb = pd.read_csv(cellchatdb_path)
     lri_motifs_df = annotate_pathways(lri_motifs_df, cellchatdb)
-    
+
     # Step 4: Rescale matrices
     print("Rescaling motif matrices...")
     W_tilde, V_tilde, motif_scales = rescale_motif_matrices(
         patch_loadings, lri_factors, verify=True, eps=eps_rescale
     )
-    
+
     # Step 5: Add normalized scores
     print("Computing normalized scores...")
     lri_motifs_df = add_normalized_scores(lri_motifs_df, motif_scales, eps=eps_norm)
-    
+
     # Step 6: Save
     if save:
         print(f"Saving to {output_dir}...")
         os.makedirs(output_dir, exist_ok=True)
-        lri_motifs_df.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
-        np.save(os.path.join(output_dir, 'W_tilde.npy'), W_tilde)
-        np.save(os.path.join(output_dir, 'V_tilde.npy'), V_tilde)
+        lri_motifs_df.to_csv(os.path.join(output_dir, "lri_motifs.csv"), index=False)
+        np.save(os.path.join(output_dir, "W_tilde.npy"), W_tilde)
+        np.save(os.path.join(output_dir, "V_tilde.npy"), V_tilde)
         print("Done!")
 
 
@@ -666,4 +699,3 @@ def process_and_save_lri_motif_analysis(
 
 #     lri_motifs_df = pd.DataFrame(lri_motifs)
 #     lri_motifs_df.to_csv(os.path.join(output_dir, 'lri_motifs.csv'), index=False)
-

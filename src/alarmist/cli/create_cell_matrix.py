@@ -15,14 +15,18 @@ logger = logging.getLogger(__name__)
 
 def get_parser():
     """Create argument parser"""
-    parser = argparse.ArgumentParser(
-        description='Create cell-level LRI matrix'
-    )
+    parser = argparse.ArgumentParser(description="Create cell-level LRI matrix")
 
-    parser.add_argument('--data-file', required=True, help='Path to AnnData file')
-    parser.add_argument('--output-dir', required=True, help='Output directory')
-    parser.add_argument('--resource', default='cellchatdb', help='LRI database resource')
-    parser.add_argument('--no-gene-expression', action='store_true', help='Do not include gene expression')
+    parser.add_argument("--data-file", required=True, help="Path to AnnData file")
+    parser.add_argument("--output-dir", required=True, help="Output directory")
+    parser.add_argument(
+        "--resource", default="cellchatdb", help="LRI database resource"
+    )
+    parser.add_argument(
+        "--no-gene-expression",
+        action="store_true",
+        help="Do not include gene expression",
+    )
 
     log_config.add_logging_args(parser)
     return parser
@@ -37,5 +41,5 @@ def main():
     logger.info("Please use the original script: scripts/01_create_cell_matrix.py")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
