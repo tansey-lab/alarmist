@@ -1,0 +1,2 @@
+sample_id,adata_path
+ovarian_sample,tests/fixtures/ovarian_cancer_sample.h5ad

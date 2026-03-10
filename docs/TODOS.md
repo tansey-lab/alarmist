@@ -24,7 +24,7 @@ Replace conda/pip with uv for fast, reproducible dependency resolution.
 - [x] Create `uv.lock` for reproducible builds
 - [x] Pin BPTF to specific commit: `git+https://github.com/aschein/bptf.git@<sha>`
 - [x] Remove `requirements.txt` (superseded by uv.lock)
-- [ ] Update README with uv install instructions
+- [x] Update README with uv install instructions
 
 ### 2. Add Makefile
 Create a Makefile following ebbf pattern for common tasks.
@@ -108,8 +108,8 @@ Create workflows following ebbf pattern.
 ### 9. Add Test Suite
 - [x] Create `tests/` directory
 - [x] Unit tests for core modules (lri.py, factorization.py, glm.py)
-- [ ] Integration test with minimal fixture data
-- [ ] Add small test AnnData file to `tests/fixtures/`
+- [x] Integration test with minimal fixture data
+- [x] Add small test AnnData file to `tests/fixtures/`
 - [x] Configure pytest in pyproject.toml
 
 ---
@@ -127,9 +127,9 @@ Create workflows following ebbf pattern.
 - [x] All CLI commands now implemented: patchify, bptf, project, glm, visualize
 
 ### 12. Documentation
-- [ ] Update README with nf-core pipeline usage
-- [ ] Add samplesheet examples in `samplesheets/`
-- [ ] Document all Nextflow parameters
+- [x] Update README with nf-core pipeline usage
+- [x] Add samplesheet examples in `samplesheets/`
+- [x] Document all Nextflow parameters
 - [ ] Clean up research notebooks vs tutorial notebooks
 
 ---
