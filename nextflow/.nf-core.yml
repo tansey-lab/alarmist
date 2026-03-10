@@ -1,0 +1,22 @@
+repository_type: pipeline
+
+nf_core_version: 3.5.2
+
+lint:
+  files_exist:
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+
+template:
+  org: nf-core
+  name: alarmist
+  description: Assessment of Ligand And Receptor Interaction Motifs In Spatial Transcriptomics
+  author: Jiayi Fan
+  version: 1.0.0dev
+  force: true
+  outdir: ./nextflow
+  skip_features:
+    - igenomes
+    - fastqc
+    - gpu
+  is_nfcore: true

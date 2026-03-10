@@ -3,7 +3,7 @@ name = "alarmist"
 version = "0.1.0"
 description = "Spatial ligand-receptor interaction analysis with BPTF matrix factorization for spatial transcriptomics"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "Jiayi Fan", email = "jiayifan@example.com"}
@@ -14,33 +14,36 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = [
-    "numpy",
-    "pandas",
-    "scipy",
-    "scikit-learn",
-    "anndata>=0.8",
-    "scanpy",
-    "matplotlib>=3.5",
-    "seaborn",
-    "liana",
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0",
+    "scikit-learn>=1.0.0",
+    "anndata>=0.8.0",
+    "scanpy>=1.8.0",
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "liana>=0.1.0",
     "h5py",
     "pyarrow",
-    "tqdm",
+    "tqdm>=4.60.0",
     "networkx",
     "pillow",
+    "statsmodels>=0.13.0",
+    "sparse>=0.13.0",
+    "numba>=0.56.0",
+    "joblib>=1.1.0",
+    "adjustText>=1.0.0",
+    "bptf @ git+https://github.com/aschein/bptf.git",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-mock", "black", "flake8", "ipython"]
-bptf = ["sparse", "bptf"]
 viz = ["graphviz", "pygraphviz"]
-all = ["sparse", "bptf", "graphviz", "pygraphviz"]
 
 [project.urls]
 "Homepage" = "https://github.com/tansey-lab/alarmist"
@@ -53,14 +56,14 @@ alarmist-patchify = "alarmist.cli.patchify:main"
 # Step 2: BPTF factorization
 alarmist-bptf = "alarmist.cli.bptf:main"
 
-# Step 3: Single-cell projection (TODO)
-# alarmist-project = "alarmist.cli.project:main"
+# Step 3: Single-cell projection
+alarmist-project = "alarmist.cli.project:main"
 
-# Step 4: Motif calling (TODO)
-# alarmist-call = "alarmist.cli.call:main"
+# Step 4: GLM analysis
+alarmist-glm = "alarmist.cli.glm:main"
 
-# Step 5: GLM analysis (TODO)
-# alarmist-glm = "alarmist.cli.glm:main"
+# Step 5: Visualization
+alarmist-visualize = "alarmist.cli.visualize:main"
 
 [build-system]
 requires = ["setuptools>=65.0", "wheel"]
@@ -71,3 +74,32 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 alarmist = ["config/lri_databases/*.csv"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock",
+    "ruff>=0.1.0",
+    "pre-commit>=3.0",
+    "ipython",
+    "nf-core",
+    "multiqc",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = [
+    "N803",  # Argument name should be lowercase (common in ML: X for matrices)
+    "N806",  # Variable name should be lowercase (common in ML: B, K, M for batch/dim)
+    "N812",  # Lowercase imported as non-lowercase (common: torch.nn.functional as F)
+    "N817",  # CamelCase imported as acronym
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

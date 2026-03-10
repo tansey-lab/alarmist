@@ -20,6 +20,35 @@ from sklearn.neighbors import KDTree
 import scipy.sparse as sp
 from scipy.sparse import kron, hstack
 from tqdm import tqdm
+from importlib import resources
+
+
+def _get_bundled_database_path(database_name: str) -> Path:
+    """
+    Get the path to a bundled LRI database file using importlib.resources.
+
+    Parameters
+    ----------
+    database_name : str
+        Name of the database file (e.g., 'CellChatDBv2.0.human.csv')
+
+    Returns
+    -------
+    Path
+        Path to the database file
+    """
+    try:
+        # Python 3.9+ approach
+        ref = resources.files('alarmist.config.lri_databases').joinpath(database_name)
+        # For resources that need to be extracted to filesystem
+        with resources.as_file(ref) as path:
+            return Path(path)
+    except (AttributeError, TypeError):
+        # Fallback for older Python versions
+        import pkg_resources
+        return Path(pkg_resources.resource_filename(
+            'alarmist', f'config/lri_databases/{database_name}'
+        ))
 
 
 def _split_gene_complex(gene_str: str) -> List[str]:
@@ -62,8 +91,8 @@ class BaseLRIAnalyzer(ABC):
     def __init__(self,
                  resource_name: str = 'cellchatdb',
                  spliter: str = '|',
-                 cellchatdb_path: str = 'data/LRdatabase/CellChatDBv2.0.human.csv',
-                 cellphonedb_path: str = 'data/LRdatabase/CellPhoneDBv5.0.human.csv',
+                 cellchatdb_path: Optional[str] = None,
+                 cellphonedb_path: Optional[str] = None,
                  cell_type_column: str = 'cell_type'):
         """
         Initialize the base LRI analyzer.
@@ -74,18 +103,27 @@ class BaseLRIAnalyzer(ABC):
             LRI database to use from liana
         spliter : str, default '|'
             Separator for column names
-        cellchatdb_path : str
-            Path to local CellChatDB CSV file
-        cellphonedb_path : str
-            Path to local CellPhoneDB CSV file
+        cellchatdb_path : str, optional
+            Path to local CellChatDB CSV file. If None, uses bundled database.
+        cellphonedb_path : str, optional
+            Path to local CellPhoneDB CSV file. If None, uses bundled database.
         cell_type_column : str
             Column name for cell types in adata.obs
         """
         self.resource_name = resource_name
-        self.cellchatdb_path = cellchatdb_path
-        self.cellphonedb_path = cellphonedb_path
         self.spliter = spliter
         self.cell_type_column = cell_type_column
+
+        # Use bundled databases if paths not provided
+        if cellchatdb_path is None:
+            self.cellchatdb_path = str(_get_bundled_database_path('CellChatDBv2.0.human.csv'))
+        else:
+            self.cellchatdb_path = cellchatdb_path
+
+        if cellphonedb_path is None:
+            self.cellphonedb_path = str(_get_bundled_database_path('CellPhoneDBv5.0.human.csv'))
+        else:
+            self.cellphonedb_path = cellphonedb_path
 
         # Analysis results (to be populated)
         self.lr_pairs = None
