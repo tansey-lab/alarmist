@@ -90,9 +90,9 @@ The ALARMIST pipeline has 5 steps that need corresponding CLI commands and NF mo
 - [x] Wire up workflow in `alarmist.nf`
 
 ### 7. Add Cirro Integration (Optional)
-- [ ] Create `.cirro/` directory with form schemas
-- [ ] Define `process-form.json` for UI parameter input
-- [ ] Add `process-input.json` and `process-output.json`
+- [x] Create `.cirro/` directory with form schemas
+- [x] Define `process-form.json` for UI parameter input
+- [x] Add `process-input.json` and `process-output.json`
 
 ---
 
@@ -103,7 +103,7 @@ Create workflows following ebbf pattern.
 
 - [x] `.github/workflows/ci.yml` - Lint and test on push/PR
 - [x] `.github/workflows/docker.yml` - Build and push container on tags
-- [ ] `.github/workflows/bump_version.yml` - Automated versioning
+- [x] `.github/workflows/bump_version.yml` - Automated versioning
 
 ### 9. Add Test Suite
 - [x] Create `tests/` directory
@@ -130,7 +130,7 @@ Create workflows following ebbf pattern.
 - [x] Update README with nf-core pipeline usage
 - [x] Add samplesheet examples in `samplesheets/`
 - [x] Document all Nextflow parameters
-- [ ] Clean up research notebooks vs tutorial notebooks
+- [x] Clean up research notebooks vs tutorial notebooks
 
 ---
 
