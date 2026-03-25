@@ -5,84 +5,79 @@ Includes LRI analysis, factorization, and GLM functionality.
 """
 
 # LRI Analysis
-from .lri import (
-    PatchLRIAnalyzer,
-    NeighborhoodLRIAnalyzer,
-    SingleCellLRIAnalyzer
-)
-
 # Factorization
 from .factorization import (
-    run_bptf,
+    BPTF_AVAILABLE,
     extract_factors,
     get_top_motifs,
-    save_bptf_results,
     process_bptf_results,
     project_cell_loadings,
-    BPTF_AVAILABLE
+    run_bptf,
+    save_bptf_results,
 )
 
 # GLM Analysis
 from .glm import (
-    run_poisson_glm_analysis,
     analyze_glm_results,
-    glm_volcano,
-    glm_forest,
-    differential_expression,
+    check_memory_usage,
     compute_exclusion_mask,
-    load_exclusion_mask,
+    differential_expression,
     extract_lri_genes,
-    run_univariate_de_sklearn_by_celltype,
+    glm_forest,
+    glm_volcano,
+    load_exclusion_mask,
+    load_glm_results,
     prepare_cell_data_from_adata,
     prepare_cell_data_memory_efficient,
-    check_memory_usage,
+    run_poisson_glm_analysis,
+    run_univariate_de_sklearn_by_celltype,
     save_de_results,
-    load_glm_results,
     spearman_corr_chunked,
-    spearman_prefilter_genes
+    spearman_prefilter_genes,
 )
+from .lri import NeighborhoodLRIAnalyzer, PatchLRIAnalyzer, SingleCellLRIAnalyzer
 
 # Single Cell Analysis
 from .single_cell import (
-    weighted_celltypes_by_motif,
-    gmm_binarize_all_motifs,
     compute_motif_state_counts,
-    compute_positive_motifs_per_cell
+    compute_positive_motifs_per_cell,
+    gmm_binarize_all_motifs,
+    weighted_celltypes_by_motif,
 )
 
 __all__ = [
     # LRI
-    'PatchLRIAnalyzer',
-    'NeighborhoodLRIAnalyzer',
-    'SingleCellLRIAnalyzer',
+    "PatchLRIAnalyzer",
+    "NeighborhoodLRIAnalyzer",
+    "SingleCellLRIAnalyzer",
     # Factorization
-    'run_bptf',
-    'extract_factors',
-    'get_top_motifs',
-    'save_bptf_results',
-    'process_bptf_results',
-    'project_cell_loadings',
-    'BPTF_AVAILABLE',
+    "run_bptf",
+    "extract_factors",
+    "get_top_motifs",
+    "save_bptf_results",
+    "process_bptf_results",
+    "project_cell_loadings",
+    "BPTF_AVAILABLE",
     # GLM
-    'run_poisson_glm_analysis',
-    'analyze_glm_results',
-    'glm_volcano',
-    'glm_forest',
-    'differential_expression',
-    'compute_exclusion_mask',
-    'load_exclusion_mask',
-    'extract_lri_genes',
-    'run_univariate_de_sklearn_by_celltype',
-    'prepare_cell_data_from_adata',
-    'prepare_cell_data_memory_efficient',
-    'check_memory_usage',
-    'save_de_results',
-    'load_glm_results',
-    'spearman_corr_chunked',
-    'spearman_prefilter_genes',
+    "run_poisson_glm_analysis",
+    "analyze_glm_results",
+    "glm_volcano",
+    "glm_forest",
+    "differential_expression",
+    "compute_exclusion_mask",
+    "load_exclusion_mask",
+    "extract_lri_genes",
+    "run_univariate_de_sklearn_by_celltype",
+    "prepare_cell_data_from_adata",
+    "prepare_cell_data_memory_efficient",
+    "check_memory_usage",
+    "save_de_results",
+    "load_glm_results",
+    "spearman_corr_chunked",
+    "spearman_prefilter_genes",
     # Single Cell
-    'weighted_celltypes_by_motif',
-    'gmm_binarize_all_motifs',
-    'compute_motif_state_counts',
-    'compute_positive_motifs_per_cell',
+    "weighted_celltypes_by_motif",
+    "gmm_binarize_all_motifs",
+    "compute_motif_state_counts",
+    "compute_positive_motifs_per_cell",
 ]

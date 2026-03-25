@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def get_parser():
     """Create argument parser"""
-    parser = argparse.ArgumentParser(description='Single cell analysis')
+    parser = argparse.ArgumentParser(description="Single cell analysis")
     log_config.add_logging_args(parser)
     return parser
 
@@ -29,5 +29,5 @@ def main():
     logger.info("Please use the original script: scripts/06_single_cell.py")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

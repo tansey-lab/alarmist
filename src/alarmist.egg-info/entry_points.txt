@@ -1,3 +1,6 @@
 [console_scripts]
 alarmist-bptf = alarmist.cli.bptf:main
+alarmist-glm = alarmist.cli.glm:main
 alarmist-patchify = alarmist.cli.patchify:main
+alarmist-project = alarmist.cli.project:main
+alarmist-visualize = alarmist.cli.visualize:main

@@ -4,19 +4,18 @@ Single cell analysis functions for motif calling
 Includes GMM-based binarization and cell type composition analysis.
 """
 
+import anndata
 import numpy as np
 import pandas as pd
 from sklearn.mixture import GaussianMixture
-from typing import Optional, Tuple, Dict, Union, List
-import anndata
 
 
 def weighted_celltypes_by_motif(
     cell_loadings: np.ndarray,
     metadata_df: pd.DataFrame,
     normalize: bool = True,
-    top_n_per_motif: Optional[int] = None,
-    other_label: str = "Other"
+    top_n_per_motif: int | None = None,
+    other_label: str = "Other",
 ) -> pd.DataFrame:
     """
     Compute cell type composition for each motif based on cell loadings.
@@ -66,19 +65,28 @@ def weighted_celltypes_by_motif(
         agg["motif"] = k
 
         # Optional: keep only top N cell types per motif
-        if top_n_per_motif is not None and top_n_per_motif > 0 and len(agg) > top_n_per_motif:
+        if (
+            top_n_per_motif is not None
+            and top_n_per_motif > 0
+            and len(agg) > top_n_per_motif
+        ):
             agg = agg.sort_values("weight", ascending=False)
             keep = agg.head(top_n_per_motif).copy()
             other_w = agg["weight"].iloc[top_n_per_motif:].sum()
             if other_w > 0:
-                keep = pd.concat([
-                    keep,
-                    pd.DataFrame({
-                        "cell_type": [other_label],
-                        "weight": [other_w],
-                        "motif": [k]
-                    })
-                ], ignore_index=True)
+                keep = pd.concat(
+                    [
+                        keep,
+                        pd.DataFrame(
+                            {
+                                "cell_type": [other_label],
+                                "weight": [other_w],
+                                "motif": [k],
+                            }
+                        ),
+                    ],
+                    ignore_index=True,
+                )
             agg = keep
 
         # Optional: normalize to sum to 1
@@ -94,14 +102,14 @@ def weighted_celltypes_by_motif(
 
 
 def gmm_binarize_all_motifs(
-    cell_loadings: Union[np.ndarray, Dict[str, np.ndarray]],
-    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData], None] = None,
+    cell_loadings: np.ndarray | dict[str, np.ndarray],
+    adata: anndata.AnnData | dict[str, anndata.AnnData] | None = None,
     multi_sample: bool = False,
-    sample_column: Optional[str] = None,
+    sample_column: str | None = None,
     eps: float = 1e-10,
     random_state: int = 42,
-    return_arrays: bool = False
-) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict[str, np.ndarray], Dict[str, np.ndarray]]]:
+    return_arrays: bool = False,
+) -> pd.DataFrame | tuple[pd.DataFrame, dict[str, np.ndarray], dict[str, np.ndarray]]:
     """
     Use Gaussian Mixture Model to binarize each motif into ON/OFF states.
 
@@ -175,7 +183,7 @@ def gmm_binarize_all_motifs(
     """
     # Determine input mode
     is_dict_mode = isinstance(cell_loadings, dict)
-    is_merged_mode = (not is_dict_mode and multi_sample and sample_column is not None)
+    is_merged_mode = not is_dict_mode and multi_sample and sample_column is not None
 
     if is_dict_mode:
         # Mode 2: Multi-sample dict mode
@@ -189,12 +197,18 @@ def gmm_binarize_all_motifs(
         # Validate adata_dict if provided
         if adata is not None:
             if not isinstance(adata, dict):
-                raise ValueError("When cell_loadings is a dict, adata must also be a dict or None")
+                raise ValueError(
+                    "When cell_loadings is a dict, adata must also be a dict or None"
+                )
             for sid in sample_ids:
                 if sid not in adata:
-                    raise ValueError(f"Sample '{sid}' in cell_loadings but not in adata")
+                    raise ValueError(
+                        f"Sample '{sid}' in cell_loadings but not in adata"
+                    )
                 if adata[sid].n_obs != sample_sizes[sid]:
-                    raise ValueError(f"Sample '{sid}': adata has {adata[sid].n_obs} cells but loadings has {sample_sizes[sid]}")
+                    raise ValueError(
+                        f"Sample '{sid}': adata has {adata[sid].n_obs} cells but loadings has {sample_sizes[sid]}"
+                    )
 
         # Track original adata for merged mode processing
         adata_merged_original = None
@@ -208,7 +222,9 @@ def gmm_binarize_all_motifs(
 
         # Validate cell count match
         if adata.n_obs != cell_loadings.shape[0]:
-            raise ValueError(f"adata has {adata.n_obs} cells but cell_loadings has {cell_loadings.shape[0]} rows")
+            raise ValueError(
+                f"adata has {adata.n_obs} cells but cell_loadings has {cell_loadings.shape[0]} rows"
+            )
 
         all_loadings = cell_loadings
         n_cells_total, K = all_loadings.shape
@@ -232,14 +248,14 @@ def gmm_binarize_all_motifs(
 
     else:
         # Mode 1: Single-sample mode
-        sample_ids = ['default']
-        sample_sizes = {'default': cell_loadings.shape[0]}
+        sample_ids = ["default"]
+        sample_sizes = {"default": cell_loadings.shape[0]}
         all_loadings = cell_loadings
         n_cells_total, K = all_loadings.shape
 
         # Wrap single adata in dict for uniform processing
         if adata is not None:
-            adata = {'default': adata}
+            adata = {"default": adata}
 
         # Track original adata for merged mode processing
         adata_merged_original = None
@@ -281,22 +297,23 @@ def gmm_binarize_all_motifs(
         all_states[:, k] = state
         all_posprobs[:, k] = posprob
 
-        summary.append({
-            "motif": k,
-            "mean0": means[0],
-            "mean1": means[1],
-            "weight0": weights[0],
-            "weight1": weights[1],
-            "positive_component": pos_comp
-        })
+        summary.append(
+            {
+                "motif": k,
+                "mean0": means[0],
+                "mean1": means[1],
+                "weight0": weights[0],
+                "weight1": weights[1],
+                "positive_component": pos_comp,
+            }
+        )
 
     # Handle merged mode: attach results directly to merged adata
     if is_merged_mode and adata_merged_original is not None:
         for k in range(K):
             adata_merged_original.obs[f"motif_{k}_loading"] = all_loadings[:, k]
             adata_merged_original.obs[f"motif_{k}_state"] = pd.Categorical(
-                all_states[:, k],
-                categories=["negative", "positive"]
+                all_states[:, k], categories=["negative", "positive"]
             )
 
         # For merged mode, return arrays directly (not split by sample)
@@ -328,16 +345,15 @@ def gmm_binarize_all_motifs(
             for k in range(K):
                 adata[sid].obs[f"motif_{k}_loading"] = sample_loadings[:, k]
                 adata[sid].obs[f"motif_{k}_state"] = pd.Categorical(
-                    sample_states[:, k],
-                    categories=["negative", "positive"]
+                    sample_states[:, k], categories=["negative", "positive"]
                 )
 
         start_idx = end_idx
 
     # For single-sample mode, unwrap from dict
     if not is_dict_mode:
-        states_dict = states_dict['default']
-        posprob_dict = posprob_dict['default']
+        states_dict = states_dict["default"]
+        posprob_dict = posprob_dict["default"]
 
     summary_df = pd.DataFrame(summary)
 
@@ -348,8 +364,8 @@ def gmm_binarize_all_motifs(
 
 
 def compute_motif_state_counts(
-    adata: Union[anndata.AnnData, Dict[str, anndata.AnnData]],
-    sample_column: Optional[str] = None
+    adata: anndata.AnnData | dict[str, anndata.AnnData],
+    sample_column: str | None = None,
 ) -> pd.DataFrame:
     """
     Count positive/negative cells for each motif.
@@ -406,8 +422,8 @@ def compute_motif_state_counts(
 
     # Convert to DataFrame and fill missing values with 0
     df_counts = pd.DataFrame(counts).fillna(0).astype(int).T
-    if 'positive' in df_counts.columns and 'negative' in df_counts.columns:
-        df_counts = df_counts[['positive', 'negative']]
+    if "positive" in df_counts.columns and "negative" in df_counts.columns:
+        df_counts = df_counts[["positive", "negative"]]
 
     return df_counts
 
@@ -432,13 +448,15 @@ def compute_positive_motifs_per_cell(adata) -> pd.Series:
     >>> print(dist)
     """
     # Find all state columns
-    state_cols = [c for c in adata.obs.columns if c.endswith('_state')]
+    state_cols = [c for c in adata.obs.columns if c.endswith("_state")]
     K = len(state_cols)
 
     # Count positive motifs per cell
-    n_pos_per_cell = adata.obs[state_cols].eq('positive').sum(axis=1)
+    n_pos_per_cell = adata.obs[state_cols].eq("positive").sum(axis=1)
 
     # Full count from 0 to K
-    counts = n_pos_per_cell.value_counts().reindex(range(K + 1), fill_value=0).sort_index()
+    counts = (
+        n_pos_per_cell.value_counts().reindex(range(K + 1), fill_value=0).sort_index()
+    )
 
     return counts

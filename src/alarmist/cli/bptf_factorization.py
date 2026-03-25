@@ -5,25 +5,26 @@
 
 import argparse
 import logging
-from pathlib import Path
 import time
+from pathlib import Path
+
 import numpy as np
 
+from alarmist import log_config
+from alarmist.cli.common import (
+    add_bptf_arguments,
+    add_output_arguments,
+    add_random_state_argument,
+)
 from alarmist.core import (
-    run_bptf,
+    BPTF_AVAILABLE,
     extract_factors,
     get_top_motifs,
+    run_bptf,
     save_bptf_results,
-    BPTF_AVAILABLE
 )
 from alarmist.data.loaders import load_patch_lri_results
 from alarmist.plotting.bptf_plots import plot_bptf_diagnostics
-from alarmist.cli.common import (
-    add_output_arguments,
-    add_bptf_arguments,
-    add_random_state_argument
-)
-from alarmist import log_config
 
 logger = logging.getLogger(__name__)
 
@@ -31,32 +32,32 @@ logger = logging.getLogger(__name__)
 def get_parser():
     """Create argument parser"""
     parser = argparse.ArgumentParser(
-        description='BPTF matrix factorization for spatial LRI analysis'
+        description="BPTF matrix factorization for spatial LRI analysis"
     )
 
     parser.add_argument(
-        '--input-dir',
+        "--input-dir",
         type=str,
         required=True,
-        help='Input directory with patch LRI results'
+        help="Input directory with patch LRI results",
     )
     parser.add_argument(
-        '--sparse-matrix-name',
+        "--sparse-matrix-name",
         type=str,
-        default='patch_lri_matrix.npz',
-        help='Name of the sparse matrix file (default: patch_lri_matrix.npz)'
+        default="patch_lri_matrix.npz",
+        help="Name of the sparse matrix file (default: patch_lri_matrix.npz)",
     )
     parser.add_argument(
-        '--column-df-name',
+        "--column-df-name",
         type=str,
-        default='patch_lri_columns.csv',
-        help='Name of column names file (default: patch_lri_columns.csv)'
+        default="patch_lri_columns.csv",
+        help="Name of column names file (default: patch_lri_columns.csv)",
     )
     parser.add_argument(
-        '--meta-df-name',
+        "--meta-df-name",
         type=str,
-        default='cell_patch_correspondence.csv',
-        help='Name of metadata file (default: cell_patch_correspondence.csv)'
+        default="cell_patch_correspondence.csv",
+        help="Name of metadata file (default: cell_patch_correspondence.csv)",
     )
 
     add_output_arguments(parser)
@@ -64,16 +65,16 @@ def get_parser():
     add_random_state_argument(parser, default=0)
 
     parser.add_argument(
-        '--neighborhood',
+        "--neighborhood",
         type=bool,
         default=False,
-        help='Whether this is neighborhood-based analysis (default: False)'
+        help="Whether this is neighborhood-based analysis (default: False)",
     )
     parser.add_argument(
-        '--single-cell',
+        "--single-cell",
         type=bool,
         default=False,
-        help='Whether this is single-cell analysis (default: False)'
+        help="Whether this is single-cell analysis (default: False)",
     )
 
     log_config.add_logging_args(parser)
@@ -85,15 +86,15 @@ def main():
     args = get_parser().parse_args()
     log_config.configure_logging(args)
 
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info("02 - BPTF MATRIX FACTORIZATION")
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info(f"Input directory: {args.input_dir}")
     logger.info(f"Output directory: {args.output_dir}")
     logger.info(f"Number of components: {args.n_components}")
     logger.info(f"Max iterations: {args.max_iter}")
     logger.info(f"Random state: {args.random_state}")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     # Check BPTF availability
     if not BPTF_AVAILABLE:
@@ -114,12 +115,12 @@ def main():
         column_df_name=args.column_df_name,
         meta_df_name=args.meta_df_name,
         neighborhood=args.neighborhood,
-        single_cell=args.single_cell
+        single_cell=args.single_cell,
     )
 
-    mat = results['patch_lri_matrix']
-    cols = results['column_names']
-    cell_meta_df = results.get('cell_patch_df', results.get('patch_tma_df'))
+    mat = results["patch_lri_matrix"]
+    cols = results["column_names"]
+    cell_meta_df = results.get("cell_patch_df", results.get("patch_tma_df"))
 
     logger.info(f"Matrix shape: {mat.shape}")
     logger.info(f"Matrix sparsity: {(1 - mat.nnz / np.prod(mat.shape)) * 100:.2f}%")
@@ -134,7 +135,7 @@ def main():
         n_components=args.n_components,
         max_iter=args.max_iter,
         verbose=True,
-        random_state=args.random_state
+        random_state=args.random_state,
     )
 
     fit_time = time.time() - start_time
@@ -148,10 +149,14 @@ def main():
 
     # Save results
     logger.info("Saving BPTF results...")
-    patch_metadata_df = results.get('patch_tma_df', cell_meta_df)
+    patch_metadata_df = results.get("patch_tma_df", cell_meta_df)
     save_bptf_results(
-        model, patch_loadings, lri_factors, cols,
-        patch_metadata_df, str(args.output_dir)
+        model,
+        patch_loadings,
+        lri_factors,
+        cols,
+        patch_metadata_df,
+        str(args.output_dir),
     )
 
     # Create diagnostic plots
@@ -160,36 +165,38 @@ def main():
         plot_bptf_diagnostics(patch_loadings, lri_factors, str(args.output_dir))
 
     # Print summary
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("BPTF SUMMARY")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     top_motifs = get_top_motifs(patch_loadings, top_k=5)
     logger.info(f"Total motifs: {args.n_components}")
-    logger.info(f"\nTop 5 motifs by activity:")
-    for i, (motif_idx, activity, fraction) in enumerate(zip(
-        top_motifs['motif_indices'][:5],
-        top_motifs['activities'][:5],
-        top_motifs['activity_fractions'][:5]
-    )):
-        logger.info(f"  {i+1}. Motif {motif_idx}: {fraction:.1%} of total activity")
+    logger.info("\nTop 5 motifs by activity:")
+    for i, (motif_idx, activity, fraction) in enumerate(
+        zip(
+            top_motifs["motif_indices"][:5],
+            top_motifs["activities"][:5],
+            top_motifs["activity_fractions"][:5],
+        )
+    ):
+        logger.info(f"  {i + 1}. Motif {motif_idx}: {fraction:.1%} of total activity")
 
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("STEP 02 COMPLETED SUCCESSFULLY!")
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info(f"Results saved to: {args.output_dir}")
     logger.info("\nFiles created:")
-    logger.info(f"  - bptf_model.npz (BPTF model)")
-    logger.info(f"  - patch_loadings.npy, lri_factors.npy (factor matrices)")
-    logger.info(f"  - patch_motifs.csv, lri_motifs.csv (detailed analysis)")
-    logger.info(f"  - top_motifs.csv (motif summaries)")
-    logger.info(f"  - factorization_parameters.csv (parameters)")
+    logger.info("  - bptf_model.npz (BPTF model)")
+    logger.info("  - patch_loadings.npy, lri_factors.npy (factor matrices)")
+    logger.info("  - patch_motifs.csv, lri_motifs.csv (detailed analysis)")
+    logger.info("  - top_motifs.csv (motif summaries)")
+    logger.info("  - factorization_parameters.csv (parameters)")
     if args.make_plots:
-        logger.info(f"  - plots/ (diagnostic visualizations)")
+        logger.info("  - plots/ (diagnostic visualizations)")
 
     logger.info("\nNext step:")
     logger.info("  Run: alarmist-bptf-viz --bptf-dir " + str(args.output_dir))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

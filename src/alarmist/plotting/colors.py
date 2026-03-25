@@ -20,19 +20,23 @@ Usage:
     al.clear_celltype_colors()
 """
 
-from typing import Dict, List, Optional, Union, Any
-import matplotlib.pyplot as plt
+import logging
+from typing import Any, Union
+
 import anndata
+import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
 
 # Module-level registry for cell type colors
-_CELLTYPE_COLORS: Dict[str, Any] = {}
+_CELLTYPE_COLORS: dict[str, Any] = {}
 
 
 def set_celltype_colors(
-    source: Union[List[str], Dict[str, Any], "anndata.AnnData"],
-    column: Optional[str] = None,
+    source: Union[list[str], dict[str, Any], "anndata.AnnData"],
+    column: str | None = None,
     palette: str = "tab20",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Set global cell type colors for consistent plotting.
 
@@ -66,22 +70,26 @@ def set_celltype_colors(
     if isinstance(source, dict):
         # Direct color mapping
         _CELLTYPE_COLORS = source.copy()
-        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors (custom)")
+        logger.debug(f"Set {len(_CELLTYPE_COLORS)} cell type colors (custom)")
     elif isinstance(source, list):
         # Generate colors from palette
         _CELLTYPE_COLORS = _generate_colors(source, palette)
-        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors using palette '{palette}'")
+        logger.debug(
+            f"Set {len(_CELLTYPE_COLORS)} cell type colors using palette '{palette}'"
+        )
     else:
         # Assume AnnData
         if column is None:
             raise ValueError("column parameter required when source is AnnData")
         celltypes = sorted(source.obs[column].unique().tolist())
         _CELLTYPE_COLORS = _generate_colors(celltypes, palette)
-        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors from adata.obs['{column}'] using palette '{palette}'")
+        logger.debug(
+            f"Set {len(_CELLTYPE_COLORS)} cell type colors from adata.obs['{column}'] using palette '{palette}'"
+        )
     return _CELLTYPE_COLORS.copy()
 
 
-def get_celltype_colors() -> Dict[str, Any]:
+def get_celltype_colors() -> dict[str, Any]:
     """
     Get current global cell type color mapping.
 
@@ -97,10 +105,10 @@ def clear_celltype_colors() -> None:
     """Clear the global cell type color registry."""
     global _CELLTYPE_COLORS
     _CELLTYPE_COLORS = {}
-    print("Cleared cell type colors")
+    logger.debug("Cleared cell type colors")
 
 
-def _generate_colors(celltypes: List[str], palette: str = "tab20") -> Dict[str, tuple]:
+def _generate_colors(celltypes: list[str], palette: str = "tab20") -> dict[str, tuple]:
     """Generate color mapping from a matplotlib palette."""
     n = len(celltypes)
     cmap = plt.get_cmap(palette, n)
@@ -108,10 +116,10 @@ def _generate_colors(celltypes: List[str], palette: str = "tab20") -> Dict[str, 
 
 
 def _get_colors_for_plotting(
-    ct_colors: Optional[Dict[str, Any]] = None,
-    df_celltypes: Optional[List[str]] = None,
+    ct_colors: dict[str, Any] | None = None,
+    df_celltypes: list[str] | None = None,
     palette: str = "tab20",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Internal function to get colors for plotting functions.
 

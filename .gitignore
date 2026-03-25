@@ -2,7 +2,6 @@
 results/
 *.npz
 *.npy
-*.csv
 notebooks/cpdb_inputs/
 *.h5ad
 *.loom
@@ -16,7 +15,6 @@ notebooks/cpdb_inputs/
 *.parquet
 *.csv.gz
 *.tsv
-*.h5ad
 *.pdf
 *.png
 *.svg
@@ -24,11 +22,42 @@ notebooks/cpdb_inputs/
 *.jpg
 *.jpeg
 figures/
-.DS_Store
-**/.DS_Store
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.whl
+.venv/
+venv/
+.pytest_cache/
+
+# uv (keep uv.lock for reproducibility)
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+**/.DS_Store
+
+# Jupyter
 *.nbc
 *.nbi
 .ipynb_checkpoints/
 .Rapp.history
+
+# Legacy scripts with hardcoded paths (archived)
+archived_scripts/
+src/alarmist.egg-info/**
+work/*
+results/*

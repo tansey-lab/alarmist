@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.egg-info
+.eggs
+*.egg
+.venv
+venv
+.pytest_cache
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Data files (too large for container)
+data/*.h5ad
+data/*.parquet
+results/
+
+# Notebooks and docs
+notebooks/
+docs/
+tutorials/
+*.ipynb
+
+# Build
+build/
+dist/
+*.whl
+
+# Test files
+tests/fixtures/*.h5ad

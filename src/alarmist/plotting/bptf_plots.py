@@ -2,33 +2,35 @@
 BPTF visualization functions
 """
 
+import logging
 import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
-def plot_cells_per_patch(patch_metadata_df: pd.DataFrame, save_path: Optional[str] = None):
+def plot_cells_per_patch(patch_metadata_df: pd.DataFrame, save_path: str | None = None):
     """Plot distribution of cells per patch"""
     plt.figure(figsize=(8, 6))
-    plt.hist(patch_metadata_df['n_cells'], bins=50, edgecolor='black')
-    plt.xlabel('Number of cells per patch')
-    plt.ylabel('Number of patches')
-    plt.title('Distribution of cells per patch')
+    plt.hist(patch_metadata_df["n_cells"], bins=50, edgecolor="black")
+    plt.xlabel("Number of cells per patch")
+    plt.ylabel("Number of patches")
+    plt.title("Distribution of cells per patch")
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"Saved: {save_path}")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"Saved: {save_path}")
 
     return plt.gcf()
 
 
-def plot_factor_distributions(patch_loadings: np.ndarray,
-                              lri_factors: np.ndarray,
-                              save_path: Optional[str] = None):
+def plot_factor_distributions(
+    patch_loadings: np.ndarray, lri_factors: np.ndarray, save_path: str | None = None
+):
     """Plot LRI participation and patch loading distributions"""
     # Compute data
     lri_participation = lri_factors.sum(axis=0)
@@ -38,79 +40,81 @@ def plot_factor_distributions(patch_loadings: np.ndarray,
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
     # Left subplot: LRI participation distribution
-    axes[0].hist(lri_participation, bins=100, alpha=0.7, edgecolor='black')
-    axes[0].set_title('LRI Factor Distribution')
-    axes[0].set_xlabel('Total Factor')
-    axes[0].set_ylabel('Number of LRIs (log)')
-    axes[0].set_yscale('log')
+    axes[0].hist(lri_participation, bins=100, alpha=0.7, edgecolor="black")
+    axes[0].set_title("LRI Factor Distribution")
+    axes[0].set_xlabel("Total Factor")
+    axes[0].set_ylabel("Number of LRIs (log)")
+    axes[0].set_yscale("log")
     axes[0].grid(True)
 
     # Right subplot: Patch loading distribution
-    axes[1].hist(patch_loading_totals, bins=100, alpha=0.7, edgecolor='black')
-    axes[1].set_title('Patch Loading Distribution')
-    axes[1].set_xlabel('Total Loading')
-    axes[1].set_ylabel('Number of Patches')
-    axes[1].set_yscale('log')
+    axes[1].hist(patch_loading_totals, bins=100, alpha=0.7, edgecolor="black")
+    axes[1].set_title("Patch Loading Distribution")
+    axes[1].set_xlabel("Total Loading")
+    axes[1].set_ylabel("Number of Patches")
+    axes[1].set_yscale("log")
     axes[1].grid(True)
 
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"Saved: {save_path}")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
 
-def plot_factor_sparsity(patch_loadings: np.ndarray,
-                        lri_factors: np.ndarray,
-                        save_path: Optional[str] = None,
-                        threshold: float = 1e-6):
+def plot_factor_sparsity(
+    patch_loadings: np.ndarray,
+    lri_factors: np.ndarray,
+    save_path: str | None = None,
+    threshold: float = 1e-6,
+):
     """Plot sparsity of factor matrices"""
     fig, ax = plt.subplots(figsize=(8, 6))
 
     patch_sparsity = (patch_loadings < threshold).mean()
     lri_sparsity = (lri_factors < threshold).mean()
 
-    ax.bar(['Patch Loadings', 'LRI Factors'], [patch_sparsity, lri_sparsity])
-    ax.set_title('Factor Matrix Sparsity')
-    ax.set_ylabel(f'Fraction of values < {threshold}')
+    ax.bar(["Patch Loadings", "LRI Factors"], [patch_sparsity, lri_sparsity])
+    ax.set_title("Factor Matrix Sparsity")
+    ax.set_ylabel(f"Fraction of values < {threshold}")
     ax.set_ylim(0, 1)
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"Saved: {save_path}")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
 
-def plot_motif_activities(patch_loadings: np.ndarray, save_path: Optional[str] = None):
+def plot_motif_activities(patch_loadings: np.ndarray, save_path: str | None = None):
     """Plot motif activity distribution"""
     motif_activities = patch_loadings.sum(axis=0)
 
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.bar(range(len(motif_activities)), motif_activities)
-    ax.set_title('Motif Activity Distribution')
-    ax.set_xlabel('Motif Index')
-    ax.set_ylabel('Total Activity')
+    ax.set_title("Motif Activity Distribution")
+    ax.set_xlabel("Motif Index")
+    ax.set_ylabel("Total Activity")
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"Saved: {save_path}")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
 
 def plot_lri_factor_scatter(
     lri_motifs: pd.DataFrame,
-    motif_idx: Optional[int] = None,
+    motif_idx: int | None = None,
     figsize: tuple = (12, 4),
     alpha: float = 0.3,
     s: float = 1,
-    save_path: Optional[str] = None,
-    show: bool = True
+    save_path: str | None = None,
+    show: bool = True,
 ) -> plt.Figure:
     """
     Plot scatter plots of LRI factors vs mean expression.
@@ -144,40 +148,40 @@ def plot_lri_factor_scatter(
     """
     # Filter by motif if specified
     if motif_idx is not None:
-        df = lri_motifs[lri_motifs['motif_idx'] == motif_idx].copy()
-        y_col = 'lr_global_mean'
-        title_suffix = f' (Motif {motif_idx})'
+        df = lri_motifs[lri_motifs["motif_idx"] == motif_idx].copy()
+        y_col = "lr_global_mean"
+        title_suffix = f" (Motif {motif_idx})"
     else:
         df = lri_motifs.copy()
-        y_col = 'mean'
-        title_suffix = ' (All Motifs)'
+        y_col = "mean"
+        title_suffix = " (All Motifs)"
 
     fig, axes = plt.subplots(1, 3, figsize=figsize)
 
     # Panel 1: factor vs y
-    axes[0].scatter(df['factor'], df[y_col], alpha=alpha, s=s)
-    axes[0].set_xlabel('factor')
+    axes[0].scatter(df["factor"], df[y_col], alpha=alpha, s=s)
+    axes[0].set_xlabel("factor")
     axes[0].set_ylabel(y_col)
-    axes[0].set_title(f'Factor vs {y_col}')
+    axes[0].set_title(f"Factor vs {y_col}")
 
     # Panel 2: factor_lrnorm vs y
-    axes[1].scatter(df['factor_lrnorm'], df[y_col], alpha=alpha, s=s)
-    axes[1].set_xlabel('factor_lrnorm')
+    axes[1].scatter(df["factor_lrnorm"], df[y_col], alpha=alpha, s=s)
+    axes[1].set_xlabel("factor_lrnorm")
     axes[1].set_ylabel(y_col)
-    axes[1].set_title(f'Factor (LR-norm) vs {y_col}')
+    axes[1].set_title(f"Factor (LR-norm) vs {y_col}")
 
     # Panel 3: score vs y
-    axes[2].scatter(df['score'], df[y_col], alpha=alpha, s=s)
-    axes[2].set_xlabel('score')
+    axes[2].scatter(df["score"], df[y_col], alpha=alpha, s=s)
+    axes[2].set_xlabel("score")
     axes[2].set_ylabel(y_col)
-    axes[2].set_title(f'Score vs {y_col}')
+    axes[2].set_title(f"Score vs {y_col}")
 
-    plt.suptitle(f'LRI Factor Scatter Plots{title_suffix}', y=1.02)
+    plt.suptitle(f"LRI Factor Scatter Plots{title_suffix}", y=1.02)
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"Saved: {save_path}")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"Saved: {save_path}")
 
     if show:
         plt.show()
@@ -185,9 +189,9 @@ def plot_lri_factor_scatter(
     return fig
 
 
-def plot_bptf_diagnostics(patch_loadings: np.ndarray,
-                         lri_factors: np.ndarray,
-                         output_dir: Optional[str] = None):
+def plot_bptf_diagnostics(
+    patch_loadings: np.ndarray, lri_factors: np.ndarray, output_dir: str | None = None
+):
     """Create diagnostic plots for BPTF results
 
     Parameters
@@ -215,7 +219,7 @@ def plot_bptf_diagnostics(patch_loadings: np.ndarray,
       - (2,2) LRI factors distribution (log-scale)
     """
     W = patch_loadings  # (n_patches, K)
-    V = lri_factors     # (K, n_lri)
+    V = lri_factors  # (K, n_lri)
     n_patches, K = W.shape
 
     # ========== Normalization ==========
@@ -227,19 +231,19 @@ def plot_bptf_diagnostics(patch_loadings: np.ndarray,
     W_max_safe[W_max_safe == 0] = 1.0
 
     # Normalize W: each column's max becomes 1
-    W_tilde = W / W_max_safe[None, :]       # (n_patches, K)
+    W_tilde = W / W_max_safe[None, :]  # (n_patches, K)
     # Scale V accordingly
-    V_tilde = V * W_max_safe[:, None]       # (K, n_lri)
+    V_tilde = V * W_max_safe[:, None]  # (K, n_lri)
 
     # ========== Compute metrics ==========
     # 1. Coverage: sum_i W_tilde_ik
-    S_tilde = W_tilde.sum(axis=0)           # (K,)
+    S_tilde = W_tilde.sum(axis=0)  # (K,)
     S_tilde_frac = S_tilde / (S_tilde.sum() + 1e-10)
 
     # 2. Total contribution: sum_{i,j} W_tilde_ik * V_tilde_kj
-    V_tilde_sum = V_tilde.sum(axis=1)                        # (K,)
-    patch_motif_contrib = W_tilde * V_tilde_sum[None, :]     # (n_patches, K)
-    C_k = patch_motif_contrib.sum(axis=0)                    # (K,)
+    V_tilde_sum = V_tilde.sum(axis=1)  # (K,)
+    patch_motif_contrib = W_tilde * V_tilde_sum[None, :]  # (n_patches, K)
+    C_k = patch_motif_contrib.sum(axis=0)  # (K,)
     C_k_frac = C_k / (C_k.sum() + 1e-10)
 
     # ========== Create figure ==========
@@ -250,16 +254,18 @@ def plot_bptf_diagnostics(patch_loadings: np.ndarray,
     # ========== Row 1: Normalized motif metrics ==========
     # (1,1) Motif coverage
     axes[0, 0].bar(x, S_tilde_frac)
-    axes[0, 0].set_xlabel('Motif Index')
-    axes[0, 0].set_ylabel('Coverage (fraction)')
-    axes[0, 0].set_title('Motif Coverage Across Patches\n(Σᵢ W̃ᵢₖ, normalized)')
+    axes[0, 0].set_xlabel("Motif Index")
+    axes[0, 0].set_ylabel("Coverage (fraction)")
+    axes[0, 0].set_title("Motif Coverage Across Patches\n(Σᵢ W̃ᵢₖ, normalized)")
     axes[0, 0].set_xticks(x)
 
     # (1,2) Total contribution
     axes[0, 1].bar(x, C_k_frac)
-    axes[0, 1].set_xlabel('Motif Index')
-    axes[0, 1].set_ylabel('Total Contribution (fraction)')
-    axes[0, 1].set_title('Overall Contribution of Each Motif\n(Σᵢⱼ W̃ᵢₖ Ṽₖⱼ, normalized)')
+    axes[0, 1].set_xlabel("Motif Index")
+    axes[0, 1].set_ylabel("Total Contribution (fraction)")
+    axes[0, 1].set_title(
+        "Overall Contribution of Each Motif\n(Σᵢⱼ W̃ᵢₖ Ṽₖⱼ, normalized)"
+    )
     axes[0, 1].set_xticks(x)
 
     # ========== Row 2: Factor distributions ==========
@@ -267,27 +273,27 @@ def plot_bptf_diagnostics(patch_loadings: np.ndarray,
 
     # (2,1) Patch loadings distribution
     log_W = np.log(W.flatten() + eps)
-    axes[1, 0].hist(log_W, bins=50, edgecolor='black', alpha=0.7)
-    axes[1, 0].set_xlabel('log(patch_loadings + 1e-10)')
-    axes[1, 0].set_ylabel('Count (log-scale)')
-    axes[1, 0].set_yscale('log')
-    axes[1, 0].set_title('Distribution of Patch Loadings')
+    axes[1, 0].hist(log_W, bins=50, edgecolor="black", alpha=0.7)
+    axes[1, 0].set_xlabel("log(patch_loadings + 1e-10)")
+    axes[1, 0].set_ylabel("Count (log-scale)")
+    axes[1, 0].set_yscale("log")
+    axes[1, 0].set_title("Distribution of Patch Loadings")
 
     # (2,2) LRI factors distribution
     log_V = np.log(V.flatten() + eps)
-    axes[1, 1].hist(log_V, bins=50, edgecolor='black', alpha=0.7)
-    axes[1, 1].set_xlabel('log(lri_factors + 1e-10)')
-    axes[1, 1].set_ylabel('Count (log-scale)')
-    axes[1, 1].set_yscale('log')
-    axes[1, 1].set_title('Distribution of LRI Factors')
+    axes[1, 1].hist(log_V, bins=50, edgecolor="black", alpha=0.7)
+    axes[1, 1].set_xlabel("log(lri_factors + 1e-10)")
+    axes[1, 1].set_ylabel("Count (log-scale)")
+    axes[1, 1].set_yscale("log")
+    axes[1, 1].set_title("Distribution of LRI Factors")
 
     plt.tight_layout()
 
     if output_dir:
-        plots_dir = os.path.join(output_dir, 'plots')
+        plots_dir = os.path.join(output_dir, "plots")
         os.makedirs(plots_dir, exist_ok=True)
-        save_path = os.path.join(plots_dir, 'bptf_diagnostics.pdf')
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"BPTF diagnostic plots saved to: {plots_dir}")
+        save_path = os.path.join(plots_dir, "bptf_diagnostics.pdf")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"BPTF diagnostic plots saved to: {plots_dir}")
 
     return fig

@@ -13,8 +13,8 @@ from alarmist.cli import common, log_config
 def get_parser():
     """Create argument parser for patchify command"""
     parser = argparse.ArgumentParser(
-        prog='alarmist-patchify',
-        description='Patchify tissue and count ligand-receptor interactions (LRI)',
+        prog="alarmist-patchify",
+        description="Patchify tissue and count ligand-receptor interactions (LRI)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -25,8 +25,9 @@ Examples:
   alarmist-patchify --adata data.h5ad --output-dir results/ --patch-size 80
 
   # Multi-sample mode
-  alarmist-patchify --adata data.h5ad --output-dir results/ --multi-sample --sample-column batch
-        """
+  alarmist-patchify --adata data.h5ad --output-dir results/ \\
+      --multi-sample --sample-column batch
+        """,
     )
 
     # Add argument groups
@@ -54,6 +55,7 @@ def main():
     # Import heavy dependencies only after argument parsing
     logger.info("Loading dependencies...")
     import scanpy as sc
+
     import alarmist as al
 
     # Load data
@@ -63,11 +65,13 @@ def main():
 
     # Check required columns
     if args.cell_type_column not in adata.obs.columns:
-        logger.error(f"Cell type column '{args.cell_type_column}' not found in adata.obs")
+        logger.error(
+            f"Cell type column '{args.cell_type_column}' not found in adata.obs"
+        )
         logger.error(f"Available columns: {list(adata.obs.columns)}")
         sys.exit(1)
 
-    if 'spatial' not in adata.obsm:
+    if "spatial" not in adata.obsm:
         logger.error("Spatial coordinates not found in adata.obsm['spatial']")
         sys.exit(1)
 
@@ -77,7 +81,7 @@ def main():
         patch_size=args.patch_size,
         resource_name=args.resource,
         cell_type_column=args.cell_type_column,
-        cellchatdb_path=args.cellchatdb_path
+        cellchatdb_path=args.cellchatdb_path,
     )
 
     # Run patchify
@@ -86,11 +90,11 @@ def main():
         adata,
         output_dir=args.output_dir,
         multi_sample=args.multi_sample,
-        sample_column=args.sample_column
+        sample_column=args.sample_column,
     )
 
     # Report results
-    matrix = results['patch_lri_matrix']
+    matrix = results["patch_lri_matrix"]
     logger.info(f"Patch-LRI matrix shape: {matrix.shape}")
     logger.info(f"Number of patches: {matrix.shape[0]}")
     logger.info(f"Number of LRI combinations: {matrix.shape[1]}")

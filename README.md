@@ -8,23 +8,39 @@ ALARMIST identifies recurring ligand-receptor interaction (LRI) patterns in spat
 
 ALARMIST discovers **microenvironment motifs** - coordinated patterns of cell-cell communication that recur across tissue regions. The pipeline:
 
-1. **Patchifies** tissue into spatial units and quantifies LRI activity per patch
-2. **Factorizes** the patch-LRI matrix using BPTF to discover latent motifs
-3. **Projects** motifs to single-cell resolution
-4. **Analyzes** downstream impact via Poisson GLM differential expression
+1. **Patchify** - Divide tissue into spatial patches and quantify LRI activity
+2. **BPTF** - Factorize the patch-LRI matrix to discover latent motifs
+3. **Project** - Map motifs to single-cell resolution
+4. **GLM** - Analyze downstream impact via Poisson GLM differential expression
+5. **Visualize** - Generate publication-ready figures
 
 ## Installation
 
+### Using uv (recommended)
+
 ```bash
-# Clone the repository
+# Install uv if you don't have it
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone and install
 git clone https://github.com/tansey-lab/alarmist.git
 cd alarmist
+uv sync
+```
 
-# Install dependencies
-pip install -r requirements.txt
+### Using pip
 
-# Install ALARMIST
+```bash
+git clone https://github.com/tansey-lab/alarmist.git
+cd alarmist
 pip install -e .
+```
+
+### Development Setup
+
+```bash
+# Full dev environment with pre-commit hooks
+make dev
 ```
 
 ## Quick Start
@@ -98,6 +114,68 @@ results = analyzer.run_patchify({
     'sample_B': adata_b
 })
 ```
+
+## CLI Usage
+
+ALARMIST provides CLI commands for each pipeline step:
+
+```bash
+# Step 1: Patchify tissue and count LRI
+alarmist-patchify --adata data.h5ad --output-dir results/patchify
+
+# Step 2: Run BPTF factorization
+alarmist-bptf --input-dir results/patchify --output-dir results/bptf --n-components 15
+
+# Step 3: Project to single cells
+alarmist-project --adata data.h5ad --bptf-dir results/bptf --output-dir results/project
+
+# Step 4: Run GLM analysis
+alarmist-glm --input-dir results/project --adata data.h5ad --output-dir results/glm
+
+# Step 5: Generate visualizations
+alarmist-visualize --glm-dir results/glm --bptf-dir results/bptf --output-dir results/plots
+```
+
+## Nextflow Pipeline
+
+For production use, run the full nf-core pipeline:
+
+```bash
+cd nextflow
+
+# Run with Docker
+nextflow run main.nf \
+    --input samplesheet.csv \
+    --outdir results \
+    -profile docker
+
+# Run with Singularity (HPC)
+nextflow run main.nf \
+    --input samplesheet.csv \
+    --outdir results \
+    -profile singularity
+```
+
+### Samplesheet Format
+
+Create a CSV file with your samples:
+
+```csv
+sample_id,adata_path
+sample_A,/path/to/sample_A.h5ad
+sample_B,/path/to/sample_B.h5ad
+```
+
+### Pipeline Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--patch_size` | 50 | Patch size in micrometers |
+| `--n_components` | 15 | Number of BPTF motifs |
+| `--cell_type_column` | cell_type | Column name for cell types |
+| `--resource` | CellPhoneDB | LRI database (CellPhoneDB, CellChatDB) |
+
+See `nextflow/nextflow.config` for all parameters.
 
 ## Tutorials
 
