@@ -69,9 +69,17 @@ Examples:
         "--plot-types",
         type=str,
         nargs="+",
-        default=["volcano", "forest", "heatmap", "motif_summary", "spatial"],
-        choices=["volcano", "forest", "heatmap", "motif_summary", "spatial", "all"],
-        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial)",
+        default=["volcano", "forest", "heatmap", "motif_summary", "spatial", "lri_dot"],
+        choices=[
+            "volcano",
+            "forest",
+            "heatmap",
+            "motif_summary",
+            "spatial",
+            "lri_dot",
+            "all",
+        ],
+        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial lri_dot)",
     )
     parser.add_argument(
         "--format",
@@ -129,7 +137,14 @@ def main():
     # Resolve 'all' plot type
     plot_types = args.plot_types
     if "all" in plot_types:
-        plot_types = ["volcano", "forest", "heatmap", "motif_summary", "spatial"]
+        plot_types = [
+            "volcano",
+            "forest",
+            "heatmap",
+            "motif_summary",
+            "spatial",
+            "lri_dot",
+        ]
 
     # Load GLM results
     logger.info(f"Loading GLM results from {args.glm_dir}")
@@ -437,6 +452,45 @@ def main():
                 )
 
             logger.info("Generated spatial plots")
+
+    # LRI dot plots (one per motif)
+    if "lri_dot" in plot_types and bptf_results is not None:
+        lri_motifs_df = bptf_results.get("lri_motifs")
+        if lri_motifs_df is not None and len(lri_motifs_df) > 0:
+            logger.info("Generating LRI dot plots...")
+            motifs = sorted(lri_motifs_df["motif_idx"].unique())
+            for motif_idx in motifs:
+                motif_df = lri_motifs_df[lri_motifs_df["motif_idx"] == motif_idx].copy()
+                if len(motif_df) == 0:
+                    continue
+                try:
+                    fig = al.plot_top_lri_interactions_dot(
+                        motif_df,
+                        top_n=args.top_n,
+                    )
+                    if fig is not None:
+                        outpath = (
+                            output_dir / f"lri_dot_motif_{motif_idx}_mqc.{args.format}"
+                        )
+                        fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
+                        plt.close(fig)
+                        write_mqc_yaml(
+                            outpath,
+                            f"LRI Dot Plot: Motif {motif_idx}",
+                            f"Top ligand-receptor interactions for Motif {motif_idx}",
+                        )
+                        plots_generated.append(str(outpath))
+                except Exception as e:
+                    logger.warning(
+                        f"Could not generate LRI dot plot for motif {motif_idx}: {e}"
+                    )
+            logger.info(
+                f"Generated {len([p for p in plots_generated if 'lri_dot' in p])} LRI dot plots"
+            )
+        else:
+            logger.warning(
+                "No lri_motifs data found in BPTF results, skipping LRI dot plots"
+            )
 
     # Report results
     logger.info(f"Generated {len(plots_generated)} plots")
