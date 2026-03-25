@@ -6,14 +6,15 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
+    graphviz \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
 COPY pyproject.toml uv.lock* ./
 COPY src/ ./src/
 
-# Install dependencies
-RUN uv sync --no-dev
+# Install dependencies (including viz extras for graphviz support)
+RUN uv sync --no-dev --extra viz
 
 # Set entrypoint
 ENTRYPOINT ["uv", "run"]
