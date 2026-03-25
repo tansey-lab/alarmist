@@ -26,10 +26,10 @@
           },
           "resource": {
             "type": "string",
-            "default": "CellPhoneDB",
+            "default": "cellphonedb",
             "description": "Ligand-receptor interaction database",
             "fa_icon": "fas fa-database",
-            "enum": ["CellPhoneDB", "CellChatDB"]
+            "enum": ["cellphonedb", "cellchatdb"]
           }
         }
       },
