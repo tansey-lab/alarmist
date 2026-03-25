@@ -173,7 +173,7 @@ sample_B,/path/to/sample_B.h5ad
 | `--patch_size` | 50 | Patch size in micrometers |
 | `--n_components` | 15 | Number of BPTF motifs |
 | `--cell_type_column` | cell_type | Column name for cell types |
-| `--resource` | CellPhoneDB | LRI database (CellPhoneDB, CellChatDB) |
+| `--resource` | cellphonedb | LRI database (cellphonedb, cellchatdb) |
 
 See `nextflow/nextflow.config` for all parameters.
 
