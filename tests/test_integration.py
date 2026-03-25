@@ -53,9 +53,9 @@ class TestDataLoading:
         # Check cell type/label column exists (various naming conventions)
         cell_type_cols = ["cell_type", "cell_labels", "celltype", "annotation"]
         has_cell_type = any(col in sample_adata.obs.columns for col in cell_type_cols)
-        assert (
-            has_cell_type
-        ), f"Missing cell type column. Found: {list(sample_adata.obs.columns)}"
+        assert has_cell_type, (
+            f"Missing cell type column. Found: {list(sample_adata.obs.columns)}"
+        )
 
         # Check we have cells and genes
         assert sample_adata.n_obs > 0, "No cells in data"
