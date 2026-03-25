@@ -13,7 +13,7 @@ from pathlib import Path
 
 def run_command_with_conda(cmd, description, conda_env=None):
     """Run a command with optional conda environment activation"""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"RUNNING: {description}")
 
     if conda_env:
@@ -24,7 +24,7 @@ def run_command_with_conda(cmd, description, conda_env=None):
         full_cmd = cmd
 
     print(f"COMMAND: {full_cmd}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     try:
         result = subprocess.run(

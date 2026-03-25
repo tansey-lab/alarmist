@@ -368,7 +368,9 @@ def plot_motif_spatial(
             if isinstance(c, str):
                 return c
             elif isinstance(c, tuple) and len(c) >= 3:
-                return f"#{int(c[0]*255):02x}{int(c[1]*255):02x}{int(c[2]*255):02x}"
+                return (
+                    f"#{int(c[0] * 255):02x}{int(c[1] * 255):02x}{int(c[2] * 255):02x}"
+                )
             return c
 
         ct_color_hex = {k: to_hex(v) for k, v in color_map.items()}

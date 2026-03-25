@@ -55,9 +55,11 @@ def samplesheet_from_files(ds: PreprocessDataset) -> pd.DataFrame:
     # Use the file path directly as adata_path
     # For s3 links, ensure proper formatting
     files["adata_path"] = files["file"].apply(
-        lambda x: x.replace("s3:/", "s3://")
-        if x.startswith("s3:/") and not x.startswith("s3://")
-        else x
+        lambda x: (
+            x.replace("s3:/", "s3://")
+            if x.startswith("s3:/") and not x.startswith("s3://")
+            else x
+        )
     )
 
     # Rename sample column to sample_id

@@ -1100,7 +1100,7 @@ def compute_exclusion_mask(
     print("This may take a while for large datasets...")
 
     for cidx, cell_type in enumerate(cell_types):
-        print(f"Processing {cell_type} ({cidx+1}/{len(cell_types)})...")
+        print(f"Processing {cell_type} ({cidx + 1}/{len(cell_types)})...")
 
         # Create boolean masks
         in_mask = adata.obs["cell_type"] == cell_type
@@ -1884,7 +1884,7 @@ def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
             }
         )
         print(
-            f"  {cell_type}: {len(marker_genes)} marker genes ({len(marker_genes)/len(all_genes)*100:.1f}%)"
+            f"  {cell_type}: {len(marker_genes)} marker genes ({len(marker_genes) / len(all_genes) * 100:.1f}%)"
         )
 
     # Save summary

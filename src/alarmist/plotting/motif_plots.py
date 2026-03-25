@@ -280,7 +280,7 @@ def plot_lri_clustermap(
         cmap=cmap,
         norm=norm,
         linewidths=0.5,
-        cbar_kws={"label": f'{factor_col} ({"log scale" if log_scale else "linear"})'},
+        cbar_kws={"label": f"{factor_col} ({'log scale' if log_scale else 'linear'})"},
         figsize=figsize,
         cbar_pos=(1.02, 0.2, 0.03, 0.6),
         xticklabels=True,
@@ -1717,12 +1717,14 @@ def plot_lri_networks(
                 if not lr_pairs.empty:
                     lr_pairs["in_top20"] = lr_pairs.apply(
                         lambda x: (
-                            x["celltype1"],
-                            x["celltype2"],
-                            x["ligand"],
-                            x["receptor"],
-                        )
-                        in top20_set,
+                            (
+                                x["celltype1"],
+                                x["celltype2"],
+                                x["ligand"],
+                                x["receptor"],
+                            )
+                            in top20_set
+                        ),
                         axis=1,
                     )
                     top_sel = lr_pairs[lr_pairs["in_top20"]].head(3)

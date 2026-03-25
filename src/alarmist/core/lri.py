@@ -355,7 +355,7 @@ class BaseLRIAnalyzer(ABC):
         print("Filtering zero columns:")
         print(f"  Total columns: {n_total}")
         print(f"  Non-zero columns: {n_nonzero}")
-        print(f"  Zero columns removed: {n_removed} ({n_removed/n_total*100:.1f}%)")
+        print(f"  Zero columns removed: {n_removed} ({n_removed / n_total * 100:.1f}%)")
 
         # Filter matrix and column names
         filtered_matrix = matrix[:, nonzero_cols]
@@ -567,7 +567,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         n_invalid = np.sum(cell_types_idx == -1)
         if n_invalid > 0:
             print(
-                f"  Warning: {n_invalid} cells ({n_invalid/len(cell_types_idx)*100:.1f}%) have missing/invalid cell types and will be excluded"
+                f"  Warning: {n_invalid} cells ({n_invalid / len(cell_types_idx) * 100:.1f}%) have missing/invalid cell types and will be excluded"
             )
 
         gene_to_idx = {g: i for i, g in enumerate(adata.var_names)}
@@ -1556,7 +1556,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         n_invalid = np.sum(cell_types_idx == -1)
         if n_invalid > 0:
             print(
-                f"  Warning: {n_invalid} cells ({n_invalid/len(cell_types_idx)*100:.1f}%) have missing/invalid cell types and will be excluded"
+                f"  Warning: {n_invalid} cells ({n_invalid / len(cell_types_idx) * 100:.1f}%) have missing/invalid cell types and will be excluded"
             )
 
         gene_to_idx = {g: i for i, g in enumerate(adata.var_names)}

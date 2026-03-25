@@ -179,7 +179,7 @@ def main():
             top_motifs["activity_fractions"][:5],
         )
     ):
-        logger.info(f"  {i+1}. Motif {motif_idx}: {fraction:.1%} of total activity")
+        logger.info(f"  {i + 1}. Motif {motif_idx}: {fraction:.1%} of total activity")
 
     logger.info("\n" + "=" * 60)
     logger.info("STEP 02 COMPLETED SUCCESSFULLY!")
