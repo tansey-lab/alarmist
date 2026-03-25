@@ -5,6 +5,7 @@ Includes volcano plots and forest plots for differential expression results.
 """
 
 import glob
+import logging
 import os
 
 import matplotlib.pyplot as plt
@@ -23,6 +24,8 @@ from alarmist.constants import (
     COLUMN_NAME_QVAL,
     COLUMN_NAME_SE,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def volcano_plot(
@@ -308,7 +311,7 @@ def generate_volcano_plots(
             )
         )
         if not files:
-            print(f"No results found for motif {motif_id}")
+            logger.debug(f"No results found for motif {motif_id}")
             continue
 
         fig, axes = plt.subplots(4, 4, figsize=(16, 16))
@@ -322,12 +325,12 @@ def generate_volcano_plots(
                 .replace("_de_results.csv", "")
             )
 
-            print(f"  Motif {motif_id}, {ct}: Original genes = {len(df)}")
+            logger.debug(f"  Motif {motif_id}, {ct}: Original genes = {len(df)}")
 
             try:
                 cidx = list(cell_types).index(ct)
             except ValueError:
-                print(f"Warning: Cell type {ct} not found")
+                logger.debug(f"Warning: Cell type {ct} not found")
                 continue
 
             # Filter by expression and markers
@@ -368,7 +371,7 @@ def generate_volcano_plots(
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         figures.append(fig)
-        print(f"Motif {motif_id} volcano plots completed")
+        logger.debug(f"Motif {motif_id} volcano plots completed")
 
     if output_dir:
         out_volcano = os.path.join(output_dir, "volcano_plots_filtered.pdf")
@@ -376,7 +379,7 @@ def generate_volcano_plots(
             for fig in figures:
                 pdf.savefig(fig)
                 plt.close(fig)
-        print(f"Volcano plots saved to: {out_volcano}")
+        logger.debug(f"Volcano plots saved to: {out_volcano}")
         return None
     else:
         return figures
@@ -463,7 +466,7 @@ def generate_forest_plots(
         plt.tight_layout(rect=[0, 0, 1, 0.965])
 
         figures.append(fig)
-        print(f"Motif {motif_id} forest plots completed")
+        logger.debug(f"Motif {motif_id} forest plots completed")
 
     if output_dir:
         out_forest = os.path.join(output_dir, "forest_plots_filtered.pdf")
@@ -471,7 +474,7 @@ def generate_forest_plots(
             for fig in figures:
                 pdf.savefig(fig)
                 plt.close(fig)
-        print(f"Forest plots saved to: {out_forest}")
+        logger.debug(f"Forest plots saved to: {out_forest}")
         return None
     else:
         return figures
@@ -499,13 +502,13 @@ def filter_genes_for_plot(
                 genes_to_keep.append(gene)
 
     df = df[df[COLUMN_NAME_GENE].isin(genes_to_keep)].copy()
-    print(f"    After expression filter: {len(df)} genes")
+    logger.debug(f"    After expression filter: {len(df)} genes")
 
     # Marker filter
     other = [i for i in range(len(exclusion_mask)) if i != cidx]
     drop_mask = exclusion_mask[other, :].any(axis=0)
     marker_genes_to_drop = set(all_genes[drop_mask]) & glm_genes_set
     df = df[~df[COLUMN_NAME_GENE].isin(marker_genes_to_drop)]
-    print(f"    After marker filter: {len(df)} genes")
+    logger.debug(f"    After marker filter: {len(df)} genes")
 
     return df

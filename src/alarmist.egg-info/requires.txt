@@ -22,4 +22,3 @@ bptf @ git+https://github.com/aschein/bptf.git
 
 [viz]
 graphviz
-pygraphviz

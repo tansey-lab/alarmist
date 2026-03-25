@@ -74,7 +74,9 @@ from alarmist.plotting import (
     plot_cells_per_patch,
     plot_factor_distributions,
     plot_lri_factor_scatter,
+    plot_lri_networks,
     plot_motif_activities,
+    plot_top_lri_interactions_dot,
     # Color management
     set_celltype_colors,
     volcano_plot,
@@ -106,6 +108,8 @@ __all__ = [
     "plot_motif_activities",
     "plot_factor_distributions",
     "plot_lri_factor_scatter",
+    "plot_lri_networks",
+    "plot_top_lri_interactions_dot",
     "plot_cells_per_patch",
     # GLM analysis
     "run_poisson_glm_analysis",

@@ -38,7 +38,6 @@ Requires-Dist: adjustText>=1.0.0
 Requires-Dist: bptf @ git+https://github.com/aschein/bptf.git
 Provides-Extra: viz
 Requires-Dist: graphviz; extra == "viz"
-Requires-Dist: pygraphviz; extra == "viz"
 
 # ALARMIST
 

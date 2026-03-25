@@ -473,27 +473,22 @@ def main():
                 motif_df = lri_motifs_df[lri_motifs_df["motif_idx"] == motif_idx].copy()
                 if len(motif_df) == 0:
                     continue
-                try:
-                    fig = al.plot_top_lri_interactions_dot(
-                        motif_df,
-                        top_n=args.top_n,
+                fig = al.plot_top_lri_interactions_dot(
+                    motif_df,
+                    top_n=args.top_n,
+                )
+                if fig is not None:
+                    outpath = (
+                        output_dir / f"lri_dot_motif_{motif_idx}_mqc.{args.format}"
                     )
-                    if fig is not None:
-                        outpath = (
-                            output_dir / f"lri_dot_motif_{motif_idx}_mqc.{args.format}"
-                        )
-                        fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
-                        plt.close(fig)
-                        write_mqc_yaml(
-                            outpath,
-                            f"LRI Dot Plot: Motif {motif_idx}",
-                            f"Top ligand-receptor interactions for Motif {motif_idx}",
-                        )
-                        plots_generated.append(str(outpath))
-                except Exception as e:
-                    logger.warning(
-                        f"Could not generate LRI dot plot for motif {motif_idx}: {e}"
+                    fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
+                    plt.close(fig)
+                    write_mqc_yaml(
+                        outpath,
+                        f"LRI Dot Plot: Motif {motif_idx}",
+                        f"Top ligand-receptor interactions for Motif {motif_idx}",
                     )
+                    plots_generated.append(str(outpath))
             logger.info(
                 f"Generated {len([p for p in plots_generated if 'lri_dot' in p])} LRI dot plots"
             )
@@ -502,49 +497,29 @@ def main():
                 "No lri_motifs data found in BPTF results, skipping LRI dot plots"
             )
 
-    # LRI network plots (one per motif)
+    # LRI network plot (single figure with subplot per motif)
     if "lri_network" in plot_types and bptf_results is not None:
         lri_motifs_df = bptf_results.get("lri_motifs")
         if lri_motifs_df is not None and len(lri_motifs_df) > 0:
-            logger.info("Generating LRI network plots...")
-            motifs = sorted(lri_motifs_df["motif_idx"].unique())
-            for motif_idx in motifs:
-                motif_df = lri_motifs_df[lri_motifs_df["motif_idx"] == motif_idx].copy()
-                if len(motif_df) == 0:
-                    continue
-                try:
-                    fig = al.plot_lri_networks(
-                        motif_df,
-                        top_n=args.top_n,
-                    )
-                    if fig is not None:
-                        outpath = (
-                            output_dir
-                            / f"lri_network_motif_{motif_idx}_mqc.{args.format}"
-                        )
-                        fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
-                        plt.close(fig)
-                        write_mqc_yaml(
-                            outpath,
-                            f"LRI Network: Motif {motif_idx}",
-                            f"Cell-cell communication network for Motif {motif_idx}",
-                        )
-                        plots_generated.append(str(outpath))
-                except ImportError as e:
-                    logger.warning(
-                        f"Graphviz not available, skipping LRI network plots: {e}"
-                    )
-                    break
-                except Exception as e:
-                    logger.warning(
-                        f"Could not generate LRI network plot for motif {motif_idx}: {e}"
-                    )
-            logger.info(
-                f"Generated {len([p for p in plots_generated if 'lri_network' in p])} LRI network plots"
+            logger.info("Generating LRI network plot...")
+            fig = al.plot_lri_networks(
+                lri_motifs_df,
+                top_n=args.top_n,
             )
+            if fig is not None:
+                outpath = output_dir / f"lri_network_motifs_mqc.{args.format}"
+                fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
+                plt.close(fig)
+                write_mqc_yaml(
+                    outpath,
+                    "LRI Networks",
+                    "Cell-cell communication networks for all motifs",
+                )
+                plots_generated.append(str(outpath))
+                logger.info("Generated LRI network plot")
         else:
             logger.warning(
-                "No lri_motifs data found in BPTF results, skipping LRI network plots"
+                "No lri_motifs data found in BPTF results, skipping LRI network plot"
             )
 
     # Report results

@@ -5,6 +5,7 @@ Based on scripts/04_poisson_glm.py
 """
 
 import gc
+import logging
 import os
 import warnings
 from pathlib import Path
@@ -31,6 +32,8 @@ from alarmist.constants import (
     COLUMN_NAME_SIGNIFICANT,
 )
 from alarmist.plotting import glm_plots
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -183,15 +186,15 @@ def load_bptf_results(results_dir: str) -> dict:
     """
     import os
 
-    print(f"Loading BPTF results from {results_dir}...")
+    logger.debug(f"Loading BPTF results from {results_dir}...")
 
     results = {}
 
     # Load cell loadings (W matrix)
     results["cell_loadings"] = np.load(os.path.join(results_dir, "cell_loadings.npy"))
 
-    print(
-        f"✓ Loaded results with {results['cell_loadings'].shape[0]} cells, "
+    logger.debug(
+        f"Loaded results with {results['cell_loadings'].shape[0]} cells, "
         f"{results['cell_loadings'].shape[1]} motifs"
     )
 
@@ -221,7 +224,7 @@ def extract_lri_genes(
     set
         Set of unique gene symbols from ligand and receptor fields
     """
-    print("Extracting LRI genes...")
+    logger.debug("Extracting LRI genes...")
 
     lri_genes = set()
 
@@ -230,7 +233,7 @@ def extract_lri_genes(
         sample_names = lri_names[:5]
     else:
         sample_names = lri_names.head(5).tolist()
-    print(f"Sample LRI names: {sample_names}")
+    logger.debug(f"Sample LRI names: {sample_names}")
 
     for name in lri_names:
         if pd.isna(name):
@@ -256,7 +259,7 @@ def extract_lri_genes(
         lri_genes.update(ligand_genes)
         lri_genes.update(receptor_genes)
 
-    print(f"✓ Extracted {len(lri_genes)} unique LRI genes")
+    logger.debug(f"Extracted {len(lri_genes)} unique LRI genes")
     return lri_genes
 
 
@@ -310,9 +313,11 @@ def run_univariate_de_sklearn_by_celltype(
     """
     import os
 
-    print("Running univariate DE with scikit-learn PoissonRegressor (by cell type)...")
+    logger.debug(
+        "Running univariate DE with scikit-learn PoissonRegressor (by cell type)..."
+    )
     if prefilter_spearman:
-        print(
+        logger.debug(
             f"  Spearman pre-filtering enabled (p-value threshold: {spearman_pval_threshold})"
         )
 
@@ -323,7 +328,7 @@ def run_univariate_de_sklearn_by_celltype(
     for k in range(n_motifs):
         for ct in cell_df["cell_type"].unique():
             if ct == "granulocyte":
-                print(
+                logger.debug(
                     f"Skipping cell type '{ct}' for motif {k} (granulocytes not included)"
                 )
                 continue
@@ -336,7 +341,7 @@ def run_univariate_de_sklearn_by_celltype(
             valid = ~np.isnan(X_all) & (X_all > 0)
 
             if valid.sum() == 0:
-                print(
+                logger.debug(
                     f"motif {k}, cell_type '{ct}': no valid positive loadings, skipping"
                 )
                 continue
@@ -360,13 +365,13 @@ def run_univariate_de_sklearn_by_celltype(
                     pval_threshold=spearman_pval_threshold,
                     chunk_size=spearman_chunk_size,
                 )
-                print(
-                    f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells, "
+                logger.debug(
+                    f"motif {k}, cell_type '{ct}': {X.shape[0]} cells, "
                     f"{len(genes_to_test)}/{len(non_lri_genes)} genes after Spearman filter"
                 )
             else:
                 genes_to_test = non_lri_genes
-                print(f"\n🚀 motif {k}, cell_type '{ct}': {X.shape[0]} cells")
+                logger.debug(f"motif {k}, cell_type '{ct}': {X.shape[0]} cells")
 
             genes, coefs, pvals, ses = [], [], [], []
 
@@ -422,7 +427,7 @@ def run_univariate_de_sklearn_by_celltype(
                 fname = f"{key}_de_results.csv"
                 path = os.path.join(output_dir, fname)
                 df.to_csv(path, index=False)
-                print(f"✓ Saved {fname}")
+                logger.debug(f"Saved {fname}")
 
     return de_results
 
@@ -453,7 +458,7 @@ def prepare_cell_data_from_adata(
         (cell_df, counts, gene_names)
     """
 
-    print("=== Preparing Cell Data ===")
+    logger.debug("=== Preparing Cell Data ===")
 
     # Validate alignment
     if cell_loadings.shape[0] != adata.shape[0]:
@@ -462,8 +467,8 @@ def prepare_cell_data_from_adata(
             f"adata has {adata.shape[0]} cells"
         )
 
-    print(f"✓ Cell loadings shape: {cell_loadings.shape}")
-    print(f"✓ AnnData shape: {adata.shape}")
+    logger.debug(f"Cell loadings shape: {cell_loadings.shape}")
+    logger.debug(f"AnnData shape: {adata.shape}")
 
     # Create cell_df with direct cell loadings
     n_cells, n_motifs = cell_loadings.shape
@@ -479,23 +484,23 @@ def prepare_cell_data_from_adata(
     )
 
     # Add cell-level motif loadings
-    print(f"Adding {n_motifs} motif loadings...")
+    logger.debug(f"Adding {n_motifs} motif loadings...")
     for k in range(n_motifs):
         cell_df[f"prog_{k}_loading"] = cell_loadings[:, k]
 
-    print(f"✓ Cell dataframe created: {cell_df.shape}")
+    logger.debug(f"Cell dataframe created: {cell_df.shape}")
 
     # Handle count matrix
-    print(f"Processing count matrix from '{count_layer}'...")
+    logger.debug(f"Processing count matrix from '{count_layer}'...")
 
     if count_layer == "X":
         counts = adata.X
-        print("Using adata.X for analysis")
+        logger.debug("Using adata.X for analysis")
     elif count_layer == "raw":
         if adata.raw is None:
             raise ValueError("adata.raw is None but count_layer='raw' was specified")
         counts = adata.raw.X
-        print("Using adata.raw.X (raw counts) for analysis")
+        logger.debug("Using adata.raw.X (raw counts) for analysis")
     elif count_layer.startswith("layers:"):
         layer_name = count_layer.split(":", 1)[1]
         if layer_name not in adata.layers:
@@ -504,32 +509,34 @@ def prepare_cell_data_from_adata(
                 f"Available layers: {list(adata.layers.keys())}"
             )
         counts = adata.layers[layer_name]
-        print(f"Using adata.layers['{layer_name}'] for analysis")
+        logger.debug(f"Using adata.layers['{layer_name}'] for analysis")
     else:
         raise ValueError(
             f"Invalid count_layer value: '{count_layer}'. "
             f"Use 'X', 'raw', or 'layers:NAME'"
         )
 
-    print(f"Count matrix shape: {counts.shape}")
-    print(f"Count matrix type: {type(counts)}")
-    print(f"Is sparse: {sp.issparse(counts)}")
+    logger.debug(f"Count matrix shape: {counts.shape}")
+    logger.debug(f"Count matrix type: {type(counts)}")
+    logger.debug(f"Is sparse: {sp.issparse(counts)}")
 
     # Get gene names
     if count_layer == "raw" and adata.raw is not None:
         gene_names = list(adata.raw.var_names)
-        print(f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)")
+        logger.debug(
+            f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)"
+        )
     else:
         gene_names = list(adata.var_names)
-        print(f"Using gene names from adata.var_names ({len(gene_names)} genes)")
+        logger.debug(f"Using gene names from adata.var_names ({len(gene_names)} genes)")
 
     if sp.issparse(counts) and not keep_sparse:
-        print("Converting sparse to dense (warning: high memory usage)")
+        logger.debug("Converting sparse to dense (warning: high memory usage)")
         counts = counts.toarray()
-        print("Memory after sparse->dense conversion:")
+        logger.debug("Memory after sparse->dense conversion:")
         check_memory_usage()
 
-    print("✓ Cell data preparation complete")
+    logger.debug("Cell data preparation complete")
 
     return cell_df, counts, gene_names
 
@@ -564,36 +571,36 @@ def prepare_cell_data_memory_efficient(
     tuple
         (cell_df, counts, gene_names)
     """
-    print("=== Memory-Efficient Data Loading ===")
+    logger.debug("=== Memory-Efficient Data Loading ===")
 
     # Check initial memory
-    print("Initial memory check:")
+    logger.debug("Initial memory check:")
     check_memory_usage()
 
     # Load AnnData
-    print(f"Loading AnnData from {adata_file}...")
-    print("This may take a while for large files...")
+    logger.debug(f"Loading AnnData from {adata_file}...")
+    logger.debug("This may take a while for large files...")
 
     adata = sc.read_h5ad(adata_file)
-    print(f"Full AnnData shape: {adata.shape}")
-    print(f"Data type: {type(adata.X)}")
-    print(f"Is sparse: {sp.issparse(adata.X)}")
+    logger.debug(f"Full AnnData shape: {adata.shape}")
+    logger.debug(f"Data type: {type(adata.X)}")
+    logger.debug(f"Is sparse: {sp.issparse(adata.X)}")
 
-    print("Memory after loading full AnnData:")
+    logger.debug("Memory after loading full AnnData:")
     check_memory_usage()
 
-    print("Verifying cell loadings alignment...")
+    logger.debug("Verifying cell loadings alignment...")
     if cell_loadings.shape[0] != adata.shape[0]:
         raise ValueError(
             f"Mismatch: cell_loadings has {cell_loadings.shape[0]} cells, "
             f"adata has {adata.shape[0]} cells"
         )
 
-    print(f"✓ Cell loadings shape: {cell_loadings.shape}")
-    print(f"✓ AnnData shape: {adata.shape}")
+    logger.debug(f"Cell loadings shape: {cell_loadings.shape}")
+    logger.debug(f"AnnData shape: {adata.shape}")
 
     # Create cell_df with direct cell loadings
-    print("Creating cell dataframe with loadings...")
+    logger.debug("Creating cell dataframe with loadings...")
     n_cells, n_motifs = cell_loadings.shape
 
     # Initialize cell_df with adata metadata
@@ -608,31 +615,31 @@ def prepare_cell_data_memory_efficient(
 
     # Add additional cell metadata if provided
     if cell_metadata_file is not None:
-        print(f"Loading additional cell metadata from {cell_metadata_file}...")
+        logger.debug(f"Loading additional cell metadata from {cell_metadata_file}...")
         cell_meta = pd.read_csv(cell_metadata_file)
         if "cell_type" in cell_meta.columns and "cell_type" not in adata.obs.columns:
             cell_df["cell_type"] = cell_meta["cell_type"].values
 
     # Add cell-level motif loadings
-    print("Adding cell-level motif loadings...")
+    logger.debug("Adding cell-level motif loadings...")
     for k in range(n_motifs):
         cell_df[f"prog_{k}_loading"] = cell_loadings[:, k]
 
-    print(f"✓ Added {n_motifs} motif loadings for {n_cells} cells")
-    print("Memory after creating cell dataframe:")
+    logger.debug(f"Added {n_motifs} motif loadings for {n_cells} cells")
+    logger.debug("Memory after creating cell dataframe:")
     check_memory_usage()
 
     # Handle count matrix
-    print(f"Processing count matrix from '{count_layer}'...")
+    logger.debug(f"Processing count matrix from '{count_layer}'...")
 
     if count_layer == "X":
         counts = adata.X
-        print("Using adata.X for analysis")
+        logger.debug("Using adata.X for analysis")
     elif count_layer == "raw":
         if adata.raw is None:
             raise ValueError("adata.raw is None but count_layer='raw' was specified")
         counts = adata.raw.X
-        print("Using adata.raw.X (raw counts) for analysis")
+        logger.debug("Using adata.raw.X (raw counts) for analysis")
     elif count_layer.startswith("layers:"):
         layer_name = count_layer.split(":", 1)[1]
         if layer_name not in adata.layers:
@@ -641,53 +648,55 @@ def prepare_cell_data_memory_efficient(
                 f"Available layers: {list(adata.layers.keys())}"
             )
         counts = adata.layers[layer_name]
-        print(f"Using adata.layers['{layer_name}'] for analysis")
+        logger.debug(f"Using adata.layers['{layer_name}'] for analysis")
     else:
         raise ValueError(
             f"Invalid count_layer value: '{count_layer}'. "
             f"Use 'X', 'raw', or 'layers:NAME'"
         )
 
-    print(f"Count matrix shape: {counts.shape}")
-    print(f"Count matrix type: {type(counts)}")
-    print(f"Is sparse: {sp.issparse(counts)}")
+    logger.debug(f"Count matrix shape: {counts.shape}")
+    logger.debug(f"Count matrix type: {type(counts)}")
+    logger.debug(f"Is sparse: {sp.issparse(counts)}")
 
     # Get gene names
     if count_layer == "raw" and adata.raw is not None:
         gene_names = list(adata.raw.var_names)
-        print(f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)")
+        logger.debug(
+            f"Using gene names from adata.raw.var_names ({len(gene_names)} genes)"
+        )
     else:
         gene_names = list(adata.var_names)
-        print(f"Using gene names from adata.var_names ({len(gene_names)} genes)")
+        logger.debug(f"Using gene names from adata.var_names ({len(gene_names)} genes)")
 
     if sp.issparse(counts):
         if keep_sparse:
-            print("Keeping data in sparse format")
+            logger.debug("Keeping data in sparse format")
             counts_sparse = counts
 
             # Clean up adata
             del adata
             gc.collect()
 
-            print("Memory after cleanup (sparse):")
+            logger.debug("Memory after cleanup (sparse):")
             check_memory_usage()
 
             return cell_df, counts_sparse, gene_names
         else:
-            print("Converting sparse to dense (warning: high memory usage)")
-            print("Memory before sparse->dense conversion:")
+            logger.debug("Converting sparse to dense (warning: high memory usage)")
+            logger.debug("Memory before sparse->dense conversion:")
             check_memory_usage()
 
             counts = counts.toarray()
 
-            print("Memory after sparse->dense conversion:")
+            logger.debug("Memory after sparse->dense conversion:")
             check_memory_usage()
 
     # Clean up
     del adata
     gc.collect()
 
-    print("Final memory after cleanup:")
+    logger.debug("Final memory after cleanup:")
     check_memory_usage()
 
     return cell_df, counts, gene_names
@@ -704,12 +713,12 @@ def check_memory_usage():
         memory_mb = process.memory_info().rss / 1024 / 1024
         available_mb = psutil.virtual_memory().available / 1024 / 1024
 
-        print(f"   Memory usage: {memory_mb:.1f} MB")
-        print(f"   Available: {available_mb:.1f} MB")
+        logger.debug(f"   Memory usage: {memory_mb:.1f} MB")
+        logger.debug(f"   Available: {available_mb:.1f} MB")
 
         return memory_mb, available_mb
     except ImportError:
-        print("   psutil not available for memory monitoring")
+        logger.debug("   psutil not available for memory monitoring")
         return None, None
 
 
@@ -739,7 +748,7 @@ def load_glm_results(results_dir: str) -> dict[str, pd.DataFrame]:
         key = csv_file.stem.replace("_de_results", "")
         glm_results[key] = pd.read_csv(csv_file)
 
-    print(f"Loaded {len(glm_results)} motif-celltype combinations")
+    logger.debug(f"Loaded {len(glm_results)} motif-celltype combinations")
     return glm_results
 
 
@@ -766,9 +775,9 @@ def save_de_results(results: dict, output_dir: str, mode: str = "univariate"):
             filepath = os.path.join(output_dir, filename)
             if not os.path.exists(filepath):
                 df.to_csv(filepath, index=False)
-                print(f"✓ Saved {filename}")
+                logger.debug(f"Saved {filename}")
             else:
-                print(f"✓ {filename} already exists, skipping")
+                logger.debug(f"{filename} already exists, skipping")
 
         # Create long-format file
         long_data = []
@@ -792,12 +801,12 @@ def save_de_results(results: dict, output_dir: str, mode: str = "univariate"):
         long_df = long_df.sort_values([COLUMN_NAME_MOTIF, COLUMN_NAME_QVAL])
 
         long_df.to_csv(os.path.join(output_dir, "univariate_de_long.csv"), index=False)
-        print("✓ Saved univariate_de_long.csv")
+        logger.debug("Saved univariate_de_long.csv")
 
     elif mode == "multivariate":
         filename = "multivariate_de_results.csv"
         results.to_csv(os.path.join(output_dir, filename), index=False)
-        print(f"✓ Saved {filename}")
+        logger.debug(f"Saved {filename}")
 
 
 def run_poisson_glm_analysis(
@@ -871,15 +880,15 @@ def run_poisson_glm_analysis(
     ...     spearman_pval_threshold=0.001
     ... )
     """
-    print("=" * 60)
-    print("BPTF DIFFERENTIAL EXPRESSION ANALYSIS")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("BPTF DIFFERENTIAL EXPRESSION ANALYSIS")
+    logger.debug("=" * 60)
     if output_dir:
-        print(f"Output directory: {output_dir}")
+        logger.debug(f"Output directory: {output_dir}")
     else:
-        print("Output directory: None (results not saved)")
-    print(f"Random seed: {random_state}")
-    print("=" * 60)
+        logger.debug("Output directory: None (results not saved)")
+    logger.debug(f"Random seed: {random_state}")
+    logger.debug("=" * 60)
 
     # Set random seed
     np.random.seed(random_state)
@@ -891,8 +900,8 @@ def run_poisson_glm_analysis(
             f"adata has {adata.shape[0]} cells"
         )
 
-    print(f"Cell loadings shape: {cell_loadings.shape}")
-    print(f"AnnData shape: {adata.shape}")
+    logger.debug(f"Cell loadings shape: {cell_loadings.shape}")
+    logger.debug(f"AnnData shape: {adata.shape}")
 
     # Extract LRI genes
     lri_genes = extract_lri_genes(lri_column_names, splitter)
@@ -904,7 +913,7 @@ def run_poisson_glm_analysis(
         all_genes = list(adata.var_names)
 
     non_lri_genes = [g for g in all_genes if g not in lri_genes]
-    print(
+    logger.debug(
         f"Analyzing {len(non_lri_genes)} non-LRI genes (excluding {len(lri_genes)} LRI genes)"
     )
 
@@ -914,7 +923,7 @@ def run_poisson_glm_analysis(
     )
     n_motifs = cell_loadings.shape[1]
 
-    print(cell_df.head())
+    logger.debug(cell_df.head())
 
     # Run DE analysis
     results = run_univariate_de_sklearn_by_celltype(
@@ -934,7 +943,7 @@ def run_poisson_glm_analysis(
     if output_dir:
         save_de_results(results, output_dir, mode="univariate")
 
-    print("✓ Analysis completed!")
+    logger.debug("Analysis completed!")
 
     return results
 
@@ -1035,14 +1044,14 @@ def load_exclusion_mask(csv_path: str) -> tuple[np.ndarray, np.ndarray, np.ndarr
     -------
     >>> ct, genes, mask = al.load_exclusion_mask("results/markers/exclusion_matrix.csv")
     """
-    print(f"Loading exclusion mask from: {csv_path}")
+    logger.debug(f"Loading exclusion mask from: {csv_path}")
     exclusion_df = pd.read_csv(csv_path, index_col=0)
     genes = np.array(exclusion_df.index)
     cell_types = np.array(exclusion_df.columns)
     exclusion_mask = exclusion_df.values.T  # Transpose to (n_cell_types, n_genes)
 
-    print(
-        f"✓ Loaded exclusion mask for {len(cell_types)} cell types, {len(genes)} genes"
+    logger.debug(
+        f"Loaded exclusion mask for {len(cell_types)} cell types, {len(genes)} genes"
     )
     return cell_types, genes, exclusion_mask
 
@@ -1096,11 +1105,11 @@ def compute_exclusion_mask(
     n_types = len(cell_types)
     exclusion_mask = np.zeros((n_types, len(genes)), dtype=bool)
 
-    print(f"Computing marker genes for {len(cell_types)} cell types...")
-    print("This may take a while for large datasets...")
+    logger.debug(f"Computing marker genes for {len(cell_types)} cell types...")
+    logger.debug("This may take a while for large datasets...")
 
     for cidx, cell_type in enumerate(cell_types):
-        print(f"Processing {cell_type} ({cidx + 1}/{len(cell_types)})...")
+        logger.debug(f"Processing {cell_type} ({cidx + 1}/{len(cell_types)})...")
 
         # Create boolean masks
         in_mask = adata.obs["cell_type"] == cell_type
@@ -1126,7 +1135,9 @@ def compute_exclusion_mask(
             ] = True
             out_mask = tmp
 
-        print(f"  {in_mask.sum()} in-group cells, {out_mask.sum()} out-group cells")
+        logger.debug(
+            f"  {in_mask.sum()} in-group cells, {out_mask.sum()} out-group cells"
+        )
 
         # Perform differential expression
         deg = differential_expression(adata.X, in_mask=in_mask, out_mask=out_mask)
@@ -1136,10 +1147,10 @@ def compute_exclusion_mask(
             deg["logfoldchanges"] >= marker_lfc
         )
         exclusion_mask[cidx, marker_mask] = True
-        print(f"  Found {marker_mask.sum()} marker genes")
+        logger.debug(f"  Found {marker_mask.sum()} marker genes")
 
-    print(
-        f"✓ Computed exclusion mask for {len(cell_types)} cell types, {len(genes)} genes"
+    logger.debug(
+        f"Computed exclusion mask for {len(cell_types)} cell types, {len(genes)} genes"
     )
 
     # Save if output_dir provided
@@ -1153,13 +1164,13 @@ def compute_exclusion_mask(
             columns=cell_types,
         )
         exclusion_df.to_csv(csv_path)
-        print(f"✓ Saved exclusion matrix to: {csv_path}")
+        logger.debug(f"Saved exclusion matrix to: {csv_path}")
     else:
-        print("\nℹ️  Tip: Consider saving the exclusion mask for reuse:")
-        print(
+        logger.debug("Tip: Consider saving the exclusion mask for reuse:")
+        logger.debug(
             "   ct, genes, mask = al.compute_exclusion_mask(adata, output_dir='results/markers')"
         )
-        print(
+        logger.debug(
             "   Then load later: pd.read_csv('results/markers/exclusion_matrix.csv', index_col=0)"
         )
 
@@ -1237,32 +1248,32 @@ def analyze_glm_results(
     """
     import os
 
-    print("=" * 60)
-    print("GLM RESULTS ANALYSIS AND VISUALIZATION")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("GLM RESULTS ANALYSIS AND VISUALIZATION")
+    logger.debug("=" * 60)
     if output_dir:
-        print(f"Output directory: {output_dir}")
+        logger.debug(f"Output directory: {output_dir}")
     else:
-        print("Output directory: None (plots not saved)")
-    print(f"Number of motifs: {n_motifs}")
-    print("=" * 60)
+        logger.debug("Output directory: None (plots not saved)")
+    logger.debug(f"Number of motifs: {n_motifs}")
+    logger.debug("=" * 60)
 
     # Set random seed
     np.random.seed(random_state)
 
-    print(f"Data shape: {adata.shape}")
-    print(f"Cell types: {adata.obs['cell_type'].value_counts().to_dict()}")
+    logger.debug(f"Data shape: {adata.shape}")
+    logger.debug(f"Cell types: {adata.obs['cell_type'].value_counts().to_dict()}")
 
     # Compute or validate marker exclusion mask
     if exclusion_mask is None:
-        print("\nComputing marker gene exclusion mask...")
+        logger.debug("Computing marker gene exclusion mask...")
         cell_types, all_genes, exclusion_mask = compute_exclusion_mask(
             adata,
             marker_lfc=marker_lfc,
             marker_pvalue=marker_pvalue,
             marker_subsample=marker_subsample,
         )
-        print(
+        logger.debug(
             f"Exclusion mask computed for {len(cell_types)} cell types and {len(all_genes)} genes"
         )
 
@@ -1271,12 +1282,12 @@ def analyze_glm_results(
             marker_dir = os.path.join(output_dir, "marker_genes")
             _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask)
     else:
-        print("\nUsing provided exclusion mask...")
+        logger.debug("Using provided exclusion mask...")
         if cell_types is None or all_genes is None:
             raise ValueError(
                 "If exclusion_mask is provided, cell_types and all_genes must also be provided"
             )
-        print(f"Exclusion mask shape: {exclusion_mask.shape}")
+        logger.debug(f"Exclusion mask shape: {exclusion_mask.shape}")
 
     # Convert de_results dict to files structure for plotting functions
     # (The plotting functions currently expect files in a directory)
@@ -1292,7 +1303,7 @@ def analyze_glm_results(
             df.to_csv(csv_path, index=False)
 
         # Generate volcano plots
-        print("\nGenerating volcano plots...")
+        logger.debug("Generating volcano plots...")
         glm_plots.generate_volcano_plots(
             results_temp_dir,
             output_dir,
@@ -1308,7 +1319,7 @@ def analyze_glm_results(
         )
 
         # Generate forest plots
-        print("\nGenerating forest plots...")
+        logger.debug("Generating forest plots...")
         glm_plots.generate_forest_plots(
             results_temp_dir,
             output_dir,
@@ -1325,12 +1336,12 @@ def analyze_glm_results(
 
         shutil.rmtree(results_temp_dir)
 
-        print("\n" + "=" * 60)
-        print("GLM RESULTS ANALYSIS COMPLETED SUCCESSFULLY!")
-        print("=" * 60)
-        print(f"Results saved to: {output_dir}")
+        logger.debug("=" * 60)
+        logger.debug("GLM RESULTS ANALYSIS COMPLETED SUCCESSFULLY!")
+        logger.debug("=" * 60)
+        logger.debug(f"Results saved to: {output_dir}")
     else:
-        print("\nNo output directory specified - skipping plot generation")
+        logger.debug("No output directory specified - skipping plot generation")
 
     return cell_types, all_genes, exclusion_mask
 
@@ -1425,7 +1436,7 @@ def glm_volcano(
         )
         save_as_pdf = True
 
-    print(f"Generating volcano plots for motifs: {motifs_to_plot}")
+    logger.debug(f"Generating volcano plots for motifs: {motifs_to_plot}")
 
     if save_as_pdf:
         # Multi-page PDF for all motifs
@@ -1434,7 +1445,7 @@ def glm_volcano(
 
         with PdfPages(pdf_path) as pdf:
             for mid in motifs_to_plot:
-                print(f"  Processing motif {mid}...")
+                logger.debug(f"  Processing motif {mid}...")
                 fig = _create_volcano_figure_for_motif(
                     mid,
                     de_results,
@@ -1451,7 +1462,7 @@ def glm_volcano(
                 pdf.savefig(fig)
                 plt.close(fig)
 
-        print(f"Volcano plots saved to: {pdf_path}")
+        logger.debug(f"Volcano plots saved to: {pdf_path}")
         return None
 
     else:
@@ -1478,14 +1489,14 @@ def glm_volcano(
                     output_dir, f"volcano_motif_{motifs_to_plot[0]}.pdf"
                 )
                 fig.savefig(save_path, bbox_inches="tight")
-                print(f"Volcano plot saved to: {save_path}")
+                logger.debug(f"Volcano plot saved to: {save_path}")
 
             return fig
         else:
             # Multiple motifs - create separate figures and save as multi-page PDF
             figs = []
             for mid in motifs_to_plot:
-                print(f"  Creating volcano plot for motif {mid}...")
+                logger.debug(f"  Creating volcano plot for motif {mid}...")
                 fig = _create_volcano_figure_for_motif(
                     mid,
                     de_results,
@@ -1513,7 +1524,7 @@ def glm_volcano(
                         pdf.savefig(fig)
                         plt.close(fig)
 
-                print(f"Volcano plots saved to: {pdf_path}")
+                logger.debug(f"Volcano plots saved to: {pdf_path}")
                 return None
             else:
                 # Return list of figures
@@ -1552,7 +1563,7 @@ def _create_volcano_figure_for_motif(
         try:
             cidx = list(cell_types).index(ct)
         except ValueError:
-            print(f"Warning: Cell type {ct} not found")
+            logger.debug(f"Warning: Cell type {ct} not found")
             continue
 
         # Filter genes
@@ -1713,7 +1724,7 @@ def glm_forest(
         )
         save_as_pdf = True
 
-    print(f"Generating forest plots for motifs: {motifs_to_plot}")
+    logger.debug(f"Generating forest plots for motifs: {motifs_to_plot}")
 
     if save_as_pdf:
         # Multi-page PDF for all motifs
@@ -1722,7 +1733,7 @@ def glm_forest(
 
         with PdfPages(pdf_path) as pdf:
             for mid in motifs_to_plot:
-                print(f"  Processing motif {mid}...")
+                logger.debug(f"  Processing motif {mid}...")
                 fig = _create_forest_figure_for_motif(
                     mid,
                     de_results,
@@ -1737,7 +1748,7 @@ def glm_forest(
                 pdf.savefig(fig)
                 plt.close(fig)
 
-        print(f"Forest plots saved to: {pdf_path}")
+        logger.debug(f"Forest plots saved to: {pdf_path}")
         return None
 
     else:
@@ -1762,14 +1773,14 @@ def glm_forest(
                     output_dir, f"forest_motif_{motifs_to_plot[0]}.pdf"
                 )
                 fig.savefig(save_path, bbox_inches="tight")
-                print(f"Forest plot saved to: {save_path}")
+                logger.debug(f"Forest plot saved to: {save_path}")
 
             return fig
         else:
             # Multiple motifs - create separate figures and save as multi-page PDF
             figs = []
             for mid in motifs_to_plot:
-                print(f"  Creating forest plot for motif {mid}...")
+                logger.debug(f"  Creating forest plot for motif {mid}...")
                 fig = _create_forest_figure_for_motif(
                     mid,
                     de_results,
@@ -1795,7 +1806,7 @@ def glm_forest(
                         pdf.savefig(fig)
                         plt.close(fig)
 
-                print(f"Forest plots saved to: {pdf_path}")
+                logger.debug(f"Forest plots saved to: {pdf_path}")
                 return None
             else:
                 # Return list of figures
@@ -1862,7 +1873,7 @@ def _create_forest_figure_for_motif(
 
 def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
     """Save marker gene information"""
-    print("\nSaving marker genes information...")
+    logger.debug("Saving marker genes information...")
     os.makedirs(marker_dir, exist_ok=True)
 
     marker_summary = []
@@ -1883,7 +1894,7 @@ def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
                 "marker_percentage": len(marker_genes) / len(all_genes) * 100,
             }
         )
-        print(
+        logger.debug(
             f"  {cell_type}: {len(marker_genes)} marker genes ({len(marker_genes) / len(all_genes) * 100:.1f}%)"
         )
 
@@ -1895,4 +1906,4 @@ def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
     exclusion_df = pd.DataFrame(exclusion_mask.T, index=all_genes, columns=cell_types)
     exclusion_df.to_csv(os.path.join(marker_dir, "exclusion_matrix.csv"))
 
-    print(f"Marker genes information saved to: {marker_dir}")
+    logger.debug(f"Marker genes information saved to: {marker_dir}")

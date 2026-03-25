@@ -2,8 +2,12 @@
 LRI database management functions
 """
 
+import logging
+
 import pandas as pd
 from liana.resource import select_resource
+
+logger = logging.getLogger(__name__)
 
 
 def load_lr_database(
@@ -28,7 +32,7 @@ def load_lr_database(
     pd.DataFrame
         Database with at least 'ligand', 'receptor', 'signaling_type' columns
     """
-    print(f"Loading {resource_name} database...")
+    logger.debug(f"Loading {resource_name} database...")
 
     # Load from local CSV if cellchatdb or cellphonedb
     if resource_name.lower() == "cellchatdb" and cellchatdb_path:

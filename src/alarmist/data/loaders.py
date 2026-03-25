@@ -2,11 +2,14 @@
 Data loading functions for alarmist results
 """
 
+import logging
 import os
 
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+
+logger = logging.getLogger(__name__)
 
 
 def load_patch_lri_results(
@@ -35,7 +38,7 @@ def load_patch_lri_results(
         - parameters: DataFrame
         - sample_info: DataFrame (only if multi-sample, i.e., sample_info.csv exists)
     """
-    print(f"Loading patch-LRI results from: {input_dir}")
+    logger.debug(f"Loading patch-LRI results from: {input_dir}")
 
     # Load sparse matrix
     mat_path = os.path.join(input_dir, sparse_matrix_name)
@@ -50,8 +53,8 @@ def load_patch_lri_results(
     params_file = os.path.join(input_dir, "analysis_parameters.csv")
     params_df = pd.read_csv(params_file)
 
-    print(f"Loaded matrix shape: {patch_lri_matrix.shape}")
-    print(
+    logger.debug(f"Loaded matrix shape: {patch_lri_matrix.shape}")
+    logger.debug(
         f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}"
     )
 
@@ -76,7 +79,7 @@ def load_patch_lri_results(
                 "global_patch_idx_end": row["global_patch_idx_end"],
             }
         results["sample_info"] = sample_info
-        print(f"Multi-sample detected: {len(sample_info)} samples")
+        logger.debug(f"Multi-sample detected: {len(sample_info)} samples")
 
     return results
 
@@ -99,7 +102,7 @@ def load_cell_lri_results(output_dir: str) -> dict:
         - parameters: analysis parameters
         - sample_info: dict (only if multi-sample, i.e., sample_info.csv exists)
     """
-    print(f"Loading cell-LRI results from: {output_dir}")
+    logger.debug(f"Loading cell-LRI results from: {output_dir}")
 
     # Load sparse matrix
     matrix_file = os.path.join(output_dir, "cell_lri_matrix.npz")
@@ -113,8 +116,8 @@ def load_cell_lri_results(output_dir: str) -> dict:
     params_file = os.path.join(output_dir, "analysis_parameters.csv")
     params_df = pd.read_csv(params_file)
 
-    print(f"Loaded matrix shape: {cell_lri_matrix.shape}")
-    print(
+    logger.debug(f"Loaded matrix shape: {cell_lri_matrix.shape}")
+    logger.debug(
         f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}"
     )
 
@@ -139,7 +142,7 @@ def load_cell_lri_results(output_dir: str) -> dict:
                 "avg_neighborhood_size": row["avg_neighborhood_size"],
             }
         results["sample_info"] = sample_info
-        print(f"Multi-sample detected: {len(sample_info)} samples")
+        logger.debug(f"Multi-sample detected: {len(sample_info)} samples")
 
     return results
 
@@ -165,15 +168,15 @@ def load_bptf_results(results_dir: str, load_rescaled: bool = False) -> dict:
         - patch_loadings_rescaled: np.ndarray (only if load_rescaled=True)
         - lri_factors_rescaled: np.ndarray (only if load_rescaled=True)
     """
-    print(f"Loading BPTF results from: {results_dir}")
+    logger.debug(f"Loading BPTF results from: {results_dir}")
 
     patch_loadings = np.load(os.path.join(results_dir, "patch_loadings.npy"))
     lri_factors = np.load(os.path.join(results_dir, "lri_factors.npy"))
     lri_motifs = pd.read_csv(os.path.join(results_dir, "lri_motifs.csv"))
 
-    print("Loaded results:")
-    print(f"  - Patch loadings: {patch_loadings.shape}")
-    print(f"  - LRI factors: {lri_factors.shape}")
+    logger.debug("Loaded results:")
+    logger.debug(f"  - Patch loadings: {patch_loadings.shape}")
+    logger.debug(f"  - LRI factors: {lri_factors.shape}")
 
     results = {
         "patch_loadings": patch_loadings,
@@ -190,7 +193,7 @@ def load_bptf_results(results_dir: str, load_rescaled: bool = False) -> dict:
         )
         results["patch_loadings_rescaled"] = patch_loadings_rescaled
         results["lri_factors_rescaled"] = lri_factors_rescaled
-        print(f"  - Patch loadings rescaled: {patch_loadings_rescaled.shape}")
-        print(f"  - LRI factors rescaled: {lri_factors_rescaled.shape}")
+        logger.debug(f"  - Patch loadings rescaled: {patch_loadings_rescaled.shape}")
+        logger.debug(f"  - LRI factors rescaled: {lri_factors_rescaled.shape}")
 
     return results

@@ -11,6 +11,7 @@ Adapted from scripts/bptf_visualization_utils.py for notebook-friendly usage.
 """
 
 import io
+import logging
 import os
 
 import matplotlib.pyplot as plt
@@ -19,6 +20,8 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.colors import LogNorm
 from matplotlib.patches import Patch
+
+logger = logging.getLogger(__name__)
 
 # Optional dependencies
 try:
@@ -303,7 +306,7 @@ def plot_lri_clustermap(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300)
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return g
 
@@ -472,7 +475,7 @@ def plot_celltype_communication_by_motif(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -737,7 +740,7 @@ def plot_top_lri_interactions_dot(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300)
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -1051,7 +1054,7 @@ def plot_single_motif_lri_lollipop(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300)
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig if created_fig else None
 
@@ -1307,7 +1310,7 @@ def plot_single_motif_cellpair_lollipop(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300)
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig if created_fig else None
 
@@ -1500,7 +1503,7 @@ def plot_top_lri_interactions_by_pathway(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300)
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -1817,6 +1820,6 @@ def plot_lri_networks(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=600, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig

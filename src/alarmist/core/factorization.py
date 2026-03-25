@@ -2,6 +2,7 @@
 BPTF (Bayesian Poisson Tensor Factorization) wrapper functions
 """
 
+import logging
 import os
 import warnings
 from pathlib import Path
@@ -20,6 +21,8 @@ except ImportError:
     warnings.warn("BPTF not available. Install from: https://github.com/aschein/bptf")
 
 from alarmist.plotting import add_lri_components, annotate_pathways
+
+logger = logging.getLogger(__name__)
 
 
 def run_bptf(
@@ -162,11 +165,11 @@ def project_cell_loadings(
             a == b for a, b in zip(model_lri_columns, cell_lri_columns)
         ):
             if verbose:
-                print(f"✓ Columns already aligned ({len(model_lri_columns)} LRIs)")
+                logger.debug(f"Columns already aligned ({len(model_lri_columns)} LRIs)")
         else:
             # Columns need alignment
             if verbose:
-                print("Aligning cell-LRI matrix columns to model...")
+                logger.debug("Aligning cell-LRI matrix columns to model...")
 
             # Find intersection and preserve model's order
             from collections import defaultdict, deque
@@ -204,12 +207,12 @@ def project_cell_loadings(
                 )
 
             if verbose:
-                print(f"✓ Aligned to {cell_lri_matrix.shape[1]} LRI columns")
+                logger.debug(f"Aligned to {cell_lri_matrix.shape[1]} LRI columns")
 
     # Convert to CSR if needed
     if not sp.isspmatrix_csr(cell_lri_matrix):
         if verbose:
-            print("Converting to CSR format...")
+            logger.debug("Converting to CSR format...")
         cell_lri_matrix = cell_lri_matrix.tocsr(copy=False)
 
     # Ensure data types are efficient
@@ -222,9 +225,9 @@ def project_cell_loadings(
     alpha = model.alpha
 
     if verbose:
-        print(f"Projecting {n_cells:,} cells to {K} motifs...")
-        print(f"Cell-LRI matrix: {n_cells:,} cells × {n_lri:,} LRIs")
-        print(f"BPTF model: K={K}, alpha={alpha}")
+        logger.debug(f"Projecting {n_cells:,} cells to {K} motifs...")
+        logger.debug(f"Cell-LRI matrix: {n_cells:,} cells × {n_lri:,} LRIs")
+        logger.debug(f"BPTF model: K={K}, alpha={alpha}")
 
     # Extract fixed LRI factors (mode=1)
     shp1 = model.shp_DK_M[1]
@@ -238,14 +241,16 @@ def project_cell_loadings(
     n_chunks = (n_cells + chunk_size - 1) // chunk_size
 
     if verbose:
-        print(f"Processing in {n_chunks} chunks of up to {chunk_size:,} cells...")
+        logger.debug(
+            f"Processing in {n_chunks} chunks of up to {chunk_size:,} cells..."
+        )
 
     for chunk_idx in range(n_chunks):
         start = chunk_idx * chunk_size
         end = min(start + chunk_size, n_cells)
 
         if verbose:
-            print(f"  Chunk {chunk_idx + 1}/{n_chunks}: cells {start:,}-{end:,}")
+            logger.debug(f"  Chunk {chunk_idx + 1}/{n_chunks}: cells {start:,}-{end:,}")
 
         # Extract chunk
         mat_chunk_csr = cell_lri_matrix[start:end, :]
@@ -284,7 +289,7 @@ def project_cell_loadings(
         gc.collect()
 
     if verbose:
-        print(f"✓ Projection complete. Cell loadings shape: {cell_loadings.shape}")
+        logger.debug(f"Projection complete. Cell loadings shape: {cell_loadings.shape}")
 
     # Save results if output_dir provided
     if output_dir is not None:
@@ -294,7 +299,7 @@ def project_cell_loadings(
         save_path = os.path.join(output_dir, "cell_loadings.npy")
         np.save(save_path, cell_loadings)
         if verbose:
-            print(f"Cell loadings saved to: {save_path}")
+            logger.debug(f"Cell loadings saved to: {save_path}")
 
     return cell_loadings
 
@@ -346,13 +351,13 @@ def process_bptf_results(
     patch_lri_matrix = results["patch_lri_matrix"]
 
     # Compute rescaled matrices
-    print("Rescaling motif matrices...")
+    logger.debug("Rescaling motif matrices...")
     patch_loadings_rescaled, lri_factors_rescaled, motif_scales = (
         rescale_motif_matrices(patch_loadings, lri_factors, verify=True)
     )
 
     # Create LRI motifs DataFrame
-    print("Creating LRI motifs DataFrame...")
+    logger.debug("Creating LRI motifs DataFrame...")
     column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
     lri_to_mean = dict(zip(column_names, column_means))
 
@@ -374,24 +379,24 @@ def process_bptf_results(
 
     lri_motifs = pd.DataFrame(lri_motifs_list)
     lri_motifs = lri_motifs[lri_motifs["mean"] > 0]
-    print(f"Total entries: {len(lri_motifs)}")
+    logger.debug(f"Total entries: {len(lri_motifs)}")
 
     # Parse LRI components
-    print("Parsing LRI components...")
+    logger.debug("Parsing LRI components...")
     lri_motifs = add_lri_components(lri_motifs)
 
     # Annotate pathways
-    print("Annotating pathways...")
+    logger.debug("Annotating pathways...")
     if os.path.exists(cellchatdb_path):
         cellchatdb = pd.read_csv(cellchatdb_path)
         lri_motifs = annotate_pathways(lri_motifs, cellchatdb)
     else:
-        print(
+        logger.debug(
             f"Warning: CellChatDB not found at {cellchatdb_path}, skipping pathway annotation"
         )
 
     # Add normalized scores
-    print("Computing normalized scores...")
+    logger.debug("Computing normalized scores...")
     lri_motifs = add_normalized_scores(lri_motifs, motif_scales)
 
     # Build return dict
@@ -405,13 +410,13 @@ def process_bptf_results(
 
     # Save if output_dir provided
     if output_dir is not None:
-        print(f"\nSaving to {output_dir}...")
+        logger.debug(f"Saving to {output_dir}...")
         os.makedirs(output_dir, exist_ok=True)
 
         # Save model
         model_path = Path(output_dir)
         save_bptf(model, model_path)
-        print("  BPTF model saved")
+        logger.debug("  BPTF model saved")
 
         # Save factor matrices
         np.save(os.path.join(output_dir, "patch_loadings.npy"), patch_loadings)
@@ -459,7 +464,7 @@ def process_bptf_results(
             os.path.join(output_dir, "factorization_parameters.csv"), index=False
         )
 
-        print(f"All results saved to: {output_dir}")
+        logger.debug(f"All results saved to: {output_dir}")
 
     return bptf_results
 
@@ -519,7 +524,7 @@ def _verify_reconstruction(
     X2 = W_tilde[patch_idx, :] @ V_tilde[:, lri_idx]
     rel_err = np.linalg.norm(X1 - X2) / (np.linalg.norm(X1) + eps)
 
-    print(f"Reconstruction error: {rel_err:.2e} (should be ~0)")
+    logger.debug(f"Reconstruction error: {rel_err:.2e} (should be ~0)")
     assert rel_err < 1e-10, f"Reconstruction failed: {rel_err}"
 
 
@@ -611,7 +616,7 @@ def process_and_save_lri_motif_analysis(
         Rescaled LRI factors
     """
     # Step 1: Create initial DataFrame
-    print("Creating LRI motifs DataFrame...")
+    logger.debug("Creating LRI motifs DataFrame...")
     column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
     lri_to_mean = dict(zip(column_names, column_means))
 
@@ -632,35 +637,35 @@ def process_and_save_lri_motif_analysis(
             )
 
     lri_motifs_df = pd.DataFrame(lri_motifs)
-    print(f"Total entries: {len(lri_motifs_df)}")
+    logger.debug(f"Total entries: {len(lri_motifs_df)}")
 
     # Step 2: Parse LRI components
-    print("Parsing LRI components...")
+    logger.debug("Parsing LRI components...")
     lri_motifs_df = add_lri_components(lri_motifs_df)
 
     # Step 3: Annotate pathways
-    print("Annotating pathways...")
+    logger.debug("Annotating pathways...")
     cellchatdb = pd.read_csv(cellchatdb_path)
     lri_motifs_df = annotate_pathways(lri_motifs_df, cellchatdb)
 
     # Step 4: Rescale matrices
-    print("Rescaling motif matrices...")
+    logger.debug("Rescaling motif matrices...")
     W_tilde, V_tilde, motif_scales = rescale_motif_matrices(
         patch_loadings, lri_factors, verify=True, eps=eps_rescale
     )
 
     # Step 5: Add normalized scores
-    print("Computing normalized scores...")
+    logger.debug("Computing normalized scores...")
     lri_motifs_df = add_normalized_scores(lri_motifs_df, motif_scales, eps=eps_norm)
 
     # Step 6: Save
     if save:
-        print(f"Saving to {output_dir}...")
+        logger.debug(f"Saving to {output_dir}...")
         os.makedirs(output_dir, exist_ok=True)
         lri_motifs_df.to_csv(os.path.join(output_dir, "lri_motifs.csv"), index=False)
         np.save(os.path.join(output_dir, "W_tilde.npy"), W_tilde)
         np.save(os.path.join(output_dir, "V_tilde.npy"), V_tilde)
-        print("Done!")
+        logger.debug("Done!")
 
 
 # def _save_lri_motif_analysis(lri_factors, column_names, patch_lri_matrix, output_dir):

@@ -2,6 +2,7 @@
 Single cell visualization functions for motif analysis
 """
 
+import logging
 import os
 
 import anndata
@@ -10,6 +11,8 @@ import numpy as np
 import pandas as pd
 
 from alarmist.plotting.colors import _get_colors_for_plotting
+
+logger = logging.getLogger(__name__)
 
 
 def plot_motif_celltype_composition(
@@ -103,7 +106,7 @@ def plot_motif_celltype_composition(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig, ax
 
@@ -164,7 +167,7 @@ def plot_motif_state_counts(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig, ax
 
@@ -221,7 +224,7 @@ def plot_positive_motifs_distribution(
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig, ax
 
@@ -345,7 +348,7 @@ def plot_motif_spatial(
                     intersect=False,
                 )
                 figs.append(fig)
-                print(f"Plotted motif {k}")
+                logger.debug(f"Plotted motif {k}")
             return figs
 
         # intersect=True: plot cells positive for ALL motifs
@@ -596,7 +599,7 @@ def plot_motif_spatial(
         os.makedirs(output_dir, exist_ok=True)
         save_path = os.path.join(output_dir, f"{motif_label_short}_spatial.png")
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -720,14 +723,14 @@ def analyze_motif_celltype_composition(
             f"cell_loadings rows ({cell_loadings.shape[0]})"
         )
 
-    print("Analyzing cell type composition per motif...")
-    print(f"  Mode: {mode_str}")
-    print(f"  Cells: {len(cell_meta_df):,}")
+    logger.debug("Analyzing cell type composition per motif...")
+    logger.debug(f"  Mode: {mode_str}")
+    logger.debug(f"  Cells: {len(cell_meta_df):,}")
     n_motifs_total = cell_loadings.shape[1]
     if motif_ids is not None:
-        print(f"  Motifs: {len(motif_ids)} selected (of {n_motifs_total} total)")
+        logger.debug(f"  Motifs: {len(motif_ids)} selected (of {n_motifs_total} total)")
     else:
-        print(f"  Motifs: {n_motifs_total}")
+        logger.debug(f"  Motifs: {n_motifs_total}")
 
     # Compute weighted cell types for each motif
     tidy_df = weighted_celltypes_by_motif(
@@ -742,7 +745,7 @@ def analyze_motif_celltype_composition(
                 f"No motifs found matching motif_ids={motif_ids}. "
                 f"Available motifs: 0-{cell_loadings.shape[1] - 1}"
             )
-        print(f"  Selected motifs: {sorted(motif_ids)}")
+        logger.debug(f"  Selected motifs: {sorted(motif_ids)}")
 
     # Get colors
     unique_celltypes = tidy_df["cell_type"].unique().tolist()
@@ -902,13 +905,15 @@ def analyze_motif_celltype_counts(
                 f"Available motifs: {sorted([int(c.replace('motif_', '').replace('_state', '')) for c in state_cols])}"
             )
 
-    print("Analyzing cell type counts for positive cells...")
-    print(f"  Mode: {mode_str}")
-    print(f"  Cells: {n_cells:,}")
+    logger.debug("Analyzing cell type counts for positive cells...")
+    logger.debug(f"  Mode: {mode_str}")
+    logger.debug(f"  Cells: {n_cells:,}")
     if motif_ids is not None:
-        print(f"  Motifs: {len(motif_indices)} selected (of {n_motifs_total} total)")
+        logger.debug(
+            f"  Motifs: {len(motif_indices)} selected (of {n_motifs_total} total)"
+        )
     else:
-        print(f"  Motifs: {n_motifs_total}")
+        logger.debug(f"  Motifs: {n_motifs_total}")
 
     # Build tidy dataframe: count positive cells by cell type for each motif
     records = []
@@ -940,7 +945,7 @@ def analyze_motif_celltype_counts(
         tidy_df["weight"] = tidy_df["weight"] / totals
 
     if motif_ids is not None:
-        print(f"  Selected motifs: {sorted(motif_indices)}")
+        logger.debug(f"  Selected motifs: {sorted(motif_indices)}")
 
     # Get colors
     unique_celltypes = tidy_df["cell_type"].unique().tolist()
@@ -1038,14 +1043,14 @@ def analyze_motif_state_counts(
         mode_str = "Single sample"
         n_cells = adata.n_obs
 
-    print("Computing ON/OFF statistics...")
-    print(f"  Mode: {mode_str}")
-    print(f"  Cells: {n_cells:,}")
+    logger.debug("Computing ON/OFF statistics...")
+    logger.debug(f"  Mode: {mode_str}")
+    logger.debug(f"  Cells: {n_cells:,}")
 
     # Compute counts
     counts_df = compute_motif_state_counts(adata, sample_column=sample_column)
 
-    print(f"  Motifs: {len(counts_df)}")
+    logger.debug(f"  Motifs: {len(counts_df)}")
 
     # Determine save path
     save_path = None

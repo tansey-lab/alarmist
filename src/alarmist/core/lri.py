@@ -5,6 +5,7 @@ This module implements spatial patch-based LRI analysis for matrix factorization
 It divides tissue into regular grid patches and counts all-to-all interactions within each patch.
 """
 
+import logging
 import os
 from abc import ABC
 from importlib import resources
@@ -22,6 +23,8 @@ from scipy.sparse import coo_matrix, csr_matrix
 from scipy.sparse import vstack as sparse_vstack
 from sklearn.neighbors import KDTree
 from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 
 def _get_bundled_database_path(database_name: str) -> Path:
@@ -177,8 +180,8 @@ class BaseLRIAnalyzer(ABC):
         else:
             raise ValueError("Either adata or gene_names must be provided")
 
-        print(f"Loading {self.resource_name} database...")
-        print(f"Filtering with {len(available_genes)} available genes")
+        logger.debug(f"Loading {self.resource_name} database...")
+        logger.debug(f"Filtering with {len(available_genes)} available genes")
 
         # Load from local CSV if cellchatdb or cellphonedb
         if self.resource_name.lower() == "cellchatdb":
@@ -241,13 +244,17 @@ class BaseLRIAnalyzer(ABC):
                 receptor_genes_list.append(receptor_genes)
                 signaling_types.append(signaling_type)
 
-        print(f"Initial L-R pairs in data: {len(lr_pairs)}")
-        print(f"  Single ligand: {sum(1 for lg in ligand_genes_list if len(lg) == 1)}")
-        print(f"  Multi ligand: {sum(1 for lg in ligand_genes_list if len(lg) > 1)}")
-        print(
+        logger.debug(f"Initial L-R pairs in data: {len(lr_pairs)}")
+        logger.debug(
+            f"  Single ligand: {sum(1 for lg in ligand_genes_list if len(lg) == 1)}"
+        )
+        logger.debug(
+            f"  Multi ligand: {sum(1 for lg in ligand_genes_list if len(lg) > 1)}"
+        )
+        logger.debug(
             f"  Single receptor: {sum(1 for rg in receptor_genes_list if len(rg) == 1)}"
         )
-        print(
+        logger.debug(
             f"  Multi receptor: {sum(1 for rg in receptor_genes_list if len(rg) > 1)}"
         )
 
@@ -255,9 +262,9 @@ class BaseLRIAnalyzer(ABC):
         from collections import Counter
 
         sig_type_counts = Counter(signaling_types)
-        print("\nSignaling type distribution:")
+        logger.debug("Signaling type distribution:")
         for sig_type, count in sig_type_counts.items():
-            print(f"  {sig_type}: {count}")
+            logger.debug(f"  {sig_type}: {count}")
 
         self.lr_pairs = lr_pairs
         self.ligand_genes_list = ligand_genes_list
@@ -352,10 +359,12 @@ class BaseLRIAnalyzer(ABC):
         n_nonzero = len(nonzero_cols)
         n_removed = n_total - n_nonzero
 
-        print("Filtering zero columns:")
-        print(f"  Total columns: {n_total}")
-        print(f"  Non-zero columns: {n_nonzero}")
-        print(f"  Zero columns removed: {n_removed} ({n_removed / n_total * 100:.1f}%)")
+        logger.debug("Filtering zero columns:")
+        logger.debug(f"  Total columns: {n_total}")
+        logger.debug(f"  Non-zero columns: {n_nonzero}")
+        logger.debug(
+            f"  Zero columns removed: {n_removed} ({n_removed / n_total * 100:.1f}%)"
+        )
 
         # Filter matrix and column names
         filtered_matrix = matrix[:, nonzero_cols]
@@ -384,7 +393,7 @@ class BaseLRIAnalyzer(ABC):
         adata_dict : Dict[str, anndata.AnnData]
             Dictionary mapping sample_id -> AnnData subset
         """
-        print(f"Splitting merged AnnData by '{sample_column}'...")
+        logger.debug(f"Splitting merged AnnData by '{sample_column}'...")
 
         # Get unique sample IDs
         sample_ids = adata.obs[sample_column].unique()
@@ -395,7 +404,7 @@ class BaseLRIAnalyzer(ABC):
         else:
             sample_ids = sorted([s for s in sample_ids if pd.notna(s)])
 
-        print(f"Found {len(sample_ids)} samples: {sample_ids}")
+        logger.debug(f"Found {len(sample_ids)} samples: {sample_ids}")
 
         adata_dict = {}
         for sample_id in sample_ids:
@@ -413,7 +422,7 @@ class BaseLRIAnalyzer(ABC):
                     )
 
             adata_dict[str(sample_id)] = adata_subset
-            print(
+            logger.debug(
                 f"  {sample_id}: {adata_subset.n_obs} cells, "
                 f"{adata_subset.obs[self.cell_type_column].nunique()} cell types"
             )
@@ -535,7 +544,9 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         Build the patch-LRI interaction matrix, distinguishing autocrine from paracrine.
         Supports both ligand and receptor complexes (all genes must be co-expressed).
         """
-        print("Building patch-LRI matrix with autocrine/paracrine distinction...")
+        logger.debug(
+            "Building patch-LRI matrix with autocrine/paracrine distinction..."
+        )
 
         # ─── 1) Prepare basics ────────────────────────────────────────────────────────
         unique_patches = np.array(
@@ -544,7 +555,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         patch_idx_map = {pid: i for i, pid in enumerate(unique_patches)}
         n_patches = len(unique_patches)
         n_columns = len(self.column_names)
-        print(f"Processing {n_patches} patches × {n_columns} LRI combinations")
+        logger.debug(f"Processing {n_patches} patches × {n_columns} LRI combinations")
 
         # ─── 2) Index mappings ───────────────────────────────────────────────────────
         ct_to_idx = {ct: i for i, ct in enumerate(self.cell_types)}
@@ -566,7 +577,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         # Report cells with missing/invalid cell types
         n_invalid = np.sum(cell_types_idx == -1)
         if n_invalid > 0:
-            print(
+            logger.debug(
                 f"  Warning: {n_invalid} cells ({n_invalid / len(cell_types_idx) * 100:.1f}%) have missing/invalid cell types and will be excluded"
             )
 
@@ -643,7 +654,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
 
         # ─── 4) Build patch_by_lig for INDIVIDUAL ligand genes ────────────────────────
         patch_by_lig = {}
-        print("Building patch-by-ligand matrices (individual genes)...")
+        logger.debug("Building patch-by-ligand matrices (individual genes)...")
         for ct_idx in range(len(self.cell_types)):
             mask_cells = cell_types_idx == ct_idx
             entry_mask = mask_cells[expr_coo.row]
@@ -685,7 +696,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
 
         # ─── 5) Build patch_by_rec for INDIVIDUAL receptor genes ──────────────────────
         patch_by_rec = {}
-        print("Building patch-by-receptor matrices (individual genes)...")
+        logger.debug("Building patch-by-receptor matrices (individual genes)...")
         for ct_idx in range(len(self.cell_types)):
             mask_cells = cell_types_idx == ct_idx
             entry_mask = mask_cells[expr_coo.row]
@@ -734,7 +745,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         ).tocsr()
 
         # ─── 7) Compute LRI interactions ──────────────────────────────────────────────
-        print("Computing LRI interactions...")
+        logger.debug("Computing LRI interactions...")
         row_inds, col_inds, data_vals = [], [], []
 
         for j, lig_ct_idx, rec_ct_idx, lig_str, rec_str, mode, sig_type in tqdm(
@@ -838,7 +849,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         )
 
         self.patch_lri_matrix = patch_lri_matrix
-        print(
+        logger.debug(
             f"Matrix density: {patch_lri_matrix.nnz / (n_patches * n_columns) * 100:.2f}%"
         )
         return patch_lri_matrix
@@ -914,7 +925,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             elif len(adata) == 1:
                 # Single sample in dict format - extract and run single mode
                 sample_id, single_adata = next(iter(adata.items()))
-                print(
+                logger.debug(
                     f"Single sample detected ('{sample_id}'), running in single-sample mode"
                 )
                 return self._run_patchify_single(single_adata, output_dir)
@@ -950,9 +961,9 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         Run patch-based LRI analysis for a single AnnData object.
         This is the original run_patchify logic.
         """
-        print("Starting patch-based LRI analysis (single sample)...")
-        print(f"Patch size: {self.patch_size} μm")
-        print(f"Data shape: {adata.shape}")
+        logger.debug("Starting patch-based LRI analysis (single sample)...")
+        logger.debug(f"Patch size: {self.patch_size} μm")
+        logger.debug(f"Data shape: {adata.shape}")
 
         # Step 1: Create spatial patches
         patch_assignments, patch_info = self.create_spatial_patches(adata)
@@ -984,13 +995,13 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             [patch_id_to_idx.get(patch_assignments[i], -1) for i in range(adata.n_obs)]
         )
         adata.obs["patch_idx"] = patch_idx_array
-        print(
+        logger.debug(
             f"Added 'patch_idx' to adata.obs ({(patch_idx_array >= 0).sum()} cells assigned to patches)"
         )
 
         # Step 7: Save results (optional)
         if output_dir is not None:
-            print("Saving results...")
+            logger.debug("Saving results...")
             os.makedirs(output_dir, exist_ok=True)
 
             # Save sparse matrix
@@ -1046,11 +1057,11 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             patch_metadata_file = os.path.join(output_dir, "patch_metadata.parquet")
             patch_metadata_df.to_parquet(patch_metadata_file)
 
-            print(f"Results saved to: {output_dir}")
-            print(f"- Patch-LRI matrix: {matrix_file}")
-            print(f"- Column names: {columns_file}")
-            print(f"- Analysis parameters: {params_file}")
-            print(f"- Patch metadata: {patch_metadata_file}")
+            logger.debug(f"Results saved to: {output_dir}")
+            logger.debug(f"- Patch-LRI matrix: {matrix_file}")
+            logger.debug(f"- Column names: {columns_file}")
+            logger.debug(f"- Analysis parameters: {params_file}")
+            logger.debug(f"- Patch metadata: {patch_metadata_file}")
 
         return {"patch_lri_matrix": patch_lri_matrix, "column_names": column_names}
 
@@ -1070,11 +1081,11 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         """
         gene_sets = [set(adata.var_names) for adata in adata_dict.values()]
         shared_genes = set.intersection(*gene_sets)
-        print(
+        logger.debug(
             f"Gene intersection across {len(adata_dict)} samples: {len(shared_genes)} genes"
         )
         for sample_id, adata in adata_dict.items():
-            print(f"  {sample_id}: {len(adata.var_names)} genes")
+            logger.debug(f"  {sample_id}: {len(adata.var_names)} genes")
         return sorted(shared_genes)
 
     def _get_shared_cell_types(
@@ -1114,13 +1125,13 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             sample_cell_types = [ct for ct in sample_cell_types if pd.notna(ct)]
 
             all_cell_types.update(sample_cell_types)
-            print(
+            logger.debug(
                 f"  {sample_id}: {len(sample_cell_types)} cell types"
                 + (f" ({n_nan} cells with nan)" if n_nan > 0 else "")
             )
 
         if total_nan_cells > 0:
-            print(
+            logger.debug(
                 f"  Warning: {total_nan_cells}/{total_cells} total cells have missing cell types"
             )
 
@@ -1144,48 +1155,50 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         results : dict
             Dictionary containing combined results from all samples
         """
-        print("=" * 60)
-        print("Starting patch-based LRI analysis (multi-sample mode)")
-        print("=" * 60)
-        print(f"Number of samples: {len(adata_dict)}")
-        print(f"Patch size: {self.patch_size} μm")
+        logger.debug("=" * 60)
+        logger.debug("Starting patch-based LRI analysis (multi-sample mode)")
+        logger.debug("=" * 60)
+        logger.debug(f"Number of samples: {len(adata_dict)}")
+        logger.debug(f"Patch size: {self.patch_size} μm")
         for sample_id, adata in adata_dict.items():
-            print(f"  {sample_id}: {adata.shape[0]} cells, {adata.shape[1]} genes")
+            logger.debug(
+                f"  {sample_id}: {adata.shape[0]} cells, {adata.shape[1]} genes"
+            )
 
         # Step 1: Get shared genes (intersection)
-        print("\n[Step 1/6] Computing gene intersection...")
+        logger.debug("[Step 1/6] Computing gene intersection...")
         shared_genes = self._get_shared_genes(adata_dict)
 
         # Step 2: Get all cell types (union) and set as shared
-        print("\n[Step 2/6] Computing cell type union...")
+        logger.debug("[Step 2/6] Computing cell type union...")
         shared_cell_types = self._get_shared_cell_types(adata_dict)
         self.cell_types = shared_cell_types
-        print(f"Total unique cell types: {len(shared_cell_types)}")
+        logger.debug(f"Total unique cell types: {len(shared_cell_types)}")
 
         # Step 3: Prepare LRI database using shared genes
-        print("\n[Step 3/6] Preparing LRI database with shared genes...")
+        logger.debug("[Step 3/6] Preparing LRI database with shared genes...")
         lr_pairs, ligand_genes_list, receptor_genes_list, signaling_types = (
             self.prepare_lri_database(gene_names=shared_genes)
         )
 
         # Step 4: Create unified column structure
         # We need a reference adata to get cell types, but we'll use shared_cell_types
-        print("\n[Step 4/6] Creating unified column structure...")
+        logger.debug("[Step 4/6] Creating unified column structure...")
         column_names = self._create_column_structure_from_cell_types(
             shared_cell_types, signaling_types
         )
         self.column_names = column_names
-        print(f"Total LRI columns: {len(column_names)}")
+        logger.debug(f"Total LRI columns: {len(column_names)}")
 
         # Step 5: Process each sample
-        print("\n[Step 5/6] Processing each sample...")
+        logger.debug("[Step 5/6] Processing each sample...")
         all_matrices = []
         all_patch_metadata = []
         sample_info = {}
         global_patch_idx = 0
 
         for sample_id, adata in adata_dict.items():
-            print(f"\n--- Processing sample: {sample_id} ---")
+            logger.debug(f"--- Processing sample: {sample_id} ---")
 
             # Create spatial patches for this sample
             patch_assignments, patch_info = self.create_spatial_patches(adata)
@@ -1232,7 +1245,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                 ]
             )
             adata.obs["patch_idx"] = patch_idx_array
-            print(
+            logger.debug(
                 f"  Added 'patch_idx' to adata.obs ({(patch_idx_array >= 0).sum()} cells assigned)"
             )
 
@@ -1248,11 +1261,11 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             global_patch_idx += n_patches
 
         # Step 6: Combine results
-        print("\n[Step 6/6] Combining results...")
+        logger.debug("[Step 6/6] Combining results...")
 
         # Vertically stack all matrices
         combined_matrix = sparse_vstack(all_matrices, format="csr")
-        print(f"Combined matrix shape: {combined_matrix.shape}")
+        logger.debug(f"Combined matrix shape: {combined_matrix.shape}")
 
         # Create metadata DataFrame
         patch_metadata_df = pd.DataFrame(all_patch_metadata)
@@ -1264,7 +1277,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
 
         # Save results (optional)
         if output_dir is not None:
-            print("\nSaving results...")
+            logger.debug("Saving results...")
             os.makedirs(output_dir, exist_ok=True)
 
             # Save sparse matrix
@@ -1314,18 +1327,18 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             )
             params_df.to_csv(params_file, index=False)
 
-            print(f"Results saved to: {output_dir}")
-            print(f"- Patch-LRI matrix: {matrix_file}")
-            print(f"- Column names: {columns_file}")
-            print(f"- Patch metadata: {patch_metadata_file}")
-            print(f"- Sample info: {sample_info_file}")
-            print(f"- Analysis parameters: {params_file}")
+            logger.debug(f"Results saved to: {output_dir}")
+            logger.debug(f"- Patch-LRI matrix: {matrix_file}")
+            logger.debug(f"- Column names: {columns_file}")
+            logger.debug(f"- Patch metadata: {patch_metadata_file}")
+            logger.debug(f"- Sample info: {sample_info_file}")
+            logger.debug(f"- Analysis parameters: {params_file}")
 
-        print("\n" + "=" * 60)
-        print("Multi-sample analysis complete!")
-        print(f"Total patches: {combined_matrix.shape[0]}")
-        print(f"Total LRI columns: {combined_matrix.shape[1]}")
-        print("=" * 60)
+        logger.debug("=" * 60)
+        logger.debug("Multi-sample analysis complete!")
+        logger.debug(f"Total patches: {combined_matrix.shape[0]}")
+        logger.debug(f"Total LRI columns: {combined_matrix.shape[1]}")
+        logger.debug("=" * 60)
 
         return {
             "patch_lri_matrix": combined_matrix,
@@ -1484,7 +1497,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         neighborhoods : Dict[int, np.ndarray]
             Dictionary mapping cell_index -> array of neighbor cell indices
         """
-        print(f"Building neighborhoods (size={self.neighborhood_size}µm)...")
+        logger.debug(f"Building neighborhoods (size={self.neighborhood_size}µm)...")
         coords = adata.obsm["spatial"][:, :2]
         n_cells = len(coords)
 
@@ -1519,7 +1532,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             neighborhoods[i] = candidate_indices[in_square]
 
         self.neighborhoods = neighborhoods
-        print(
+        logger.debug(
             f"Average neighborhood size: {np.mean([len(n) for n in neighborhoods.values()]):.1f} cells"
         )
         return neighborhoods
@@ -1531,7 +1544,9 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         Build the cell-LRI interaction matrix with full vectorization.
         Supports both ligand and receptor complexes (using AND logic for co-expression).
         """
-        print("Building cell-LRI matrix with vectorized neighborhood interactions...")
+        logger.debug(
+            "Building cell-LRI matrix with vectorized neighborhood interactions..."
+        )
 
         n_cells = adata.n_obs
 
@@ -1555,7 +1570,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         # Report cells with missing/invalid cell types
         n_invalid = np.sum(cell_types_idx == -1)
         if n_invalid > 0:
-            print(
+            logger.debug(
                 f"  Warning: {n_invalid} cells ({n_invalid / len(cell_types_idx) * 100:.1f}%) have missing/invalid cell types and will be excluded"
             )
 
@@ -1632,7 +1647,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                             )
 
         n_columns = len(col_meta)
-        print(f"Processing {n_cells} cells × {n_columns} LRI combinations")
+        logger.debug(f"Processing {n_cells} cells × {n_columns} LRI combinations")
 
         # ─── 3) Binarize expression ───────────────────────────────────────────────
         X = adata.X
@@ -1644,7 +1659,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         expr_coo = expr_bool.tocoo()
 
         # ─── 4) Build cell-neighborhood adjacency matrix ──────────────────────────
-        print("Building cell-neighborhood adjacency matrix...")
+        logger.debug("Building cell-neighborhood adjacency matrix...")
         rows, cols = [], []
         for cell_idx, neighbors in self.neighborhoods.items():
             rows.extend([cell_idx] * len(neighbors))
@@ -1655,7 +1670,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
         # ─── 5) Build neighborhood_by_lig for INDIVIDUAL ligand genes ─────────────
         neighborhood_by_lig = {}
-        print("Building neighborhood-by-ligand matrices (individual genes)...")
+        logger.debug("Building neighborhood-by-ligand matrices (individual genes)...")
 
         for ct_idx in range(len(self.cell_types)):
             mask_cells = cell_types_idx == ct_idx
@@ -1695,7 +1710,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
         # ─── 6) Build neighborhood_by_rec for INDIVIDUAL receptor genes ───────────
         neighborhood_by_rec = {}
-        print("Building neighborhood-by-receptor matrices (individual genes)...")
+        logger.debug("Building neighborhood-by-receptor matrices (individual genes)...")
 
         for ct_idx in range(len(self.cell_types)):
             mask_cells = cell_types_idx == ct_idx
@@ -1734,7 +1749,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             neighborhood_by_rec[ct_idx] = rec_gene_matrices
 
         # ─── 7) Compute interactions with BOTH ligand and receptor complexes ──────
-        print("Computing LRI interactions...")
+        logger.debug("Computing LRI interactions...")
         row_inds, col_inds, data_vals = [], [], []
 
         for j, lig_ct_idx, rec_ct_idx, lig_str, rec_str, mode, sig_type in tqdm(
@@ -1834,7 +1849,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             (data_vals, (row_inds, col_inds)), shape=(n_cells, n_columns), dtype=int
         )
         self.cell_lri_matrix = cell_lri_matrix
-        print(
+        logger.debug(
             f"Matrix density: {cell_lri_matrix.nnz / (n_cells * n_columns) * 100:.2f}%"
         )
         return cell_lri_matrix
@@ -1853,7 +1868,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         cell_metadata_df : pd.DataFrame
             DataFrame with cell metadata
         """
-        print("Creating metadata dataframe...")
+        logger.debug("Creating metadata dataframe...")
 
         coords = adata.obsm["spatial"][:, :2]
         neighborhood_sizes = [len(self.neighborhoods[i]) for i in range(adata.n_obs)]
@@ -1946,7 +1961,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             elif len(adata) == 1:
                 # Single sample in dict format - extract and run single mode
                 sample_id, single_adata = next(iter(adata.items()))
-                print(
+                logger.debug(
                     f"Single sample detected ('{sample_id}'), running in single-sample mode"
                 )
                 return self._run_neighborhood_single(
@@ -1991,9 +2006,9 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         Run neighborhood-based LRI analysis for a single AnnData object.
         This is the original run_neighborhood logic.
         """
-        print("Starting cell neighborhood-based LRI analysis (single sample)...")
-        print(f"Neighborhood size: {self.neighborhood_size} µm")
-        print(f"Data shape: {adata.shape}")
+        logger.debug("Starting cell neighborhood-based LRI analysis (single sample)...")
+        logger.debug(f"Neighborhood size: {self.neighborhood_size} µm")
+        logger.debug(f"Data shape: {adata.shape}")
 
         # Step 1: Build neighborhoods
         neighborhoods = self.build_neighborhoods(adata)
@@ -2011,11 +2026,11 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
         # Step 5: Optionally append gene expression
         if self.include_gene_expression:
-            print("Appending gene expression counts to matrix...")
+            logger.debug("Appending gene expression counts to matrix...")
 
             # Get raw counts
             raw_counts = self.get_raw_counts(adata)
-            print("Using raw counts")
+            logger.debug("Using raw counts")
 
             # Convert to sparse CSR if needed
             if not sp.issparse(raw_counts):
@@ -2032,9 +2047,9 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             ]
             all_column_names = column_names + gene_column_names
 
-            print(f"Combined matrix shape: {combined_matrix.shape}")
-            print(f"  - LRI features: {len(column_names)}")
-            print(f"  - Gene features: {len(gene_column_names)}")
+            logger.debug(f"Combined matrix shape: {combined_matrix.shape}")
+            logger.debug(f"  - LRI features: {len(column_names)}")
+            logger.debug(f"  - Gene features: {len(gene_column_names)}")
         else:
             combined_matrix = cell_lri_matrix
             all_column_names = column_names
@@ -2042,7 +2057,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         # Step 6: Column filtering
         if required_columns is not None:
             # Subset to required columns (for alignment with patch matrix)
-            print(
+            logger.debug(
                 f"Subsetting to {len(required_columns)} required columns (from reference matrix)..."
             )
 
@@ -2055,13 +2070,13 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                 [col_to_idx[name] for name in common_cols], dtype=int
             )
 
-            print(f"  Cell matrix columns: {len(all_column_names)}")
-            print(f"  Required columns: {len(required_columns)}")
-            print(f"  Common columns (kept): {len(common_cols)}")
+            logger.debug(f"  Cell matrix columns: {len(all_column_names)}")
+            logger.debug(f"  Required columns: {len(required_columns)}")
+            logger.debug(f"  Common columns (kept): {len(common_cols)}")
 
             if len(common_cols) < len(required_columns):
                 missing = len(required_columns) - len(common_cols)
-                print(
+                logger.debug(
                     f"  Warning: {missing} required columns not found in cell matrix (will be absent)"
                 )
 
@@ -2076,7 +2091,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
         # Step 7: Save results (optional)
         if output_dir is not None:
-            print("Saving results...")
+            logger.debug("Saving results...")
             os.makedirs(output_dir, exist_ok=True)
 
             # Save sparse matrix
@@ -2123,10 +2138,10 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             )
             params_df.to_csv(params_file, index=False)
 
-            print(f"Results saved to: {output_dir}")
-            print(f"- Cell-LRI matrix: {matrix_file}")
-            print(f"- Column names: {columns_file}")
-            print(f"- Analysis parameters: {params_file}")
+            logger.debug(f"Results saved to: {output_dir}")
+            logger.debug(f"- Cell-LRI matrix: {matrix_file}")
+            logger.debug(f"- Column names: {columns_file}")
+            logger.debug(f"- Analysis parameters: {params_file}")
 
         return {
             "cell_lri_matrix": combined_matrix,
@@ -2140,11 +2155,11 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         """
         gene_sets = [set(adata.var_names) for adata in adata_dict.values()]
         shared_genes = set.intersection(*gene_sets)
-        print(
+        logger.debug(
             f"Gene intersection across {len(adata_dict)} samples: {len(shared_genes)} genes"
         )
         for sample_id, adata in adata_dict.items():
-            print(f"  {sample_id}: {len(adata.var_names)} genes")
+            logger.debug(f"  {sample_id}: {len(adata.var_names)} genes")
         return sorted(shared_genes)
 
     def _get_shared_cell_types(
@@ -2170,13 +2185,13 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
             sample_cell_types = [ct for ct in sample_cell_types if pd.notna(ct)]
             all_cell_types.update(sample_cell_types)
-            print(
+            logger.debug(
                 f"  {sample_id}: {len(sample_cell_types)} cell types"
                 + (f" ({n_nan} cells with nan)" if n_nan > 0 else "")
             )
 
         if total_nan_cells > 0:
-            print(
+            logger.debug(
                 f"  Warning: {total_nan_cells}/{total_cells} total cells have missing cell types"
             )
 
@@ -2205,46 +2220,48 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         results : dict
             Dictionary containing combined results from all samples
         """
-        print("=" * 60)
-        print("Starting neighborhood-based LRI analysis (multi-sample mode)")
-        print("=" * 60)
-        print(f"Number of samples: {len(adata_dict)}")
-        print(f"Neighborhood size: {self.neighborhood_size} µm")
+        logger.debug("=" * 60)
+        logger.debug("Starting neighborhood-based LRI analysis (multi-sample mode)")
+        logger.debug("=" * 60)
+        logger.debug(f"Number of samples: {len(adata_dict)}")
+        logger.debug(f"Neighborhood size: {self.neighborhood_size} µm")
         for sample_id, adata in adata_dict.items():
-            print(f"  {sample_id}: {adata.shape[0]} cells, {adata.shape[1]} genes")
+            logger.debug(
+                f"  {sample_id}: {adata.shape[0]} cells, {adata.shape[1]} genes"
+            )
 
         # Step 1: Get shared genes (intersection)
-        print("\n[Step 1/7] Computing gene intersection...")
+        logger.debug("[Step 1/7] Computing gene intersection...")
         shared_genes = self._get_shared_genes(adata_dict)
 
         # Step 2: Get all cell types (union)
-        print("\n[Step 2/7] Computing cell type union...")
+        logger.debug("[Step 2/7] Computing cell type union...")
         shared_cell_types = self._get_shared_cell_types(adata_dict)
         self.cell_types = shared_cell_types
-        print(f"Total unique cell types: {len(shared_cell_types)}")
+        logger.debug(f"Total unique cell types: {len(shared_cell_types)}")
 
         # Step 3: Prepare LRI database using shared genes
-        print("\n[Step 3/7] Preparing LRI database with shared genes...")
+        logger.debug("[Step 3/7] Preparing LRI database with shared genes...")
         lr_pairs, ligand_genes_list, receptor_genes_list, signaling_types = (
             self.prepare_lri_database(gene_names=shared_genes)
         )
 
         # Step 4: Create unified column structure
-        print("\n[Step 4/7] Creating unified column structure...")
+        logger.debug("[Step 4/7] Creating unified column structure...")
         column_names = self._create_column_structure_from_cell_types(
             shared_cell_types, signaling_types
         )
         self.column_names = column_names
-        print(f"Total LRI columns: {len(column_names)}")
+        logger.debug(f"Total LRI columns: {len(column_names)}")
 
         # Step 5: Process each sample
-        print("\n[Step 5/7] Processing each sample...")
+        logger.debug("[Step 5/7] Processing each sample...")
         all_matrices = []
         sample_info = {}
         global_cell_idx = 0
 
         for sample_id, adata in adata_dict.items():
-            print(f"\n--- Processing sample: {sample_id} ---")
+            logger.debug(f"--- Processing sample: {sample_id} ---")
 
             # Build neighborhoods for this sample
             neighborhoods = self.build_neighborhoods(adata)
@@ -2268,15 +2285,15 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             global_cell_idx += n_cells
 
         # Step 6: Combine results
-        print("\n[Step 6/7] Combining results...")
+        logger.debug("[Step 6/7] Combining results...")
 
         # Vertically stack all matrices
         combined_matrix = sparse_vstack(all_matrices, format="csr")
-        print(f"Combined matrix shape: {combined_matrix.shape}")
+        logger.debug(f"Combined matrix shape: {combined_matrix.shape}")
 
         # Handle gene expression (if enabled)
         if self.include_gene_expression:
-            print("Appending gene expression counts to matrix...")
+            logger.debug("Appending gene expression counts to matrix...")
             all_gene_matrices = []
             for sample_id, adata in adata_dict.items():
                 raw_counts = self.get_raw_counts(adata)
@@ -2294,28 +2311,28 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             # Use shared genes for column names
             gene_column_names = [f"GENE{self.spliter}{gene}" for gene in shared_genes]
             all_column_names = column_names + gene_column_names
-            print(f"  - LRI features: {len(column_names)}")
-            print(f"  - Gene features: {len(gene_column_names)}")
+            logger.debug(f"  - LRI features: {len(column_names)}")
+            logger.debug(f"  - Gene features: {len(gene_column_names)}")
         else:
             all_column_names = column_names
 
         # Step 7: Column filtering
-        print("\n[Step 7/7] Filtering columns...")
+        logger.debug("[Step 7/7] Filtering columns...")
         if required_columns is not None:
-            print(f"Subsetting to {len(required_columns)} required columns...")
+            logger.debug(f"Subsetting to {len(required_columns)} required columns...")
             col_to_idx = {name: i for i, name in enumerate(all_column_names)}
             common_cols = [name for name in required_columns if name in col_to_idx]
             col_indices = np.array(
                 [col_to_idx[name] for name in common_cols], dtype=int
             )
 
-            print(f"  Cell matrix columns: {len(all_column_names)}")
-            print(f"  Required columns: {len(required_columns)}")
-            print(f"  Common columns (kept): {len(common_cols)}")
+            logger.debug(f"  Cell matrix columns: {len(all_column_names)}")
+            logger.debug(f"  Required columns: {len(required_columns)}")
+            logger.debug(f"  Common columns (kept): {len(common_cols)}")
 
             if len(common_cols) < len(required_columns):
                 missing = len(required_columns) - len(common_cols)
-                print(f"  Warning: {missing} required columns not found")
+                logger.debug(f"  Warning: {missing} required columns not found")
 
             combined_matrix = combined_matrix[:, col_indices]
             all_column_names = common_cols
@@ -2326,7 +2343,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
         # Save results (optional)
         if output_dir is not None:
-            print("\nSaving results...")
+            logger.debug("Saving results...")
             os.makedirs(output_dir, exist_ok=True)
 
             # Save sparse matrix
@@ -2374,17 +2391,17 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             )
             params_df.to_csv(params_file, index=False)
 
-            print(f"Results saved to: {output_dir}")
-            print(f"- Cell-LRI matrix: {matrix_file}")
-            print(f"- Column names: {columns_file}")
-            print(f"- Sample info: {sample_info_file}")
-            print(f"- Analysis parameters: {params_file}")
+            logger.debug(f"Results saved to: {output_dir}")
+            logger.debug(f"- Cell-LRI matrix: {matrix_file}")
+            logger.debug(f"- Column names: {columns_file}")
+            logger.debug(f"- Sample info: {sample_info_file}")
+            logger.debug(f"- Analysis parameters: {params_file}")
 
-        print("\n" + "=" * 60)
-        print("Multi-sample analysis complete!")
-        print(f"Total cells: {combined_matrix.shape[0]}")
-        print(f"Total LRI columns: {combined_matrix.shape[1]}")
-        print("=" * 60)
+        logger.debug("=" * 60)
+        logger.debug("Multi-sample analysis complete!")
+        logger.debug(f"Total cells: {combined_matrix.shape[0]}")
+        logger.debug(f"Total LRI columns: {combined_matrix.shape[1]}")
+        logger.debug("=" * 60)
 
         return {
             "cell_lri_matrix": combined_matrix,

@@ -2,9 +2,13 @@
 Spatial distribution plotting functions
 """
 
+import logging
+
 import anndata
 import matplotlib.pyplot as plt
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 def plot_cells_per_patch(
@@ -106,7 +110,7 @@ def plot_cells_per_patch(
     # Save if path provided
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     if show:
         plt.show()

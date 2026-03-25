@@ -2,11 +2,14 @@
 BPTF visualization functions
 """
 
+import logging
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def plot_cells_per_patch(patch_metadata_df: pd.DataFrame, save_path: str | None = None):
@@ -20,7 +23,7 @@ def plot_cells_per_patch(patch_metadata_df: pd.DataFrame, save_path: str | None 
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return plt.gcf()
 
@@ -56,7 +59,7 @@ def plot_factor_distributions(
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -81,7 +84,7 @@ def plot_factor_sparsity(
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -99,7 +102,7 @@ def plot_motif_activities(patch_loadings: np.ndarray, save_path: str | None = No
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     return fig
 
@@ -178,7 +181,7 @@ def plot_lri_factor_scatter(
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"Saved: {save_path}")
+        logger.debug(f"Saved: {save_path}")
 
     if show:
         plt.show()
@@ -291,6 +294,6 @@ def plot_bptf_diagnostics(
         os.makedirs(plots_dir, exist_ok=True)
         save_path = os.path.join(plots_dir, "bptf_diagnostics.pdf")
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"BPTF diagnostic plots saved to: {plots_dir}")
+        logger.debug(f"BPTF diagnostic plots saved to: {plots_dir}")
 
     return fig

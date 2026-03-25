@@ -44,7 +44,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-viz = ["graphviz", "pygraphviz"]
+viz = ["graphviz"]
 
 [project.urls]
 "Homepage" = "https://github.com/tansey-lab/alarmist"

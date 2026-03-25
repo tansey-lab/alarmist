@@ -20,10 +20,13 @@ Usage:
     al.clear_celltype_colors()
 """
 
+import logging
 from typing import Any, Union
 
 import anndata
 import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
 
 # Module-level registry for cell type colors
 _CELLTYPE_COLORS: dict[str, Any] = {}
@@ -67,18 +70,20 @@ def set_celltype_colors(
     if isinstance(source, dict):
         # Direct color mapping
         _CELLTYPE_COLORS = source.copy()
-        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors (custom)")
+        logger.debug(f"Set {len(_CELLTYPE_COLORS)} cell type colors (custom)")
     elif isinstance(source, list):
         # Generate colors from palette
         _CELLTYPE_COLORS = _generate_colors(source, palette)
-        print(f"Set {len(_CELLTYPE_COLORS)} cell type colors using palette '{palette}'")
+        logger.debug(
+            f"Set {len(_CELLTYPE_COLORS)} cell type colors using palette '{palette}'"
+        )
     else:
         # Assume AnnData
         if column is None:
             raise ValueError("column parameter required when source is AnnData")
         celltypes = sorted(source.obs[column].unique().tolist())
         _CELLTYPE_COLORS = _generate_colors(celltypes, palette)
-        print(
+        logger.debug(
             f"Set {len(_CELLTYPE_COLORS)} cell type colors from adata.obs['{column}'] using palette '{palette}'"
         )
     return _CELLTYPE_COLORS.copy()
@@ -100,7 +105,7 @@ def clear_celltype_colors() -> None:
     """Clear the global cell type color registry."""
     global _CELLTYPE_COLORS
     _CELLTYPE_COLORS = {}
-    print("Cleared cell type colors")
+    logger.debug("Cleared cell type colors")
 
 
 def _generate_colors(celltypes: list[str], palette: str = "tab20") -> dict[str, tuple]:
