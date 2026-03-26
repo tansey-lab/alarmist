@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
     graphviz \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
@@ -17,5 +18,4 @@ COPY src/ ./src/
 RUN uv sync --no-dev --extra viz
 
 # Set entrypoint
-ENTRYPOINT ["uv", "run"]
-CMD ["python", "-m", "alarmist"]
+CMD ["bash"]
