@@ -23,6 +23,9 @@ process ALARMIST_PATCHIFY {
     alarmist-patchify \\
         --adata ${adata} \\
         --output-dir ${prefix} \\
+        --cell-type-column ${params.cell_type_column} \\
+        --patch-size ${params.patch_size} \\
+        --resource ${params.resource} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

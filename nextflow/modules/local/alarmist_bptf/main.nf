@@ -23,6 +23,9 @@ process ALARMIST_BPTF {
     alarmist-bptf \\
         --input-dir ${patchify_results} \\
         --output-dir ${prefix} \\
+        --n-components ${params.n_components} \\
+        --max-iter ${params.max_iter} \\
+        --seed ${params.seed} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
