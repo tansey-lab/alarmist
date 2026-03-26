@@ -3,8 +3,8 @@ process ALARMIST_PROJECT {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'docker://ghcr.io/tansey-lab/alarmist:latest' :
-        'ghcr.io/tansey-lab/alarmist:latest' }"
+        'docker://jeffquinnmsk/alarmist:latest' :
+        'docker.io/jeffquinnmsk/alarmist:latest' }"
 
     input:
     tuple val(meta), path(adata), path(patchify_results), path(bptf_results)
