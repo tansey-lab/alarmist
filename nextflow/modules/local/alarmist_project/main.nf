@@ -25,6 +25,7 @@ process ALARMIST_PROJECT {
         --bptf-dir ${bptf_results} \\
         --patch-lri-dir ${patchify_results} \\
         --output-dir ${prefix} \\
+        --cell-type-column ${params.cell_type_column} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
