@@ -156,8 +156,6 @@ def project_cell_loadings(
             "BPTF not available. Install: pip install git+https://github.com/aschein/bptf.git"
         )
 
-    import gc
-
     # Align LRI columns if names provided
     if model_lri_columns is not None and cell_lri_columns is not None:
         # Quick check: if columns are already aligned, skip alignment
@@ -174,8 +172,9 @@ def project_cell_loadings(
             # Find intersection and preserve model's order
             from collections import defaultdict, deque
 
-            a = cell_lri_columns
-            b = model_lri_columns
+            # Convert to numpy arrays to support boolean indexing
+            a = np.asarray(cell_lri_columns)
+            b = np.asarray(model_lri_columns)
 
             # Which b elements appear in a (preserving b's order and duplicates)
             mask = np.isin(b, a)
@@ -286,7 +285,6 @@ def project_cell_loadings(
 
         # Clean up
         del proj, X_chunk, coo, mat_chunk_csr
-        gc.collect()
 
     if verbose:
         logger.debug(f"Projection complete. Cell loadings shape: {cell_loadings.shape}")
