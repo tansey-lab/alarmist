@@ -156,8 +156,6 @@ def project_cell_loadings(
             "BPTF not available. Install: pip install git+https://github.com/aschein/bptf.git"
         )
 
-    import gc
-
     # Align LRI columns if names provided
     if model_lri_columns is not None and cell_lri_columns is not None:
         # Quick check: if columns are already aligned, skip alignment
@@ -171,40 +169,29 @@ def project_cell_loadings(
             if verbose:
                 logger.debug("Aligning cell-LRI matrix columns to model...")
 
-            # Find intersection and preserve model's order
-            from collections import defaultdict, deque
+            # Check for duplicate column names
+            if len(set(model_lri_columns)) != len(model_lri_columns):
+                raise ValueError("Duplicate column names in model_lri_columns")
+            if len(set(cell_lri_columns)) != len(cell_lri_columns):
+                raise ValueError("Duplicate column names in cell_lri_columns")
 
-            a = cell_lri_columns
-            b = model_lri_columns
+            # Build index mapping from cell columns
+            cell_col_to_idx = {name: i for i, name in enumerate(cell_lri_columns)}
 
-            # Which b elements appear in a (preserving b's order and duplicates)
-            mask = np.isin(b, a)
-            _idx_in_model = np.flatnonzero(mask)
-
-            # Build queue for one-to-one matching
-            pos = defaultdict(deque)
-            for i, v in enumerate(a):
-                pos[v].append(i)
-
-            # Match each b[mask] value to next unused position in a
-            idx_in_mat = np.array(
-                [pos[v].popleft() if pos[v] else -1 for v in b[mask]], dtype=int
-            )
-
-            if (idx_in_mat == -1).any():
+            # Get indices to reorder cell columns to match model order
+            missing = [c for c in model_lri_columns if c not in cell_col_to_idx]
+            if missing:
                 raise ValueError(
-                    "Some model LRIs not found in cell matrix. "
+                    f"{len(missing)} model LRIs not found in cell matrix (e.g. {missing[:3]}). "
                     "Use run_neighborhood(..., required_columns=patch_columns) to ensure alignment."
                 )
 
+            idx_in_mat = np.array(
+                [cell_col_to_idx[c] for c in model_lri_columns], dtype=int
+            )
+
             # Reorder cell matrix columns to match model
             cell_lri_matrix = cell_lri_matrix[:, idx_in_mat]
-
-            if cell_lri_matrix.shape[1] != len(model_lri_columns):
-                raise ValueError(
-                    f"Column mismatch: cell matrix has {cell_lri_matrix.shape[1]} "
-                    f"columns after alignment, model expects {len(model_lri_columns)}"
-                )
 
             if verbose:
                 logger.debug(f"Aligned to {cell_lri_matrix.shape[1]} LRI columns")
@@ -286,7 +273,6 @@ def project_cell_loadings(
 
         # Clean up
         del proj, X_chunk, coo, mat_chunk_csr
-        gc.collect()
 
     if verbose:
         logger.debug(f"Projection complete. Cell loadings shape: {cell_loadings.shape}")
