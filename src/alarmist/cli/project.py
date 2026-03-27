@@ -56,6 +56,14 @@ Examples:
         help="Path to CellChatDB CSV file (uses built-in if not specified)",
     )
     parser.add_argument(
+        "--resource",
+        "-r",
+        type=str,
+        default="cellchatdb",
+        choices=["cellchatdb", "cellphonedb"],
+        help="LR database resource to use (default: cellchatdb). Must match the resource used in patchify.",
+    )
+    parser.add_argument(
         "--multi-sample",
         action="store_true",
         help="Enable multi-sample mode for concatenated AnnData",
@@ -157,7 +165,7 @@ def main():
     logger.info("Computing cell-level LRI matrix...")
     cell_analyzer = al.NeighborhoodLRIAnalyzer(
         neighborhood_size=neighborhood_size,
-        resource_name="cellchatdb",
+        resource_name=args.resource,
         cell_type_column=args.cell_type_column,
         cellchatdb_path=args.cellchatdb,
     )

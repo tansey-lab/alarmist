@@ -26,6 +26,7 @@ process ALARMIST_PROJECT {
         --patch-lri-dir ${patchify_results} \\
         --output-dir ${prefix} \\
         --cell-type-column ${params.cell_type_column} \\
+        --resource ${params.resource} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
