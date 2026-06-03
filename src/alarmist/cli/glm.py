@@ -20,10 +20,6 @@ def get_parser():
 Examples:
   # Basic usage
   alarmist-glm --input-dir results/project --adata data.h5ad --output-dir results/glm
-
-  # With condition column for differential analysis
-  alarmist-glm --input-dir results/project --adata data.h5ad --output-dir results/glm \\
-      --condition-column treatment
         """,
     )
 
@@ -38,6 +34,17 @@ Examples:
     parser.add_argument(
         "--adata", type=str, required=True, help="Path to AnnData h5ad file"
     )
+    parser.add_argument(
+        "--cell-type-column",
+        type=str,
+        default="cell_type",
+        help=(
+            "Column in adata.obs containing cell type labels used to group the "
+            "per-cell-type DE analysis (default: cell_type). The projected adata "
+            "from alarmist-project preserves whatever column was passed via its "
+            "own --cell-type-column flag (e.g. predicted_cell_type)."
+        ),
+    )
     common.add_output_arguments(parser)
 
     # Analysis parameters
@@ -46,19 +53,6 @@ Examples:
         type=str,
         default=None,
         help="Patch-LRI results directory (defaults to input-dir/../patchify)",
-    )
-    parser.add_argument(
-        "--condition-column",
-        type=str,
-        default=None,
-        help="Column in adata.obs for condition/group comparison",
-    )
-    parser.add_argument(
-        "--covariates",
-        type=str,
-        nargs="+",
-        default=None,
-        help="Additional covariate columns from adata.obs",
     )
     parser.add_argument(
         "--count-layer",
@@ -161,6 +155,7 @@ def main():
             count_layer=args.count_layer,
             alpha=args.alpha,
             random_state=args.seed,
+            cell_type_column=args.cell_type_column,
         )
 
         logger.info("GLM analysis complete")

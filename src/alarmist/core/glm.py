@@ -437,6 +437,7 @@ def prepare_cell_data_from_adata(
     adata: "anndata.AnnData",
     count_layer: str = "X",
     keep_sparse: bool = True,
+    cell_type_column: str = "cell_type",
 ) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Prepare cell data from already-loaded AnnData object
@@ -474,12 +475,15 @@ def prepare_cell_data_from_adata(
     n_cells, n_motifs = cell_loadings.shape
 
     # Initialize cell_df with adata metadata
+    if cell_type_column not in adata.obs.columns:
+        raise ValueError(
+            f"Cell type column '{cell_type_column}' not found in adata.obs. "
+            f"Available columns: {list(adata.obs.columns)}"
+        )
     cell_df = pd.DataFrame(
         {
             "cell_id": adata.obs.index.astype(str),
-            "cell_type": adata.obs["cell_type"]
-            if "cell_type" in adata.obs.columns
-            else "unknown",
+            "cell_type": adata.obs[cell_type_column].values,
         }
     )
 
@@ -547,6 +551,7 @@ def prepare_cell_data_memory_efficient(
     count_layer: str = "X",
     cell_metadata_file: str = None,
     keep_sparse: bool = True,
+    cell_type_column: str = "cell_type",
 ) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Memory-efficient cell data preparation with sparse matrix support
@@ -604,12 +609,23 @@ def prepare_cell_data_memory_efficient(
     n_cells, n_motifs = cell_loadings.shape
 
     # Initialize cell_df with adata metadata
+    has_celltype_in_obs = cell_type_column in adata.obs.columns
+    if has_celltype_in_obs:
+        cell_types = adata.obs[cell_type_column].values
+    elif cell_metadata_file is None:
+        raise ValueError(
+            f"Cell type column '{cell_type_column}' not found in adata.obs and no "
+            "cell_metadata_file provided. "
+            f"Available columns: {list(adata.obs.columns)}"
+        )
+    else:
+        cell_types = None  # filled in from metadata file below
     cell_df = pd.DataFrame(
         {
             "cell_id": adata.obs.index.astype(str),
-            "cell_type": adata.obs["cell_type"]
-            if "cell_type" in adata.obs.columns
-            else "unknown",
+            "cell_type": cell_types
+            if cell_types is not None
+            else ["unknown"] * len(adata.obs.index),
         }
     )
 
@@ -617,8 +633,8 @@ def prepare_cell_data_memory_efficient(
     if cell_metadata_file is not None:
         logger.debug(f"Loading additional cell metadata from {cell_metadata_file}...")
         cell_meta = pd.read_csv(cell_metadata_file)
-        if "cell_type" in cell_meta.columns and "cell_type" not in adata.obs.columns:
-            cell_df["cell_type"] = cell_meta["cell_type"].values
+        if cell_type_column in cell_meta.columns and not has_celltype_in_obs:
+            cell_df["cell_type"] = cell_meta[cell_type_column].values
 
     # Add cell-level motif loadings
     logger.debug("Adding cell-level motif loadings...")
@@ -822,6 +838,7 @@ def run_poisson_glm_analysis(
     prefilter_spearman: bool = False,
     spearman_pval_threshold: float = 0.001,
     spearman_chunk_size: int = 1000,
+    cell_type_column: str = "cell_type",
 ):
     """
     Run Poisson GLM differential expression analysis
@@ -919,7 +936,11 @@ def run_poisson_glm_analysis(
 
     # Prepare cell data
     cell_df, counts, gene_names = prepare_cell_data_from_adata(
-        cell_loadings, adata, count_layer=count_layer, keep_sparse=keep_sparse
+        cell_loadings,
+        adata,
+        count_layer=count_layer,
+        keep_sparse=keep_sparse,
+        cell_type_column=cell_type_column,
     )
     n_motifs = cell_loadings.shape[1]
 

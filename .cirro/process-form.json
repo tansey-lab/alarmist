@@ -63,19 +63,6 @@
           }
         }
       },
-      "glm_options": {
-        "title": "GLM options",
-        "type": "object",
-        "fa_icon": "fas fa-chart-bar",
-        "description": "Configure GLM differential expression analysis",
-        "properties": {
-          "condition_column": {
-            "type": "string",
-            "description": "Column in adata.obs for condition comparison (optional)",
-            "fa_icon": "fas fa-columns"
-          }
-        }
-      },
       "input_output_options": {
         "title": "Input/output options",
         "type": "object",

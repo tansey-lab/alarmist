@@ -18,6 +18,7 @@ process ALARMIST_PROJECT {
 
     script:
     def args = task.ext.args ?: ''
+    def sample_args = params.sample_column ? "--multi-sample --sample-column ${params.sample_column}" : ''
     prefix = task.ext.prefix ?: "${meta.id}_project"
     """
     alarmist-project \\
@@ -27,6 +28,7 @@ process ALARMIST_PROJECT {
         --output-dir ${prefix} \\
         --cell-type-column ${params.cell_type_column} \\
         --resource ${params.resource} \\
+        ${sample_args} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

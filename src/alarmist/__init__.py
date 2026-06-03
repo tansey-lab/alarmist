@@ -73,8 +73,11 @@ from alarmist.plotting import (
     plot_bptf_diagnostics,
     plot_cells_per_patch,
     plot_factor_distributions,
+    plot_lr_pair_overlap,
+    plot_lri_database_overlap,
     plot_lri_factor_scatter,
     plot_lri_networks,
+    plot_lri_networks_html,
     plot_motif_activities,
     plot_top_lri_interactions_dot,
     # Color management
@@ -107,8 +110,11 @@ __all__ = [
     "plot_bptf_diagnostics",
     "plot_motif_activities",
     "plot_factor_distributions",
+    "plot_lri_database_overlap",
+    "plot_lr_pair_overlap",
     "plot_lri_factor_scatter",
     "plot_lri_networks",
+    "plot_lri_networks_html",
     "plot_top_lri_interactions_dot",
     "plot_cells_per_patch",
     # GLM analysis

@@ -6,7 +6,6 @@
   "n_components": "$.dataset.params.bptf_options.n_components",
   "max_iter": "$.dataset.params.bptf_options.max_iter",
   "seed": "$.dataset.params.bptf_options.seed",
-  "condition_column": "$.dataset.params.glm_options.condition_column",
   "email": "$.dataset.params.input_output_options.email",
   "multiqc_title": "$.dataset.params.input_output_options.multiqc_title",
   "publish_dir_mode": "$.dataset.params.generic_options.publish_dir_mode",

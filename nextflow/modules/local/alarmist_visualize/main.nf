@@ -18,6 +18,7 @@ process ALARMIST_VISUALIZE {
 
     script:
     def args = task.ext.args ?: ''
+    def sample_args = params.sample_column ? "--sample-column ${params.sample_column}" : ''
     prefix = task.ext.prefix ?: "${meta.id}_visualize"
     """
     alarmist-visualize \\
@@ -26,6 +27,8 @@ process ALARMIST_VISUALIZE {
         --project-dir ${project_results} \\
         --patchify-dir ${patchify_results} \\
         --output-dir ${prefix} \\
+        --cell-type-column ${params.cell_type_column} \\
+        ${sample_args} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

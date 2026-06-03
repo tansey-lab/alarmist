@@ -116,6 +116,11 @@
                     "enum": ["cellphonedb", "cellchatdb"],
                     "fa_icon": "fas fa-database"
                 },
+                "sample_column": {
+                    "type": "string",
+                    "description": "Column in adata.obs identifying samples. Setting this enables multi-sample mode in patchify/project and produces per-sample spatial plots in visualize.",
+                    "fa_icon": "fas fa-vials"
+                },
                 "n_components": {
                     "type": "integer",
                     "default": 15,
@@ -133,16 +138,6 @@
                     "default": 42,
                     "description": "Random seed for reproducibility.",
                     "fa_icon": "fas fa-dice"
-                },
-                "condition_column": {
-                    "type": "string",
-                    "description": "Column name in adata.obs containing condition/group labels for GLM analysis.",
-                    "fa_icon": "fas fa-flask"
-                },
-                "covariates": {
-                    "type": "string",
-                    "description": "Comma-separated list of covariate column names for GLM analysis.",
-                    "fa_icon": "fas fa-list"
                 }
             }
         },

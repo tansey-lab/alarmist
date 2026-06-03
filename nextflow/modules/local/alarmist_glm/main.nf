@@ -19,16 +19,13 @@ process ALARMIST_GLM {
     script:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}_glm"
-    def condition_arg = params.condition_column ? "--condition-column ${params.condition_column}" : ''
-    def covariates_arg = params.covariates ? "--covariates ${params.covariates}" : ''
     """
     alarmist-glm \\
         --input-dir ${project_results} \\
         --adata ${project_results}/projected_adata.h5ad \\
         --patch-lri-dir ${patchify_results} \\
         --output-dir ${prefix} \\
-        ${condition_arg} \\
-        ${covariates_arg} \\
+        --cell-type-column ${params.cell_type_column} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

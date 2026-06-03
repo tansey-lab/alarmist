@@ -13,6 +13,7 @@ from alarmist.constants import (
     COLUMN_NAME_LOGFC,
     COLUMN_NAME_NEG_LOG10_Q,
     COLUMN_NAME_QVAL,
+    COLUMN_NAME_SAMPLE_ID,
 )
 
 
@@ -112,6 +113,57 @@ Examples:
         default=20,
         help="Number of top features to show in summary plots (default: 20)",
     )
+    parser.add_argument(
+        "--network-top-n",
+        type=int,
+        default=200,
+        help=(
+            "Number of top LRIs per motif used to build the LRI network plot "
+            "(default: 200). Independent of --top-n which controls summary plots."
+        ),
+    )
+    parser.add_argument(
+        "--network-threshold",
+        type=float,
+        default=0.0,
+        help=(
+            "Minimum summed edge weight to draw an edge in the LRI network plot "
+            "(default: 0, i.e. draw every aggregated edge from --network-top-n LRIs). "
+            "Raise to declutter dense graphs."
+        ),
+    )
+    parser.add_argument(
+        "--motif-names",
+        type=str,
+        nargs="+",
+        default=None,
+        help=(
+            "Human-readable names for motifs, used in plot titles and filenames. "
+            "Either provide names positionally (one per motif, index order: "
+            "--motif-names Fibroblast Tumor Immune ...) or pass a single path to a "
+            "YAML/JSON file mapping motif indices to names "
+            '(e.g. {0: "Fibroblast", 1: "Tumor"}). Motifs without an entry fall back '
+            'to "Motif {idx}".'
+        ),
+    )
+    parser.add_argument(
+        "--cell-type-column",
+        type=str,
+        default="cell_type",
+        help=(
+            "Column in adata.obs containing cell type labels for the spatial "
+            "cell-type plot (default: cell_type)."
+        ),
+    )
+    parser.add_argument(
+        "--sample-column",
+        type=str,
+        default=COLUMN_NAME_SAMPLE_ID,
+        help=(
+            "Column in adata.obs containing sample IDs. If present with multiple "
+            f"unique values, spatial plots are emitted per-sample (default: {COLUMN_NAME_SAMPLE_ID})"
+        ),
+    )
 
     log_config.add_logging_args(parser)
 
@@ -142,6 +194,52 @@ def main():
     # Create output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Resolve motif name mapping (idx -> human-readable name)
+    motif_names: dict[int, str] = {}
+    if args.motif_names:
+        if len(args.motif_names) == 1 and Path(args.motif_names[0]).is_file():
+            import json
+
+            mapping_path = Path(args.motif_names[0])
+            with open(mapping_path) as f:
+                if mapping_path.suffix.lower() in (".yaml", ".yml"):
+                    raw = yaml.safe_load(f)
+                else:
+                    raw = json.load(f)
+            if not isinstance(raw, dict):
+                raise ValueError(
+                    f"Motif names file {mapping_path} must contain a mapping "
+                    "of motif index to name"
+                )
+            motif_names = {int(k): str(v) for k, v in raw.items()}
+        else:
+            motif_names = {i: name for i, name in enumerate(args.motif_names)}
+        logger.info(f"Using motif name overrides for indices: {sorted(motif_names)}")
+
+    def motif_label(idx: int) -> str:
+        """Display name for a motif index."""
+        return motif_names.get(int(idx), f"Motif {idx}")
+
+    def motif_slug(idx: int) -> str:
+        """Filesystem-safe slug for a motif index."""
+        if int(idx) in motif_names:
+            name = motif_names[int(idx)]
+            return "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in name)
+        return str(idx)
+
+    def relabel_motif_key(key: str) -> tuple[str, str]:
+        """For glm result keys like 'motif_0_celltype_Tcell', return (title, slug)."""
+        import re
+
+        m = re.match(r"motif_(\d+)(.*)", key)
+        if not m:
+            return key, key
+        idx = int(m.group(1))
+        rest = m.group(2)
+        title = f"{motif_label(idx)}{rest}".replace("_", " ").strip()
+        slug = f"{motif_slug(idx)}{rest}"
+        return title, slug
 
     # Resolve 'all' plot type
     plot_types = args.plot_types
@@ -228,14 +326,15 @@ def main():
                     fdr=args.alpha,
                     ax=ax,
                 )
-                ax.set_title(f"Volcano Plot - {motif_key}")
-                outpath = output_dir / f"volcano_{motif_key}_mqc.{args.format}"
+                title, slug = relabel_motif_key(motif_key)
+                ax.set_title(f"Volcano Plot - {title}")
+                outpath = output_dir / f"volcano_{slug}_mqc.{args.format}"
                 fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                 plt.close(fig)
                 write_mqc_yaml(
                     outpath,
-                    f"Volcano Plot: {motif_key}",
-                    f"Differential expression volcano plot for {motif_key}",
+                    f"Volcano Plot: {title}",
+                    f"Differential expression volcano plot for {title}",
                 )
                 plots_generated.append(str(outpath))
         logger.info(
@@ -249,14 +348,15 @@ def main():
             if isinstance(df, pd.DataFrame) and COLUMN_NAME_LOGFC in df.columns:
                 fig, ax = plt.subplots(figsize=(8, 10))
                 al.forest_plot(df, ax=ax, n_top=args.top_n)
-                ax.set_title(f"Forest Plot - {motif_key}")
-                outpath = output_dir / f"forest_{motif_key}_mqc.{args.format}"
+                title, slug = relabel_motif_key(motif_key)
+                ax.set_title(f"Forest Plot - {title}")
+                outpath = output_dir / f"forest_{slug}_mqc.{args.format}"
                 fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                 plt.close(fig)
                 write_mqc_yaml(
                     outpath,
-                    f"Forest Plot: {motif_key}",
-                    f"Top differentially expressed genes forest plot for {motif_key}",
+                    f"Forest Plot: {title}",
+                    f"Top differentially expressed genes forest plot for {title}",
                 )
                 plots_generated.append(str(outpath))
         logger.info(
@@ -323,74 +423,39 @@ def main():
                 "No spatial coordinates found in adata.obsm['spatial'], skipping spatial plots"
             )
         else:
-            coords = adata.obsm["spatial"][:, :2]
+            all_coords = adata.obsm["spatial"][:, :2]
             n_motifs = bptf_results["patch_loadings"].shape[1]
 
-            # Get cell type colors if available
-            cell_type_col = "cell_type"
+            # Determine per-sample grouping
+            sample_col = args.sample_column
+            if sample_col in adata.obs.columns:
+                sample_series = adata.obs[sample_col].astype(str)
+                unique_samples = list(dict.fromkeys(sample_series.tolist()))
+            else:
+                sample_series = None
+                unique_samples = [None]
+            if len(unique_samples) > 1:
+                logger.info(
+                    f"  Detected {len(unique_samples)} samples in obs['{sample_col}']; "
+                    "emitting per-sample spatial plots"
+                )
+
+            # Get cell type colors if available (computed once over full adata
+            # so colors stay consistent across samples)
+            cell_type_col = args.cell_type_column
             has_celltypes = cell_type_col in adata.obs.columns
-
-            # Plot 1: Cells colored by cell type (reference)
             if has_celltypes:
-                logger.info("  Generating cell type spatial plot...")
-                fig, ax = plt.subplots(figsize=(10, 10))
-                cell_types = adata.obs[cell_type_col].astype("category")
-                n_types = len(cell_types.cat.categories)
-
-                # Use a qualitative colormap
+                full_cell_types = adata.obs[cell_type_col].astype("category")
+                n_types = len(full_cell_types.cat.categories)
                 cmap = plt.cm.get_cmap("tab20", n_types)
-                colors = [cmap(i) for i in range(n_types)]
-                color_map = dict(zip(cell_types.cat.categories, colors))
-                cell_colors = [color_map[ct] for ct in cell_types]
-
-                scatter = ax.scatter(
-                    coords[:, 0],
-                    coords[:, 1],
-                    c=cell_colors,
-                    s=1,
-                    alpha=0.8,
-                    rasterized=True,
-                )
-                ax.set_aspect("equal")
-                ax.set_xlabel("X")
-                ax.set_ylabel("Y")
-                ax.set_title("Cells by Cell Type")
-
-                # Add legend (top N cell types by count)
-                ct_counts = cell_types.value_counts()
-                top_cts = ct_counts.head(15).index
-                handles = [
-                    plt.Line2D(
-                        [0],
-                        [0],
-                        marker="o",
-                        color="w",
-                        markerfacecolor=color_map[ct],
-                        markersize=8,
-                        label=ct,
+                color_map = dict(
+                    zip(
+                        full_cell_types.cat.categories,
+                        [cmap(i) for i in range(n_types)],
                     )
-                    for ct in top_cts
-                ]
-                ax.legend(
-                    handles=handles,
-                    loc="center left",
-                    bbox_to_anchor=(1, 0.5),
-                    fontsize=8,
-                    title="Cell Type",
                 )
 
-                outpath = output_dir / f"spatial_celltypes_mqc.{args.format}"
-                fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
-                plt.close(fig)
-                write_mqc_yaml(
-                    outpath,
-                    "Spatial Cell Types",
-                    "Spatial distribution of cells colored by cell type",
-                )
-                plots_generated.append(str(outpath))
-
-            # Plot 2: Cells colored by motif loading (one per motif)
-            # Check if cell loadings are in adata.obsm
+            # Resolve cell loadings once
             loading_key = None
             for key in ["cell_motif_loadings", "X_motif", "motif_loadings"]:
                 if key in adata.obsm:
@@ -398,7 +463,6 @@ def main():
                     break
 
             if loading_key is None:
-                # Try to load from parquet file
                 import os
 
                 loadings_path = os.path.join(
@@ -407,7 +471,6 @@ def main():
                 if os.path.exists(loadings_path):
                     logger.info(f"  Loading cell loadings from {loadings_path}")
                     cell_loadings = pd.read_parquet(loadings_path)
-                    # Assume columns are motif_0, motif_1, etc.
                     loading_cols = [
                         c for c in cell_loadings.columns if c.startswith("motif_")
                     ]
@@ -420,19 +483,36 @@ def main():
             else:
                 cell_loadings_arr = adata.obsm[loading_key]
 
-            if cell_loadings_arr is not None:
-                n_motifs = cell_loadings_arr.shape[1]
-                logger.info(f"  Generating {n_motifs} motif loading spatial plots...")
+            import numpy as _np
 
-                for k in range(n_motifs):
-                    loadings = cell_loadings_arr[:, k]
+            for sample in unique_samples:
+                if sample is None:
+                    mask = _np.ones(adata.n_obs, dtype=bool)
+                    sample_suffix = ""
+                    sample_title = ""
+                else:
+                    mask = (sample_series == sample).to_numpy()
+                    safe = "".join(
+                        c if c.isalnum() or c in ("-", "_") else "_" for c in sample
+                    )
+                    sample_suffix = f"_{safe}"
+                    sample_title = f" — {sample}"
 
+                coords = all_coords[mask]
+                if coords.shape[0] == 0:
+                    continue
+
+                # Plot 1: Cells colored by cell type (reference)
+                if has_celltypes:
+                    logger.info(f"  Generating cell type spatial plot{sample_title}...")
                     fig, ax = plt.subplots(figsize=(10, 10))
-                    scatter = ax.scatter(
+                    cell_types = full_cell_types[mask]
+                    cell_colors = [color_map[ct] for ct in cell_types]
+
+                    ax.scatter(
                         coords[:, 0],
                         coords[:, 1],
-                        c=loadings,
-                        cmap="viridis",
+                        c=cell_colors,
                         s=1,
                         alpha=0.8,
                         rasterized=True,
@@ -440,23 +520,88 @@ def main():
                     ax.set_aspect("equal")
                     ax.set_xlabel("X")
                     ax.set_ylabel("Y")
-                    ax.set_title(f"Motif {k} Loading")
-                    plt.colorbar(scatter, ax=ax, label="Loading")
+                    ax.set_title(f"Cells by Cell Type{sample_title}")
+
+                    ct_counts = cell_types.value_counts()
+                    top_cts = ct_counts.head(15).index
+                    handles = [
+                        plt.Line2D(
+                            [0],
+                            [0],
+                            marker="o",
+                            color="w",
+                            markerfacecolor=color_map[ct],
+                            markersize=8,
+                            label=ct,
+                        )
+                        for ct in top_cts
+                    ]
+                    ax.legend(
+                        handles=handles,
+                        loc="center left",
+                        bbox_to_anchor=(1, 0.5),
+                        fontsize=8,
+                        title="Cell Type",
+                    )
 
                     outpath = (
-                        output_dir / f"spatial_motif_{k}_loading_mqc.{args.format}"
+                        output_dir
+                        / f"spatial_celltypes{sample_suffix}_mqc.{args.format}"
                     )
                     fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                     plt.close(fig)
                     write_mqc_yaml(
                         outpath,
-                        f"Spatial Motif {k} Loading",
-                        f"Spatial distribution of cells colored by Motif {k} loading",
+                        f"Spatial Cell Types{sample_title}",
+                        "Spatial distribution of cells colored by cell type"
+                        + (f" ({sample})" if sample is not None else ""),
                     )
                     plots_generated.append(str(outpath))
 
-                logger.info(f"  Generated {n_motifs} motif loading plots")
-            else:
+                # Plot 2: Cells colored by motif loading (one per motif)
+                if cell_loadings_arr is not None:
+                    n_motifs_load = cell_loadings_arr.shape[1]
+                    logger.info(
+                        f"  Generating {n_motifs_load} motif loading spatial plots{sample_title}..."
+                    )
+                    sample_loadings = cell_loadings_arr[mask]
+
+                    for k in range(n_motifs_load):
+                        loadings = sample_loadings[:, k]
+
+                        fig, ax = plt.subplots(figsize=(10, 10))
+                        scatter = ax.scatter(
+                            coords[:, 0],
+                            coords[:, 1],
+                            c=loadings,
+                            cmap="viridis",
+                            s=1,
+                            alpha=0.8,
+                            rasterized=True,
+                        )
+                        ax.set_aspect("equal")
+                        ax.set_xlabel("X")
+                        ax.set_ylabel("Y")
+                        m_label = motif_label(k)
+                        m_slug = motif_slug(k)
+                        ax.set_title(f"{m_label} Loading{sample_title}")
+                        plt.colorbar(scatter, ax=ax, label="Loading")
+
+                        outpath = (
+                            output_dir
+                            / f"spatial_motif_{m_slug}_loading{sample_suffix}_mqc.{args.format}"
+                        )
+                        fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
+                        plt.close(fig)
+                        write_mqc_yaml(
+                            outpath,
+                            f"Spatial {m_label} Loading{sample_title}",
+                            f"Spatial distribution of cells colored by {m_label} loading"
+                            + (f" ({sample})" if sample is not None else ""),
+                        )
+                        plots_generated.append(str(outpath))
+
+            if cell_loadings_arr is None:
                 logger.warning(
                     "  No cell motif loadings found, skipping motif loading plots"
                 )
@@ -478,15 +623,15 @@ def main():
                     top_n=args.top_n,
                 )
                 if fig is not None:
-                    outpath = (
-                        output_dir / f"lri_dot_motif_{motif_idx}_mqc.{args.format}"
-                    )
+                    m_label = motif_label(motif_idx)
+                    m_slug = motif_slug(motif_idx)
+                    outpath = output_dir / f"lri_dot_motif_{m_slug}_mqc.{args.format}"
                     fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                     plt.close(fig)
                     write_mqc_yaml(
                         outpath,
-                        f"LRI Dot Plot: Motif {motif_idx}",
-                        f"Top ligand-receptor interactions for Motif {motif_idx}",
+                        f"LRI Dot Plot: {m_label}",
+                        f"Top ligand-receptor interactions for {m_label}",
                     )
                     plots_generated.append(str(outpath))
             logger.info(
@@ -504,7 +649,8 @@ def main():
             logger.info("Generating LRI network plot...")
             fig = al.plot_lri_networks(
                 lri_motifs_df,
-                top_n=args.top_n,
+                top_n=args.network_top_n,
+                threshold=args.network_threshold,
             )
             if fig is not None:
                 outpath = output_dir / f"lri_network_motifs_mqc.{args.format}"
@@ -517,6 +663,15 @@ def main():
                 )
                 plots_generated.append(str(outpath))
                 logger.info("Generated LRI network plot")
+
+            html_path = output_dir / "lri_network_motifs_interactive_mqc.html"
+            al.plot_lri_networks_html(
+                lri_motifs_df,
+                str(html_path),
+                top_n=args.network_top_n,
+            )
+            plots_generated.append(str(html_path))
+            logger.info("Generated interactive LRI network HTML")
         else:
             logger.warning(
                 "No lri_motifs data found in BPTF results, skipping LRI network plot"

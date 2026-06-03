@@ -20,6 +20,10 @@ from alarmist.plotting.glm_plots import (
     generate_volcano_plots,
     volcano_plot,
 )
+from alarmist.plotting.lri_overlap import (
+    plot_lr_pair_overlap,
+    plot_lri_database_overlap,
+)
 from alarmist.plotting.motif_plots import (
     # Data preprocessing
     add_lri_components,
@@ -32,6 +36,7 @@ from alarmist.plotting.motif_plots import (
     # Visualization functions
     plot_lri_clustermap,
     plot_lri_networks,
+    plot_lri_networks_html,
     plot_single_motif_cellpair_lollipop,
     plot_single_motif_lri_lollipop,
     plot_top_lri_interactions_by_pathway,
@@ -85,4 +90,7 @@ __all__ = [
     "plot_top_lri_interactions_by_pathway",
     "build_master_edge_gate",
     "plot_lri_networks",
+    "plot_lri_networks_html",
+    "plot_lri_database_overlap",
+    "plot_lr_pair_overlap",
 ]

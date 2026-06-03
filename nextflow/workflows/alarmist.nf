@@ -70,6 +70,10 @@ workflow ALARMIST {
     ch_multiqc_files = ch_multiqc_files.mix(
         ALARMIST_VISUALIZE.out.results.map { meta, path -> path }
     )
+    // Also pick up the LRI database / input data gene overlap Venn from patchify
+    ch_multiqc_files = ch_multiqc_files.mix(
+        ALARMIST_PATCHIFY.out.results.map { meta, path -> path }
+    )
 
     //
     // Collate and save software versions
