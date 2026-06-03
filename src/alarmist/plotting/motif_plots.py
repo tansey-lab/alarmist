@@ -11,6 +11,7 @@ Adapted from scripts/bptf_visualization_utils.py for notebook-friendly usage.
 """
 
 import io
+import json
 import logging
 import os
 
@@ -1876,3 +1877,556 @@ def plot_lri_networks(
         logger.debug(f"Saved: {save_path}")
 
     return fig
+
+
+def plot_lri_networks_html(
+    lri_motifs_df: pd.DataFrame,
+    save_path: str,
+    top_n: int = 200,
+    factor_col: str = "factor",
+    mode_filter: str | None = None,
+    ct_colors: dict[str, str] | None = None,
+    layout_seed: int = 0,
+) -> str:
+    """Interactive HTML version of :func:`plot_lri_networks`.
+
+    Renders a standalone HTML file (no external libraries) with:
+      * a motif selector,
+      * a weight-cutoff slider — edges below the cutoff are hidden and any
+        celltype with no remaining edges is dropped,
+      * click-on-edge → table of every LR pair between those two celltypes,
+        sorted by motif loading (``factor_col``) descending.
+
+    Node positions are precomputed in Python via :func:`networkx.spring_layout`
+    so layout stays stable as the slider moves.
+
+    Parameters
+    ----------
+    lri_motifs_df : pd.DataFrame
+        Same shape consumed by :func:`plot_lri_networks` (columns include
+        ``motif_idx``, ``celltype1``, ``celltype2``, ``ligand``, ``receptor``,
+        ``signaling_type``, and ``factor_col``).
+    save_path : str
+        Destination ``.html`` path.
+    top_n, factor_col, mode_filter, ct_colors
+        Same semantics as :func:`plot_lri_networks`.
+    layout_seed : int, default 0
+        Seed for the spring layout so the file is reproducible.
+
+    Returns
+    -------
+    str
+        The written HTML path.
+    """
+    import networkx as nx
+
+    from alarmist.plotting.colors import _get_colors_for_plotting
+
+    def _norm_mode(x: str) -> str:
+        t = str(x).strip().lower()
+        if t in {"auto", "autocrine", "a"}:
+            return "autocrine"
+        if t in {"juxta", "juxtacrine", "j"}:
+            return "juxtacrine"
+        return "paracrine"
+
+    def _to_hex(color) -> str:
+        if isinstance(color, str):
+            return color
+        if isinstance(color, tuple):
+            r, g, b = int(color[0] * 255), int(color[1] * 255), int(color[2] * 255)
+            return f"#{r:02x}{g:02x}{b:02x}"
+        return "#cccccc"
+
+    all_celltypes = sorted(
+        set(lri_motifs_df["celltype1"]) | set(lri_motifs_df["celltype2"])
+    )
+    ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
+    ct_color_hex = {ct: _to_hex(c) for ct, c in ct_color_map.items()}
+
+    motifs_payload: list[dict] = []
+    global_min_w = float("inf")
+    global_max_w = 0.0
+
+    for motif in sorted(lri_motifs_df["motif_idx"].unique()):
+        df = lri_motifs_df[lri_motifs_df["motif_idx"] == motif].copy()
+        if df.empty:
+            continue
+        df["mode"] = df["signaling_type"].apply(_norm_mode)
+        if mode_filter is not None:
+            df = df[df["mode"] == _norm_mode(mode_filter)]
+        if df.empty:
+            continue
+
+        df_top = df.nlargest(top_n, factor_col)
+        agg = (
+            df_top.groupby(["celltype1", "celltype2"])[factor_col]
+            .sum()
+            .reset_index(name="weight")
+        )
+        if agg.empty:
+            continue
+
+        edges = []
+        for _, row in agg.iterrows():
+            c1, c2, w = row["celltype1"], row["celltype2"], float(row["weight"])
+            pairs = df[(df["celltype1"] == c1) & (df["celltype2"] == c2)].sort_values(
+                factor_col, ascending=False
+            )
+            lr = [
+                {
+                    "ligand": p["ligand"],
+                    "receptor": p["receptor"],
+                    "factor": float(p[factor_col]),
+                    "mode": p["mode"],
+                }
+                for _, p in pairs.iterrows()
+            ]
+            edges.append({"source": c1, "target": c2, "weight": w, "lr_pairs": lr})
+            global_min_w = min(global_min_w, w)
+            global_max_w = max(global_max_w, w)
+
+        nodes_set = sorted(set(agg["celltype1"]) | set(agg["celltype2"]))
+        G = nx.DiGraph()
+        G.add_nodes_from(nodes_set)
+        for e in edges:
+            G.add_edge(e["source"], e["target"], weight=e["weight"])
+        pos = nx.spring_layout(G, seed=layout_seed, k=None, iterations=200)
+
+        nodes = [
+            {
+                "id": n,
+                "x": float(pos[n][0]),
+                "y": float(pos[n][1]),
+                "color": ct_color_hex.get(n, "#cccccc"),
+            }
+            for n in nodes_set
+        ]
+        motifs_payload.append({"motif_idx": int(motif), "nodes": nodes, "edges": edges})
+
+    if not motifs_payload:
+        global_min_w, global_max_w = 0.0, 1.0
+    if global_min_w == float("inf"):
+        global_min_w = 0.0
+
+    payload = {
+        "motifs": motifs_payload,
+        "min_weight": global_min_w,
+        "max_weight": global_max_w,
+        "colors": ct_color_hex,
+        "mode_filter": mode_filter,
+        "top_n": top_n,
+    }
+
+    html = _LRI_NETWORK_HTML_TEMPLATE.replace("__PAYLOAD__", json.dumps(payload))
+
+    if os.path.dirname(save_path):
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    with open(save_path, "w") as f:
+        f.write(html)
+    logger.debug(f"Saved: {save_path}")
+    return save_path
+
+
+_LRI_NETWORK_HTML_TEMPLATE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>LRI Networks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --muted: #64748b;
+    --muted-2: #94a3b8;
+    --text: #0f172a;
+    --text-2: #334155;
+    --accent: #6366f1;
+    --accent-2: #4f46e5;
+    --accent-soft: #eef2ff;
+    --danger: #ef4444;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 1px rgba(15,23,42,.03);
+    --shadow-md: 0 4px 12px -2px rgba(15,23,42,.08), 0 2px 6px -2px rgba(15,23,42,.05);
+    --label: 11px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px; line-height: 1.5;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  header {
+    padding: 14px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+    position: relative; z-index: 2;
+  }
+  .brand {
+    font-weight: 700; font-size: 13px; letter-spacing: -0.01em;
+    color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .brand::before {
+    content: ""; width: 8px; height: 8px; border-radius: 2px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  }
+  .control { display: flex; flex-direction: column; gap: 4px; }
+  .control-label {
+    font-size: var(--label); font-weight: 500;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .control-row { display: flex; align-items: center; gap: 10px; }
+  select {
+    appearance: none; -webkit-appearance: none;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 6px 28px 6px 10px; font: inherit; font-weight: 500;
+    cursor: pointer; outline: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat; background-position: right 8px center;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  select:hover { border-color: var(--border-strong); }
+  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 240px; height: 6px;
+    background: var(--border); border-radius: 999px; outline: none; cursor: pointer;
+    transition: background .12s;
+  }
+  input[type=range]:hover { background: var(--border-strong); }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent);
+    box-shadow: var(--shadow-sm); cursor: pointer;
+    transition: transform .12s, box-shadow .12s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(99,102,241,.15); }
+  input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent);
+    box-shadow: var(--shadow-sm); cursor: pointer;
+  }
+  #cutoff-val {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+    min-width: 56px; padding: 2px 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; max-width: 50%; }
+  .legend-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px 3px 6px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 999px; font-size: 11px; color: var(--text-2); font-weight: 500;
+  }
+  .legend-chip .swatch { width: 8px; height: 8px; border-radius: 2px; }
+
+  main { display: grid; grid-template-columns: 1fr 400px; height: calc(100vh - 65px); }
+  #plot {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: relative;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(15,23,42,.04) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+  #plot svg { width: 100%; height: 100%; display: block; }
+
+  #side {
+    background: var(--surface); overflow: auto; padding: 20px;
+  }
+  #side h2 {
+    font-size: var(--label); font-weight: 600; margin: 0 0 12px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .hint {
+    color: var(--muted); font-size: 12px;
+    padding: 16px; background: var(--bg);
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    text-align: center;
+  }
+  .edge-header {
+    background: var(--accent-soft); border: 1px solid #e0e7ff;
+    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
+  }
+  .edge-header .pair {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .edge-header .pair .arrow {
+    color: var(--accent); font-weight: 700;
+  }
+  .edge-header .meta {
+    display: flex; gap: 14px; margin-top: 6px;
+    font-size: 11px; color: var(--muted); font-weight: 500;
+  }
+  .edge-header .meta b { color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 12px;
+    border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  th {
+    text-align: left; padding: 8px 10px; background: var(--bg);
+    color: var(--muted); font-weight: 600; font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; color: var(--text); }
+  td.mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; font-size: 11px; }
+  .mode-pill {
+    display: inline-block; padding: 1px 6px; border-radius: 999px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .mode-paracrine { background: #dbeafe; color: #1e40af; }
+  .mode-juxtacrine { background: #fce7f3; color: #9d174d; }
+  .mode-autocrine { background: #d1fae5; color: #065f46; }
+
+  .node-label {
+    font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600;
+    pointer-events: none; user-select: none; fill: var(--text);
+  }
+  .node {
+    stroke: rgba(15,23,42,.18); stroke-width: 1.5;
+    filter: drop-shadow(0 1px 2px rgba(15,23,42,.08));
+    transition: stroke-width .12s, transform .12s;
+  }
+  .node:hover { stroke-width: 2.5; }
+  .edge {
+    stroke: #94a3b8; stroke-opacity: 0.55; cursor: pointer; fill: none;
+    transition: stroke .12s, stroke-opacity .12s;
+  }
+  .edge:hover { stroke: var(--accent); stroke-opacity: 1; }
+  .edge.selected { stroke: var(--accent-2); stroke-opacity: 1; }
+  .empty {
+    fill: var(--muted-2); font-size: 13px; font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">LRI Networks</div>
+  <div class="control">
+    <span class="control-label">Motif</span>
+    <div class="control-row"><select id="motif"></select></div>
+  </div>
+  <div class="control">
+    <span class="control-label">Min edge weight</span>
+    <div class="control-row">
+      <input type="range" id="cutoff" />
+      <span id="cutoff-val"></span>
+    </div>
+  </div>
+  <div class="legend" id="legend"></div>
+</header>
+<main>
+  <div id="plot"><svg id="svg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <aside id="side">
+    <h2>Ligand–Receptor Pairs</h2>
+    <div id="table-wrap"><div class="hint">Click an edge to list the ligand-receptor pairs between those two celltypes, ranked by motif loading.</div></div>
+  </aside>
+</main>
+<script>
+const DATA = __PAYLOAD__;
+const W = 1000, H = 700, PAD = 60;
+
+const motifSel = document.getElementById("motif");
+const cutoff = document.getElementById("cutoff");
+const cutoffVal = document.getElementById("cutoff-val");
+const svg = document.getElementById("svg");
+const tableWrap = document.getElementById("table-wrap");
+
+DATA.motifs.forEach(m => {
+  const opt = document.createElement("option");
+  opt.value = m.motif_idx;
+  opt.textContent = "Motif " + m.motif_idx;
+  motifSel.appendChild(opt);
+});
+
+const lo = DATA.min_weight, hi = DATA.max_weight;
+const step = (hi - lo) > 0 ? (hi - lo) / 200 : 1;
+cutoff.min = lo; cutoff.max = hi; cutoff.step = step; cutoff.value = lo;
+
+const legend = document.getElementById("legend");
+Object.entries(DATA.colors).forEach(([ct, col]) => {
+  const s = document.createElement("span");
+  s.className = "legend-chip";
+  s.innerHTML = `<span class="swatch" style="background:${col}"></span>${ct}`;
+  legend.appendChild(s);
+});
+
+let selectedEdge = null;
+
+function fmt(v) { return Math.abs(v) >= 100 ? v.toFixed(0) : v.toPrecision(3); }
+
+function render() {
+  const motifIdx = +motifSel.value;
+  const motif = DATA.motifs.find(m => m.motif_idx === motifIdx);
+  const cut = +cutoff.value;
+  cutoffVal.textContent = fmt(cut);
+
+  svg.innerHTML = "";
+  if (!motif) return;
+
+  const edges = motif.edges.filter(e => e.weight >= cut);
+  const liveNodes = new Set();
+  edges.forEach(e => { liveNodes.add(e.source); liveNodes.add(e.target); });
+  const nodes = motif.nodes.filter(n => liveNodes.has(n.id));
+  if (nodes.length === 0) {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", W / 2); t.setAttribute("y", H / 2);
+    t.setAttribute("text-anchor", "middle"); t.setAttribute("class", "empty");
+    t.textContent = "No edges above cutoff";
+    svg.appendChild(t);
+    return;
+  }
+
+  const NODE_PAD = 80;
+  const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+  const ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const sx = x => NODE_PAD + (xmax === xmin ? (W - 2*NODE_PAD)/2 : (x - xmin) / (xmax - xmin) * (W - 2*NODE_PAD));
+  const sy = y => NODE_PAD + (ymax === ymin ? (H - 2*NODE_PAD)/2 : (y - ymin) / (ymax - ymin) * (H - 2*NODE_PAD));
+  const pos = Object.fromEntries(nodes.map(n => [n.id, [sx(n.x), sy(n.y)]]));
+
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+    <marker id="arrow-sel" viewBox="0 0 10 10" refX="8" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#4f46e5"/></marker>`;
+  svg.appendChild(defs);
+
+  // Layers so nodes always render above edges
+  const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const nodeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  svg.appendChild(edgeLayer);
+  svg.appendChild(nodeLayer);
+
+  // Measure each node's label first to size circles to fit
+  const radii = {};
+  nodes.forEach(n => {
+    const [x, y] = pos[n.id];
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", y);
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("dominant-baseline", "central");
+    t.setAttribute("class", "node-label");
+    t.textContent = n.id;
+    nodeLayer.appendChild(t);
+    const bb = t.getBBox();
+    const r = Math.max(22, Math.ceil(Math.hypot(bb.width, bb.height) / 2) + 8);
+    radii[n.id] = r;
+    n.__textEl = t;
+  });
+
+  const wMax = Math.max(...edges.map(e => e.weight));
+
+  edges.forEach((e, i) => {
+    const [x1, y1] = pos[e.source], [x2, y2] = pos[e.target];
+    const r1 = radii[e.source], r2 = radii[e.target];
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    // shrink endpoints so the line/arrow stops at the node border
+    const sx1 = x1 + ux * r1, sy1 = y1 + uy * r1;
+    const ex2 = x2 - ux * r2, ey2 = y2 - uy * r2;
+    const mx = (sx1 + ex2) / 2 + (ey2 - sy1) * 0.12;
+    const my = (sy1 + ey2) / 2 - (ex2 - sx1) * 0.12;
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", `M${sx1},${sy1} Q${mx},${my} ${ex2},${ey2}`);
+    path.setAttribute("class", "edge");
+    const sw = 1.0 + 5.0 * (e.weight / wMax);
+    path.setAttribute("stroke-width", sw.toFixed(2));
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("marker-end", "url(#arrow)");
+    path.addEventListener("click", () => {
+      selectedEdge = i;
+      svg.querySelectorAll(".edge.selected").forEach(el => {
+        el.classList.remove("selected");
+        el.setAttribute("marker-end", "url(#arrow)");
+      });
+      path.classList.add("selected");
+      path.setAttribute("marker-end", "url(#arrow-sel)");
+      showLR(motif, e);
+    });
+    edgeLayer.appendChild(path);
+  });
+
+  // Now draw the circles behind the (already-appended) labels
+  nodes.forEach(n => {
+    const [x, y] = pos[n.id];
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y);
+    c.setAttribute("r", radii[n.id]);
+    c.setAttribute("fill", n.color);
+    c.setAttribute("class", "node");
+    // insert before the text so text sits on top
+    nodeLayer.insertBefore(c, n.__textEl);
+    delete n.__textEl;
+  });
+}
+
+function showLR(motif, edge) {
+  const rows = edge.lr_pairs.map(p => {
+    const mc = `mode-${p.mode}`;
+    return `<tr>
+      <td class="mono">${p.ligand}</td>
+      <td class="mono">${p.receptor}</td>
+      <td><span class="mode-pill ${mc}">${p.mode}</span></td>
+      <td class="num">${fmt(p.factor)}</td>
+    </tr>`;
+  }).join("");
+  tableWrap.innerHTML = `
+    <div class="edge-header">
+      <div class="pair">${edge.source} <span class="arrow">→</span> ${edge.target}</div>
+      <div class="meta">
+        <span>Aggregate weight <b>${fmt(edge.weight)}</b></span>
+        <span><b>${edge.lr_pairs.length}</b> LR pairs</span>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Ligand</th><th>Receptor</th><th>Mode</th><th class="num">Loading</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function resetSide() {
+  tableWrap.innerHTML = '<div class="hint">Click an edge to list the ligand-receptor pairs between those two celltypes, ranked by motif loading.</div>';
+}
+
+motifSel.addEventListener("change", () => { selectedEdge = null; resetSide(); render(); });
+cutoff.addEventListener("input", render);
+render();
+</script>
+</body>
+</html>
+"""

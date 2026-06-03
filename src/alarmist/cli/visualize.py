@@ -663,6 +663,15 @@ def main():
                 )
                 plots_generated.append(str(outpath))
                 logger.info("Generated LRI network plot")
+
+            html_path = output_dir / "lri_network_motifs_interactive_mqc.html"
+            al.plot_lri_networks_html(
+                lri_motifs_df,
+                str(html_path),
+                top_n=args.network_top_n,
+            )
+            plots_generated.append(str(html_path))
+            logger.info("Generated interactive LRI network HTML")
         else:
             logger.warning(
                 "No lri_motifs data found in BPTF results, skipping LRI network plot"
