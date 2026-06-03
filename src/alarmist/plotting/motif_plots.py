@@ -1557,6 +1557,40 @@ def build_master_edge_gate(
     return gates
 
 
+def _select_outlier_celltype_pairs(
+    agg: pd.DataFrame,
+    max_celltypes: int,
+    mod_z_thresh: float,
+) -> pd.DataFrame:
+    """Select edges whose aggregate weight is a statistical outlier (MAD-based
+    modified z-score), then greedily keep edges in descending weight order
+    while the number of distinct celltype endpoints stays <= max_celltypes.
+    """
+    if agg.empty or max_celltypes < 2:
+        return agg.iloc[0:0]
+
+    w = agg["weight"].to_numpy(dtype=float)
+    med = float(np.median(w))
+    mad = float(np.median(np.abs(w - med)))
+    if mad > 0:
+        score = 0.6745 * (w - med) / mad
+    else:
+        sd = float(w.std())
+        score = (w - float(w.mean())) / sd if sd > 0 else np.zeros_like(w)
+    outliers = agg.loc[score > mod_z_thresh].sort_values("weight", ascending=False)
+    if outliers.empty:
+        return outliers
+
+    kept_idx: list = []
+    kept_cells: set[str] = set()
+    for idx, row in outliers.iterrows():
+        candidate = kept_cells | {row["celltype1"], row["celltype2"]}
+        if len(candidate) <= max_celltypes:
+            kept_idx.append(idx)
+            kept_cells = candidate
+    return outliers.loc[kept_idx]
+
+
 def plot_lri_networks(
     lri_motifs_df: pd.DataFrame,
     threshold: float = 0.0,
@@ -1569,6 +1603,8 @@ def plot_lri_networks(
     n_cols: int = 5,
     figsize_per_motif: tuple[float, float] = (3, 3),
     ct_colors: dict[str, str] | None = None,
+    max_celltypes: int = 4,
+    outlier_z: float = 3.5,
 ) -> plt.Figure:
     """Plot LRI networks for each motif using Graphviz
 
@@ -1576,8 +1612,9 @@ def plot_lri_networks(
     ----------
     lri_motifs_df : pd.DataFrame
         DataFrame with parsed LRI components
-    threshold : float, default 2000
-        Threshold for edge weight filtering
+    threshold : float, default 0.0
+        Hard cutoff on aggregate edge weight. Only used if > 0 and
+        ``edge_gate`` is None; otherwise statistical outlier selection is used.
     top_n : int, default 200
         Number of top interactions to consider
     factor_col : str, default "factor"
@@ -1597,6 +1634,15 @@ def plot_lri_networks(
     ct_colors : dict, optional
         Cell type color mapping. If None, uses global colors from set_celltype_colors()
         or auto-generates from data.
+    max_celltypes : int, default 4
+        When using statistical outlier selection (no ``edge_gate`` and
+        ``threshold <= 0``), cap the number of distinct celltypes shown per
+        motif. Outlier edges are added in descending weight order until adding
+        another would exceed this cap.
+    outlier_z : float, default 3.5
+        Modified z-score threshold (MAD-based) used to flag a celltype-pair's
+        aggregate weight as an outlier. Falls back to a std-based z-score when
+        MAD is zero.
 
     Returns
     -------
@@ -1683,7 +1729,7 @@ def plot_lri_networks(
             .reset_index(name="weight")
         )
 
-        # Apply edge gate or threshold
+        # Apply edge gate, hard threshold, or statistical outlier selection
         if edge_gate is not None:
             keep = edge_gate.get(motif, set())
             if keep:
@@ -1691,8 +1737,10 @@ def plot_lri_networks(
                     (r["celltype1"], r["celltype2"]) in keep for _, r in agg.iterrows()
                 ]
                 agg = agg.loc[mask]
-        else:
+        elif threshold > 0:
             agg = agg[agg["weight"] > threshold]
+        else:
+            agg = _select_outlier_celltype_pairs(agg, max_celltypes, outlier_z)
 
         if agg.empty:
             ax.axis("off")
@@ -1810,7 +1858,12 @@ def plot_lri_networks(
 
     mf_text = "" if mode_filter is None else f" | only {_norm_mode(mode_filter)}"
     edge_text = " (with LR annotations)" if annotate_edges else ""
-    gate_text = "" if edge_gate is None else " | gated by ALL>threshold"
+    if edge_gate is not None:
+        gate_text = " | gated by ALL>threshold"
+    elif threshold > 0:
+        gate_text = f" | weight>{threshold:g}"
+    else:
+        gate_text = f" | MAD-outliers (z>{outlier_z:g}, ≤{max_celltypes} celltypes)"
     fig.suptitle(
         f"LRI Networks Across Motifs{mf_text}{gate_text}{edge_text}",
         fontsize=12,

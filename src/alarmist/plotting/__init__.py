@@ -20,7 +20,10 @@ from alarmist.plotting.glm_plots import (
     generate_volcano_plots,
     volcano_plot,
 )
-from alarmist.plotting.lri_overlap import plot_lri_database_overlap
+from alarmist.plotting.lri_overlap import (
+    plot_lr_pair_overlap,
+    plot_lri_database_overlap,
+)
 from alarmist.plotting.motif_plots import (
     # Data preprocessing
     add_lri_components,
@@ -87,4 +90,5 @@ __all__ = [
     "build_master_edge_gate",
     "plot_lri_networks",
     "plot_lri_database_overlap",
+    "plot_lr_pair_overlap",
 ]

@@ -40,6 +40,7 @@ from .lri import (
     PatchLRIAnalyzer,
     SingleCellLRIAnalyzer,
     load_database_genes,
+    load_database_resource,
 )
 
 # Single Cell Analysis
@@ -56,6 +57,7 @@ __all__ = [
     "NeighborhoodLRIAnalyzer",
     "SingleCellLRIAnalyzer",
     "load_database_genes",
+    "load_database_resource",
     # Factorization
     "run_bptf",
     "extract_factors",
