@@ -138,16 +138,6 @@
                     "default": 42,
                     "description": "Random seed for reproducibility.",
                     "fa_icon": "fas fa-dice"
-                },
-                "condition_column": {
-                    "type": "string",
-                    "description": "Column name in adata.obs containing condition/group labels for GLM analysis.",
-                    "fa_icon": "fas fa-flask"
-                },
-                "covariates": {
-                    "type": "string",
-                    "description": "Comma-separated list of covariate column names for GLM analysis.",
-                    "fa_icon": "fas fa-list"
                 }
             }
         },

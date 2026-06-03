@@ -20,10 +20,6 @@ def get_parser():
 Examples:
   # Basic usage
   alarmist-glm --input-dir results/project --adata data.h5ad --output-dir results/glm
-
-  # With condition column for differential analysis
-  alarmist-glm --input-dir results/project --adata data.h5ad --output-dir results/glm \\
-      --condition-column treatment
         """,
     )
 
@@ -46,19 +42,6 @@ Examples:
         type=str,
         default=None,
         help="Patch-LRI results directory (defaults to input-dir/../patchify)",
-    )
-    parser.add_argument(
-        "--condition-column",
-        type=str,
-        default=None,
-        help="Column in adata.obs for condition/group comparison",
-    )
-    parser.add_argument(
-        "--covariates",
-        type=str,
-        nargs="+",
-        default=None,
-        help="Additional covariate columns from adata.obs",
     )
     parser.add_argument(
         "--count-layer",
