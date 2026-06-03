@@ -93,6 +93,62 @@ def main():
         sample_column=args.sample_column,
     )
 
+    # Generate database-vs-data gene overlap Venn diagram
+    logger.info("Generating LRI database / input data gene overlap plot...")
+    try:
+        from pathlib import Path
+
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import yaml
+
+        from alarmist.core.lri import load_database_genes
+        from alarmist.plotting import plot_lri_database_overlap
+
+        db_genes = load_database_genes(
+            resource_name=args.resource,
+            cellchatdb_path=args.cellchatdb_path,
+        )
+        data_genes = set(map(str, adata.var_names))
+
+        output_dir = Path(args.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Persist gene sets so downstream steps can reuse them
+        with open(output_dir / "lri_database_genes.txt", "w") as fh:
+            for g in sorted(db_genes):
+                fh.write(f"{g}\n")
+
+        fig = plot_lri_database_overlap(
+            data_genes=data_genes,
+            database_genes=db_genes,
+            database_label=f"{args.resource} genes",
+        )
+        plot_path = output_dir / "lri_database_overlap_mqc.png"
+        fig.savefig(plot_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+
+        mqc_yaml = {
+            "id": plot_path.stem,
+            "section_name": "LRI Database Gene Coverage",
+            "description": (
+                "Venn diagram of the gene set in the input AnnData vs the "
+                f"ligand/receptor genes referenced by the {args.resource} database."
+            ),
+            "plot_type": "image",
+        }
+        with open(plot_path.with_suffix(".yaml"), "w") as fh:
+            yaml.dump(mqc_yaml, fh, default_flow_style=False)
+
+        logger.info(
+            f"  Database genes: {len(db_genes):,}, input genes: {len(data_genes):,}, "
+            f"overlap: {len(db_genes & data_genes):,}"
+        )
+    except Exception as e:
+        logger.warning(f"Could not generate LRI database overlap plot: {e}")
+
     # Report results
     matrix = results["patch_lri_matrix"]
     logger.info(f"Patch-LRI matrix shape: {matrix.shape}")

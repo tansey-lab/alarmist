@@ -87,6 +87,41 @@ def _split_gene_complex(gene_str: str) -> list[str]:
     return normalized.split("_")
 
 
+def load_database_genes(
+    resource_name: str,
+    cellchatdb_path: str | None = None,
+    cellphonedb_path: str | None = None,
+) -> set[str]:
+    """
+    Return the full set of ligand/receptor gene names referenced by an LRI
+    database, without filtering against any input dataset. Used for assessing
+    overall database coverage.
+    """
+    if resource_name.lower() == "cellchatdb":
+        if cellchatdb_path is None:
+            cellchatdb_path = str(
+                _get_bundled_database_path("CellChatDBv2.0.human.csv")
+            )
+        resource = pd.read_csv(cellchatdb_path)
+    elif resource_name.lower() == "cellphonedb":
+        if cellphonedb_path is None:
+            cellphonedb_path = str(
+                _get_bundled_database_path("CellPhoneDBv5.0.human.csv")
+            )
+        resource = pd.read_csv(cellphonedb_path)
+    else:
+        resource = select_resource(resource_name)
+
+    genes: set[str] = set()
+    for col in ("ligand", "receptor"):
+        if col not in resource.columns:
+            continue
+        for val in resource[col].dropna():
+            genes.update(_split_gene_complex(str(val)))
+    genes.discard("")
+    return genes
+
+
 class BaseLRIAnalyzer(ABC):
     """
     Base class for Ligand-Receptor Interaction Analyzers

@@ -43,6 +43,8 @@ process ALARMIST_PATCHIFY {
     touch ${prefix}/patch_lri_matrix.parquet
     touch ${prefix}/patch_metadata.parquet
     touch ${prefix}/lri_names.txt
+    touch ${prefix}/lri_database_genes.txt
+    touch ${prefix}/lri_database_overlap_mqc.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

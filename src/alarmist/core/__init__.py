@@ -35,7 +35,12 @@ from .glm import (
     spearman_corr_chunked,
     spearman_prefilter_genes,
 )
-from .lri import NeighborhoodLRIAnalyzer, PatchLRIAnalyzer, SingleCellLRIAnalyzer
+from .lri import (
+    NeighborhoodLRIAnalyzer,
+    PatchLRIAnalyzer,
+    SingleCellLRIAnalyzer,
+    load_database_genes,
+)
 
 # Single Cell Analysis
 from .single_cell import (
@@ -50,6 +55,7 @@ __all__ = [
     "PatchLRIAnalyzer",
     "NeighborhoodLRIAnalyzer",
     "SingleCellLRIAnalyzer",
+    "load_database_genes",
     # Factorization
     "run_bptf",
     "extract_factors",
