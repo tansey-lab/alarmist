@@ -116,6 +116,11 @@
                     "enum": ["cellphonedb", "cellchatdb"],
                     "fa_icon": "fas fa-database"
                 },
+                "sample_column": {
+                    "type": "string",
+                    "description": "Column in adata.obs identifying samples. Setting this enables multi-sample mode in patchify/project and produces per-sample spatial plots in visualize.",
+                    "fa_icon": "fas fa-vials"
+                },
                 "n_components": {
                     "type": "integer",
                     "default": 15,

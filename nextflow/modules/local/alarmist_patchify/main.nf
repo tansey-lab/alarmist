@@ -18,6 +18,7 @@ process ALARMIST_PATCHIFY {
 
     script:
     def args = task.ext.args ?: ''
+    def sample_args = params.sample_column ? "--multi-sample --sample-column ${params.sample_column}" : ''
     prefix = task.ext.prefix ?: "${meta.id}_patchify"
     """
     alarmist-patchify \\
@@ -26,6 +27,7 @@ process ALARMIST_PATCHIFY {
         --cell-type-column ${params.cell_type_column} \\
         --patch-size ${params.patch_size} \\
         --resource ${params.resource} \\
+        ${sample_args} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

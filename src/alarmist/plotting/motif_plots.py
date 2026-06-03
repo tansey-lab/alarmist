@@ -1559,7 +1559,7 @@ def build_master_edge_gate(
 
 def plot_lri_networks(
     lri_motifs_df: pd.DataFrame,
-    threshold: float = 2000,
+    threshold: float = 0.0,
     top_n: int = 200,
     factor_col: str = "factor",
     annotate_edges: bool = False,
