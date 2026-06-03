@@ -27,6 +27,7 @@ process ALARMIST_VISUALIZE {
         --project-dir ${project_results} \\
         --patchify-dir ${patchify_results} \\
         --output-dir ${prefix} \\
+        --cell-type-column ${params.cell_type_column} \\
         ${sample_args} \\
         ${args}
 

@@ -133,6 +133,29 @@ Examples:
         ),
     )
     parser.add_argument(
+        "--motif-names",
+        type=str,
+        nargs="+",
+        default=None,
+        help=(
+            "Human-readable names for motifs, used in plot titles and filenames. "
+            "Either provide names positionally (one per motif, index order: "
+            "--motif-names Fibroblast Tumor Immune ...) or pass a single path to a "
+            "YAML/JSON file mapping motif indices to names "
+            '(e.g. {0: "Fibroblast", 1: "Tumor"}). Motifs without an entry fall back '
+            'to "Motif {idx}".'
+        ),
+    )
+    parser.add_argument(
+        "--cell-type-column",
+        type=str,
+        default="cell_type",
+        help=(
+            "Column in adata.obs containing cell type labels for the spatial "
+            "cell-type plot (default: cell_type)."
+        ),
+    )
+    parser.add_argument(
         "--sample-column",
         type=str,
         default=COLUMN_NAME_SAMPLE_ID,
@@ -171,6 +194,52 @@ def main():
     # Create output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Resolve motif name mapping (idx -> human-readable name)
+    motif_names: dict[int, str] = {}
+    if args.motif_names:
+        if len(args.motif_names) == 1 and Path(args.motif_names[0]).is_file():
+            import json
+
+            mapping_path = Path(args.motif_names[0])
+            with open(mapping_path) as f:
+                if mapping_path.suffix.lower() in (".yaml", ".yml"):
+                    raw = yaml.safe_load(f)
+                else:
+                    raw = json.load(f)
+            if not isinstance(raw, dict):
+                raise ValueError(
+                    f"Motif names file {mapping_path} must contain a mapping "
+                    "of motif index to name"
+                )
+            motif_names = {int(k): str(v) for k, v in raw.items()}
+        else:
+            motif_names = {i: name for i, name in enumerate(args.motif_names)}
+        logger.info(f"Using motif name overrides for indices: {sorted(motif_names)}")
+
+    def motif_label(idx: int) -> str:
+        """Display name for a motif index."""
+        return motif_names.get(int(idx), f"Motif {idx}")
+
+    def motif_slug(idx: int) -> str:
+        """Filesystem-safe slug for a motif index."""
+        if int(idx) in motif_names:
+            name = motif_names[int(idx)]
+            return "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in name)
+        return str(idx)
+
+    def relabel_motif_key(key: str) -> tuple[str, str]:
+        """For glm result keys like 'motif_0_celltype_Tcell', return (title, slug)."""
+        import re
+
+        m = re.match(r"motif_(\d+)(.*)", key)
+        if not m:
+            return key, key
+        idx = int(m.group(1))
+        rest = m.group(2)
+        title = f"{motif_label(idx)}{rest}".replace("_", " ").strip()
+        slug = f"{motif_slug(idx)}{rest}"
+        return title, slug
 
     # Resolve 'all' plot type
     plot_types = args.plot_types
@@ -257,14 +326,15 @@ def main():
                     fdr=args.alpha,
                     ax=ax,
                 )
-                ax.set_title(f"Volcano Plot - {motif_key}")
-                outpath = output_dir / f"volcano_{motif_key}_mqc.{args.format}"
+                title, slug = relabel_motif_key(motif_key)
+                ax.set_title(f"Volcano Plot - {title}")
+                outpath = output_dir / f"volcano_{slug}_mqc.{args.format}"
                 fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                 plt.close(fig)
                 write_mqc_yaml(
                     outpath,
-                    f"Volcano Plot: {motif_key}",
-                    f"Differential expression volcano plot for {motif_key}",
+                    f"Volcano Plot: {title}",
+                    f"Differential expression volcano plot for {title}",
                 )
                 plots_generated.append(str(outpath))
         logger.info(
@@ -278,14 +348,15 @@ def main():
             if isinstance(df, pd.DataFrame) and COLUMN_NAME_LOGFC in df.columns:
                 fig, ax = plt.subplots(figsize=(8, 10))
                 al.forest_plot(df, ax=ax, n_top=args.top_n)
-                ax.set_title(f"Forest Plot - {motif_key}")
-                outpath = output_dir / f"forest_{motif_key}_mqc.{args.format}"
+                title, slug = relabel_motif_key(motif_key)
+                ax.set_title(f"Forest Plot - {title}")
+                outpath = output_dir / f"forest_{slug}_mqc.{args.format}"
                 fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                 plt.close(fig)
                 write_mqc_yaml(
                     outpath,
-                    f"Forest Plot: {motif_key}",
-                    f"Top differentially expressed genes forest plot for {motif_key}",
+                    f"Forest Plot: {title}",
+                    f"Top differentially expressed genes forest plot for {title}",
                 )
                 plots_generated.append(str(outpath))
         logger.info(
@@ -371,7 +442,7 @@ def main():
 
             # Get cell type colors if available (computed once over full adata
             # so colors stay consistent across samples)
-            cell_type_col = "cell_type"
+            cell_type_col = args.cell_type_column
             has_celltypes = cell_type_col in adata.obs.columns
             if has_celltypes:
                 full_cell_types = adata.obs[cell_type_col].astype("category")
@@ -511,19 +582,21 @@ def main():
                         ax.set_aspect("equal")
                         ax.set_xlabel("X")
                         ax.set_ylabel("Y")
-                        ax.set_title(f"Motif {k} Loading{sample_title}")
+                        m_label = motif_label(k)
+                        m_slug = motif_slug(k)
+                        ax.set_title(f"{m_label} Loading{sample_title}")
                         plt.colorbar(scatter, ax=ax, label="Loading")
 
                         outpath = (
                             output_dir
-                            / f"spatial_motif_{k}_loading{sample_suffix}_mqc.{args.format}"
+                            / f"spatial_motif_{m_slug}_loading{sample_suffix}_mqc.{args.format}"
                         )
                         fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                         plt.close(fig)
                         write_mqc_yaml(
                             outpath,
-                            f"Spatial Motif {k} Loading{sample_title}",
-                            f"Spatial distribution of cells colored by Motif {k} loading"
+                            f"Spatial {m_label} Loading{sample_title}",
+                            f"Spatial distribution of cells colored by {m_label} loading"
                             + (f" ({sample})" if sample is not None else ""),
                         )
                         plots_generated.append(str(outpath))
@@ -550,15 +623,15 @@ def main():
                     top_n=args.top_n,
                 )
                 if fig is not None:
-                    outpath = (
-                        output_dir / f"lri_dot_motif_{motif_idx}_mqc.{args.format}"
-                    )
+                    m_label = motif_label(motif_idx)
+                    m_slug = motif_slug(motif_idx)
+                    outpath = output_dir / f"lri_dot_motif_{m_slug}_mqc.{args.format}"
                     fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
                     plt.close(fig)
                     write_mqc_yaml(
                         outpath,
-                        f"LRI Dot Plot: Motif {motif_idx}",
-                        f"Top ligand-receptor interactions for Motif {motif_idx}",
+                        f"LRI Dot Plot: {m_label}",
+                        f"Top ligand-receptor interactions for {m_label}",
                     )
                     plots_generated.append(str(outpath))
             logger.info(
