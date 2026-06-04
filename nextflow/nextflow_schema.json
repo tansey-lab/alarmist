@@ -138,6 +138,24 @@
                     "default": 42,
                     "description": "Random seed for reproducibility.",
                     "fa_icon": "fas fa-dice"
+                },
+                "prefilter_spearman": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Pre-filter genes via Spearman correlation before fitting GLMs in the alarmist-glm step.",
+                    "fa_icon": "fas fa-filter"
+                },
+                "spearman_pval_threshold": {
+                    "type": "number",
+                    "default": 0.001,
+                    "description": "Uncorrected Spearman p-value threshold for GLM gene pre-filtering.",
+                    "fa_icon": "fas fa-percentage"
+                },
+                "spearman_chunk_size": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "Chunk size for Spearman correlation computation in GLM pre-filter.",
+                    "fa_icon": "fas fa-th-large"
                 }
             }
         },

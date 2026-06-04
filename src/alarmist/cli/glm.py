@@ -66,6 +66,28 @@ Examples:
         default=0.05,
         help="FDR significance threshold (default: 0.05)",
     )
+    parser.add_argument(
+        "--prefilter-spearman",
+        dest="prefilter_spearman",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Pre-filter genes via Spearman correlation before fitting GLMs "
+            "(default: enabled). Use --no-prefilter-spearman to disable."
+        ),
+    )
+    parser.add_argument(
+        "--spearman-pval-threshold",
+        type=float,
+        default=0.001,
+        help="Spearman p-value threshold for pre-filtering (default: 0.001)",
+    )
+    parser.add_argument(
+        "--spearman-chunk-size",
+        type=int,
+        default=1000,
+        help="Chunk size for Spearman correlation computation (default: 1000)",
+    )
 
     common.add_seed_argument(parser)
     log_config.add_logging_args(parser)
@@ -156,6 +178,9 @@ def main():
             alpha=args.alpha,
             random_state=args.seed,
             cell_type_column=args.cell_type_column,
+            prefilter_spearman=args.prefilter_spearman,
+            spearman_pval_threshold=args.spearman_pval_threshold,
+            spearman_chunk_size=args.spearman_chunk_size,
         )
 
         logger.info("GLM analysis complete")
