@@ -271,7 +271,7 @@ def run_univariate_de_sklearn_by_celltype(
     n_motifs: int,
     output_dir: str | None = None,
     alpha: float = 0.05,
-    prefilter_spearman: bool = False,
+    prefilter_spearman: bool = True,
     spearman_pval_threshold: float = 0.001,
     spearman_chunk_size: int = 1000,
 ) -> dict[str, pd.DataFrame]:
@@ -297,7 +297,7 @@ def run_univariate_de_sklearn_by_celltype(
         Output directory for results
     alpha : float, default 0.05
         FDR significance threshold
-    prefilter_spearman : bool, default False
+    prefilter_spearman : bool, default True
         If True, pre-filter genes using Spearman correlation before running GLM.
         This can significantly speed up analysis by reducing the number of genes tested.
     spearman_pval_threshold : float, default 0.001
@@ -835,7 +835,7 @@ def run_poisson_glm_analysis(
     alpha: float = 0.05,
     random_state: int = 42,
     keep_sparse: bool = False,
-    prefilter_spearman: bool = False,
+    prefilter_spearman: bool = True,
     spearman_pval_threshold: float = 0.001,
     spearman_chunk_size: int = 1000,
     cell_type_column: str = "cell_type",
@@ -863,7 +863,7 @@ def run_poisson_glm_analysis(
         Random seed
     keep_sparse : bool, default False
         Keep sparse format for counts
-    prefilter_spearman : bool, default False
+    prefilter_spearman : bool, default True
         If True, pre-filter genes using Spearman correlation before running GLM.
         This can significantly speed up analysis by reducing the number of genes
         tested per motif-celltype combination.

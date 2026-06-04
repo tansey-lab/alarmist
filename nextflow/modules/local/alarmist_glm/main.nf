@@ -26,6 +26,9 @@ process ALARMIST_GLM {
         --patch-lri-dir ${patchify_results} \\
         --output-dir ${prefix} \\
         --cell-type-column ${params.cell_type_column} \\
+        ${params.prefilter_spearman ? '--prefilter-spearman' : '--no-prefilter-spearman'} \\
+        --spearman-pval-threshold ${params.spearman_pval_threshold} \\
+        --spearman-chunk-size ${params.spearman_chunk_size} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
