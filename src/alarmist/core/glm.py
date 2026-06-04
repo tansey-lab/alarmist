@@ -7,6 +7,7 @@ Based on scripts/04_poisson_glm.py
 import gc
 import logging
 import os
+import re
 import warnings
 from pathlib import Path
 
@@ -451,7 +452,10 @@ def run_univariate_de_sklearn_by_celltype(
 
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
-                fname = f"{key}_de_results.csv"
+                # Cell-type labels can contain path-unsafe chars (e.g.
+                # "smooth muscle cell / pericyte"); sanitize for the filename.
+                safe_ct = re.sub(r"[^0-9A-Za-z._-]+", "_", str(ct)).strip("_")
+                fname = f"motif_{k}_celltype_{safe_ct}_de_results.csv"
                 path = os.path.join(output_dir, fname)
                 df.to_csv(path, index=False)
                 logger.debug(f"Saved {fname}")
