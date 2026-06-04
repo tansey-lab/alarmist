@@ -88,6 +88,37 @@ Examples:
         default=1000,
         help="Chunk size for Spearman correlation computation (default: 1000)",
     )
+    parser.add_argument(
+        "--backend",
+        type=str,
+        choices=["sklearn", "torch"],
+        default="sklearn",
+        help="GLM fitting backend. 'torch' fits all genes per motif x cell-type "
+        "in one batched IRLS solve (much faster; runs on GPU if available). "
+        "'sklearn' is the per-gene reference. Default: sklearn.",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="auto",
+        help="Torch device for --backend torch: 'auto' (cuda if available else "
+        "cpu), 'cpu', or 'cuda'. Default: auto.",
+    )
+    parser.add_argument(
+        "--glm-dtype",
+        type=str,
+        choices=["float64", "float32"],
+        default="float64",
+        help="Numeric precision for the torch backend. float64 matches sklearn; "
+        "float32 is ~2x faster on GPU. Default: float64.",
+    )
+    parser.add_argument(
+        "--gene-tile",
+        type=int,
+        default=2048,
+        help="Genes per tile for the torch backend (bounds memory: "
+        "~n_cells x gene_tile x 8 bytes). Default: 2048.",
+    )
 
     common.add_seed_argument(parser)
     log_config.add_logging_args(parser)
@@ -181,6 +212,10 @@ def main():
             prefilter_spearman=args.prefilter_spearman,
             spearman_pval_threshold=args.spearman_pval_threshold,
             spearman_chunk_size=args.spearman_chunk_size,
+            backend=args.backend,
+            device=args.device,
+            glm_dtype=args.glm_dtype,
+            gene_tile=args.gene_tile,
         )
 
         logger.info("GLM analysis complete")
