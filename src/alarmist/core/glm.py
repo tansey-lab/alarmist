@@ -819,7 +819,11 @@ def save_de_results(results: dict, output_dir: str, mode: str = "univariate"):
 
     if mode == "univariate":
         for motif, df in results.items():
-            filename = f"{motif}_de_results.csv"
+            # Keys embed the raw cell-type label, which can contain path-unsafe
+            # chars (e.g. "smooth muscle cell / pericyte"). Sanitize to match the
+            # incremental per-combo save in run_univariate_de_sklearn_by_celltype.
+            safe_motif = re.sub(r"[^0-9A-Za-z._-]+", "_", str(motif)).strip("_")
+            filename = f"{safe_motif}_de_results.csv"
             filepath = os.path.join(output_dir, filename)
             if not os.path.exists(filepath):
                 df.to_csv(filepath, index=False)
