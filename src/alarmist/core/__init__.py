@@ -5,6 +5,12 @@ Includes LRI analysis, factorization, and GLM functionality.
 """
 
 # LRI Analysis
+# Spatial contours
+from .contours import (
+    motif_loading_contours,
+    motif_loading_contours_from_adata,
+)
+
 # Factorization
 from .factorization import (
     BPTF_AVAILABLE,
@@ -58,6 +64,9 @@ __all__ = [
     "SingleCellLRIAnalyzer",
     "load_database_genes",
     "load_database_resource",
+    # Spatial contours
+    "motif_loading_contours",
+    "motif_loading_contours_from_adata",
     # Factorization
     "run_bptf",
     "extract_factors",
