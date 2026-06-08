@@ -143,8 +143,7 @@ def motif_loading_contours(
         group_labels = np.asarray(group_labels)
 
     thresholds = {
-        k: float(np.nanpercentile(loadings[:, k], percentile))
-        for k in range(n_motifs)
+        k: float(np.nanpercentile(loadings[:, k], percentile)) for k in range(n_motifs)
     }
 
     def _is_missing(g):

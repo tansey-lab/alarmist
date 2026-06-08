@@ -702,9 +702,7 @@ def main():
                 )
                 geojson_path = output_dir / "motif_loading_contours.geojson"
                 if len(gdf) == 0:
-                    logger.warning(
-                        "No contour polygons produced; GeoJSON not written"
-                    )
+                    logger.warning("No contour polygons produced; GeoJSON not written")
                 else:
                     gdf.to_file(geojson_path, driver="GeoJSON")
                     plots_generated.append(str(geojson_path))
