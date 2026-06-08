@@ -397,7 +397,8 @@ def run_univariate_de_sklearn_by_celltype(
                     gene_tile=gene_tile,
                 )
                 z = np.divide(
-                    beta1_arr, se_arr,
+                    beta1_arr,
+                    se_arr,
                     out=np.zeros_like(beta1_arr),
                     where=(se_arr > 0) & np.isfinite(se_arr),
                 )
