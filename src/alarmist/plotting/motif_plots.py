@@ -2331,38 +2331,68 @@ function render() {
   svg.appendChild(edgeLayer);
   svg.appendChild(nodeLayer);
 
-  // Measure each node's label first to size circles to fit
+  // Elide over-long cell-type names so circles stay compact; the full name
+  // is preserved in a <title> tooltip on each node.
+  const LABEL_MAX = 16;
+  const elide = s => {
+    s = String(s);
+    return s.length > LABEL_MAX ? s.slice(0, LABEL_MAX - 1).trimEnd() + "…" : s;
+  };
+
+  // Measure each node's (elided) label first to size circles to fit.
   const radii = {};
   nodes.forEach(n => {
-    const [x, y] = pos[n.id];
     const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    t.setAttribute("x", x); t.setAttribute("y", y);
     t.setAttribute("text-anchor", "middle");
     t.setAttribute("dominant-baseline", "central");
     t.setAttribute("class", "node-label");
-    t.textContent = n.id;
+    t.textContent = elide(n.id);
     nodeLayer.appendChild(t);
     const bb = t.getBBox();
-    const r = Math.max(22, Math.ceil(Math.hypot(bb.width, bb.height) / 2) + 8);
+    const r = Math.max(20, Math.ceil(bb.width / 2) + 10);
     radii[n.id] = r;
     n.__textEl = t;
   });
 
+  // Resolve overlaps: iteratively push apart any pair of circles closer than
+  // the sum of their radii (plus a margin), clamping back inside the canvas.
+  const MARGIN = 16;
+  const ids = nodes.map(n => n.id);
+  for (let iter = 0; iter < 400; iter++) {
+    let moved = false;
+    for (let a = 0; a < ids.length; a++) {
+      for (let b = a + 1; b < ids.length; b++) {
+        const pa = pos[ids[a]], pb = pos[ids[b]];
+        const dx = pb[0] - pa[0], dy = pb[1] - pa[1];
+        const d = Math.hypot(dx, dy) || 0.01;
+        const need = radii[ids[a]] + radii[ids[b]] + MARGIN;
+        if (d < need) {
+          const push = (need - d) / 2;
+          const ux = dx / d, uy = dy / d;
+          pa[0] -= ux * push; pa[1] -= uy * push;
+          pb[0] += ux * push; pb[1] += uy * push;
+          moved = true;
+        }
+      }
+    }
+    ids.forEach(id => {
+      const r = radii[id], p = pos[id];
+      p[0] = Math.min(W - r, Math.max(r, p[0]));
+      p[1] = Math.min(H - r, Math.max(r, p[1]));
+    });
+    if (!moved) break;
+  }
+
+  // Place each label at its node's final (post-relaxation) centre.
+  nodes.forEach(n => {
+    const [x, y] = pos[n.id];
+    n.__textEl.setAttribute("x", x);
+    n.__textEl.setAttribute("y", y);
+  });
+
   const wMax = Math.max(...edges.map(e => e.weight));
 
-  edges.forEach((e, i) => {
-    const [x1, y1] = pos[e.source], [x2, y2] = pos[e.target];
-    const r1 = radii[e.source], r2 = radii[e.target];
-    const dx = x2 - x1, dy = y2 - y1;
-    const len = Math.hypot(dx, dy) || 1;
-    const ux = dx / len, uy = dy / len;
-    // shrink endpoints so the line/arrow stops at the node border
-    const sx1 = x1 + ux * r1, sy1 = y1 + uy * r1;
-    const ex2 = x2 - ux * r2, ey2 = y2 - uy * r2;
-    const mx = (sx1 + ex2) / 2 + (ey2 - sy1) * 0.12;
-    const my = (sy1 + ey2) / 2 - (ex2 - sx1) * 0.12;
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", `M${sx1},${sy1} Q${mx},${my} ${ex2},${ey2}`);
+  const attachEdge = (path, e, i) => {
     path.setAttribute("class", "edge");
     const sw = 1.0 + 5.0 * (e.weight / wMax);
     path.setAttribute("stroke-width", sw.toFixed(2));
@@ -2379,9 +2409,38 @@ function render() {
       showLR(motif, e);
     });
     edgeLayer.appendChild(path);
+  };
+
+  edges.forEach((e, i) => {
+    const [x1, y1] = pos[e.source], [x2, y2] = pos[e.target];
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    if (e.source === e.target) {
+      // Self / autocrine edge: draw a loop leaving and re-entering the top of
+      // the node so it is actually visible (a straight self-edge has length 0).
+      const r = radii[e.source];
+      const a1 = -Math.PI / 2 - 0.5, a2 = -Math.PI / 2 + 0.5;
+      const p1x = x1 + r * Math.cos(a1), p1y = y1 + r * Math.sin(a1);
+      const p2x = x1 + r * Math.cos(a2), p2y = y1 + r * Math.sin(a2);
+      const loop = r * 2.4;
+      const c1x = x1 + loop * Math.cos(a1 - 0.35), c1y = y1 + loop * Math.sin(a1 - 0.35);
+      const c2x = x1 + loop * Math.cos(a2 + 0.35), c2y = y1 + loop * Math.sin(a2 + 0.35);
+      path.setAttribute("d", `M${p1x},${p1y} C${c1x},${c1y} ${c2x},${c2y} ${p2x},${p2y}`);
+    } else {
+      const r1 = radii[e.source], r2 = radii[e.target];
+      const dx = x2 - x1, dy = y2 - y1;
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len, uy = dy / len;
+      // shrink endpoints so the line/arrow stops at the node border
+      const sx1 = x1 + ux * r1, sy1 = y1 + uy * r1;
+      const ex2 = x2 - ux * r2, ey2 = y2 - uy * r2;
+      const mx = (sx1 + ex2) / 2 + (ey2 - sy1) * 0.12;
+      const my = (sy1 + ey2) / 2 - (ex2 - sx1) * 0.12;
+      path.setAttribute("d", `M${sx1},${sy1} Q${mx},${my} ${ex2},${ey2}`);
+    }
+    attachEdge(path, e, i);
   });
 
-  // Now draw the circles behind the (already-appended) labels
+  // Now draw the circles behind the (already-appended) labels.
   nodes.forEach(n => {
     const [x, y] = pos[n.id];
     const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -2389,6 +2448,9 @@ function render() {
     c.setAttribute("r", radii[n.id]);
     c.setAttribute("fill", n.color);
     c.setAttribute("class", "node");
+    const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    title.textContent = n.id;  // full, un-elided name on hover
+    c.appendChild(title);
     // insert before the text so text sits on top
     nodeLayer.insertBefore(c, n.__textEl);
     delete n.__textEl;
