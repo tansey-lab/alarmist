@@ -7,6 +7,7 @@ Based on scripts/04_poisson_glm.py
 import gc
 import logging
 import os
+import re
 import warnings
 from pathlib import Path
 
@@ -274,6 +275,10 @@ def run_univariate_de_sklearn_by_celltype(
     prefilter_spearman: bool = True,
     spearman_pval_threshold: float = 0.001,
     spearman_chunk_size: int = 1000,
+    backend: str = "sklearn",
+    device: str = "auto",
+    glm_dtype: str = "float64",
+    gene_tile: int = 2048,
 ) -> dict[str, pd.DataFrame]:
     """
     Run univariate DE by motif AND cell type using scikit-learn's PoissonRegressor
@@ -375,32 +380,56 @@ def run_univariate_de_sklearn_by_celltype(
 
             genes, coefs, pvals, ses = [], [], [], []
 
-            for gene in tqdm(
-                genes_to_test, desc=f"  Motif {k}, {ct}", unit="gene", leave=False
-            ):
-                gi = idx_map.get(gene)
-                if gi is None:
-                    continue
+            # Genes that exist in the matrix, in test order.
+            kept = [(g, idx_map[g]) for g in genes_to_test if g in idx_map]
 
-                y = Y[:, gi]
-                if sp.issparse(y):
-                    y = y.toarray().ravel()
+            if backend == "torch" and kept:
+                # Batched IRLS: fit every gene at once on the shared design X.
+                from alarmist.core.torch_glm import batched_poisson_glm
 
-                model = PoissonRegressor(
-                    alpha=0.0, fit_intercept=True, max_iter=2000, tol=1e-6
+                kept_names = [g for g, _ in kept]
+                Ysub = Y[:, [i for _, i in kept]]
+                beta1_arr, se_arr, _ = batched_poisson_glm(
+                    X.ravel(),
+                    Ysub,
+                    device=device,
+                    dtype=glm_dtype,
+                    gene_tile=gene_tile,
                 )
-                model.fit(X, y)
-                beta1 = model.coef_[0]
-                mu = model.predict(X)
-                fisher_info = np.sum(mu * (X.ravel() ** 2))
-                se = np.sqrt(1.0 / fisher_info) if fisher_info > 0 else np.nan
-                z = beta1 / se if se and se > 0 else 0.0
-                pval = 2 * (1 - norm.cdf(abs(z)))
+                z = np.divide(
+                    beta1_arr,
+                    se_arr,
+                    out=np.zeros_like(beta1_arr),
+                    where=(se_arr > 0) & np.isfinite(se_arr),
+                )
+                pval_arr = 2 * (1 - norm.cdf(np.abs(z)))
+                genes = kept_names
+                coefs = list(beta1_arr)
+                ses = list(se_arr)
+                pvals = list(pval_arr)
+            else:
+                for gene, gi in tqdm(
+                    kept, desc=f"  Motif {k}, {ct}", unit="gene", leave=False
+                ):
+                    y = Y[:, gi]
+                    if sp.issparse(y):
+                        y = y.toarray().ravel()
 
-                genes.append(gene)
-                coefs.append(beta1)
-                pvals.append(pval)
-                ses.append(se)
+                    model = PoissonRegressor(
+                        alpha=0.0, fit_intercept=True, max_iter=2000, tol=1e-6
+                    )
+                    model.fit(X, y)
+                    beta1 = model.coef_[0]
+                    mu = model.predict(X)
+                    fisher_info = np.sum(mu * (X.ravel() ** 2))
+                    se = np.sqrt(1.0 / fisher_info) if fisher_info > 0 else np.nan
+                    z = beta1 / se if se and se > 0 else 0.0
+                    pval = 2 * (1 - norm.cdf(abs(z)))
+
+                    genes.append(gene)
+                    coefs.append(beta1)
+                    pvals.append(pval)
+                    ses.append(se)
 
             df = pd.DataFrame(
                 {
@@ -424,7 +453,10 @@ def run_univariate_de_sklearn_by_celltype(
 
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
-                fname = f"{key}_de_results.csv"
+                # Cell-type labels can contain path-unsafe chars (e.g.
+                # "smooth muscle cell / pericyte"); sanitize for the filename.
+                safe_ct = re.sub(r"[^0-9A-Za-z._-]+", "_", str(ct)).strip("_")
+                fname = f"motif_{k}_celltype_{safe_ct}_de_results.csv"
                 path = os.path.join(output_dir, fname)
                 df.to_csv(path, index=False)
                 logger.debug(f"Saved {fname}")
@@ -839,6 +871,10 @@ def run_poisson_glm_analysis(
     spearman_pval_threshold: float = 0.001,
     spearman_chunk_size: int = 1000,
     cell_type_column: str = "cell_type",
+    backend: str = "sklearn",
+    device: str = "auto",
+    glm_dtype: str = "float64",
+    gene_tile: int = 2048,
 ):
     """
     Run Poisson GLM differential expression analysis
@@ -958,6 +994,10 @@ def run_poisson_glm_analysis(
         prefilter_spearman=prefilter_spearman,
         spearman_pval_threshold=spearman_pval_threshold,
         spearman_chunk_size=spearman_chunk_size,
+        backend=backend,
+        device=device,
+        glm_dtype=glm_dtype,
+        gene_tile=gene_tile,
     )
 
     # Save results if output_dir provided
