@@ -32,7 +32,14 @@ def _resolve_device(device: str):
     import torch
 
     if device in (None, "auto"):
-        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        if (
+            getattr(torch.backends, "mps", None) is not None
+            and torch.backends.mps.is_available()
+        ):
+            return torch.device("mps")
+        return torch.device("cpu")
     return torch.device(device)
 
 
@@ -77,6 +84,21 @@ def batched_poisson_glm(
 
     dev = _resolve_device(device)
     tdt = torch.float64 if dtype == "float64" else torch.float32
+    logger.info(
+        "torch GLM backend: device=%s (requested=%s), dtype=%s", dev, device, dtype
+    )
+    if dev.type == "mps" and tdt == torch.float64:
+        # MPS does not support float64; fall back to float32 and warn.
+        logger.warning("MPS does not support float64; falling back to float32.")
+        tdt = torch.float32
+    # Floor tol at ~10x dtype epsilon — Newton steps can't shrink below precision,
+    # so a stricter tol would falsely flag converged fits as non-convergent.
+    eps_floor = 10.0 * float(torch.finfo(tdt).eps)
+    if tol < eps_floor:
+        logger.info(
+            "Raising tol from %.0e to %.0e (10x %s epsilon).", tol, eps_floor, tdt
+        )
+        tol = eps_floor
 
     n_cells = x.shape[0]
     n_genes = Y.shape[1]
@@ -92,6 +114,7 @@ def batched_poisson_glm(
     beta1 = np.empty(n_genes, dtype=np.float64)
     se = np.empty(n_genes, dtype=np.float64)
     n_iter_out = np.zeros(n_genes, dtype=np.int32)
+    not_converged_total = 0
 
     for start in range(0, n_genes, gene_tile):
         end = min(start + gene_tile, n_genes)
@@ -118,10 +141,29 @@ def batched_poisson_glm(
             d1 = (-S1 * g0 + S0 * g1) / det
             B[0] += d0
             B[1] += d1
-            step = torch.maximum(d0.abs().max(), d1.abs().max())
-            if float(step) < tol:
+            # Per-gene step magnitude; loop exits when *every* gene has converged.
+            per_gene_step = torch.maximum(d0.abs(), d1.abs())
+            if float(per_gene_step.max()) < tol:
                 last_iter = it + 1
                 break
+        else:
+            # max_iter exhausted without all genes converging — count and warn.
+            n_bad = int((per_gene_step >= tol).sum().item())
+            if n_bad:
+                worst = float(per_gene_step.max().item())
+                logger.warning(
+                    "torch GLM tile [%d:%d]: %d/%d genes did not converge in "
+                    "max_iter=%d (worst step=%.3e, tol=%.0e). Results for those "
+                    "genes may be unreliable; consider raising max_iter.",
+                    start,
+                    end,
+                    n_bad,
+                    G,
+                    max_iter,
+                    worst,
+                    tol,
+                )
+                not_converged_total += n_bad
 
         eta = X @ B
         mu = torch.exp(torch.clamp(eta, -30.0, 30.0))
@@ -133,5 +175,13 @@ def batched_poisson_glm(
         beta1[start:end] = B[1].detach().cpu().numpy().astype(np.float64)
         se[start:end] = se_blk.detach().cpu().numpy().astype(np.float64)
         n_iter_out[start:end] = last_iter
+
+    if not_converged_total:
+        logger.warning(
+            "torch GLM: %d/%d genes total failed to converge within max_iter=%d.",
+            not_converged_total,
+            n_genes,
+            max_iter,
+        )
 
     return beta1, se, n_iter_out
