@@ -47,7 +47,7 @@ def batched_poisson_glm(
     x: np.ndarray,
     Y,
     device: str = "auto",
-    max_iter: int = 25,
+    max_iter: int = 100,
     tol: float = 1e-8,
     gene_tile: int = 2048,
     dtype: str = "float64",
@@ -177,11 +177,9 @@ def batched_poisson_glm(
         n_iter_out[start:end] = last_iter
 
     if not_converged_total:
-        logger.warning(
-            "torch GLM: %d/%d genes total failed to converge within max_iter=%d.",
-            not_converged_total,
-            n_genes,
-            max_iter,
+        raise RuntimeError(
+            f"torch GLM: {not_converged_total}/{n_genes} genes failed to converge "
+            f"within max_iter={max_iter}. Consider raising max_iter."
         )
 
     return beta1, se, n_iter_out
