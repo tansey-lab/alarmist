@@ -259,6 +259,24 @@ def main():
     try:
         glm_results = al.load_glm_results(args.glm_dir)
         logger.info(f"Loaded GLM results with {len(glm_results)} entries")
+        # Drop empty / malformed combos: a motif x cell-type comparison whose
+        # genes were all removed by pre-filtering yields an empty frame with no
+        # qval/significant columns, which would crash the plot blocks below.
+        _required = {COLUMN_NAME_LOGFC, COLUMN_NAME_QVAL}
+        _kept = {
+            k: df
+            for k, df in glm_results.items()
+            if isinstance(df, pd.DataFrame)
+            and not df.empty
+            and _required.issubset(df.columns)
+        }
+        _dropped = len(glm_results) - len(_kept)
+        if _dropped:
+            logger.info(
+                f"Skipping {_dropped} empty/incomplete GLM combos "
+                f"(no genes survived filtering); {len(_kept)} remain."
+            )
+        glm_results = _kept
     except Exception as e:
         logger.warning(f"Could not load GLM results: {e}")
         glm_results = None
