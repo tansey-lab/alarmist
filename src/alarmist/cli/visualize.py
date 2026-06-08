@@ -78,6 +78,7 @@ Examples:
             "spatial",
             "lri_dot",
             "lri_network",
+            "contours",
         ],
         choices=[
             "volcano",
@@ -87,9 +88,10 @@ Examples:
             "spatial",
             "lri_dot",
             "lri_network",
+            "contours",
             "all",
         ],
-        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial lri_dot lri_network)",
+        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial lri_dot lri_network contours)",
     )
     parser.add_argument(
         "--format",
@@ -163,6 +165,44 @@ Examples:
             "Column in adata.obs containing sample IDs. If present with multiple "
             f"unique values, spatial plots are emitted per-sample (default: {COLUMN_NAME_SAMPLE_ID})"
         ),
+    )
+
+    # Contour ('contours' plot type) options — exports motif-loading
+    # percentile contours as a shapefile.
+    parser.add_argument(
+        "--contour-group-column",
+        type=str,
+        default=None,
+        help=(
+            "Column in adata.obs to group cells by when contouring (e.g. "
+            "'tma_id'), so the loading field is never interpolated across the "
+            "empty gaps between disjoint tissue regions. If omitted, falls back "
+            "to --sample-column when present, otherwise all cells form one group."
+        ),
+    )
+    parser.add_argument(
+        "--contour-percentile",
+        type=float,
+        default=95.0,
+        help="Percentile (per motif, global) at which to draw contours (default: 95).",
+    )
+    parser.add_argument(
+        "--contour-grid-res",
+        type=float,
+        default=20.0,
+        help="Interpolation grid spacing in spatial units (default: 20).",
+    )
+    parser.add_argument(
+        "--contour-smooth-sigma",
+        type=float,
+        default=1.5,
+        help="Gaussian smoothing of the gridded field, in grid cells (default: 1.5).",
+    )
+    parser.add_argument(
+        "--contour-min-area",
+        type=float,
+        default=2000.0,
+        help="Drop contour polygons smaller than this (spatial-unit^2; default: 2000).",
     )
 
     log_config.add_logging_args(parser)
@@ -252,6 +292,7 @@ def main():
             "spatial",
             "lri_dot",
             "lri_network",
+            "contours",
         ]
 
     # Load GLM results
@@ -625,6 +666,54 @@ def main():
                 )
 
             logger.info("Generated spatial plots")
+
+    # Motif loading percentile contours -> shapefile
+    if "contours" in plot_types:
+        if adata is None or "spatial" not in adata.obsm:
+            logger.warning(
+                "Contours requested but no projected adata with "
+                "obsm['spatial'] is available; skipping contours"
+            )
+        else:
+            # Group by the requested column, else fall back to the sample
+            # column when present, else a single group over all cells.
+            group_col = args.contour_group_column
+            if group_col is None and args.sample_column in adata.obs.columns:
+                group_col = args.sample_column
+            if group_col is not None and group_col not in adata.obs.columns:
+                logger.warning(
+                    f"Contour group column '{group_col}' not in adata.obs; "
+                    "contouring over the full extent instead"
+                )
+                group_col = None
+            logger.info(
+                "Generating motif loading contours "
+                f"(p{args.contour_percentile:g}, group_column={group_col})..."
+            )
+            try:
+                gdf = al.motif_loading_contours_from_adata(
+                    adata,
+                    group_column=group_col,
+                    percentile=args.contour_percentile,
+                    grid_res=args.contour_grid_res,
+                    smooth_sigma=args.contour_smooth_sigma,
+                    min_area=args.contour_min_area,
+                    motif_names=motif_names or None,
+                )
+                geojson_path = output_dir / "motif_loading_contours.geojson"
+                if len(gdf) == 0:
+                    logger.warning(
+                        "No contour polygons produced; GeoJSON not written"
+                    )
+                else:
+                    gdf.to_file(geojson_path, driver="GeoJSON")
+                    plots_generated.append(str(geojson_path))
+                    logger.info(
+                        f"Generated motif loading contours: {len(gdf)} polygons "
+                        f"-> {geojson_path}"
+                    )
+            except Exception as e:
+                logger.warning(f"Could not generate motif loading contours: {e}")
 
     # LRI dot plots (one per motif)
     if "lri_dot" in plot_types and bptf_results is not None:
