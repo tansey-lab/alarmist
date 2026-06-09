@@ -38,8 +38,6 @@ from alarmist.core import (
     gmm_binarize_all_motifs,
     load_exclusion_mask,
     load_glm_results,
-    motif_loading_contours,
-    motif_loading_contours_from_adata,
     prepare_cell_data_from_adata,
     prepare_cell_data_memory_efficient,
     process_bptf_results,
@@ -138,9 +136,6 @@ __all__ = [
     "load_glm_results",
     "spearman_corr_chunked",
     "spearman_prefilter_genes",
-    # Spatial contours
-    "motif_loading_contours",
-    "motif_loading_contours_from_adata",
     # Single Cell Analysis
     "weighted_celltypes_by_motif",
     "gmm_binarize_all_motifs",

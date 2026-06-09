@@ -9,13 +9,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from alarmist.constants import (
+    COLUMN_NAME_FACTOR,
+    COLUMN_NAME_FACTOR_LRNORM,
+    COLUMN_NAME_LR_GLOBAL_MEAN,
+    COLUMN_NAME_MEAN,
+    COLUMN_NAME_MOTIF_IDX,
+    COLUMN_NAME_N_CELLS,
+    COLUMN_NAME_SCORE,
+)
+
 logger = logging.getLogger(__name__)
 
 
 def plot_cells_per_patch(patch_metadata_df: pd.DataFrame, save_path: str | None = None):
     """Plot distribution of cells per patch"""
     plt.figure(figsize=(8, 6))
-    plt.hist(patch_metadata_df["n_cells"], bins=50, edgecolor="black")
+    plt.hist(patch_metadata_df[COLUMN_NAME_N_CELLS], bins=50, edgecolor="black")
     plt.xlabel("Number of cells per patch")
     plt.ylabel("Number of patches")
     plt.title("Distribution of cells per patch")
@@ -148,31 +158,31 @@ def plot_lri_factor_scatter(
     """
     # Filter by motif if specified
     if motif_idx is not None:
-        df = lri_motifs[lri_motifs["motif_idx"] == motif_idx].copy()
-        y_col = "lr_global_mean"
+        df = lri_motifs[lri_motifs[COLUMN_NAME_MOTIF_IDX] == motif_idx].copy()
+        y_col = COLUMN_NAME_LR_GLOBAL_MEAN
         title_suffix = f" (Motif {motif_idx})"
     else:
         df = lri_motifs.copy()
-        y_col = "mean"
+        y_col = COLUMN_NAME_MEAN
         title_suffix = " (All Motifs)"
 
     fig, axes = plt.subplots(1, 3, figsize=figsize)
 
     # Panel 1: factor vs y
-    axes[0].scatter(df["factor"], df[y_col], alpha=alpha, s=s)
-    axes[0].set_xlabel("factor")
+    axes[0].scatter(df[COLUMN_NAME_FACTOR], df[y_col], alpha=alpha, s=s)
+    axes[0].set_xlabel(COLUMN_NAME_FACTOR)
     axes[0].set_ylabel(y_col)
     axes[0].set_title(f"Factor vs {y_col}")
 
     # Panel 2: factor_lrnorm vs y
-    axes[1].scatter(df["factor_lrnorm"], df[y_col], alpha=alpha, s=s)
-    axes[1].set_xlabel("factor_lrnorm")
+    axes[1].scatter(df[COLUMN_NAME_FACTOR_LRNORM], df[y_col], alpha=alpha, s=s)
+    axes[1].set_xlabel(COLUMN_NAME_FACTOR_LRNORM)
     axes[1].set_ylabel(y_col)
     axes[1].set_title(f"Factor (LR-norm) vs {y_col}")
 
     # Panel 3: score vs y
-    axes[2].scatter(df["score"], df[y_col], alpha=alpha, s=s)
-    axes[2].set_xlabel("score")
+    axes[2].scatter(df[COLUMN_NAME_SCORE], df[y_col], alpha=alpha, s=s)
+    axes[2].set_xlabel(COLUMN_NAME_SCORE)
     axes[2].set_ylabel(y_col)
     axes[2].set_title(f"Score vs {y_col}")
 

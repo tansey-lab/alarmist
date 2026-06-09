@@ -9,6 +9,12 @@ import numpy as np
 import pandas as pd
 from sklearn.mixture import GaussianMixture
 
+from alarmist.constants import (
+    COLUMN_NAME_CELL_TYPE,
+    COLUMN_NAME_MOTIF,
+    COLUMN_NAME_WEIGHT,
+)
+
 
 def weighted_celltypes_by_motif(
     cell_loadings: np.ndarray,
@@ -51,18 +57,22 @@ def weighted_celltypes_by_motif(
 
     if len(metadata_df) != n_cells:
         raise ValueError("metadata_df length must match cell_loadings rows (n_cells).")
-    if "cell_type" not in metadata_df.columns:
-        raise ValueError("metadata_df must contain a 'cell_type' column.")
+    if COLUMN_NAME_CELL_TYPE not in metadata_df.columns:
+        raise ValueError(
+            f"metadata_df must contain a {COLUMN_NAME_CELL_TYPE!r} column."
+        )
 
     # Build tidy long table of weights
     records = []
-    cell_types = metadata_df["cell_type"].to_numpy()
+    cell_types = metadata_df[COLUMN_NAME_CELL_TYPE].to_numpy()
 
     for k in range(n_motifs):
         w = cell_loadings[:, k]
-        df_k = pd.DataFrame({"cell_type": cell_types, "weight": w})
-        agg = df_k.groupby("cell_type", as_index=False)["weight"].sum()
-        agg["motif"] = k
+        df_k = pd.DataFrame({COLUMN_NAME_CELL_TYPE: cell_types, COLUMN_NAME_WEIGHT: w})
+        agg = df_k.groupby(COLUMN_NAME_CELL_TYPE, as_index=False)[
+            COLUMN_NAME_WEIGHT
+        ].sum()
+        agg[COLUMN_NAME_MOTIF] = k
 
         # Optional: keep only top N cell types per motif
         if (
@@ -70,18 +80,18 @@ def weighted_celltypes_by_motif(
             and top_n_per_motif > 0
             and len(agg) > top_n_per_motif
         ):
-            agg = agg.sort_values("weight", ascending=False)
+            agg = agg.sort_values(COLUMN_NAME_WEIGHT, ascending=False)
             keep = agg.head(top_n_per_motif).copy()
-            other_w = agg["weight"].iloc[top_n_per_motif:].sum()
+            other_w = agg[COLUMN_NAME_WEIGHT].iloc[top_n_per_motif:].sum()
             if other_w > 0:
                 keep = pd.concat(
                     [
                         keep,
                         pd.DataFrame(
                             {
-                                "cell_type": [other_label],
-                                "weight": [other_w],
-                                "motif": [k],
+                                COLUMN_NAME_CELL_TYPE: [other_label],
+                                COLUMN_NAME_WEIGHT: [other_w],
+                                COLUMN_NAME_MOTIF: [k],
                             }
                         ),
                     ],
@@ -91,9 +101,9 @@ def weighted_celltypes_by_motif(
 
         # Optional: normalize to sum to 1
         if normalize:
-            s = agg["weight"].sum()
+            s = agg[COLUMN_NAME_WEIGHT].sum()
             if s > 0:
-                agg["weight"] = agg["weight"] / s
+                agg[COLUMN_NAME_WEIGHT] = agg[COLUMN_NAME_WEIGHT] / s
 
         records.append(agg)
 
@@ -299,7 +309,7 @@ def gmm_binarize_all_motifs(
 
         summary.append(
             {
-                "motif": k,
+                COLUMN_NAME_MOTIF: k,
                 "mean0": means[0],
                 "mean1": means[1],
                 "weight0": weights[0],

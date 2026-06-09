@@ -9,8 +9,10 @@ import sys
 
 from alarmist.cli import common, log_config
 from alarmist.constants import (
+    COLUMN_NAME_CELL_TYPE,
     COLUMN_NAME_GENE,
     COLUMN_NAME_LOGFC,
+    COLUMN_NAME_MOTIF_IDX,
     COLUMN_NAME_NEG_LOG10_Q,
     COLUMN_NAME_QVAL,
     COLUMN_NAME_SAMPLE_ID,
@@ -78,7 +80,6 @@ Examples:
             "spatial",
             "lri_dot",
             "lri_network",
-            "contours",
         ],
         choices=[
             "volcano",
@@ -88,10 +89,9 @@ Examples:
             "spatial",
             "lri_dot",
             "lri_network",
-            "contours",
             "all",
         ],
-        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial lri_dot lri_network contours)",
+        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial lri_dot lri_network)",
     )
     parser.add_argument(
         "--format",
@@ -151,10 +151,58 @@ Examples:
     parser.add_argument(
         "--cell-type-column",
         type=str,
-        default="cell_type",
+        default=COLUMN_NAME_CELL_TYPE,
         help=(
             "Column in adata.obs containing cell type labels for the spatial "
             "cell-type plot (default: cell_type)."
+        ),
+    )
+
+    # Marker-gene exclusion + expression-fraction filtering for volcano/forest.
+    # Requires --project-dir so we can load adata.
+    parser.add_argument(
+        "--no-marker-exclusion",
+        action="store_true",
+        help=(
+            "Disable marker-gene exclusion and expression-fraction filtering "
+            "for volcano/forest plots. Filtering is on by default whenever "
+            "--project-dir is provided."
+        ),
+    )
+    parser.add_argument(
+        "--exclusion-mask",
+        type=str,
+        default=None,
+        help=(
+            "Path to a precomputed exclusion_matrix.csv (rows=genes, "
+            "columns=cell types). If provided, skips marker-gene recomputation."
+        ),
+    )
+    parser.add_argument(
+        "--marker-lfc",
+        type=float,
+        default=1.0,
+        help="Log fold-change threshold for marker-gene detection (default: 1.0).",
+    )
+    parser.add_argument(
+        "--marker-pvalue",
+        type=float,
+        default=1e-5,
+        help="Adjusted p-value threshold for marker-gene detection (default: 1e-5).",
+    )
+    parser.add_argument(
+        "--marker-subsample",
+        type=int,
+        default=50000,
+        help="Max cells per group used for marker-gene detection (default: 50000).",
+    )
+    parser.add_argument(
+        "--min-expression-frac",
+        type=float,
+        default=0.02,
+        help=(
+            "Drop genes from volcano/forest plots if expressed in fewer than "
+            "this fraction of cells of the relevant cell type (default: 0.02)."
         ),
     )
     parser.add_argument(
@@ -165,44 +213,6 @@ Examples:
             "Column in adata.obs containing sample IDs. If present with multiple "
             f"unique values, spatial plots are emitted per-sample (default: {COLUMN_NAME_SAMPLE_ID})"
         ),
-    )
-
-    # Contour ('contours' plot type) options — exports motif-loading
-    # percentile contours as a shapefile.
-    parser.add_argument(
-        "--contour-group-column",
-        type=str,
-        default=None,
-        help=(
-            "Column in adata.obs to group cells by when contouring (e.g. "
-            "'tma_id'), so the loading field is never interpolated across the "
-            "empty gaps between disjoint tissue regions. If omitted, falls back "
-            "to --sample-column when present, otherwise all cells form one group."
-        ),
-    )
-    parser.add_argument(
-        "--contour-percentile",
-        type=float,
-        default=95.0,
-        help="Percentile (per motif, global) at which to draw contours (default: 95).",
-    )
-    parser.add_argument(
-        "--contour-grid-res",
-        type=float,
-        default=20.0,
-        help="Interpolation grid spacing in spatial units (default: 20).",
-    )
-    parser.add_argument(
-        "--contour-smooth-sigma",
-        type=float,
-        default=1.5,
-        help="Gaussian smoothing of the gridded field, in grid cells (default: 1.5).",
-    )
-    parser.add_argument(
-        "--contour-min-area",
-        type=float,
-        default=2000.0,
-        help="Drop contour polygons smaller than this (spatial-unit^2; default: 2000).",
     )
 
     log_config.add_logging_args(parser)
@@ -292,7 +302,6 @@ def main():
             "spatial",
             "lri_dot",
             "lri_network",
-            "contours",
         ]
 
     # Load GLM results
@@ -347,6 +356,166 @@ def main():
         else:
             logger.warning(f"projected_adata.h5ad not found in {args.project_dir}")
 
+    # Build marker-gene exclusion mask + expression-fraction filter for
+    # volcano/forest. Requires adata; skipped if --no-marker-exclusion or no
+    # --project-dir. Without this, dominant lineage markers crowd the top of
+    # every volcano/forest, and low-expression genes produce unstable estimates.
+    exclusion_state = None
+    want_filter = (
+        not args.no_marker_exclusion
+        and glm_results is not None
+        and ("volcano" in plot_types or "forest" in plot_types)
+    )
+    if want_filter and adata is None:
+        logger.warning(
+            "Marker-gene exclusion requires --project-dir (to load adata); "
+            "skipping. Volcano/forest plots will include lineage markers and "
+            "low-expression genes. Pass --no-marker-exclusion to silence."
+        )
+    elif want_filter:
+        import os
+        import re
+
+        import numpy as np
+        import scipy.sparse as sp
+
+        ct_col = args.cell_type_column
+        if ct_col not in adata.obs.columns:
+            logger.warning(
+                f"Cell type column '{ct_col}' not in adata.obs; skipping "
+                "marker-gene exclusion."
+            )
+        else:
+            # compute_exclusion_mask + _filter_genes_for_volcano hardcode
+            # adata.obs["cell_type"]; alias if the user picked a different
+            # column so we don't have to fork the core helpers.
+            if ct_col != COLUMN_NAME_CELL_TYPE:
+                adata.obs[COLUMN_NAME_CELL_TYPE] = adata.obs[ct_col].values
+
+            all_genes = np.array(adata.var_names)
+            raw_cell_types = np.array(
+                sorted(adata.obs[COLUMN_NAME_CELL_TYPE].astype(str).unique())
+            )
+
+            def _sanitize_ct(name: str) -> str:
+                return re.sub(r"[^0-9A-Za-z._-]+", "_", str(name)).strip("_")
+
+            sanitized_to_raw = {_sanitize_ct(ct): ct for ct in raw_cell_types}
+
+            if args.exclusion_mask:
+                logger.info(
+                    f"Loading precomputed exclusion mask from {args.exclusion_mask}"
+                )
+                excl_df = pd.read_csv(args.exclusion_mask, index_col=0)
+                # exclusion_matrix.csv is genes x cell_types; transpose to
+                # (n_cell_types, n_genes) matching compute_exclusion_mask().
+                # Align to adata's gene order; missing genes become False.
+                excl_df = excl_df.reindex(all_genes).fillna(False)
+                cell_types_arr = np.array(excl_df.columns)
+                exclusion_mask = excl_df.values.T.astype(bool)
+            else:
+                logger.info(
+                    "Computing marker-gene exclusion mask "
+                    f"(lfc>={args.marker_lfc}, p<={args.marker_pvalue}, "
+                    f"subsample={args.marker_subsample})..."
+                )
+                cell_types_arr, _genes_arr, exclusion_mask = al.compute_exclusion_mask(
+                    adata,
+                    marker_lfc=args.marker_lfc,
+                    marker_pvalue=args.marker_pvalue,
+                    marker_subsample=args.marker_subsample,
+                )
+                # compute_exclusion_mask returns its own gene array; should
+                # match adata.var_names, but pin to adata's order to be safe.
+                if not np.array_equal(_genes_arr, all_genes):
+                    logger.warning(
+                        "Gene order from compute_exclusion_mask differs from "
+                        "adata.var_names; reindexing."
+                    )
+                    gene_to_idx = {g: i for i, g in enumerate(_genes_arr)}
+                    reorder = [gene_to_idx[g] for g in all_genes if g in gene_to_idx]
+                    exclusion_mask = exclusion_mask[:, reorder]
+
+                # Save marker_genes/ alongside other outputs.
+                from alarmist.core.glm import _save_marker_genes
+
+                marker_dir = os.path.join(args.output_dir, "marker_genes")
+                _save_marker_genes(
+                    marker_dir, cell_types_arr, all_genes, exclusion_mask
+                )
+                logger.info(f"Saved marker gene artifacts to {marker_dir}")
+
+            ct_to_idx = {str(ct): i for i, ct in enumerate(cell_types_arr)}
+            gene_to_idx = {g: i for i, g in enumerate(all_genes)}
+
+            # Precompute per-cell-type expression fractions on demand.
+            expr_frac_cache: dict[str, np.ndarray] = {}
+
+            def _expr_frac(ct_raw: str) -> np.ndarray | None:
+                if ct_raw in expr_frac_cache:
+                    return expr_frac_cache[ct_raw]
+                sub = adata[adata.obs[COLUMN_NAME_CELL_TYPE].astype(str) == ct_raw].X
+                if sub.shape[0] == 0:
+                    return None
+                if sp.issparse(sub):
+                    frac = np.asarray((sub > 0).sum(axis=0)).ravel() / sub.shape[0]
+                else:
+                    frac = np.sum(sub > 0, axis=0) / sub.shape[0]
+                expr_frac_cache[ct_raw] = frac
+                return frac
+
+            def _resolve_ct(motif_key: str) -> str | None:
+                m = re.match(r"motif_\d+_celltype_(.+)$", motif_key)
+                if not m:
+                    return None
+                ct_token = m.group(1)
+                if ct_token in sanitized_to_raw:
+                    return sanitized_to_raw[ct_token]
+                # Fallback: token may already be the raw label
+                if ct_token in raw_cell_types:
+                    return ct_token
+                return None
+
+            def filter_glm_df(df: "pd.DataFrame", motif_key: str) -> "pd.DataFrame":
+                """Apply expression-fraction + marker-exclusion filter."""
+                ct_raw = _resolve_ct(motif_key)
+                if ct_raw is None or ct_raw not in ct_to_idx:
+                    logger.debug(
+                        f"  {motif_key}: cell type not resolvable against adata; "
+                        "leaving df unfiltered."
+                    )
+                    return df
+                cidx = ct_to_idx[ct_raw]
+                frac = _expr_frac(ct_raw)
+                if frac is None:
+                    return df
+
+                n_before = len(df)
+                # Expression filter
+                kept = []
+                for gene in df[COLUMN_NAME_GENE]:
+                    gi = gene_to_idx.get(gene)
+                    if gi is not None and frac[gi] >= args.min_expression_frac:
+                        kept.append(gene)
+                df = df[df[COLUMN_NAME_GENE].isin(kept)].copy()
+
+                # Marker filter: drop genes that are markers for any *other*
+                # cell type (cidx itself is allowed, since those are real
+                # signals for this comparison).
+                other = [i for i in range(len(exclusion_mask)) if i != cidx]
+                if other:
+                    drop_mask = exclusion_mask[other, :].any(axis=0)
+                    drop_genes = set(all_genes[drop_mask])
+                    df = df[~df[COLUMN_NAME_GENE].isin(drop_genes)]
+
+                logger.debug(
+                    f"  {motif_key}: {n_before} -> {len(df)} genes after "
+                    "expression + marker filtering"
+                )
+                return df
+
+            exclusion_state = filter_glm_df
+
     # Generate plots
     plots_generated = []
 
@@ -370,6 +539,14 @@ def main():
 
         for motif_key, df in glm_results.items():
             if isinstance(df, pd.DataFrame) and COLUMN_NAME_LOGFC in df.columns:
+                if exclusion_state is not None:
+                    df = exclusion_state(df, motif_key)
+                    if df.empty:
+                        logger.info(
+                            f"  {motif_key}: no genes survive filtering, "
+                            "skipping volcano."
+                        )
+                        continue
                 # Compute -log10(qval) for y-axis
                 df = df.copy()
                 df[COLUMN_NAME_NEG_LOG10_Q] = -np.log10(
@@ -405,6 +582,14 @@ def main():
         logger.info("Generating forest plots...")
         for motif_key, df in glm_results.items():
             if isinstance(df, pd.DataFrame) and COLUMN_NAME_LOGFC in df.columns:
+                if exclusion_state is not None:
+                    df = exclusion_state(df, motif_key)
+                    if df.empty:
+                        logger.info(
+                            f"  {motif_key}: no genes survive filtering, "
+                            "skipping forest."
+                        )
+                        continue
                 fig, ax = plt.subplots(figsize=(8, 10))
                 al.forest_plot(df, ax=ax, n_top=args.top_n)
                 title, slug = relabel_motif_key(motif_key)
@@ -667,60 +852,16 @@ def main():
 
             logger.info("Generated spatial plots")
 
-    # Motif loading percentile contours -> shapefile
-    if "contours" in plot_types:
-        if adata is None or "spatial" not in adata.obsm:
-            logger.warning(
-                "Contours requested but no projected adata with "
-                "obsm['spatial'] is available; skipping contours"
-            )
-        else:
-            # Group by the requested column, else fall back to the sample
-            # column when present, else a single group over all cells.
-            group_col = args.contour_group_column
-            if group_col is None and args.sample_column in adata.obs.columns:
-                group_col = args.sample_column
-            if group_col is not None and group_col not in adata.obs.columns:
-                logger.warning(
-                    f"Contour group column '{group_col}' not in adata.obs; "
-                    "contouring over the full extent instead"
-                )
-                group_col = None
-            logger.info(
-                "Generating motif loading contours "
-                f"(p{args.contour_percentile:g}, group_column={group_col})..."
-            )
-            try:
-                gdf = al.motif_loading_contours_from_adata(
-                    adata,
-                    group_column=group_col,
-                    percentile=args.contour_percentile,
-                    grid_res=args.contour_grid_res,
-                    smooth_sigma=args.contour_smooth_sigma,
-                    min_area=args.contour_min_area,
-                    motif_names=motif_names or None,
-                )
-                geojson_path = output_dir / "motif_loading_contours.geojson"
-                if len(gdf) == 0:
-                    logger.warning("No contour polygons produced; GeoJSON not written")
-                else:
-                    gdf.to_file(geojson_path, driver="GeoJSON")
-                    plots_generated.append(str(geojson_path))
-                    logger.info(
-                        f"Generated motif loading contours: {len(gdf)} polygons "
-                        f"-> {geojson_path}"
-                    )
-            except Exception as e:
-                logger.warning(f"Could not generate motif loading contours: {e}")
-
     # LRI dot plots (one per motif)
     if "lri_dot" in plot_types and bptf_results is not None:
         lri_motifs_df = bptf_results.get("lri_motifs")
         if lri_motifs_df is not None and len(lri_motifs_df) > 0:
             logger.info("Generating LRI dot plots...")
-            motifs = sorted(lri_motifs_df["motif_idx"].unique())
+            motifs = sorted(lri_motifs_df[COLUMN_NAME_MOTIF_IDX].unique())
             for motif_idx in motifs:
-                motif_df = lri_motifs_df[lri_motifs_df["motif_idx"] == motif_idx].copy()
+                motif_df = lri_motifs_df[
+                    lri_motifs_df[COLUMN_NAME_MOTIF_IDX] == motif_idx
+                ].copy()
                 if len(motif_df) == 0:
                     continue
                 fig = al.plot_top_lri_interactions_dot(

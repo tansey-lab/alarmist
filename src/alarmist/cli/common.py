@@ -4,6 +4,8 @@ Common CLI argument definitions (following modulator's pattern)
 
 import argparse
 
+from alarmist.constants import COLUMN_NAME_CELL_TYPE
+
 
 def add_adata_arguments(parser: argparse.ArgumentParser):
     """Add common adata input arguments"""
@@ -13,8 +15,8 @@ def add_adata_arguments(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--cell-type-column",
         type=str,
-        default="cell_type",
-        help="Column name for cell types in adata.obs (default: cell_type)",
+        default=COLUMN_NAME_CELL_TYPE,
+        help=f"Column name for cell types in adata.obs (default: {COLUMN_NAME_CELL_TYPE})",
     )
 
 

@@ -24,6 +24,25 @@ from scipy.sparse import vstack as sparse_vstack
 from sklearn.neighbors import KDTree
 from tqdm import tqdm
 
+from alarmist.constants import (
+    COLUMN_NAME_AVG_NEIGHBORHOOD_SIZE,
+    COLUMN_NAME_CELL_TYPE,
+    COLUMN_NAME_COLUMN_NAME,
+    COLUMN_NAME_GLOBAL_CELL_IDX_END,
+    COLUMN_NAME_GLOBAL_CELL_IDX_START,
+    COLUMN_NAME_GLOBAL_PATCH_IDX_END,
+    COLUMN_NAME_GLOBAL_PATCH_IDX_START,
+    COLUMN_NAME_LIGAND,
+    COLUMN_NAME_N_CELLS,
+    COLUMN_NAME_N_PATCHES,
+    COLUMN_NAME_PARAMETER,
+    COLUMN_NAME_PATCH_IDX,
+    COLUMN_NAME_RECEPTOR,
+    COLUMN_NAME_SAMPLE_ID,
+    COLUMN_NAME_SIGNALING_TYPE,
+    COLUMN_NAME_VALUE,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -127,7 +146,7 @@ def load_database_genes(
         cellphonedb_path=cellphonedb_path,
     )
     genes: set[str] = set()
-    for col in ("ligand", "receptor"):
+    for col in (COLUMN_NAME_LIGAND, COLUMN_NAME_RECEPTOR):
         if col not in resource.columns:
             continue
         for val in resource[col].dropna():
@@ -150,7 +169,7 @@ class BaseLRIAnalyzer(ABC):
         spliter: str = "|",
         cellchatdb_path: str | None = None,
         cellphonedb_path: str | None = None,
-        cell_type_column: str = "cell_type",
+        cell_type_column: str = COLUMN_NAME_CELL_TYPE,
     ):
         """
         Initialize the base LRI analyzer.
@@ -236,7 +255,11 @@ class BaseLRIAnalyzer(ABC):
         if self.resource_name.lower() == "cellchatdb":
             resource = pd.read_csv(self.cellchatdb_path)
             # Check required columns
-            required_cols = ["ligand", "receptor", "signaling_type"]
+            required_cols = [
+                COLUMN_NAME_LIGAND,
+                COLUMN_NAME_RECEPTOR,
+                COLUMN_NAME_SIGNALING_TYPE,
+            ]
             if not all(col in resource.columns for col in required_cols):
                 raise ValueError(
                     f"CellChatDB CSV must contain {required_cols}. "
@@ -245,7 +268,11 @@ class BaseLRIAnalyzer(ABC):
         elif self.resource_name.lower() == "cellphonedb":
             resource = pd.read_csv(self.cellphonedb_path)
             # Check required columns
-            required_cols = ["ligand", "receptor", "signaling_type"]
+            required_cols = [
+                COLUMN_NAME_LIGAND,
+                COLUMN_NAME_RECEPTOR,
+                COLUMN_NAME_SIGNALING_TYPE,
+            ]
             if not all(col in resource.columns for col in required_cols):
                 raise ValueError(
                     f"CellPhoneDB CSV must contain {required_cols}. "
@@ -255,8 +282,8 @@ class BaseLRIAnalyzer(ABC):
             # Use liana's select_resource for other databases
             resource = select_resource(self.resource_name)
             # LIANA doesn't have signaling_type, add it as 'Unknown'
-            if "signaling_type" not in resource.columns:
-                resource["signaling_type"] = "Unknown"
+            if COLUMN_NAME_SIGNALING_TYPE not in resource.columns:
+                resource[COLUMN_NAME_SIGNALING_TYPE] = "Unknown"
 
         # Filter pairs where ALL ligand genes and ALL receptor genes exist
         lr_pairs = []
@@ -265,9 +292,9 @@ class BaseLRIAnalyzer(ABC):
         signaling_types = []
 
         for idx in range(len(resource)):
-            ligand = resource.iloc[idx]["ligand"]
-            receptor_str = resource.iloc[idx]["receptor"]
-            signaling_type = resource.iloc[idx]["signaling_type"]
+            ligand = resource.iloc[idx][COLUMN_NAME_LIGAND]
+            receptor_str = resource.iloc[idx][COLUMN_NAME_RECEPTOR]
+            signaling_type = resource.iloc[idx][COLUMN_NAME_SIGNALING_TYPE]
 
             # Skip if ligand or receptor is NaN
             if pd.isna(ligand) or pd.isna(receptor_str):
@@ -494,7 +521,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         spliter: str = "|",
         cellchatdb_path: str | None = None,
         cellphonedb_path: str | None = None,
-        cell_type_column: str = "cell_type",
+        cell_type_column: str = COLUMN_NAME_CELL_TYPE,
     ):
         """
         Initialize the patch-based LRI analyzer.
@@ -1043,7 +1070,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
         patch_idx_array = np.array(
             [patch_id_to_idx.get(patch_assignments[i], -1) for i in range(adata.n_obs)]
         )
-        adata.obs["patch_idx"] = patch_idx_array
+        adata.obs[COLUMN_NAME_PATCH_IDX] = patch_idx_array
         logger.debug(
             f"Added 'patch_idx' to adata.obs ({(patch_idx_array >= 0).sum()} cells assigned to patches)"
         )
@@ -1059,7 +1086,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
 
             # Save column names
             columns_file = os.path.join(output_dir, "patch_lri_columns.csv")
-            pd.DataFrame({"column_name": self.column_names}).to_csv(
+            pd.DataFrame({COLUMN_NAME_COLUMN_NAME: self.column_names}).to_csv(
                 columns_file, index=False
             )
 
@@ -1067,14 +1094,14 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             params_file = os.path.join(output_dir, "analysis_parameters.csv")
             params_df = pd.DataFrame(
                 {
-                    "parameter": [
+                    COLUMN_NAME_PARAMETER: [
                         "patch_size",
                         "resource_name",
                         "n_patches",
                         "n_lri_combinations",
                         "matrix_sparsity",
                     ],
-                    "value": [
+                    COLUMN_NAME_VALUE: [
                         self.patch_size,
                         self.resource_name,
                         patch_info["n_patches"],
@@ -1092,7 +1119,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                     x_center, y_center = self.patch_coords[patch_id]
                     patch_metadata_list.append(
                         {
-                            "patch_idx": i,
+                            COLUMN_NAME_PATCH_IDX: i,
                             "patch_id": patch_id,
                             "x_center": x_center,
                             "y_center": y_center,
@@ -1274,12 +1301,12 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                 center_x, center_y = self.patch_coords[local_patch_id]
                 all_patch_metadata.append(
                     {
-                        "sample_id": sample_id,
+                        COLUMN_NAME_SAMPLE_ID: sample_id,
                         "local_patch_id": local_patch_id,
                         "global_patch_idx": global_patch_idx + i,
                         "center_x": center_x,
                         "center_y": center_y,
-                        "n_cells": patch_cell_counts.get(local_patch_id, 0),
+                        COLUMN_NAME_N_CELLS: patch_cell_counts.get(local_patch_id, 0),
                     }
                 )
 
@@ -1293,17 +1320,17 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                     for i in range(adata.n_obs)
                 ]
             )
-            adata.obs["patch_idx"] = patch_idx_array
+            adata.obs[COLUMN_NAME_PATCH_IDX] = patch_idx_array
             logger.debug(
                 f"  Added 'patch_idx' to adata.obs ({(patch_idx_array >= 0).sum()} cells assigned)"
             )
 
             # Store sample info
             sample_info[sample_id] = {
-                "n_cells": adata.n_obs,
-                "n_patches": n_patches,
-                "global_patch_idx_start": global_patch_idx,
-                "global_patch_idx_end": global_patch_idx + n_patches - 1,
+                COLUMN_NAME_N_CELLS: adata.n_obs,
+                COLUMN_NAME_N_PATCHES: n_patches,
+                COLUMN_NAME_GLOBAL_PATCH_IDX_START: global_patch_idx,
+                COLUMN_NAME_GLOBAL_PATCH_IDX_END: global_patch_idx + n_patches - 1,
             }
 
             all_matrices.append(sample_matrix)
@@ -1335,7 +1362,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
 
             # Save column names
             columns_file = os.path.join(output_dir, "patch_lri_columns.csv")
-            pd.DataFrame({"column_name": column_names}).to_csv(
+            pd.DataFrame({COLUMN_NAME_COLUMN_NAME: column_names}).to_csv(
                 columns_file, index=False
             )
 
@@ -1346,7 +1373,10 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             # Save sample info
             sample_info_file = os.path.join(output_dir, "sample_info.csv")
             sample_info_df = pd.DataFrame(
-                [{"sample_id": sid, **info} for sid, info in sample_info.items()]
+                [
+                    {COLUMN_NAME_SAMPLE_ID: sid, **info}
+                    for sid, info in sample_info.items()
+                ]
             )
             sample_info_df.to_csv(sample_info_file, index=False)
 
@@ -1354,7 +1384,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
             params_file = os.path.join(output_dir, "analysis_parameters.csv")
             params_df = pd.DataFrame(
                 {
-                    "parameter": [
+                    COLUMN_NAME_PARAMETER: [
                         "patch_size",
                         "resource_name",
                         "n_samples",
@@ -1363,7 +1393,7 @@ class PatchLRIAnalyzer(BaseLRIAnalyzer):
                         "n_shared_genes",
                         "matrix_sparsity",
                     ],
-                    "value": [
+                    COLUMN_NAME_VALUE: [
                         self.patch_size,
                         self.resource_name,
                         len(adata_dict),
@@ -1462,7 +1492,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         spliter: str = "|",
         cellchatdb_path: str | None = None,
         cellphonedb_path: str | None = None,
-        cell_type_column: str = "cell_type",
+        cell_type_column: str = COLUMN_NAME_CELL_TYPE,
         include_gene_expression: bool = False,
         raw_count_location: str = "X",
     ):
@@ -1903,38 +1933,6 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
         )
         return cell_lri_matrix
 
-    def create_metadata_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
-        """
-        Create metadata dataframe with cell information.
-
-        Parameters
-        ----------
-        adata : anndata.AnnData
-            Spatial transcriptomics data
-
-        Returns
-        -------
-        cell_metadata_df : pd.DataFrame
-            DataFrame with cell metadata
-        """
-        logger.debug("Creating metadata dataframe...")
-
-        coords = adata.obsm["spatial"][:, :2]
-        neighborhood_sizes = [len(self.neighborhoods[i]) for i in range(adata.n_obs)]
-
-        cell_metadata_df = pd.DataFrame(
-            {
-                "cell_id": adata.obs.index,
-                # 'tma_id': adata.obs['tma_id'],
-                "cell_type": adata.obs["cell_type"],
-                "x_coord": coords[:, 0],
-                "y_coord": coords[:, 1],
-                "neighborhood_size": neighborhood_sizes,
-            }
-        )
-
-        return cell_metadata_df
-
     def run_neighborhood(
         self,
         adata: anndata.AnnData | dict[str, anndata.AnnData],
@@ -2149,7 +2147,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
             # Save column names
             columns_file = os.path.join(output_dir, "cell_lri_columns.csv")
-            pd.DataFrame({"column_name": all_column_names}).to_csv(
+            pd.DataFrame({COLUMN_NAME_COLUMN_NAME: all_column_names}).to_csv(
                 columns_file, index=False
             )
 
@@ -2157,7 +2155,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             params_file = os.path.join(output_dir, "analysis_parameters.csv")
             params_df = pd.DataFrame(
                 {
-                    "parameter": [
+                    COLUMN_NAME_PARAMETER: [
                         "neighborhood_size",
                         "resource_name",
                         "n_cells",
@@ -2169,7 +2167,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                         "include_gene_expression",
                         "raw_count_location",
                     ],
-                    "value": [
+                    COLUMN_NAME_VALUE: [
                         self.neighborhood_size,
                         self.resource_name,
                         adata.n_obs,
@@ -2322,10 +2320,10 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
             # Store sample info
             sample_info[sample_id] = {
-                "n_cells": n_cells,
-                "global_cell_idx_start": global_cell_idx,
-                "global_cell_idx_end": global_cell_idx + n_cells - 1,
-                "avg_neighborhood_size": np.mean(
+                COLUMN_NAME_N_CELLS: n_cells,
+                COLUMN_NAME_GLOBAL_CELL_IDX_START: global_cell_idx,
+                COLUMN_NAME_GLOBAL_CELL_IDX_END: global_cell_idx + n_cells - 1,
+                COLUMN_NAME_AVG_NEIGHBORHOOD_SIZE: np.mean(
                     [len(n) for n in neighborhoods.values()]
                 ),
             }
@@ -2401,14 +2399,17 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
 
             # Save column names
             columns_file = os.path.join(output_dir, "cell_lri_columns.csv")
-            pd.DataFrame({"column_name": all_column_names}).to_csv(
+            pd.DataFrame({COLUMN_NAME_COLUMN_NAME: all_column_names}).to_csv(
                 columns_file, index=False
             )
 
             # Save sample info
             sample_info_file = os.path.join(output_dir, "sample_info.csv")
             sample_info_df = pd.DataFrame(
-                [{"sample_id": sid, **info} for sid, info in sample_info.items()]
+                [
+                    {COLUMN_NAME_SAMPLE_ID: sid, **info}
+                    for sid, info in sample_info.items()
+                ]
             )
             sample_info_df.to_csv(sample_info_file, index=False)
 
@@ -2416,7 +2417,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
             params_file = os.path.join(output_dir, "analysis_parameters.csv")
             params_df = pd.DataFrame(
                 {
-                    "parameter": [
+                    COLUMN_NAME_PARAMETER: [
                         "neighborhood_size",
                         "resource_name",
                         "n_samples",
@@ -2426,7 +2427,7 @@ class NeighborhoodLRIAnalyzer(BaseLRIAnalyzer):
                         "matrix_sparsity",
                         "include_gene_expression",
                     ],
-                    "value": [
+                    COLUMN_NAME_VALUE: [
                         self.neighborhood_size,
                         self.resource_name,
                         len(adata_dict),

@@ -23,10 +23,14 @@ from statsmodels.stats.multitest import multipletests
 from tqdm import tqdm
 
 from alarmist.constants import (
+    COLUMN_NAME_CELL_ID,
+    COLUMN_NAME_CELL_TYPE,
     COLUMN_NAME_GENE,
     COLUMN_NAME_LOGFC,
+    COLUMN_NAME_LOGFOLDCHANGES,
     COLUMN_NAME_MOTIF,
     COLUMN_NAME_NEG_LOG10_Q,
+    COLUMN_NAME_P_ADJ,
     COLUMN_NAME_PVAL,
     COLUMN_NAME_QVAL,
     COLUMN_NAME_SE,
@@ -331,14 +335,14 @@ def run_univariate_de_sklearn_by_celltype(
 
     # Iterate motifs
     for k in range(n_motifs):
-        for ct in cell_df["cell_type"].unique():
+        for ct in cell_df[COLUMN_NAME_CELL_TYPE].unique():
             if ct == "granulocyte":
                 logger.debug(
                     f"Skipping cell type '{ct}' for motif {k} (granulocytes not included)"
                 )
                 continue
 
-            subset_mask = cell_df["cell_type"] == ct
+            subset_mask = cell_df[COLUMN_NAME_CELL_TYPE] == ct
             X_all = cell_df.loc[subset_mask, f"prog_{k}_loading"].values
             counts_all = counts[subset_mask, :]
 
@@ -469,7 +473,7 @@ def prepare_cell_data_from_adata(
     adata: "anndata.AnnData",
     count_layer: str = "X",
     keep_sparse: bool = True,
-    cell_type_column: str = "cell_type",
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
 ) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Prepare cell data from already-loaded AnnData object
@@ -514,8 +518,8 @@ def prepare_cell_data_from_adata(
         )
     cell_df = pd.DataFrame(
         {
-            "cell_id": adata.obs.index.astype(str),
-            "cell_type": adata.obs[cell_type_column].values,
+            COLUMN_NAME_CELL_ID: adata.obs.index.astype(str),
+            COLUMN_NAME_CELL_TYPE: adata.obs[cell_type_column].values,
         }
     )
 
@@ -583,7 +587,7 @@ def prepare_cell_data_memory_efficient(
     count_layer: str = "X",
     cell_metadata_file: str = None,
     keep_sparse: bool = True,
-    cell_type_column: str = "cell_type",
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
 ) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Memory-efficient cell data preparation with sparse matrix support
@@ -654,8 +658,8 @@ def prepare_cell_data_memory_efficient(
         cell_types = None  # filled in from metadata file below
     cell_df = pd.DataFrame(
         {
-            "cell_id": adata.obs.index.astype(str),
-            "cell_type": cell_types
+            COLUMN_NAME_CELL_ID: adata.obs.index.astype(str),
+            COLUMN_NAME_CELL_TYPE: cell_types
             if cell_types is not None
             else ["unknown"] * len(adata.obs.index),
         }
@@ -666,7 +670,7 @@ def prepare_cell_data_memory_efficient(
         logger.debug(f"Loading additional cell metadata from {cell_metadata_file}...")
         cell_meta = pd.read_csv(cell_metadata_file)
         if cell_type_column in cell_meta.columns and not has_celltype_in_obs:
-            cell_df["cell_type"] = cell_meta[cell_type_column].values
+            cell_df[COLUMN_NAME_CELL_TYPE] = cell_meta[cell_type_column].values
 
     # Add cell-level motif loadings
     logger.debug("Adding cell-level motif loadings...")
@@ -874,7 +878,7 @@ def run_poisson_glm_analysis(
     prefilter_spearman: bool = True,
     spearman_pval_threshold: float = 0.001,
     spearman_chunk_size: int = 1000,
-    cell_type_column: str = "cell_type",
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
     backend: str = "sklearn",
     device: str = "auto",
     glm_dtype: str = "float64",
@@ -1023,7 +1027,6 @@ def differential_expression(
     X,
     in_mask,
     out_mask=None,
-    min_in_group_fraction=0.0001,
     min_out_group_fraction=0.0001,
 ):
     """
@@ -1037,8 +1040,6 @@ def differential_expression(
         Boolean mask for target cells
     out_mask : array-like of bool, optional
         Boolean mask for control cells (default: ~in_mask)
-    min_in_group_fraction : float, default 0.0001
-        Minimum expression fraction in target group
     min_out_group_fraction : float, default 0.0001
         Minimum expression fraction in control group
 
@@ -1088,7 +1089,11 @@ def differential_expression(
     p_adj = np.ones(X.shape[1])
     p_adj[genes_mask] = stats.false_discovery_control(p_values[genes_mask])
 
-    return {"p_values": p_values, "p_adj": p_adj, "logfoldchanges": logfoldchanges}
+    return {
+        "p_values": p_values,
+        COLUMN_NAME_P_ADJ: p_adj,
+        COLUMN_NAME_LOGFOLDCHANGES: logfoldchanges,
+    }
 
 
 def load_exclusion_mask(csv_path: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -1166,7 +1171,7 @@ def compute_exclusion_mask(
     """
     # Compute exclusion mask
     genes = np.array(adata.var_names)
-    cell_types = np.unique(adata.obs["cell_type"])
+    cell_types = np.unique(adata.obs[COLUMN_NAME_CELL_TYPE])
     n_types = len(cell_types)
     exclusion_mask = np.zeros((n_types, len(genes)), dtype=bool)
 
@@ -1177,7 +1182,7 @@ def compute_exclusion_mask(
         logger.debug(f"Processing {cell_type} ({cidx + 1}/{len(cell_types)})...")
 
         # Create boolean masks
-        in_mask = adata.obs["cell_type"] == cell_type
+        in_mask = adata.obs[COLUMN_NAME_CELL_TYPE] == cell_type
         out_mask = ~in_mask
 
         # Subsample in-group if too large
@@ -1208,8 +1213,8 @@ def compute_exclusion_mask(
         deg = differential_expression(adata.X, in_mask=in_mask, out_mask=out_mask)
 
         # Identify markers
-        marker_mask = (deg["p_adj"] <= marker_pvalue) & (
-            deg["logfoldchanges"] >= marker_lfc
+        marker_mask = (deg[COLUMN_NAME_P_ADJ] <= marker_pvalue) & (
+            deg[COLUMN_NAME_LOGFOLDCHANGES] >= marker_lfc
         )
         exclusion_mask[cidx, marker_mask] = True
         logger.debug(f"  Found {marker_mask.sum()} marker genes")
@@ -1327,7 +1332,9 @@ def analyze_glm_results(
     np.random.seed(random_state)
 
     logger.debug(f"Data shape: {adata.shape}")
-    logger.debug(f"Cell types: {adata.obs['cell_type'].value_counts().to_dict()}")
+    logger.debug(
+        f"Cell types: {adata.obs[COLUMN_NAME_CELL_TYPE].value_counts().to_dict()}"
+    )
 
     # Compute or validate marker exclusion mask
     if exclusion_mask is None:
@@ -1680,7 +1687,7 @@ def _filter_genes_for_volcano(
     glm_genes_set = set(df[COLUMN_NAME_GENE])
 
     # Expression filter
-    subX = adata[adata.obs["cell_type"] == ct].X
+    subX = adata[adata.obs[COLUMN_NAME_CELL_TYPE] == ct].X
     if sp.issparse(subX):
         expr_frac = np.asarray((subX > 0).sum(axis=0)).ravel() / subX.shape[0]
     else:
@@ -1946,7 +1953,9 @@ def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
         marker_genes = all_genes[exclusion_mask[i, :]]
 
         # Save individual cell type markers
-        marker_df = pd.DataFrame({"gene": marker_genes, "cell_type": cell_type})
+        marker_df = pd.DataFrame(
+            {COLUMN_NAME_GENE: marker_genes, COLUMN_NAME_CELL_TYPE: cell_type}
+        )
         marker_file = os.path.join(
             marker_dir, f"{cell_type.replace('/', '_').replace(' ', '_')}_markers.csv"
         )
@@ -1954,7 +1963,7 @@ def _save_marker_genes(marker_dir, cell_types, all_genes, exclusion_mask):
 
         marker_summary.append(
             {
-                "cell_type": cell_type,
+                COLUMN_NAME_CELL_TYPE: cell_type,
                 "n_marker_genes": len(marker_genes),
                 "marker_percentage": len(marker_genes) / len(all_genes) * 100,
             }

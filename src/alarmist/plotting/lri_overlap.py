@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.patches import Circle
 
+from alarmist.constants import COLUMN_NAME_LIGAND, COLUMN_NAME_RECEPTOR
 from alarmist.core.lri import _split_gene_complex
 
 logger = logging.getLogger(__name__)
@@ -144,8 +145,8 @@ def plot_lr_pair_overlap(
     ligand_ok_idx: set[int] = set()
     receptor_ok_idx: set[int] = set()
     for idx in range(len(resource)):
-        ligand = resource.iloc[idx]["ligand"]
-        receptor = resource.iloc[idx]["receptor"]
+        ligand = resource.iloc[idx][COLUMN_NAME_LIGAND]
+        receptor = resource.iloc[idx][COLUMN_NAME_RECEPTOR]
         if pd.isna(ligand) or pd.isna(receptor):
             continue
         total += 1
