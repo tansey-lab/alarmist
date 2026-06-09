@@ -8,6 +8,8 @@ import anndata
 import matplotlib.pyplot as plt
 import numpy as np
 
+from alarmist.constants import COLUMN_NAME_PATCH_IDX
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,19 +57,19 @@ def plot_cells_per_patch(
     if isinstance(adata, dict):
         all_patch_idx = []
         for sample_id, ad in adata.items():
-            if "patch_idx" not in ad.obs.columns:
+            if COLUMN_NAME_PATCH_IDX not in ad.obs.columns:
                 raise ValueError(
                     f"'patch_idx' not found in adata.obs for sample '{sample_id}'. "
                     "Run run_patchify first."
                 )
-            all_patch_idx.extend(ad.obs["patch_idx"].values)
+            all_patch_idx.extend(ad.obs[COLUMN_NAME_PATCH_IDX].values)
         patch_idx = np.array(all_patch_idx)
     else:
-        if "patch_idx" not in adata.obs.columns:
+        if COLUMN_NAME_PATCH_IDX not in adata.obs.columns:
             raise ValueError(
                 "'patch_idx' not found in adata.obs. Run run_patchify first."
             )
-        patch_idx = adata.obs["patch_idx"].values
+        patch_idx = adata.obs[COLUMN_NAME_PATCH_IDX].values
 
     # Filter out invalid patch indices (-1)
     valid_patch_idx = patch_idx[patch_idx >= 0]

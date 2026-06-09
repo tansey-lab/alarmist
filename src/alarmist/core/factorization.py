@@ -20,6 +20,25 @@ except ImportError:
     BPTF_AVAILABLE = False
     warnings.warn("BPTF not available. Install from: https://github.com/aschein/bptf")
 
+from alarmist.constants import (
+    COLUMN_NAME_DELTA,
+    COLUMN_NAME_ELBO,
+    COLUMN_NAME_FACTOR,
+    COLUMN_NAME_FACTOR_LRNORM,
+    COLUMN_NAME_FACTOR_RESCALED,
+    COLUMN_NAME_ITERATION,
+    COLUMN_NAME_LIGAND,
+    COLUMN_NAME_LR_GLOBAL_MEAN,
+    COLUMN_NAME_LRI_IDX,
+    COLUMN_NAME_LRI_NAME,
+    COLUMN_NAME_MEAN,
+    COLUMN_NAME_MOTIF_IDX,
+    COLUMN_NAME_PARAMETER,
+    COLUMN_NAME_RECEPTOR,
+    COLUMN_NAME_SCORE,
+    COLUMN_NAME_VALUE,
+    COLUMN_NAME_W_MAX,
+)
 from alarmist.plotting import add_lri_components, annotate_pathways
 
 logger = logging.getLogger(__name__)
@@ -355,16 +374,16 @@ def process_bptf_results(
         for k in range(len(motif_factors)):
             lri_motifs_list.append(
                 {
-                    "lri_idx": j,
-                    "motif_idx": k,
-                    "lri_name": column_name,
-                    "factor": motif_factors[k],
-                    "mean": mean_expr,
+                    COLUMN_NAME_LRI_IDX: j,
+                    COLUMN_NAME_MOTIF_IDX: k,
+                    COLUMN_NAME_LRI_NAME: column_name,
+                    COLUMN_NAME_FACTOR: motif_factors[k],
+                    COLUMN_NAME_MEAN: mean_expr,
                 }
             )
 
     lri_motifs = pd.DataFrame(lri_motifs_list)
-    lri_motifs = lri_motifs[lri_motifs["mean"] > 0]
+    lri_motifs = lri_motifs[lri_motifs[COLUMN_NAME_MEAN] > 0]
     logger.debug(f"Total entries: {len(lri_motifs)}")
 
     # Parse LRI components
@@ -425,9 +444,9 @@ def process_bptf_results(
             if elbo_hist is not None and delta_hist is not None:
                 history_df = pd.DataFrame(
                     {
-                        "iteration": range(len(elbo_hist)),
-                        "elbo": elbo_hist,
-                        "delta": delta_hist,
+                        COLUMN_NAME_ITERATION: range(len(elbo_hist)),
+                        COLUMN_NAME_ELBO: elbo_hist,
+                        COLUMN_NAME_DELTA: delta_hist,
                     }
                 )
                 history_df.to_csv(
@@ -437,8 +456,13 @@ def process_bptf_results(
         # Save model parameters
         params_df = pd.DataFrame(
             {
-                "parameter": ["n_components", "n_patches", "n_lris", "method"],
-                "value": [
+                COLUMN_NAME_PARAMETER: [
+                    "n_components",
+                    "n_patches",
+                    "n_lris",
+                    "method",
+                ],
+                COLUMN_NAME_VALUE: [
                     model.n_components,
                     patch_loadings.shape[0],
                     lri_factors.shape[1],
@@ -520,8 +544,10 @@ def compute_lr_global_prevalence(df: pd.DataFrame) -> pd.Series:
 
     Uses unique lri_idx only to avoid overcounting repeated entries across motifs.
     """
-    unique_lris = df.drop_duplicates(subset=["lri_idx"])
-    return unique_lris.groupby(["ligand", "receptor"])["mean"].sum()
+    unique_lris = df.drop_duplicates(subset=[COLUMN_NAME_LRI_IDX])
+    return unique_lris.groupby([COLUMN_NAME_LIGAND, COLUMN_NAME_RECEPTOR])[
+        COLUMN_NAME_MEAN
+    ].sum()
 
 
 def add_normalized_scores(
@@ -539,119 +565,28 @@ def add_normalized_scores(
     df = df.copy()
 
     # Motif-wise rescaling
-    df["W_max"] = df["motif_idx"].map(dict(enumerate(motif_scales))).astype(float)
-    df["factor_rescaled"] = df["factor"] * df["W_max"]
+    df[COLUMN_NAME_W_MAX] = (
+        df[COLUMN_NAME_MOTIF_IDX].map(dict(enumerate(motif_scales))).astype(float)
+    )
+    df[COLUMN_NAME_FACTOR_RESCALED] = df[COLUMN_NAME_FACTOR] * df[COLUMN_NAME_W_MAX]
 
     # LR global prevalence normalization
     lr_prevalence = compute_lr_global_prevalence(df)
-    lr_keys = list(zip(df["ligand"], df["receptor"]))
-    df["lr_global_mean"] = (
+    lr_keys = list(zip(df[COLUMN_NAME_LIGAND], df[COLUMN_NAME_RECEPTOR]))
+    df[COLUMN_NAME_LR_GLOBAL_MEAN] = (
         pd.Series(lr_keys, index=df.index).map(lr_prevalence).astype(float)
     )
 
-    df["factor_lrnorm"] = df["factor"] / (df["lr_global_mean"] + eps)
-
-    # Final scores
-    df["score"] = df["factor_rescaled"] / (df["lr_global_mean"] + eps)
-
-    return df
-
-
-def process_and_save_lri_motif_analysis(
-    lri_factors: np.ndarray,
-    patch_loadings: np.ndarray,
-    column_names: list,
-    patch_lri_matrix,
-    output_dir: str,
-    cellchatdb_path: str = "data/LRdatabase/CellChatDBv2.0.human.csv",
-    save: bool = True,
-    eps_rescale: float = 1e-10,
-    eps_norm: float = 1,
-) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
-    """
-    Full pipeline: create LRI motifs DataFrame, process, and save.
-
-    Parameters
-    ----------
-    lri_factors : np.ndarray
-        LRI factors (K × n_lris)
-    patch_loadings : np.ndarray
-        Patch loadings (n_patches × K)
-    column_names : list
-        LRI column names
-    patch_lri_matrix : scipy.sparse matrix
-        Original patch-LRI matrix for computing column means
-    output_dir : str
-        Output directory
-    cellchatdb_path : str
-        Path to CellChatDB annotation file
-    save : bool
-        Whether to save outputs to disk
-    eps_rescale : float
-        Small constant for numerical stability in rescaling
-    eps_norm : float
-        Small constant for numerical stability in normalization
-
-    Returns
-    -------
-    lri_motifs : pd.DataFrame
-        Fully processed LRI motifs with all scores
-    W_tilde : np.ndarray
-        Rescaled patch loadings
-    V_tilde : np.ndarray
-        Rescaled LRI factors
-    """
-    # Step 1: Create initial DataFrame
-    logger.debug("Creating LRI motifs DataFrame...")
-    column_means = np.array(patch_lri_matrix.mean(axis=0)).flatten()
-    lri_to_mean = dict(zip(column_names, column_means))
-
-    lri_motifs = []
-    for j, column_name in enumerate(column_names):
-        motif_factors = lri_factors[:, j]
-        mean_expr = lri_to_mean.get(column_name, 0)
-
-        for k in range(len(motif_factors)):
-            lri_motifs.append(
-                {
-                    "lri_idx": j,
-                    "motif_idx": k,
-                    "lri_name": column_name,
-                    "factor": motif_factors[k],
-                    "mean": mean_expr,
-                }
-            )
-
-    lri_motifs_df = pd.DataFrame(lri_motifs)
-    logger.debug(f"Total entries: {len(lri_motifs_df)}")
-
-    # Step 2: Parse LRI components
-    logger.debug("Parsing LRI components...")
-    lri_motifs_df = add_lri_components(lri_motifs_df)
-
-    # Step 3: Annotate pathways
-    logger.debug("Annotating pathways...")
-    cellchatdb = pd.read_csv(cellchatdb_path)
-    lri_motifs_df = annotate_pathways(lri_motifs_df, cellchatdb)
-
-    # Step 4: Rescale matrices
-    logger.debug("Rescaling motif matrices...")
-    W_tilde, V_tilde, motif_scales = rescale_motif_matrices(
-        patch_loadings, lri_factors, verify=True, eps=eps_rescale
+    df[COLUMN_NAME_FACTOR_LRNORM] = df[COLUMN_NAME_FACTOR] / (
+        df[COLUMN_NAME_LR_GLOBAL_MEAN] + eps
     )
 
-    # Step 5: Add normalized scores
-    logger.debug("Computing normalized scores...")
-    lri_motifs_df = add_normalized_scores(lri_motifs_df, motif_scales, eps=eps_norm)
+    # Final scores
+    df[COLUMN_NAME_SCORE] = df[COLUMN_NAME_FACTOR_RESCALED] / (
+        df[COLUMN_NAME_LR_GLOBAL_MEAN] + eps
+    )
 
-    # Step 6: Save
-    if save:
-        logger.debug(f"Saving to {output_dir}...")
-        os.makedirs(output_dir, exist_ok=True)
-        lri_motifs_df.to_csv(os.path.join(output_dir, "lri_motifs.csv"), index=False)
-        np.save(os.path.join(output_dir, "W_tilde.npy"), W_tilde)
-        np.save(os.path.join(output_dir, "V_tilde.npy"), V_tilde)
-        logger.debug("Done!")
+    return df
 
 
 # def _save_lri_motif_analysis(lri_factors, column_names, patch_lri_matrix, output_dir):

@@ -8,6 +8,7 @@ import argparse
 import sys
 
 from alarmist.cli import common, log_config
+from alarmist.constants import COLUMN_NAME_CELL_TYPE, COLUMN_NAME_COLUMN_NAME
 
 
 def get_parser():
@@ -37,7 +38,7 @@ Examples:
     parser.add_argument(
         "--cell-type-column",
         type=str,
-        default="cell_type",
+        default=COLUMN_NAME_CELL_TYPE,
         help=(
             "Column in adata.obs containing cell type labels used to group the "
             "per-cell-type DE analysis (default: cell_type). The projected adata "
@@ -190,7 +191,7 @@ def main():
     lri_columns_file = patch_lri_dir / "patch_lri_columns.csv"
     logger.info(f"Loading LRI column names from {lri_columns_file}")
     lri_columns_df = pd.read_csv(lri_columns_file)
-    lri_column_names = lri_columns_df["column_name"]
+    lri_column_names = lri_columns_df[COLUMN_NAME_COLUMN_NAME]
     logger.info(f"Loaded {len(lri_column_names)} LRI columns")
 
     # Create output directory

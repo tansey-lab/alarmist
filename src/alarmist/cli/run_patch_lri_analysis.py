@@ -20,6 +20,7 @@ from alarmist.cli.common import (
     add_output_arguments,
     add_random_state_argument,
 )
+from alarmist.constants import COLUMN_NAME_TMA_ID
 from alarmist.core import PatchLRIAnalyzer
 
 logger = logging.getLogger(__name__)
@@ -98,8 +99,8 @@ def main():
         f"Cell types: {adata.obs[args.cell_type_column].cat.categories.tolist()}"
     )
 
-    if "tma_id" in adata.obs:
-        logger.info(f"TMA IDs: {sorted(adata.obs['tma_id'].unique())}")
+    if COLUMN_NAME_TMA_ID in adata.obs:
+        logger.info(f"TMA IDs: {sorted(adata.obs[COLUMN_NAME_TMA_ID].unique())}")
 
     # Initialize analyzer
     analyzer = PatchLRIAnalyzer(
@@ -153,9 +154,9 @@ def main():
         logger.info(f"  {cell_type}: {count:,} cells")
 
     # TMA distribution
-    if "tma_id" in adata.obs:
+    if COLUMN_NAME_TMA_ID in adata.obs:
         logger.info("\nTMA distribution:")
-        tma_counts = results["patch_tma_df"]["tma_id"].value_counts()
+        tma_counts = results["patch_tma_df"][COLUMN_NAME_TMA_ID].value_counts()
         for tma_id, count in tma_counts.items():
             logger.info(f"  TMA {tma_id}: {count} patches")
 

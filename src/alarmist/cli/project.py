@@ -8,6 +8,11 @@ import argparse
 import sys
 
 from alarmist.cli import common, log_config
+from alarmist.constants import (
+    COLUMN_NAME_PARAMETER,
+    COLUMN_NAME_SAMPLE_ID,
+    COLUMN_NAME_VALUE,
+)
 
 
 def get_parser():
@@ -71,7 +76,7 @@ Examples:
     parser.add_argument(
         "--sample-column",
         type=str,
-        default="sample_id",
+        default=COLUMN_NAME_SAMPLE_ID,
         help="Column in adata.obs containing sample IDs (default: sample_id)",
     )
     parser.add_argument(
@@ -145,9 +150,9 @@ def main():
     params_file = patch_lri_dir / "analysis_parameters.csv"
     if params_file.exists():
         params_df = pd.read_csv(params_file)
-        patch_size_row = params_df[params_df["parameter"] == "patch_size"]
+        patch_size_row = params_df[params_df[COLUMN_NAME_PARAMETER] == "patch_size"]
         if len(patch_size_row) > 0:
-            neighborhood_size = float(patch_size_row["value"].iloc[0])
+            neighborhood_size = float(patch_size_row[COLUMN_NAME_VALUE].iloc[0])
         else:
             logger.error("patch_size not found in analysis_parameters.csv")
             sys.exit(1)

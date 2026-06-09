@@ -7,6 +7,12 @@ import logging
 import pandas as pd
 from liana.resource import select_resource
 
+from alarmist.constants import (
+    COLUMN_NAME_LIGAND,
+    COLUMN_NAME_RECEPTOR,
+    COLUMN_NAME_SIGNALING_TYPE,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +44,11 @@ def load_lr_database(
     if resource_name.lower() == "cellchatdb" and cellchatdb_path:
         resource = pd.read_csv(cellchatdb_path)
         # Check required columns
-        required_cols = ["ligand", "receptor", "signaling_type"]
+        required_cols = [
+            COLUMN_NAME_LIGAND,
+            COLUMN_NAME_RECEPTOR,
+            COLUMN_NAME_SIGNALING_TYPE,
+        ]
         if not all(col in resource.columns for col in required_cols):
             raise ValueError(
                 f"CellChatDB CSV must contain {required_cols}. "
@@ -47,7 +57,11 @@ def load_lr_database(
     elif resource_name.lower() == "cellphonedb" and cellphonedb_path:
         resource = pd.read_csv(cellphonedb_path)
         # Check required columns
-        required_cols = ["ligand", "receptor", "signaling_type"]
+        required_cols = [
+            COLUMN_NAME_LIGAND,
+            COLUMN_NAME_RECEPTOR,
+            COLUMN_NAME_SIGNALING_TYPE,
+        ]
         if not all(col in resource.columns for col in required_cols):
             raise ValueError(
                 f"CellPhoneDB CSV must contain {required_cols}. "
@@ -57,7 +71,7 @@ def load_lr_database(
         # Use liana's select_resource for other databases
         resource = select_resource(resource_name)
         # LIANA doesn't have signaling_type, add it as 'Unknown'
-        if "signaling_type" not in resource.columns:
-            resource["signaling_type"] = "Unknown"
+        if COLUMN_NAME_SIGNALING_TYPE not in resource.columns:
+            resource[COLUMN_NAME_SIGNALING_TYPE] = "Unknown"
 
     return resource

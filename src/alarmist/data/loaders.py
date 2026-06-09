@@ -9,6 +9,20 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
+from alarmist.constants import (
+    COLUMN_NAME_AVG_NEIGHBORHOOD_SIZE,
+    COLUMN_NAME_COLUMN_NAME,
+    COLUMN_NAME_GLOBAL_CELL_IDX_END,
+    COLUMN_NAME_GLOBAL_CELL_IDX_START,
+    COLUMN_NAME_GLOBAL_PATCH_IDX_END,
+    COLUMN_NAME_GLOBAL_PATCH_IDX_START,
+    COLUMN_NAME_N_CELLS,
+    COLUMN_NAME_N_PATCHES,
+    COLUMN_NAME_PARAMETER,
+    COLUMN_NAME_SAMPLE_ID,
+    COLUMN_NAME_VALUE,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +61,7 @@ def load_patch_lri_results(
     # Load column names
     cols_path = os.path.join(input_dir, column_df_name)
     cols_df = pd.read_csv(cols_path)
-    column_names = cols_df["column_name"].tolist()
+    column_names = cols_df[COLUMN_NAME_COLUMN_NAME].tolist()
 
     # Load parameters
     params_file = os.path.join(input_dir, "analysis_parameters.csv")
@@ -55,7 +69,7 @@ def load_patch_lri_results(
 
     logger.debug(f"Loaded matrix shape: {patch_lri_matrix.shape}")
     logger.debug(
-        f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}"
+        f"Matrix sparsity: {params_df[params_df[COLUMN_NAME_PARAMETER] == 'matrix_sparsity'][COLUMN_NAME_VALUE].iloc[0]}"
     )
 
     results = {
@@ -71,12 +85,14 @@ def load_patch_lri_results(
         # Convert to dict format matching run_patchify return
         sample_info = {}
         for _, row in sample_info_df.iterrows():
-            sample_id = row["sample_id"]
+            sample_id = row[COLUMN_NAME_SAMPLE_ID]
             sample_info[sample_id] = {
-                "n_cells": row["n_cells"],
-                "n_patches": row["n_patches"],
-                "global_patch_idx_start": row["global_patch_idx_start"],
-                "global_patch_idx_end": row["global_patch_idx_end"],
+                COLUMN_NAME_N_CELLS: row[COLUMN_NAME_N_CELLS],
+                COLUMN_NAME_N_PATCHES: row[COLUMN_NAME_N_PATCHES],
+                COLUMN_NAME_GLOBAL_PATCH_IDX_START: row[
+                    COLUMN_NAME_GLOBAL_PATCH_IDX_START
+                ],
+                COLUMN_NAME_GLOBAL_PATCH_IDX_END: row[COLUMN_NAME_GLOBAL_PATCH_IDX_END],
             }
         results["sample_info"] = sample_info
         logger.debug(f"Multi-sample detected: {len(sample_info)} samples")
@@ -110,7 +126,7 @@ def load_cell_lri_results(output_dir: str) -> dict:
 
     # Load column names
     columns_file = os.path.join(output_dir, "cell_lri_columns.csv")
-    column_names = pd.read_csv(columns_file)["column_name"].tolist()
+    column_names = pd.read_csv(columns_file)[COLUMN_NAME_COLUMN_NAME].tolist()
 
     # Load parameters
     params_file = os.path.join(output_dir, "analysis_parameters.csv")
@@ -118,7 +134,7 @@ def load_cell_lri_results(output_dir: str) -> dict:
 
     logger.debug(f"Loaded matrix shape: {cell_lri_matrix.shape}")
     logger.debug(
-        f"Matrix sparsity: {params_df[params_df['parameter'] == 'matrix_sparsity']['value'].iloc[0]}"
+        f"Matrix sparsity: {params_df[params_df[COLUMN_NAME_PARAMETER] == 'matrix_sparsity'][COLUMN_NAME_VALUE].iloc[0]}"
     )
 
     results = {
@@ -134,12 +150,16 @@ def load_cell_lri_results(output_dir: str) -> dict:
         # Convert to dict format matching run_neighborhood return
         sample_info = {}
         for _, row in sample_info_df.iterrows():
-            sample_id = row["sample_id"]
+            sample_id = row[COLUMN_NAME_SAMPLE_ID]
             sample_info[sample_id] = {
-                "n_cells": row["n_cells"],
-                "global_cell_idx_start": row["global_cell_idx_start"],
-                "global_cell_idx_end": row["global_cell_idx_end"],
-                "avg_neighborhood_size": row["avg_neighborhood_size"],
+                COLUMN_NAME_N_CELLS: row[COLUMN_NAME_N_CELLS],
+                COLUMN_NAME_GLOBAL_CELL_IDX_START: row[
+                    COLUMN_NAME_GLOBAL_CELL_IDX_START
+                ],
+                COLUMN_NAME_GLOBAL_CELL_IDX_END: row[COLUMN_NAME_GLOBAL_CELL_IDX_END],
+                COLUMN_NAME_AVG_NEIGHBORHOOD_SIZE: row[
+                    COLUMN_NAME_AVG_NEIGHBORHOOD_SIZE
+                ],
             }
         results["sample_info"] = sample_info
         logger.debug(f"Multi-sample detected: {len(sample_info)} samples")

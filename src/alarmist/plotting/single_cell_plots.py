@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from alarmist.constants import (
+    COLUMN_NAME_CELL_TYPE,
+    COLUMN_NAME_MOTIF,
+    COLUMN_NAME_SAMPLE_ID,
+    COLUMN_NAME_WEIGHT,
+)
 from alarmist.plotting.colors import _get_colors_for_plotting
 
 logger = logging.getLogger(__name__)
@@ -22,7 +28,7 @@ def plot_motif_celltype_composition(
     ylabel: str | None = None,
     title: str | None = None,
     save_path: str | None = None,
-    cell_type_col: str = "cell_type",
+    cell_type_col: str = COLUMN_NAME_CELL_TYPE,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot stacked bar chart showing cell type composition for each motif.
@@ -62,9 +68,9 @@ def plot_motif_celltype_composition(
     """
     # Pivot to wide format
     wide = df_tidy.pivot_table(
-        index="motif",
+        index=COLUMN_NAME_MOTIF,
         columns=cell_type_col,
-        values="weight",
+        values=COLUMN_NAME_WEIGHT,
         aggfunc="sum",
         fill_value=0.0,
     )
@@ -233,7 +239,7 @@ def plot_motif_spatial(
     adata: anndata.AnnData | dict[str, anndata.AnnData],
     motif_idx: int | list[int],
     sample_column: str | None = None,
-    cell_type_column: str = "cell_type",
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
     n_cols: int = 4,
     figsize_per_panel: tuple = (6, 6),
     point_size: float = 0.2,
@@ -607,7 +613,7 @@ def plot_motif_spatial(
 def analyze_motif_celltype_composition(
     adata: anndata.AnnData | dict[str, anndata.AnnData],
     cell_loadings: np.ndarray,
-    cell_type_column: str = "cell_type",
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
     sample_column: str | None = None,
     normalize: bool = True,
     ct_colors: dict | None = None,
@@ -697,22 +703,22 @@ def analyze_motif_celltype_composition(
         cell_meta_dfs = []
         for sample_id, ad in adata.items():
             df = ad.obs[[cell_type_column]].copy()
-            df.columns = ["cell_type"]
-            df["sample_id"] = sample_id
+            df.columns = [COLUMN_NAME_CELL_TYPE]
+            df[COLUMN_NAME_SAMPLE_ID] = sample_id
             cell_meta_dfs.append(df)
         cell_meta_df = pd.concat(cell_meta_dfs, axis=0).reset_index(drop=True)
         mode_str = f"Multi-sample ({len(adata)} samples)"
     elif sample_column is not None:
         # Mode 3: Merged AnnData with sample_column
         cell_meta_df = adata.obs[[cell_type_column, sample_column]].copy()
-        cell_meta_df.columns = ["cell_type", "sample_id"]
+        cell_meta_df.columns = [COLUMN_NAME_CELL_TYPE, COLUMN_NAME_SAMPLE_ID]
         cell_meta_df = cell_meta_df.reset_index(drop=True)
-        n_samples = cell_meta_df["sample_id"].nunique()
+        n_samples = cell_meta_df[COLUMN_NAME_SAMPLE_ID].nunique()
         mode_str = f"Multi-sample ({n_samples} samples, merged)"
     else:
         # Mode 1: Single AnnData
         cell_meta_df = adata.obs[[cell_type_column]].copy()
-        cell_meta_df.columns = ["cell_type"]
+        cell_meta_df.columns = [COLUMN_NAME_CELL_TYPE]
         cell_meta_df = cell_meta_df.reset_index(drop=True)
         mode_str = "Single sample"
 
@@ -739,7 +745,7 @@ def analyze_motif_celltype_composition(
 
     # Filter to selected motifs if specified
     if motif_ids is not None:
-        tidy_df = tidy_df[tidy_df["motif"].isin(motif_ids)].copy()
+        tidy_df = tidy_df[tidy_df[COLUMN_NAME_MOTIF].isin(motif_ids)].copy()
         if tidy_df.empty:
             raise ValueError(
                 f"No motifs found matching motif_ids={motif_ids}. "
@@ -748,7 +754,7 @@ def analyze_motif_celltype_composition(
         logger.debug(f"  Selected motifs: {sorted(motif_ids)}")
 
     # Get colors
-    unique_celltypes = tidy_df["cell_type"].unique().tolist()
+    unique_celltypes = tidy_df[COLUMN_NAME_CELL_TYPE].unique().tolist()
     color_map = _get_colors_for_plotting(
         ct_colors=ct_colors, df_celltypes=unique_celltypes
     )
@@ -773,7 +779,7 @@ def analyze_motif_celltype_composition(
 
 def analyze_motif_celltype_counts(
     adata: anndata.AnnData | dict[str, anndata.AnnData],
-    cell_type_column: str = "cell_type",
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
     sample_column: str | None = None,
     normalize: bool = True,
     ct_colors: dict | None = None,
@@ -932,7 +938,13 @@ def analyze_motif_celltype_counts(
         ct_counts = pd.Series(pos_celltypes).value_counts()
 
         for ct, count in ct_counts.items():
-            records.append({"motif": k, "cell_type": ct, "weight": count})
+            records.append(
+                {
+                    COLUMN_NAME_MOTIF: k,
+                    COLUMN_NAME_CELL_TYPE: ct,
+                    COLUMN_NAME_WEIGHT: count,
+                }
+            )
 
     if not records:
         raise ValueError("No positive cells found for any motif.")
@@ -941,14 +953,14 @@ def analyze_motif_celltype_counts(
 
     # Normalize per motif if requested
     if normalize:
-        totals = tidy_df.groupby("motif")["weight"].transform("sum")
-        tidy_df["weight"] = tidy_df["weight"] / totals
+        totals = tidy_df.groupby(COLUMN_NAME_MOTIF)[COLUMN_NAME_WEIGHT].transform("sum")
+        tidy_df[COLUMN_NAME_WEIGHT] = tidy_df[COLUMN_NAME_WEIGHT] / totals
 
     if motif_ids is not None:
         logger.debug(f"  Selected motifs: {sorted(motif_indices)}")
 
     # Get colors
-    unique_celltypes = tidy_df["cell_type"].unique().tolist()
+    unique_celltypes = tidy_df[COLUMN_NAME_CELL_TYPE].unique().tolist()
     color_map = _get_colors_for_plotting(
         ct_colors=ct_colors, df_celltypes=unique_celltypes
     )

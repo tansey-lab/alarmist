@@ -8,6 +8,7 @@ import argparse
 import sys
 
 from alarmist.cli import common, log_config
+from alarmist.constants import COLUMN_NAME_LIGAND, COLUMN_NAME_RECEPTOR
 
 
 def get_parser():
@@ -116,7 +117,7 @@ def main():
         )
 
         db_genes: set[str] = set()
-        for col in ("ligand", "receptor"):
+        for col in (COLUMN_NAME_LIGAND, COLUMN_NAME_RECEPTOR):
             if col in resource_df.columns:
                 for val in resource_df[col].dropna():
                     db_genes.update(_split_gene_complex(str(val)))

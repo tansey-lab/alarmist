@@ -18,6 +18,8 @@ import logging
 import numpy as np
 import pandas as pd
 
+from alarmist.constants import COLUMN_NAME_MOTIF, COLUMN_NAME_MOTIF_NAME
+
 logger = logging.getLogger(__name__)
 
 
@@ -194,7 +196,7 @@ def motif_loading_contours(
                 if g.is_empty or g.area < min_area:
                     continue
                 rec = {
-                    "motif": int(k),
+                    COLUMN_NAME_MOTIF: int(k),
                     "group": str(grp),
                     "threshold": float(thr),
                     "pctile": float(percentile),
@@ -202,12 +204,14 @@ def motif_loading_contours(
                     "geometry": g,
                 }
                 if has_names:
-                    rec["motif_name"] = str(motif_names.get(k, f"Motif {k}"))[:80]
+                    rec[COLUMN_NAME_MOTIF_NAME] = str(motif_names.get(k, f"Motif {k}"))[
+                        :80
+                    ]
                 records.append(rec)
 
-    cols = ["motif"]
+    cols = [COLUMN_NAME_MOTIF]
     if has_names:
-        cols.append("motif_name")
+        cols.append(COLUMN_NAME_MOTIF_NAME)
     cols += ["group", "threshold", "pctile", "area_um2", "geometry"]
 
     if not records:
