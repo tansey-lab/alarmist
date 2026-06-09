@@ -93,10 +93,10 @@ Examples:
         "--backend",
         type=str,
         choices=["sklearn", "torch"],
-        default="sklearn",
+        default="torch",
         help="GLM fitting backend. 'torch' fits all genes per motif x cell-type "
         "in one batched IRLS solve (much faster; runs on GPU if available). "
-        "'sklearn' is the per-gene reference. Default: sklearn.",
+        "'sklearn' is the per-gene reference. Default: torch.",
     )
     parser.add_argument(
         "--device",
