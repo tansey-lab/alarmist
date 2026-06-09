@@ -156,6 +156,20 @@
                     "default": 1000,
                     "description": "Chunk size for Spearman correlation computation in GLM pre-filter.",
                     "fa_icon": "fas fa-th-large"
+                },
+                "glm_backend": {
+                    "type": "string",
+                    "default": "torch",
+                    "enum": ["sklearn", "torch"],
+                    "description": "GLM fitting backend. 'torch' fits all genes per motif x cell-type in one batched IRLS solve (much faster; runs on GPU if available). 'sklearn' is the per-gene reference.",
+                    "fa_icon": "fas fa-microchip"
+                },
+                "glm_device": {
+                    "type": "string",
+                    "default": "auto",
+                    "enum": ["auto", "cpu", "cuda"],
+                    "description": "Torch device for the GLM step when glm_backend = 'torch'. 'auto' picks cuda if available, else cpu.",
+                    "fa_icon": "fas fa-server"
                 }
             }
         },

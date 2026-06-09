@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml uv.lock* ./
 COPY src/ ./src/
 
-# Install dependencies (including viz extras for graphviz support)
-RUN uv sync --no-dev --extra viz
+# Install dependencies
+RUN uv sync --no-dev
 
 # Add venv to PATH so CLI commands are available
 ENV PATH="/app/.venv/bin:$PATH"

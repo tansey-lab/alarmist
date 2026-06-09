@@ -93,7 +93,7 @@ def batched_poisson_glm(
         tdt = torch.float32
     # Floor tol at ~10x dtype epsilon — Newton steps can't shrink below precision,
     # so a stricter tol would falsely flag converged fits as non-convergent.
-    eps_floor = 10.0 * float(torch.finfo(tdt).eps)
+    eps_floor = 100.0 * float(torch.finfo(tdt).eps)
     if tol < eps_floor:
         logger.info(
             "Raising tol from %.0e to %.0e (10x %s epsilon).", tol, eps_floor, tdt

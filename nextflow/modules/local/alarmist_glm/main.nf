@@ -29,6 +29,8 @@ process ALARMIST_GLM {
         ${params.prefilter_spearman ? '--prefilter-spearman' : '--no-prefilter-spearman'} \\
         --spearman-pval-threshold ${params.spearman_pval_threshold} \\
         --spearman-chunk-size ${params.spearman_chunk_size} \\
+        --backend ${params.glm_backend} \\
+        --device ${params.glm_device} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
