@@ -1023,30 +1023,124 @@ def run_poisson_glm_analysis(
 # ============================================================================
 
 
+def mann_whitney_u_sparse_nonneg(X1, X2, alternative="two-sided"):
+    """
+    Mann-Whitney U test computed column-wise directly on nonnegative sparse
+    CSC matrices, with proper average-rank tie correction.
+
+    Unlike a per-gene ``scipy.stats.mannwhitneyu`` loop that densifies every
+    column, this counts the implicit zeros from the sparse structure and scores
+    each feature in a single pass, which is far cheaper in time and memory on
+    large gene sets. p-values use the tie-corrected normal approximation.
+
+    Parameters
+    ----------
+    X1, X2 : scipy.sparse.csc_matrix
+        Nonnegative matrices of shape (n_samples_1, n_features) and
+        (n_samples_2, n_features).
+    alternative : {"two-sided", "less", "greater"}, default "two-sided"
+
+    Returns
+    -------
+    u_stats : np.ndarray
+        U statistic per feature.
+    p_values : np.ndarray
+        p-value per feature.
+    """
+    from collections import Counter
+
+    assert X1.shape[1] == X2.shape[1]
+
+    n1, n2 = X1.shape[0], X2.shape[0]
+    N = n1 + n2
+    n_features = X1.shape[1]
+
+    u_stats = np.zeros(n_features)
+    p_values = np.zeros(n_features)
+
+    for j in range(n_features):
+        d1 = X1.getcol(j).data
+        d2 = X2.getcol(j).data
+
+        # Count implicit zeros not stored in the sparse columns
+        n_zeros1 = n1 - len(d1)
+        n_zeros2 = n2 - len(d2)
+        total_zeros = n_zeros1 + n_zeros2
+
+        # Value multiplicities across both groups, including implicit zeros
+        value_counts = Counter(np.concatenate([d1, d2]))
+        if total_zeros > 0:
+            value_counts[0.0] += total_zeros
+
+        # Average ranks for tied values
+        ranks = {}
+        start_rank = 1
+        for val in np.array(sorted(value_counts.keys())):
+            count = value_counts[val]
+            ranks[val] = (start_rank + start_rank + count - 1) / 2
+            start_rank += count
+
+        # Rank sum for group 1 (its stored values plus its implicit zeros)
+        r1 = n_zeros1 * ranks[0.0] + np.sum([ranks[v] for v in d1])
+
+        u1 = r1 - n1 * (n1 + 1) / 2
+        u2 = n1 * n2 - u1
+        u_stat = u1 if alternative != "greater" else u2
+        u_stats[j] = u_stat
+
+        # Tie-corrected normal approximation
+        tie_correction = 1.0 - sum(t * (t**2 - 1) for t in value_counts.values()) / (
+            N * (N**2 - 1)
+        )
+        mean_u = n1 * n2 / 2
+        std_u = np.sqrt(n1 * n2 * (N + 1) / 12 * tie_correction)
+
+        if std_u == 0:
+            p = 1.0
+        else:
+            z = (u_stat - mean_u) / std_u
+            if alternative == "two-sided":
+                p = 2 * stats.norm.sf(abs(z))
+            elif alternative == "less":
+                p = stats.norm.cdf(z)
+            elif alternative == "greater":
+                p = stats.norm.sf(z)
+            else:
+                raise ValueError("Invalid alternative")
+
+        p_values[j] = p
+
+    return u_stats, p_values
+
+
 def differential_expression(
     X,
     in_mask,
     out_mask=None,
+    min_in_group_fraction=0.0001,
     min_out_group_fraction=0.0001,
 ):
     """
-    Perform differential expression analysis using Mann-Whitney U test
+    Perform differential expression analysis using the Mann-Whitney U test.
 
     Parameters
     ----------
     X : array-like
-        Expression matrix (cells × genes)
+        Expression matrix (cells × genes). Expected to be a scipy sparse matrix.
     in_mask : array-like of bool
-        Boolean mask for target cells
+        Boolean mask for target cells.
     out_mask : array-like of bool, optional
-        Boolean mask for control cells (default: ~in_mask)
+        Boolean mask for control cells (default: ~in_mask).
+    min_in_group_fraction : float, default 0.0001
+        Minimum fraction of target cells expressing a gene for it to be tested.
     min_out_group_fraction : float, default 0.0001
-        Minimum expression fraction in control group
+        Minimum fraction of control cells expressing a gene for it to be tested.
 
     Returns
     -------
     dict
-        Dictionary with 'p_values', 'p_adj', and 'logfoldchanges'
+        Dictionary with keys "p_values", COLUMN_NAME_P_ADJ ("p_adj") and
+        COLUMN_NAME_LOGFOLDCHANGES ("logfoldchanges").
     """
     # Convert to numpy arrays if pandas Series (scipy sparse indexing requires arrays)
     in_mask = np.asarray(in_mask)
@@ -1055,17 +1149,23 @@ def differential_expression(
     else:
         out_mask = np.asarray(out_mask)
 
-    # Filter genes basically never expressed in control
-    X_out = X[out_mask]
+    # Filter genes basically never expressed in the control group. The expressed
+    # fraction is read per gene straight off the CSC column pointers
+    # (stored nonzeros per column / n_cells), i.e. a true per-gene (axis 0) test.
+    X_out = X[out_mask].tocsc()
     genes_mask = np.ones(X.shape[1], dtype=bool)
     if min_out_group_fraction > 0:
-        control_genes_mask = (X_out > 0.5).mean(axis=0) >= min_out_group_fraction
+        control_genes_mask = (
+            (X_out.indptr[1:] - X_out.indptr[:-1]) / X_out.shape[0]
+        ) >= min_out_group_fraction
         genes_mask = genes_mask & control_genes_mask
 
-    # Filter genes basically never expressed in target
-    X_in = X[in_mask]
-    if min_out_group_fraction > 0:
-        target_genes_mask = (X_in > 0.5).mean() >= min_out_group_fraction
+    # Filter genes basically never expressed in the target group.
+    X_in = X[in_mask].tocsc()
+    if min_in_group_fraction > 0:
+        target_genes_mask = (
+            (X_in.indptr[1:] - X_in.indptr[:-1]) / X_in.shape[0]
+        ) >= min_in_group_fraction
         genes_mask = genes_mask & target_genes_mask
 
     genes_mask = np.array(genes_mask).flatten()
@@ -1080,11 +1180,9 @@ def differential_expression(
         control_means.clip(1e-300)
     )
 
+    # Vectorized, sparse-aware Mann-Whitney U over the retained genes
     p_values = np.ones(X.shape[1])
-    for j_idx, j in enumerate(np.where(genes_mask)[0]):
-        x = X_in[:, j_idx].toarray().ravel()
-        y = X_out[:, j_idx].toarray().ravel()
-        p_values[j] = stats.mannwhitneyu(x, y).pvalue
+    _, p_values[genes_mask] = mann_whitney_u_sparse_nonneg(X_in, X_out)
 
     p_adj = np.ones(X.shape[1])
     p_adj[genes_mask] = stats.false_discovery_control(p_values[genes_mask])
