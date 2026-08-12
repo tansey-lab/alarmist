@@ -1,0 +1,36 @@
+# NICHES — deviations from the vignettes
+
+Every departure from `/Users/jiayifan/tansey_lab/NICHES/vignettes/*.Rmd`, with the number
+that forced it. Nothing here is a silent change; each row is also reported in chat and
+summarised in `scripts/comparators/METHODS.md`.
+
+| # | Item | Tutorial does | We do | Why |
+| --- | --- | --- | --- | --- |
+| D1 | **Unit of a NICHES run** | one run per tissue section (`brain`; `E10`/`E11`) | one run per **TMA core** — 13 runs, then merged | `ComputeEdgelist.R:36` materialises a dense N × N double distance matrix and then `adj_mat`, `t(adj_mat)` and `1*(...)` — about 4 × N² × 8 B. At the full slide (100,197 cells) that is **~80 GB for the distance matrix alone** on a 36 GB box. `obs['tma_id']` gives 13 physically separate punches with disjoint x/y extents (verified: no two cores' bounding boxes overlap), so a per-core split is also the only *correct* neighbour graph — a global kNN would invent edges between different punches. Matches how SpatialDM (13 cores) and COMMOT (11/13) were already run in this repo. |
+| D2 | **Imputation** | vignettes 01 and 07 run `SeuratWrappers::RunALRA`; vignette 04 does not | **both**, as two parallel sub-runs (`alra/`, `noimpute/`) | Requested. It is not a cosmetic choice on this data: without imputation **920 of 1,088** mechanisms are identically zero in core 2, with ALRA **559** are (168 → 529 detected). Reporting only one would hide that NICHES' answer on a targeted panel is dominated by dropout. |
+| D3 | **Source of `RunALRA`** | `library(SeuratWrappers); RunALRA(object)` | `source()` the authors' **unmodified** `R/alra.R` + `R/internal.R` from seurat-wrappers `8df83435cf10ca76f28ddfc658ad3f6bec61824c`, vendored under `vendor/seurat-wrappers/` | `remotes::install_github("satijalab/seurat-wrappers")` fails in this env: SeuratWrappers 0.4.0 lists **Banksy** in `Imports`, and Banksy's Bioconductor chain fails to build here (16 packages: `rhdf5`, `edgeR`, `HDF5Array`, `SpatialExperiment`, `DropletUtils`, …). `RunALRA` needs none of them — only `rsvd`, `Matrix`, `Seurat`, all installed — and `alra.R`'s only intra-package dependency is `CheckPackage()` from `internal.R`, used solely on the non-default `use.mkl = TRUE` path. Byte-identical code, package defaults (`k = NULL` auto-rank, `q = 10`, `use.mkl = FALSE`). |
+| D4 | **LR database** | `LR.database = "fantom5"`, `species = "mouse"`/`"human"` | `LR.database = "custom"`, `custom_LR_database` = CellChatDB v2.0 human | The `cellchatdb2` tier — removes the LR resource as a confounder against ALARMIST and the other comparators. `LoadCustom` wants exactly a 2-column frame with `_`-separated subunits, which is the format our CSV export already uses, so **no complex re-encoding was needed** — a straight `db[["ligand","receptor"]]` column selection. `species` is silently ignored in this mode (`LoadCustom.R:12`). |
+| D5 | **`meta.data.to.map`** | vignette 07 omits it (default = *all* meta.data columns); vignette 01 names two | names `c("orig.ident","cell_type","grade","tma_id","x","y")` | Guarantees the spatial coordinates and the grade label carry into the NICHES objects, which stage C needs for the spatial LR maps and the high-vs-low contrast. Metadata only — carried, never computed on. |
+| D6 | **`ReceivingType` loop in stage C** | one hand-picked population (`ROI <- "Neural tube and notochord"`) | loop over **all 9** `ReceivingType`s | No a-priori population of interest here, and picking one by hand would be a silent choice. Same calls, run 9 times. |
+| D7 | **Spatial LR map** | `SpatialFeaturePlot(brain, ..., slot = 'scale.data')` | equivalent `ggplot2` scatter on the `x`/`y` metadata | `SpatialFeaturePlot` requires a Seurat `@images` slot (Visium `VisiumV1`/`SlideSeq`). The Xenium h5ad has bare coordinates in `obsm['spatial']` and no image object, so the tutorial call has nothing to dispatch on. The scatter plots identical values at identical positions. |
+| D8 | **`nFeature > 5` filter** | `subset(scc.merge, nFeature_CellToCell > 5)` on CellToCell | applied to `CellToCellSpatial` only, not to `NeighborhoodToCell` | Vignette 04 applies it to the object it built (`CellToCell`); vignette 07, which builds `NeighborhoodToCell`, applies **no** such filter. We follow each vignette on its own organization. The dropped fraction is recorded in the manifest. |
+| D9 | **Seurat version gap** | vignettes written against Seurat v4/early v5 | Seurat 5.3.0 / SeuratObject 5.2.0 | Recorded, not worked around. NICHES 1.2.4 already carries its own v5 shims (`GetSeuratAssay`, the manual `data`-layer patch at `RunNeighborhoodToCell.R:77-81`). Only `JoinLayers` had to be added after `merge()`, because Seurat v5 keeps one layer per merged object and the vignettes predate that. |
+| D10 | **`FindVariableFeatures(selection.method = "disp")`** | `FindVariableFeatures(menv, selection.method = "disp")` (vignette 07:88, 04:101, 01:97) | `"disp"` on the **noimpute** tier (unchanged); falls back to Seurat's default `"vst"` on the **alra** tier, logged and recorded in `analysis_manifest.json` | **The vignette's own call is numerically impossible on the imputed tier.** NICHES deliberately stores the *raw* ligand × receptor products in the Seurat `data` slot (`RunNeighborhoodToCell.R:77-81` copies `counts` into `data` with no normalisation), but Seurat's `disp` method assumes `data` is log1p-space and un-logs it via `ExpMean`/`LogVMR`, i.e. `exp(x) - 1`. The ALRA-tier products reach **4,933.5**, and `exp(709)` already overflows a double, so `feature.mean` becomes `Inf` and `CalcDispersion` dies in `seq.int(rx[1], rx[2], length.out = nb) : 'to' must be a finite number`. Vignette 07 *itself* pairs ALRA with `selection.method = "disp"`, so this is a latent break in the tutorial path that only surfaces at our dynamic range — it is a finding, not a workaround we chose. `"vst"` never exponentiates. Noimpute (max product 246.9) stays on `"disp"`. |
+
+## Version gaps and package behaviour observed (recorded, not "fixed")
+
+* **Underscores in feature names are rewritten by Seurat.** `CreateSeuratObject` warns
+  `Feature names cannot have underscores ('_'), replacing with dashes ('-')`, so a
+  multi-subunit mechanism is stored as `TGFB1—TGFBR1-TGFBR2`, not `TGFB1—TGFBR1_TGFBR2`.
+  This is Seurat renaming NICHES' output, not our doing. Both requested LRs
+  (`GRN—SORT1`, `ANXA1—FPR1`) are single-subunit and unaffected.
+* **`tidyr::separate` warnings from `LoadCustom`** — `Expected 4 pieces … filled with NA in
+  3217 rows` / `Expected 5 pieces … 3212 rows`. Expected: `LoadCustom` splits every ligand
+  into `max_subunits` columns, so the 2,354 single-subunit ligands legitimately get NAs, and
+  `FilterGroundTruth` treats NA as "absent subunit, ignore". Not an error.
+* **`BisRNA` is declared in NICHES' `Imports` but never called** anywhere in `R/`, and it is
+  archived on CRAN. Installed from the CRAN archive (`BisRNA_0.2.2.tar.gz`) purely to
+  satisfy `R CMD INSTALL`; it is dead weight at runtime.
+* **The fast neighbour path is dead code.** `ComputeEdgelist` accepts `nn.method`, but the
+  `'aoz'` (spNNGP) branch is commented out (`ComputeEdgelist.R:76-131`) and `RunNICHES`
+  never passes the argument. The dense O(N²) path is the only path — this is D1's root cause.

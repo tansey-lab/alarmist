@@ -23,6 +23,18 @@ notebooks/cpdb_inputs/
 *.jpeg
 figures/
 
+# Datasets — directory-level, belt-and-braces (added 2026-08-07).
+# The suffix rules above only catch KNOWN extensions; a dataset arriving with any
+# other suffix (.zip, .tar.gz, .arrow, .bam, .fcs, …) would still be swept up by
+# `git add -A`. That is how ~100 GB of h5ad-sized blobs once ended up loose in
+# .git. So: ignore everything under data/ by default, then re-include only the
+# small reference tables this repo genuinely tracks.
+#   `data/*` (not `data/`) is required — git will not descend into an excluded
+#   directory, so a bare `data/` would make the `!` lines below unreachable.
+data/*
+!data/*.csv
+!data/LRdatabase/
+
 # Python
 __pycache__/
 *.pyc
@@ -61,3 +73,20 @@ archived_scripts/
 src/alarmist.egg-info/
 work/*
 results/*
+
+# Local working journal
+journal.md
+
+# Claude Code config.
+# Track ONLY the skills this repo OWNS — `alarmist` and `comparator-benchmark`; every
+# other skill here is a vendored copy from es_xenium / spatial_analysis_skills — see
+# .claude/skills/VENDORED.md.
+# The leading `!.claude/` is needed to override `/.claude/` in .git/info/exclude.
+!.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/alarmist/
+!.claude/skills/comparator-benchmark/
+!.claude/skills/VENDORED.md
+!.claude/skills/LICENSE.spatial_analysis_skills
