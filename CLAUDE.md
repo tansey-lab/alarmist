@@ -38,7 +38,7 @@ Every Python command for this repo runs in the `bptf` conda env, invoked **by ab
 path to the interpreter**:
 
 ```bash
-/Users/jiayifan/anaconda3/envs/bptf/bin/python run_pipeline_new.py ...
+/Users/jiayifan/anaconda3/envs/bptf/bin/python run_pipeline_more_plots.py ...
 ```
 
 Never base Python (`Numba needs NumPy 1.24 or less`, `ModuleNotFoundError: alarmist`).
@@ -59,9 +59,18 @@ system R). Runners live in `scripts/comparators/<method>/`, outputs in
 
 ## Running ALARMIST
 
-`run_pipeline_new.py` (repo root) is the **canonical, dataset-agnostic driver** —
-`run_pipeline.py` is stale, and the `/alarmist` skill still names it (`SKILL.md:74`,
-`references/running.md:18`); prefer the new one. Stages: patchify → bptf → plots-bptf → project →
+`run_pipeline_more_plots.py` (repo root) is the **canonical, dataset-agnostic driver**.
+
+> ⚠️ **Two drivers sit in the repo root and only one is current.** `run_pipeline.py` is the
+> **stale** original (9 arguments, hardcoded paths) and is still tracked; use
+> `run_pipeline_more_plots.py` (39 arguments) for everything. The `/alarmist` skill's
+> `SKILL.md:74` and `references/running.md:18` still name `run_pipeline.py` — that skill is a
+> synced copy of `~/tansey_lab/spatial_analysis_skills/skills/alarmist` and is deliberately
+> **not** edited here, so fix it at the source if you fix it at all. *(The canonical driver was
+> called `run_pipeline_new.py` until 2026-08-12; every reference in this file was updated with
+> the rename, but a shell history or a `results/*/run_manifest.txt` may still carry the old name.)*
+
+Stages: patchify → bptf → plots-bptf → project →
 plots-project → markers → glm → plots-glm, with presets (`full`/`bptf`/`plots`),
 `--from`/`--to`, sentinel-based resume, `--dry-run`, `--force`, and patchify reuse.
 Nothing is hardcoded: `--data-file` is required, `--cellchatdb` optional, interpreter
@@ -80,7 +89,7 @@ Requirements and traps:
 - **Non-human data hangs unless you pass the right LRI DB.** `alarmist-bptf`'s
   `process_bptf_results()` annotates pathways against a hardcoded *human* CellChatDB, and
   `annotate_pathways` has an O(rows × pairs) fuzzy fallback — on mouse data nothing
-  matches, every row takes the slow path (12+ min, all "Unknown"). `run_pipeline_new.py`
+  matches, every row takes the slow path (12+ min, all "Unknown"). `run_pipeline_more_plots.py`
   works around it by running BPTF in-process and forwarding `cellchatdb_path`; if you
   drive the CLI yourself, don't.
 - **Legends duplicate multi-word cell types.** The plot helpers loop every key of the
@@ -285,7 +294,7 @@ it correctly. At 50 µm the E16.5 embryo gives ~29k patches × ~191k LRI columns
 downloads can arrive truncated — verify the file opens first.
 
 ```bash
-/Users/jiayifan/anaconda3/envs/bptf/bin/python run_pipeline_new.py \
+/Users/jiayifan/anaconda3/envs/bptf/bin/python run_pipeline_more_plots.py \
   --data-file data/mosta/E16.5_E1S3_cell_bin.h5ad \
   --cellchatdb data/LRdatabase/CellChatDBv2.0.mouse.csv \
   --output-dir results/mosta/E16.5_E1S3_50um_k20 \
@@ -373,7 +382,7 @@ skill. HTML deliverables → `/interactive-report`.
 
 - `src/alarmist/` — the package (`core/`, `plotting/`, `cli/`, `config/`, `data/`).
 - `nextflow/` — the nf-core pipeline.
-- `run_pipeline_new.py` — the general driver (see above).
+- `run_pipeline_more_plots.py` — the general driver (see above).
 - `scripts/research/` — one-off analysis scripts, **locally excluded from git**
   (`.git/info/exclude`). Treat them as **patterns to adapt, not an API**.
 - `scripts/comparators/` — the CCC benchmark (see its own section above). `METHODS.md` is the
