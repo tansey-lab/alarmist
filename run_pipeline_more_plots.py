@@ -76,9 +76,14 @@ import sys
 from pathlib import Path
 
 ALL_STAGES = [
-    "patchify", "bptf", "plots-bptf",
-    "project", "plots-project", "markers",
-    "glm", "plots-glm",
+    "patchify",
+    "bptf",
+    "plots-bptf",
+    "project",
+    "plots-project",
+    "markers",
+    "glm",
+    "plots-glm",
 ]
 
 PRESETS = {
@@ -147,7 +152,9 @@ def read_celltype_categories(h5ad_path, column):
     import numpy as np
 
     def _dec(arr):
-        return [c.decode() if isinstance(c, (bytes, np.bytes_)) else str(c) for c in arr]
+        return [
+            c.decode() if isinstance(c, (bytes, np.bytes_)) else str(c) for c in arr
+        ]
 
     with h5py.File(h5ad_path, "r") as f:
         key = f"obs/{column}"
@@ -192,7 +199,9 @@ def load_or_build_colors(run_dir, adata_path, column, refresh=False):
                 f"{cache} was built for cell_type_column='{meta.get('cell_type_column')}' "
                 f"but --cell-type-column='{column}'. Delete it or pass --refresh-colors."
             )
-        print(f"colour code <- {cache} ({len(meta['categories'])} cell types)", flush=True)
+        print(
+            f"colour code <- {cache} ({len(meta['categories'])} cell types)", flush=True
+        )
         return meta["colors"], meta["categories"]
 
     if not adata_path or not Path(adata_path).exists():
@@ -202,11 +211,19 @@ def load_or_build_colors(run_dir, adata_path, column, refresh=False):
     categories = read_celltype_categories(adata_path, column)
     colors = build_colors(categories)
     cache.parent.mkdir(parents=True, exist_ok=True)
-    cache.write_text(json.dumps({
-        "palette": PALETTE, "cell_type_column": column, "source_h5ad": str(adata_path),
-        "recipe": "plt.get_cmap('tab20', n_types)(i) over adata.obs[col].cat.categories",
-        "categories": categories, "colors": colors,
-    }, indent=2))
+    cache.write_text(
+        json.dumps(
+            {
+                "palette": PALETTE,
+                "cell_type_column": column,
+                "source_h5ad": str(adata_path),
+                "recipe": "plt.get_cmap('tab20', n_types)(i) over adata.obs[col].cat.categories",
+                "categories": categories,
+                "colors": colors,
+            },
+            indent=2,
+        )
+    )
     print(f"colour code -> {cache} ({len(categories)} cell types)", flush=True)
     return colors, categories
 
@@ -216,8 +233,15 @@ def plot_color_key(colors, categories, out_no_ext):
     from matplotlib.patches import Patch
 
     fig, ax = plt.subplots(figsize=(3.4, 0.32 * len(categories) + 0.6))
-    ax.legend(handles=[Patch(facecolor=colors[c], edgecolor="none", label=c) for c in categories],
-              loc="center", frameon=False, handlelength=1.2, fontsize=9)
+    ax.legend(
+        handles=[
+            Patch(facecolor=colors[c], edgecolor="none", label=c) for c in categories
+        ],
+        loc="center",
+        frameon=False,
+        handlelength=1.2,
+        fontsize=9,
+    )
     ax.axis("off")
     ax.set_title(f"cell-type colour code ({PALETTE}, n={len(categories)})", fontsize=10)
     save_all_formats(fig, out_no_ext)
@@ -232,8 +256,10 @@ class Runner:
         self.ok, self.fail = [], []
 
     def step(self, name, fn):
-        import matplotlib.pyplot as plt
         import traceback
+
+        import matplotlib.pyplot as plt
+
         print(f"\n=== {name} ===", flush=True)
         try:
             fn()
@@ -251,8 +277,9 @@ class Runner:
 # "original plots" family (the GBM.ipynb suite) — in-process
 # ===========================================================================
 def load_lri_motifs(run_dir, cellchatdb):
-    import alarmist as al
     import pandas as pd
+
+    import alarmist as al
 
     bptf = al.load_bptf_results(f"{run_dir}/bptf")
     lri_motifs = bptf["lri_motifs"]
@@ -265,57 +292,101 @@ def load_lri_motifs(run_dir, cellchatdb):
         # against a hard-coded default, which is wrong for a non-default species.
         try:
             from alarmist.plotting.motif_plots import annotate_pathways
+
             base = lri_motifs.drop(columns=["pathway"], errors="ignore").copy()
             lri_pw = annotate_pathways(base, pd.read_csv(cellchatdb))
             n = int(lri_pw["pathway"].notna().sum()) if "pathway" in lri_pw else 0
             print(f"annotate_pathways OK: {n}/{len(lri_pw)} annotated", flush=True)
         except Exception as exc:  # noqa: BLE001
-            print(f"annotate_pathways failed ({exc}); pathway plot may be skipped", flush=True)
+            print(
+                f"annotate_pathways failed ({exc}); pathway plot may be skipped",
+                flush=True,
+            )
             lri_pw = lri_motifs
     return lri_motifs, lri_pw, fcol
 
 
 def original_stage_bptf(a, out, colors):
-    from alarmist.plotting import (
-        plot_celltype_communication_by_motif, plot_lri_networks, plot_lri_networks_html,
-        plot_top_lri_interactions_by_pathway, plot_top_lri_interactions_dot,
-    )
     import matplotlib.pyplot as plt
+
+    from alarmist.plotting import (
+        plot_celltype_communication_by_motif,
+        plot_lri_networks,
+        plot_lri_networks_html,
+        plot_top_lri_interactions_by_pathway,
+        plot_top_lri_interactions_dot,
+    )
 
     r = Runner()
     lri_motifs, lri_pw, fcol = load_lri_motifs(a.output_dir, a.cellchatdb)
 
-    r.step("celltype_communication_by_motif", lambda: plot_celltype_communication_by_motif(
-        lri_motifs, factor_col=fcol, n_cols=5, save_path=f"{out}/celltype_communication.pdf"))
-    r.step("top_lri_interactions_dot", lambda: plot_top_lri_interactions_dot(
-        lri_motifs, factor_col=fcol, top_n=a.lri_top_n, ct_colors=colors,
-        save_path=f"{out}/top_lri_interactions_dot.pdf"))
-    r.step("top_lri_interactions_by_pathway", lambda: plot_top_lri_interactions_by_pathway(
-        lri_pw, factor_col=fcol, top_n=a.pathway_top_n, ct_colors=colors,
-        save_path=f"{out}/top_lri_interactions_by_pathway.pdf"))
+    r.step(
+        "celltype_communication_by_motif",
+        lambda: plot_celltype_communication_by_motif(
+            lri_motifs,
+            factor_col=fcol,
+            n_cols=5,
+            save_path=f"{out}/celltype_communication.pdf",
+        ),
+    )
+    r.step(
+        "top_lri_interactions_dot",
+        lambda: plot_top_lri_interactions_dot(
+            lri_motifs,
+            factor_col=fcol,
+            top_n=a.lri_top_n,
+            ct_colors=colors,
+            save_path=f"{out}/top_lri_interactions_dot.pdf",
+        ),
+    )
+    r.step(
+        "top_lri_interactions_by_pathway",
+        lambda: plot_top_lri_interactions_by_pathway(
+            lri_pw,
+            factor_col=fcol,
+            top_n=a.pathway_top_n,
+            ct_colors=colors,
+            save_path=f"{out}/top_lri_interactions_by_pathway.pdf",
+        ),
+    )
 
     def _networks():
         for i, thr in enumerate(a.network_threshold):
             path = f"{out}/lri_networks_thr{thr:g}.svg"
-            plot_lri_networks(lri_motifs, top_n=a.network_top_n, threshold=thr,
-                              factor_col=fcol, ct_colors=colors, save_path=path)
+            plot_lri_networks(
+                lri_motifs,
+                top_n=a.network_top_n,
+                threshold=thr,
+                factor_col=fcol,
+                ct_colors=colors,
+                save_path=path,
+            )
             plt.close("all")
             print(f"  threshold {thr:g} -> {path}", flush=True)
             if i == 0:
                 shutil.copyfile(path, f"{out}/lri_networks.svg")
+
     r.step(f"lri_networks (thresholds {a.network_threshold})", _networks)
 
-    r.step("lri_networks_interactive_html", lambda: plot_lri_networks_html(
-        lri_motifs, f"{out}/lri_networks_interactive.html",
-        top_n=a.network_top_n, factor_col=fcol, ct_colors=colors))
+    r.step(
+        "lri_networks_interactive_html",
+        lambda: plot_lri_networks_html(
+            lri_motifs,
+            f"{out}/lri_networks_interactive.html",
+            top_n=a.network_top_n,
+            factor_col=fcol,
+            ct_colors=colors,
+        ),
+    )
     return r
 
 
 def original_stage_project(a, out, colors, adata, cell_loadings):
-    import alarmist as al
-    import numpy as np
-    from alarmist.plotting import plot_motif_spatial
     import matplotlib.pyplot as plt
+    import numpy as np
+
+    import alarmist as al
+    from alarmist.plotting import plot_motif_spatial
 
     r = Runner()
     n_motifs = cell_loadings.shape[1]
@@ -323,10 +394,15 @@ def original_stage_project(a, out, colors, adata, cell_loadings):
 
     def _composition():
         fig, _ax, df = al.analyze_motif_celltype_composition(
-            adata, cell_loadings, cell_type_column=a.cell_type_column,
-            ct_colors=colors, output_dir=out)
+            adata,
+            cell_loadings,
+            cell_type_column=a.cell_type_column,
+            ct_colors=colors,
+            output_dir=out,
+        )
         df.to_csv(f"{out}/motif_celltype_weighted.csv")
         save_all_formats(fig, f"{out}/motif_celltype_weighted")
+
     r.step("analyze_motif_celltype_composition", _composition)
 
     def _gmm():
@@ -342,12 +418,14 @@ def original_stage_project(a, out, colors, adata, cell_loadings):
         states.index.name = "cell_id"
         states.to_parquet(f"{a.output_dir}/motif_states.parquet")
         print(f"  motif_states.parquet {states.shape}", flush=True)
+
     r.step("gmm_binarize_all_motifs -> motif_states.parquet", _gmm)
 
     def _state_counts():
         fig, _ax, df = al.analyze_motif_state_counts(adata, output_dir=out)
         df.to_csv(f"{out}/motif_state_counts.csv")
         save_all_formats(fig, f"{out}/motif_state_counts")
+
     r.step("analyze_motif_state_counts", _state_counts)
 
     def _spatial():
@@ -355,20 +433,29 @@ def original_stage_project(a, out, colors, adata, cell_loadings):
         os.makedirs(sp, exist_ok=True)
         for m in motifs:
             try:
-                plot_motif_spatial(adata, motif_idx=int(m), point_size=a.point_size,
-                                   cell_type_column=a.cell_type_column, ct_colors=colors,
-                                   output_dir=sp)
+                plot_motif_spatial(
+                    adata,
+                    motif_idx=int(m),
+                    point_size=a.point_size,
+                    cell_type_column=a.cell_type_column,
+                    ct_colors=colors,
+                    output_dir=sp,
+                )
                 plt.close("all")
                 print(f"  motif {m} spatial OK", flush=True)
             except Exception as exc:  # noqa: BLE001
-                print(f"  motif {m} spatial FAIL: {type(exc).__name__}: {exc}", flush=True)
+                print(
+                    f"  motif {m} spatial FAIL: {type(exc).__name__}: {exc}", flush=True
+                )
+
     r.step(f"plot_motif_spatial ({len(motifs)} motifs)", _spatial)
     return r
 
 
 def original_stage_glm(a, out, adata):
-    import alarmist as al
     import numpy as np
+
+    import alarmist as al
 
     r = Runner()
     mask_csv = f"{a.output_dir}/markers/exclusion_matrix.csv"
@@ -379,15 +466,36 @@ def original_stage_glm(a, out, adata):
     cts_san = np.array([sanitize(c) for c in cts])
 
     original = adata.obs[a.cell_type_column].copy()
-    adata.obs[a.cell_type_column] = original.astype(str).map(sanitize).astype("category")
+    adata.obs[a.cell_type_column] = (
+        original.astype(str).map(sanitize).astype("category")
+    )
     try:
-        r.step("glm_volcano (all cell types)", lambda: al.glm_volcano(
-            adata=adata, de_results=glm, cell_types=cts_san, all_genes=genes,
-            exclusion_mask=excl, fdr_threshold=a.fdr, lfc_threshold=a.lfc,
-            min_expression_frac=a.min_expression_frac, output_dir=out))
-        r.step("glm_forest (all cell types)", lambda: al.glm_forest(
-            adata=adata, de_results=glm, cell_types=cts_san, all_genes=genes,
-            exclusion_mask=excl, min_expression_frac=a.min_expression_frac, output_dir=out))
+        r.step(
+            "glm_volcano (all cell types)",
+            lambda: al.glm_volcano(
+                adata=adata,
+                de_results=glm,
+                cell_types=cts_san,
+                all_genes=genes,
+                exclusion_mask=excl,
+                fdr_threshold=a.fdr,
+                lfc_threshold=a.lfc,
+                min_expression_frac=a.min_expression_frac,
+                output_dir=out,
+            ),
+        )
+        r.step(
+            "glm_forest (all cell types)",
+            lambda: al.glm_forest(
+                adata=adata,
+                de_results=glm,
+                cell_types=cts_san,
+                all_genes=genes,
+                exclusion_mask=excl,
+                min_expression_frac=a.min_expression_frac,
+                output_dir=out,
+            ),
+        )
     finally:
         adata.obs[a.cell_type_column] = original
     return r
@@ -404,25 +512,37 @@ VISUALIZE_PLOT_TYPES = {
 
 
 def run_visualize(a, fig_stage):
-    from alarmist.cli import visualize as viz_cli
     import matplotlib.pyplot as plt
+
+    from alarmist.cli import visualize as viz_cli
 
     plot_types = VISUALIZE_PLOT_TYPES[fig_stage]
     out = f"{a.output_dir}/plots"
     os.makedirs(out, exist_ok=True)
     argv = [
         "alarmist-visualize",
-        "--glm-dir", f"{a.output_dir}/glm",
-        "--bptf-dir", f"{a.output_dir}/bptf",
-        "--patchify-dir", f"{a.output_dir}/patchify",
-        "--output-dir", out,
-        "--plot-types", *plot_types,
-        "--format", a.format,
-        "--cell-type-column", a.cell_type_column,
-        "--network-top-n", str(a.network_top_n),
-        "--network-threshold", str(a.viz_network_threshold),
-        "--min-expression-frac", str(a.min_expression_frac),
-        "--alpha", str(a.fdr),
+        "--glm-dir",
+        f"{a.output_dir}/glm",
+        "--bptf-dir",
+        f"{a.output_dir}/bptf",
+        "--patchify-dir",
+        f"{a.output_dir}/patchify",
+        "--output-dir",
+        out,
+        "--plot-types",
+        *plot_types,
+        "--format",
+        a.format,
+        "--cell-type-column",
+        a.cell_type_column,
+        "--network-top-n",
+        str(a.network_top_n),
+        "--network-threshold",
+        str(a.viz_network_threshold),
+        "--min-expression-frac",
+        str(a.min_expression_frac),
+        "--alpha",
+        str(a.fdr),
         "-v",
     ]
     if {"spatial", "volcano", "forest"} & set(plot_types):
@@ -455,8 +575,12 @@ def draw_figures(a, fig_stage, colors):
     restore the clean registry.
     """
     import alarmist as al
-    families = {"both": ("original", "visualize"), "original": ("original",),
-                "visualize": ("visualize",)}[a.figures]
+
+    families = {
+        "both": ("original", "visualize"),
+        "original": ("original",),
+        "visualize": ("visualize",),
+    }[a.figures]
 
     if fig_stage == "glm":
         al.set_celltype_colors(with_sanitized_aliases(colors))
@@ -469,14 +593,20 @@ def draw_figures(a, fig_stage, colors):
             else:
                 import anndata
                 import numpy as np
+
                 print("loading projected_adata.h5ad ...", flush=True)
-                adata = anndata.read_h5ad(f"{a.output_dir}/project/projected_adata.h5ad")
+                adata = anndata.read_h5ad(
+                    f"{a.output_dir}/project/projected_adata.h5ad"
+                )
                 if fig_stage == "project":
                     cl = np.load(f"{a.output_dir}/project/cell_loadings.npy")
                     r = original_stage_project(a, out, colors, adata, cl)
                 else:  # glm
                     r = original_stage_glm(a, out, adata)
-            print(f"\noriginal plots [{fig_stage}]: OK={len(r.ok)} FAIL={r.fail} -> {out}", flush=True)
+            print(
+                f"\noriginal plots [{fig_stage}]: OK={len(r.ok)} FAIL={r.fail} -> {out}",
+                flush=True,
+            )
 
         if "visualize" in families:
             run_visualize(a, fig_stage)
@@ -493,8 +623,9 @@ def run_cmd(cmd, dry):
     if dry:
         print("     (dry-run: not executed)", flush=True)
         return
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            text=True, bufsize=1)
+    proc = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
+    )
     for line in proc.stdout:
         sys.stdout.write(line)
     proc.wait()
@@ -519,13 +650,17 @@ def save_cells_per_patch(a):
         return
     try:
         import anndata
-        import alarmist as al
         import matplotlib
+
+        import alarmist as al
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
+
         adata = anndata.read_h5ad(a.data_file)
-        analyzer = al.PatchLRIAnalyzer(patch_size=float(a.patch_size),
-                                       cell_type_column=a.cell_type_column)
+        analyzer = al.PatchLRIAnalyzer(
+            patch_size=float(a.patch_size), cell_type_column=a.cell_type_column
+        )
         patch_assignments, _ = analyzer.create_spatial_patches(adata)
         adata.obs["patch_idx"] = patch_assignments
         out = f"{a.output_dir}/cells_per_patch.png"
@@ -533,13 +668,26 @@ def save_cells_per_patch(a):
         plt.close("all")
         print(f">>>> cells-per-patch histogram -> {out}", flush=True)
     except Exception as exc:  # noqa: BLE001 - a QC plot must not sink the run
-        print(f">>>> cells-per-patch plot skipped: {type(exc).__name__}: {exc}", flush=True)
+        print(
+            f">>>> cells-per-patch plot skipped: {type(exc).__name__}: {exc}",
+            flush=True,
+        )
 
 
 def stage_patchify(a):
-    args = ["--adata", a.data_file, "--output-dir", f"{a.output_dir}/patchify",
-            "--cell-type-column", a.cell_type_column, "--resource", a.resource,
-            "--patch-size", str(a.patch_size), "-v"]
+    args = [
+        "--adata",
+        a.data_file,
+        "--output-dir",
+        f"{a.output_dir}/patchify",
+        "--cell-type-column",
+        a.cell_type_column,
+        "--resource",
+        a.resource,
+        "--patch-size",
+        str(a.patch_size),
+        "-v",
+    ]
     if a.cellchatdb:
         args += ["--cellchatdb-path", a.cellchatdb]
     run_cmd(cli(a, "patchify", *args), a.dry_run)
@@ -558,12 +706,22 @@ def reuse_patchify(a):
                 got[parts[0].strip()] = parts[1].strip()
         ps, rs = got.get("patch_size"), got.get("resource_name")
         if ps and abs(float(ps) - float(a.patch_size)) > 1e-4:
-            raise SystemExit(f"!! reused patchify patch_size={ps} != --patch-size={a.patch_size}")
+            raise SystemExit(
+                f"!! reused patchify patch_size={ps} != --patch-size={a.patch_size}"
+            )
         if rs and rs != a.resource:
-            raise SystemExit(f"!! reused patchify resource={rs} != --resource={a.resource}")
-        print(f">>>> reuse patchify: {abs_src} (patch_size={ps} resource={rs})", flush=True)
+            raise SystemExit(
+                f"!! reused patchify resource={rs} != --resource={a.resource}"
+            )
+        print(
+            f">>>> reuse patchify: {abs_src} (patch_size={ps} resource={rs})",
+            flush=True,
+        )
     else:
-        print(f">>>> reuse patchify: {abs_src} (no analysis_parameters.csv — NOT verified)", flush=True)
+        print(
+            f">>>> reuse patchify: {abs_src} (no analysis_parameters.csv — NOT verified)",
+            flush=True,
+        )
     link = Path(a.output_dir) / "patchify"
     if not link.exists():
         if a.dry_run:
@@ -585,59 +743,112 @@ def stage_bptf(a):
     # never forwards it.)
     patchify_dir = f"{a.output_dir}/patchify"
     bptf_dir = f"{a.output_dir}/bptf"
-    print(f"\n>>>> {utcnow()}  [bptf] in-process  K={a.n_components}  max_iter={a.max_iter}  "
-          f"seed={a.seed}  cellchatdb={a.cellchatdb}", flush=True)
+    print(
+        f"\n>>>> {utcnow()}  [bptf] in-process  K={a.n_components}  max_iter={a.max_iter}  "
+        f"seed={a.seed}  cellchatdb={a.cellchatdb}",
+        flush=True,
+    )
     if a.dry_run:
-        print(f"     (dry-run) al.run_bptf(load_patch_lri_results('{patchify_dir}'), "
-              f"n_components={a.n_components}, max_iter={a.max_iter}, random_state={a.seed}) "
-              f"-> process_bptf_results(output_dir='{bptf_dir}', cellchatdb_path={a.cellchatdb!r})",
-              flush=True)
+        print(
+            f"     (dry-run) al.run_bptf(load_patch_lri_results('{patchify_dir}'), "
+            f"n_components={a.n_components}, max_iter={a.max_iter}, random_state={a.seed}) "
+            f"-> process_bptf_results(output_dir='{bptf_dir}', cellchatdb_path={a.cellchatdb!r})",
+            flush=True,
+        )
         return
     import alarmist as al
+
     results = al.load_patch_lri_results(patchify_dir)
     if "patch_lri_matrix" not in results:
-        raise SystemExit(f"load_patch_lri_results returned no 'patch_lri_matrix' (keys: {list(results)})")
-    model = al.run_bptf(results["patch_lri_matrix"], n_components=a.n_components,
-                        max_iter=a.max_iter, verbose=True, random_state=a.seed)
+        raise SystemExit(
+            f"load_patch_lri_results returned no 'patch_lri_matrix' (keys: {list(results)})"
+        )
+    model = al.run_bptf(
+        results["patch_lri_matrix"],
+        n_components=a.n_components,
+        max_iter=a.max_iter,
+        verbose=True,
+        random_state=a.seed,
+    )
     kwargs = {"cellchatdb_path": a.cellchatdb} if a.cellchatdb else {}
     al.process_bptf_results(model, results, output_dir=bptf_dir, **kwargs)
     print(f">>>> bptf -> {bptf_dir}", flush=True)
 
 
 def stage_project(a):
-    args = ["--adata", a.data_file, "--bptf-dir", f"{a.output_dir}/bptf",
-            "--patch-lri-dir", f"{a.output_dir}/patchify",
-            "--output-dir", f"{a.output_dir}/project", "--resource", a.resource,
-            "--cell-type-column", a.cell_type_column, "-v"]
+    args = [
+        "--adata",
+        a.data_file,
+        "--bptf-dir",
+        f"{a.output_dir}/bptf",
+        "--patch-lri-dir",
+        f"{a.output_dir}/patchify",
+        "--output-dir",
+        f"{a.output_dir}/project",
+        "--resource",
+        a.resource,
+        "--cell-type-column",
+        a.cell_type_column,
+        "-v",
+    ]
     if a.cellchatdb:
         args += ["--cellchatdb", a.cellchatdb]
     run_cmd(cli(a, "project", *args), a.dry_run)
 
 
 def stage_markers(a):
-    print(f"\n>>>> {utcnow()}  [markers] compute per-cell-type exclusion mask", flush=True)
+    print(
+        f"\n>>>> {utcnow()}  [markers] compute per-cell-type exclusion mask", flush=True
+    )
     if a.dry_run:
         print("     (dry-run: not executed)", flush=True)
         return
-    import numpy as np
     import anndata
+    import numpy as np
+
     import alarmist as al
+
     np.random.seed(a.seed)
     adata = anndata.read_h5ad(f"{a.output_dir}/project/projected_adata.h5ad")
-    al.compute_exclusion_mask(adata, marker_lfc=a.marker_lfc, marker_pvalue=a.marker_pvalue,
-                              marker_subsample=a.marker_subsample,
-                              output_dir=f"{a.output_dir}/markers")
+    al.compute_exclusion_mask(
+        adata,
+        marker_lfc=a.marker_lfc,
+        marker_pvalue=a.marker_pvalue,
+        marker_subsample=a.marker_subsample,
+        output_dir=f"{a.output_dir}/markers",
+    )
     print(f"exclusion mask -> {a.output_dir}/markers", flush=True)
 
 
 def stage_glm(a):
-    args = ["--input-dir", f"{a.output_dir}/project", "--adata", a.data_file,
-            "--output-dir", f"{a.output_dir}/glm", "--patch-lri-dir", f"{a.output_dir}/patchify",
-            "--cell-type-column", a.cell_type_column, "--count-layer", a.count_layer,
-            "--backend", a.glm_backend, "--device", a.glm_device,
-            "--gene-tile", str(a.gene_tile), "--glm-dtype", a.glm_dtype,
-            "--alpha", str(a.fdr), "--seed", str(a.seed),
-            ("--prefilter-spearman" if a.prefilter_spearman else "--no-prefilter-spearman"), "-v"]
+    args = [
+        "--input-dir",
+        f"{a.output_dir}/project",
+        "--adata",
+        a.data_file,
+        "--output-dir",
+        f"{a.output_dir}/glm",
+        "--patch-lri-dir",
+        f"{a.output_dir}/patchify",
+        "--cell-type-column",
+        a.cell_type_column,
+        "--count-layer",
+        a.count_layer,
+        "--backend",
+        a.glm_backend,
+        "--device",
+        a.glm_device,
+        "--gene-tile",
+        str(a.gene_tile),
+        "--glm-dtype",
+        a.glm_dtype,
+        "--alpha",
+        str(a.fdr),
+        "--seed",
+        str(a.seed),
+        ("--prefilter-spearman" if a.prefilter_spearman else "--no-prefilter-spearman"),
+        "-v",
+    ]
     run_cmd(cli(a, "glm", *args), a.dry_run)
 
 
@@ -671,7 +882,7 @@ def select_stages(a):
     hi = ALL_STAGES.index(a.to) if a.to else len(ALL_STAGES) - 1
     if lo > hi:
         raise SystemExit("--from is after --to")
-    return ALL_STAGES[lo:hi + 1]
+    return ALL_STAGES[lo : hi + 1]
 
 
 def should_run(a, stage, selected):
@@ -680,77 +891,142 @@ def should_run(a, stage, selected):
     if a.figures == "none" and stage.startswith("plots-"):
         return False
     if not a.force and os.path.exists(sentinel(a, stage)):
-        print(f">>>> skip  {stage}  (exists: {sentinel(a, stage)}; pass --force to redo)", flush=True)
+        print(
+            f">>>> skip  {stage}  (exists: {sentinel(a, stage)}; pass --force to redo)",
+            flush=True,
+        )
         return False
     return True
 
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     p.add_argument("--data-file", required=True, help="Input h5ad (used as-is).")
-    p.add_argument("--output-dir", default=None,
-                   help="Run directory (default: results/run_seed<seed>_<ncomp>).")
-    p.add_argument("--python", default=None,
-                   help="Interpreter for the CLI compute stages (default: this interpreter).")
+    p.add_argument(
+        "--output-dir",
+        default=None,
+        help="Run directory (default: results/run_seed<seed>_<ncomp>).",
+    )
+    p.add_argument(
+        "--python",
+        default=None,
+        help="Interpreter for the CLI compute stages (default: this interpreter).",
+    )
 
     # run parameters (defaults are ALARMIST's own, not dataset-specific)
-    p.add_argument("--n-components", type=int, default=15, help="Number of BPTF motifs.")
-    p.add_argument("--patch-size", type=float, default=50.0, help="Patch grid side (um).")
+    p.add_argument(
+        "--n-components", type=int, default=15, help="Number of BPTF motifs."
+    )
+    p.add_argument(
+        "--patch-size", type=float, default=50.0, help="Patch grid side (um)."
+    )
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--max-iter", type=int, default=1000, help="BPTF max iterations.")
     p.add_argument("--cell-type-column", default="cell_type")
-    p.add_argument("--resource", default="cellchatdb", choices=["cellchatdb", "cellphonedb"])
-    p.add_argument("--cellchatdb", default=None,
-                   help="Path to a custom LR database CSV (e.g. a mouse CellChatDB). "
-                        "Passed to patchify/project and used to (re)annotate pathways. "
-                        "If omitted, ALARMIST's bundled default is used.")
-    p.add_argument("--count-layer", default="X", help="GLM count source: X | raw | layers:NAME.")
+    p.add_argument(
+        "--resource", default="cellchatdb", choices=["cellchatdb", "cellphonedb"]
+    )
+    p.add_argument(
+        "--cellchatdb",
+        default=None,
+        help="Path to a custom LR database CSV (e.g. a mouse CellChatDB). "
+        "Passed to patchify/project and used to (re)annotate pathways. "
+        "If omitted, ALARMIST's bundled default is used.",
+    )
+    p.add_argument(
+        "--count-layer", default="X", help="GLM count source: X | raw | layers:NAME."
+    )
     p.add_argument("--glm-backend", default="torch", choices=["torch", "sklearn"])
-    p.add_argument("--glm-device", default="cpu", help="torch device: cpu | auto | cuda | mps.")
+    p.add_argument(
+        "--glm-device", default="cpu", help="torch device: cpu | auto | cuda | mps."
+    )
     p.add_argument("--glm-dtype", default="float64", choices=["float64", "float32"])
     p.add_argument("--gene-tile", type=int, default=2048)
-    p.add_argument("--prefilter-spearman", default=True, action=argparse.BooleanOptionalAction,
-                   help="Spearman pre-filter before the GLMs (default: on).")
-    p.add_argument("--patchify-dir", default=None,
-                   help="Reuse this existing patchify directory (skips the patchify stage).")
+    p.add_argument(
+        "--prefilter-spearman",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Spearman pre-filter before the GLMs (default: on).",
+    )
+    p.add_argument(
+        "--patchify-dir",
+        default=None,
+        help="Reuse this existing patchify directory (skips the patchify stage).",
+    )
     # marker stage
     p.add_argument("--marker-lfc", type=float, default=1.0)
     p.add_argument("--marker-pvalue", type=float, default=1e-5)
     p.add_argument("--marker-subsample", type=int, default=50000)
 
     # stage selection
-    p.add_argument("--preset", choices=list(PRESETS), default=None,
-                   help="full = every stage; bptf = patchify,bptf,plots-bptf; "
-                        "plots = plots-bptf,plots-project,plots-glm.")
+    p.add_argument(
+        "--preset",
+        choices=list(PRESETS),
+        default=None,
+        help="full = every stage; bptf = patchify,bptf,plots-bptf; "
+        "plots = plots-bptf,plots-project,plots-glm.",
+    )
     p.add_argument("--stages", default=None, help="Explicit comma/space stage list.")
     p.add_argument("--from", dest="from", default=None, help="Start stage (inclusive).")
     p.add_argument("--to", default=None, help="End stage (inclusive).")
-    p.add_argument("--force", action="store_true", help="Re-run stages whose outputs exist.")
-    p.add_argument("--dry-run", action="store_true", help="Print the plan; run nothing.")
+    p.add_argument(
+        "--force", action="store_true", help="Re-run stages whose outputs exist."
+    )
+    p.add_argument(
+        "--dry-run", action="store_true", help="Print the plan; run nothing."
+    )
 
     # figures
-    p.add_argument("--figures", default="both", choices=["both", "original", "visualize", "none"],
-                   help="original = plots_original/ (GBM.ipynb suite); "
-                        "visualize = plots/ (stock CLI); both (default); none.")
-    p.add_argument("--format", default="pdf", choices=["png", "pdf", "svg"],
-                   help="Format for the stock workflow figures.")
-    p.add_argument("--network-threshold", nargs="+", type=float, default=[100.0],
-                   help="Original LRI-network edge-weight cutoff(s); pass several to sweep.")
-    p.add_argument("--viz-network-threshold", type=float, default=0.0,
-                   help="Stock network figure cutoff (0 = alarmist's own behaviour).")
+    p.add_argument(
+        "--figures",
+        default="both",
+        choices=["both", "original", "visualize", "none"],
+        help="original = plots_original/ (GBM.ipynb suite); "
+        "visualize = plots/ (stock CLI); both (default); none.",
+    )
+    p.add_argument(
+        "--format",
+        default="pdf",
+        choices=["png", "pdf", "svg"],
+        help="Format for the stock workflow figures.",
+    )
+    p.add_argument(
+        "--network-threshold",
+        nargs="+",
+        type=float,
+        default=[100.0],
+        help="Original LRI-network edge-weight cutoff(s); pass several to sweep.",
+    )
+    p.add_argument(
+        "--viz-network-threshold",
+        type=float,
+        default=0.0,
+        help="Stock network figure cutoff (0 = alarmist's own behaviour).",
+    )
     p.add_argument("--network-top-n", type=int, default=200)
     p.add_argument("--lri-top-n", type=int, default=35)
     p.add_argument("--pathway-top-n", type=int, default=40)
-    p.add_argument("--point-size", type=float, default=0.2, help="Spatial map marker size.")
-    p.add_argument("--motifs", nargs="+", type=int, default=None,
-                   help="Restrict per-motif spatial maps to these motif indices.")
+    p.add_argument(
+        "--point-size", type=float, default=0.2, help="Spatial map marker size."
+    )
+    p.add_argument(
+        "--motifs",
+        nargs="+",
+        type=int,
+        default=None,
+        help="Restrict per-motif spatial maps to these motif indices.",
+    )
     p.add_argument("--fdr", type=float, default=0.05)
     p.add_argument("--lfc", type=float, default=0.2)
     p.add_argument("--min-expression-frac", type=float, default=0.02)
-    p.add_argument("--refresh-colors", action="store_true",
-                   help="Rebuild celltype_colors.json (recolours the whole run).")
+    p.add_argument(
+        "--refresh-colors",
+        action="store_true",
+        help="Rebuild celltype_colors.json (recolours the whole run).",
+    )
 
     a = p.parse_args(argv)
     a.python = a.python or sys.executable
@@ -774,8 +1050,9 @@ def write_manifest(a, selected):
         f"python = {a.python}",
     ]
     try:
-        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True,
-                                         stderr=subprocess.DEVNULL).strip()
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
     except Exception:  # noqa: BLE001
         commit = "unknown"
     lines.append(f"alarmist_git_commit = {commit}")
@@ -792,12 +1069,19 @@ def main(argv=None):
 
     logf = None
     if not a.dry_run:
-        logf = open(Path(a.output_dir) / f"run_{utcnow().replace(':', '').replace('-', '')}.log", "a")
+        logf = open(
+            Path(a.output_dir)
+            / f"run_{utcnow().replace(':', '').replace('-', '')}.log",
+            "a",
+        )
         sys.stdout = _Tee(sys.__stdout__, logf)
         sys.stderr = _Tee(sys.__stderr__, logf)
 
     print("=" * 78, flush=True)
-    print(f"ALARMIST  seed={a.seed}  K={a.n_components}  patch={a.patch_size}um  ->  {a.output_dir}", flush=True)
+    print(
+        f"ALARMIST  seed={a.seed}  K={a.n_components}  patch={a.patch_size}um  ->  {a.output_dir}",
+        flush=True,
+    )
     print(f"  stages : {' '.join(selected)}", flush=True)
     print(f"  figures: {a.figures}   data-file: {a.data_file}", flush=True)
     if a.dry_run:
@@ -809,10 +1093,16 @@ def main(argv=None):
     # Build the colour code up front whenever any figures will be drawn, so it is
     # derived once and shared by every stage (and the swatch key exists early).
     colors = None
-    if a.figures != "none" and not a.dry_run and any(s.startswith("plots-") for s in selected):
+    if (
+        a.figures != "none"
+        and not a.dry_run
+        and any(s.startswith("plots-") for s in selected)
+    ):
         import alarmist as al
+
         colors_orig, categories = load_or_build_colors(
-            a.output_dir, a.data_file, a.cell_type_column, refresh=a.refresh_colors)
+            a.output_dir, a.data_file, a.cell_type_column, refresh=a.refresh_colors
+        )
         # Register the CLEAN palette (one key per real cell type). The underscored
         # GLM aliases are added only around the glm figures (see draw_figures), so
         # bptf/project legends — which some plot helpers build by iterating the
@@ -850,9 +1140,14 @@ def main(argv=None):
             stage_glm(a)
 
     print(f"\n==== DONE  {utcnow()}  ->  {a.output_dir} ====", flush=True)
-    print("  compute : patchify/ bptf/ project/ markers/ glm/ motif_states.parquet", flush=True)
+    print(
+        "  compute : patchify/ bptf/ project/ markers/ glm/ motif_states.parquet",
+        flush=True,
+    )
     print("  figures : plots_original/ (original)   plots/ (workflow)", flush=True)
-    print("  colours : celltype_colors.json + celltype_colors.{png,pdf,svg}", flush=True)
+    print(
+        "  colours : celltype_colors.json + celltype_colors.{png,pdf,svg}", flush=True
+    )
     if logf:
         # Restore the real streams BEFORE closing the log file, so any writes
         # during interpreter shutdown don't hit a closed file through the tee.
