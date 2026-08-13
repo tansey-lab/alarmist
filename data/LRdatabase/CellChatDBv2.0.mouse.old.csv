@@ -1,0 +1,3377 @@
+ligand,receptor,pathway,signaling_type,version
+Tgfb1,Tgfbr1_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb2,Tgfbr1_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb3,Tgfbr1_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb1,Acvr1b_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb1,Acvr1c_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb2,Acvr1b_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb2,Acvr1c_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb3,Acvr1b_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb3,Acvr1c_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb1,Acvr1_Tgfbr1_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb2,Acvr1_Tgfbr1_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Tgfb3,Acvr1_Tgfbr1_Tgfbr2,TGFb,Secreted Signaling,CellChatDB v1
+Bmp2,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp2,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp2,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp2,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp2,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp2,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp4,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp4,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp4,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp4,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp4,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp4,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Gdf5,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Gdf5,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Gdf5,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Gdf5,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Gdf5,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Gdf5,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Gdf6,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Gdf6,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Gdf6,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Gdf6,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Gdf6,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Gdf6,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Gdf7,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Gdf7,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Gdf7,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Gdf7,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Gdf7,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Gdf7,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp15,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Acvr1_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Acvr1_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Acvr1_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp5,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Acvr1_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Acvr1_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Acvr1_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp6,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Acvr1_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Acvr1_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Acvr1_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp7,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Acvr1_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Acvr1_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Acvr1_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp8a,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Acvr1_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Acvr1_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Acvr1_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Bmpr1a_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Bmpr1a_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Bmpr1a_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Bmpr1b_Acvr2a,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Bmpr1b_Acvr2b,BMP,Secreted Signaling,CellChatDB v1
+Bmp8b,Bmpr1b_Bmpr2,BMP,Secreted Signaling,CellChatDB v1
+Bmp10,Acvrl1_Bmpr2,BMP10,Secreted Signaling,CellChatDB v1
+Bmp10,Acvrl1_Acvr2a,BMP10,Secreted Signaling,CellChatDB v1
+Gdf2,Acvrl1_Bmpr2,BMP10,Secreted Signaling,CellChatDB v1
+Gdf2,Acvrl1_Acvr2a,BMP10,Secreted Signaling,CellChatDB v1
+Gdf9,Acvr1b_Bmpr2,GDF,Secreted Signaling,CellChatDB v1
+Gdf10,Acvr1b_Acvr2a,GDF,Secreted Signaling,CellChatDB v1
+Gdf11,Tgfbr1_Acvr2a,GDF,Secreted Signaling,CellChatDB v1
+Gdf11,Tgfbr1_Acvr2b,GDF,Secreted Signaling,CellChatDB v1
+Gdf11,Acvr1b_Acvr2b,GDF,Secreted Signaling,CellChatDB v1
+Gdf15,Tgfbr2,GDF,Secreted Signaling,CellChatDB v1
+Mstn,Tgfbr1_Acvr2b,MSTN,Secreted Signaling,CellChatDB v1
+Mstn,Acvr1b_Acvr2b,MSTN,Secreted Signaling,CellChatDB v1
+Mstn,Acvr1b_Acvr2a,MSTN,Secreted Signaling,CellChatDB v1
+Mstn,Tgfbr1_Acvr2a,MSTN,Secreted Signaling,CellChatDB v1
+Amh,Amhr2_Acvr1,AMH,Secreted Signaling,CellChatDB v1
+Amh,Amhr2_Bmpr1a,AMH,Secreted Signaling,CellChatDB v1
+Gdnf,Gfra1_Ret,GDNF,Secreted Signaling,CellChatDB v1
+Nrtn,Gfra2_Ret,GDNF,Secreted Signaling,CellChatDB v1
+Artn,Gfra3_Ret,GDNF,Secreted Signaling,CellChatDB v1
+Pspn,Gfra4_Ret,GDNF,Secreted Signaling,CellChatDB v1
+Artn,Gfra1_Ret,GDNF,Secreted Signaling,CellChatDB v1
+Nodal,Acvr1b_Acvr2a_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Nodal,Acvr1c_Acvr2a_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Nodal,Acvr1b_Acvr2b_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Nodal,Acvr1c_Acvr2b_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf1,Acvr1b_Acvr2a_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf1,Acvr1b_Acvr2b_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf1,Acvr1c_Acvr2a_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf1,Acvr1c_Acvr2b_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf3,Acvr1b_Acvr2a_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf3,Acvr1b_Acvr2b_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf3,Acvr1c_Acvr2a_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Gdf3,Acvr1c_Acvr2b_Cfc1,NODAL,Secreted Signaling,CellChatDB v1
+Inhba,Acvr1b_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhba,Acvr1b_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbb,Acvr1b_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbb,Acvr1b_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbb,Acvr1c_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbb,Acvr1c_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbc,Acvr1b_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbc,Acvr1b_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbc,Acvr1c_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbc,Acvr1c_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbe,Acvr1b_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbe,Acvr1b_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbe,Acvr1c_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhbe,Acvr1c_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhba_Inhbb,Acvr1b_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhba_Inhbb,Acvr1b_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhba_Inhbb,Acvr1c_Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inhba_Inhbb,Acvr1c_Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inha_Inhba,Acvr2a,ACTIVIN,Secreted Signaling,CellChatDB v1
+Inha_Inhbb,Acvr2b,ACTIVIN,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd1_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd10_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd2_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd3_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd4_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd5_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd6_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd7_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd8_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd9_Lrp5,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt1,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10a,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt10b,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt16,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt2b,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt3a,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt4,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt6,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7a,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt7b,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8a,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt8b,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9a,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd1_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd10_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd2_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd3_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd4_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd5_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd6_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd7_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd8_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt9b,Fzd9_Lrp6,WNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd1,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd10,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd2,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd3,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd4,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd5,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd6,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd7,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd8,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Fzd9,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5a,Mcam,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd1,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd10,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd2,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd3,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd4,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd5,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd6,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd7,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd8,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt5b,Fzd9,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd1,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd10,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd2,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd3,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd4,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd5,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd6,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd7,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd8,ncWNT,Secreted Signaling,CellChatDB v1
+Wnt11,Fzd9,ncWNT,Secreted Signaling,CellChatDB v1
+Egf,Egfr,EGF,Secreted Signaling,CellChatDB v1
+Egf,Egfr_Erbb2,EGF,Secreted Signaling,CellChatDB v1
+Tgfa,Egfr,EGF,Secreted Signaling,CellChatDB v1
+Tgfa,Egfr_Erbb2,EGF,Secreted Signaling,CellChatDB v1
+Areg,Egfr,EGF,Secreted Signaling,CellChatDB v1
+Areg,Egfr_Erbb2,EGF,Secreted Signaling,CellChatDB v1
+Btc,Egfr,EGF,Secreted Signaling,CellChatDB v1
+Btc,Egfr_Erbb2,EGF,Secreted Signaling,CellChatDB v1
+Btc,Erbb4,EGF,Secreted Signaling,CellChatDB v1
+Btc,Erbb2_Erbb4,EGF,Secreted Signaling,CellChatDB v1
+Hbegf,Egfr,EGF,Secreted Signaling,CellChatDB v1
+Hbegf,Egfr_Erbb2,EGF,Secreted Signaling,CellChatDB v1
+Hbegf,Erbb4,EGF,Secreted Signaling,CellChatDB v1
+Hbegf,Erbb2_Erbb4,EGF,Secreted Signaling,CellChatDB v1
+Ereg,Egfr,EGF,Secreted Signaling,CellChatDB v1
+Ereg,Egfr_Erbb2,EGF,Secreted Signaling,CellChatDB v1
+Ereg,Erbb4,EGF,Secreted Signaling,CellChatDB v1
+Ereg,Erbb2_Erbb4,EGF,Secreted Signaling,CellChatDB v1
+Nrg1,Erbb3,NRG,Secreted Signaling,CellChatDB v1
+Nrg1,Erbb2_Erbb3,NRG,Secreted Signaling,CellChatDB v1
+Nrg1,Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg1,Erbb2_Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg2,Erbb3,NRG,Secreted Signaling,CellChatDB v1
+Nrg2,Erbb2_Erbb3,NRG,Secreted Signaling,CellChatDB v1
+Nrg2,Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg2,Erbb2_Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg3,Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg3,Erbb2_Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg4,Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg4,Erbb2_Erbb4,NRG,Secreted Signaling,CellChatDB v1
+Nrg1,Itgav_Itgb3,NRG,Secreted Signaling,CellChatDB v1
+Fgf1,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf1,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf1,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf1,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf2,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf2,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf2,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf2,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf4,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf4,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf4,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf4,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf5,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf5,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf5,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf5,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf6,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf6,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf6,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf6,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf7,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf7,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf3,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf3,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf10,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf10,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf22,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf8,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf8,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf8,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf8,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf17,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf17,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf17,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf17,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf18,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf18,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf18,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf18,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf9,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf9,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf9,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf9,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf20,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf20,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf20,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf20,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf16,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf16,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf16,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf16,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf15,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf15,Fgfr2,FGF,Secreted Signaling,CellChatDB v1
+Fgf15,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf15,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Fgf21,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf21,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf23,Fgfr1,FGF,Secreted Signaling,CellChatDB v1
+Fgf23,Fgfr3,FGF,Secreted Signaling,CellChatDB v1
+Fgf23,Fgfr4,FGF,Secreted Signaling,CellChatDB v1
+Pdgfa,Pdgfra,PDGF,Secreted Signaling,CellChatDB v1
+Pdgfa,Pdgfrb,PDGF,Secreted Signaling,CellChatDB v1
+Pdgfb,Pdgfra,PDGF,Secreted Signaling,CellChatDB v1
+Pdgfb,Pdgfrb,PDGF,Secreted Signaling,CellChatDB v1
+Pdgfc,Pdgfra,PDGF,Secreted Signaling,CellChatDB v1
+Pdgfd,Pdgfrb,PDGF,Secreted Signaling,CellChatDB v1
+Vegfa,Flt1,VEGF,Secreted Signaling,CellChatDB v1
+Vegfa,Kdr,VEGF,Secreted Signaling,CellChatDB v1
+Vegfb,Flt1,VEGF,Secreted Signaling,CellChatDB v1
+Vegfc,Flt4,VEGF,Secreted Signaling,CellChatDB v1
+Vegfc,Kdr,VEGF,Secreted Signaling,CellChatDB v1
+Vegfd,Flt4,VEGF,Secreted Signaling,CellChatDB v1
+Vegfd,Kdr,VEGF,Secreted Signaling,CellChatDB v1
+Pgf,Flt1,VEGF,Secreted Signaling,CellChatDB v1
+Vegfa,Flt1_Kdr,VEGF,Secreted Signaling,CellChatDB v1
+Vegfc,Flt4_Kdr,VEGF,Secreted Signaling,CellChatDB v1
+Vegfd,Flt4_Kdr,VEGF,Secreted Signaling,CellChatDB v1
+Igf1,Igf1r,IGF,Secreted Signaling,CellChatDB v1
+Igf2,Igf1r,IGF,Secreted Signaling,CellChatDB v1
+Igf2,Igf2r,IGF,Secreted Signaling,CellChatDB v1
+Igf1,Itgav_Itgb3,IGF,Secreted Signaling,CellChatDB v1
+Igf1,Itga6_Itgb4,IGF,Secreted Signaling,CellChatDB v1
+Igf2,Itgav_Itgb3,IGF,Secreted Signaling,CellChatDB v1
+Igf2,Itga6_Itgb4,IGF,Secreted Signaling,CellChatDB v1
+Igfl3,Igflr1,IGF,Secreted Signaling,CellChatDB v1
+Ins1,Insr,INSULIN,Secreted Signaling,CellChatDB v1
+Ins2,Insr,INSULIN,Secreted Signaling,CellChatDB v1
+Apln,Aplnr,APELIN,Secreted Signaling,CellChatDB v1
+Dhh,Ptch1_Smo,HH,Secreted Signaling,CellChatDB v1
+Ihh,Ptch1_Smo,HH,Secreted Signaling,CellChatDB v1
+Shh,Ptch1_Smo,HH,Secreted Signaling,CellChatDB v1
+Dhh,Ptch2_Smo,HH,Secreted Signaling,CellChatDB v1
+Ihh,Ptch2_Smo,HH,Secreted Signaling,CellChatDB v1
+Shh,Ptch2_Smo,HH,Secreted Signaling,CellChatDB v1
+Ccl5,Ccr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl3,Ccr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl8,Ccr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl9,Ccr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl6,Ccr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl7,Ccr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl5,Ccr1l1,CCL,Secreted Signaling,CellChatDB v1
+Ccl3,Ccr1l1,CCL,Secreted Signaling,CellChatDB v1
+Ccl8,Ccr1l1,CCL,Secreted Signaling,CellChatDB v1
+Ccl9,Ccr1l1,CCL,Secreted Signaling,CellChatDB v1
+Ccl6,Ccr1l1,CCL,Secreted Signaling,CellChatDB v1
+Ccl7,Ccr1l1,CCL,Secreted Signaling,CellChatDB v1
+Ccl8,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl6,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl7,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl2,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl12,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl27a,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl27b,Ccr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl5,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl6,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl7,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl11,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl24,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl26,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl28,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl27a,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl27b,Ccr3,CCL,Secreted Signaling,CellChatDB v1
+Ccl17,Ccr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl22,Ccr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl5,Ccr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl4,Ccr5,CCL,Secreted Signaling,CellChatDB v1
+Ccl5,Ccr5,CCL,Secreted Signaling,CellChatDB v1
+Ccl3,Ccr5,CCL,Secreted Signaling,CellChatDB v1
+Ccl8,Ccr5,CCL,Secreted Signaling,CellChatDB v1
+Ccl20,Ccr6,CCL,Secreted Signaling,CellChatDB v1
+Ccl19,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl21,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl21a,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl21b,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl21d,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl21f,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl21e,Ccr7,CCL,Secreted Signaling,CellChatDB v1
+Ccl19,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl21,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl21a,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl21b,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl21d,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl21f,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl21e,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl1,Ccr8,CCL,Secreted Signaling,CellChatDB v1
+Ccl25,Ccr9,CCL,Secreted Signaling,CellChatDB v1
+Ccl25,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl28,Ccr10,CCL,Secreted Signaling,CellChatDB v1
+Ccl27a,Ccr10,CCL,Secreted Signaling,CellChatDB v1
+Ccl27b,Ccr10,CCL,Secreted Signaling,CellChatDB v1
+Ccl1,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl8,Ackr4,CCL,Secreted Signaling,CellChatDB v1
+Ccl1,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl2,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl2,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl3,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl4,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl5,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl5,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl7,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl8,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl11,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl11,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl22,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl24,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl26,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Ccl17,Ackr1,CCL,Secreted Signaling,CellChatDB v1
+Ccl17,Ackr2,CCL,Secreted Signaling,CellChatDB v1
+Cxcl1,Cxcr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl5,Cxcr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl2,Cxcr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl3,Cxcr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl1,Cxcr2,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl5,Cxcr2,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl2,Cxcr2,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl3,Cxcr2,CXCL,Secreted Signaling,CellChatDB v1
+Ppbp,Cxcr2,CXCL,Secreted Signaling,CellChatDB v1
+Pf4,Cxcr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl9,Cxcr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl10,Cxcr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl11,Cxcr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl13,Cxcr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl12,Cxcr4,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl12,Ackr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl13,Cxcr5,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl16,Cxcr6,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl1,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl2,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl3,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl5,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl9,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl10,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl11,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl11,Ackr3,CXCL,Secreted Signaling,CellChatDB v1
+Cxcl13,Ackr1,CXCL,Secreted Signaling,CellChatDB v1
+Mif,Cd74_Cxcr4,MIF,Secreted Signaling,CellChatDB v1
+Mif,Cd74_Cd44,MIF,Secreted Signaling,CellChatDB v1
+Mif,Cd74_Cxcr2,MIF,Secreted Signaling,CellChatDB v1
+Mif,Ackr3,MIF,Secreted Signaling,CellChatDB v1
+Cx3cl1,Cx3cr1,CX3C,Secreted Signaling,CellChatDB v1
+Xcl1,Xcr1,XCR,Secreted Signaling,CellChatDB v1
+Il2,Il2ra_Il2rb_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Il2,Il2rb_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Il4,Il4ra_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Il7,Il7r_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Il9,Il9r_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Il15,Il15ra_Il2rb_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Il21,Il21r_Il2rg,IL2,Secreted Signaling,CellChatDB v1
+Tslp,Il7r_Crlf2,IL2,Secreted Signaling,CellChatDB v1
+Il3,Il3ra_Csf2rb,IL4,Secreted Signaling,CellChatDB v1
+Il5,Il5ra_Csf2rb,IL4,Secreted Signaling,CellChatDB v1
+Csf2,Csf2ra_Csf2rb,IL4,Secreted Signaling,CellChatDB v1
+Il4,Il4ra,IL4,Secreted Signaling,CellChatDB v1
+Il4,Il4ra_Il13ra1,IL4,Secreted Signaling,CellChatDB v1
+Il4,Il4ra_Il13ra2,IL4,Secreted Signaling,CellChatDB v1
+Il13,Il4ra_Il13ra1,IL4,Secreted Signaling,CellChatDB v1
+Il13,Il4ra_Il13ra2,IL4,Secreted Signaling,CellChatDB v1
+Il13,Il13ra1,IL4,Secreted Signaling,CellChatDB v1
+Il13,Il13ra2,IL4,Secreted Signaling,CellChatDB v1
+Il6,Il6ra_Il6st,IL6,Secreted Signaling,CellChatDB v1
+Il11,Il11ra1_Il6st,IL6,Secreted Signaling,CellChatDB v1
+Il11,Il11ra2_Il6st,IL6,Secreted Signaling,CellChatDB v1
+Il12a_Il12b,Il12rb1_Il12rb2,IL12,Secreted Signaling,CellChatDB v1
+Il12b_Il23a,Il23r_Il12rb1,IL12,Secreted Signaling,CellChatDB v1
+Il27_Ebi3,Il27ra_Il6st,IL12,Secreted Signaling,CellChatDB v1
+Il31,Il31ra_Osmr,IL6,Secreted Signaling,CellChatDB v1
+Cntf,Cntfr_Lifr_Il6st,LIFR,Secreted Signaling,CellChatDB v1
+Clcf1,Cntfr_Lifr_Il6st,LIFR,Secreted Signaling,CellChatDB v1
+Ctf1,Lifr_Il6st,LIFR,Secreted Signaling,CellChatDB v1
+Lif,Lifr_Il6st,LIFR,Secreted Signaling,CellChatDB v1
+Osm,Lifr_Il6st,OSM,Secreted Signaling,CellChatDB v1
+Osm,Osmr_Il6st,OSM,Secreted Signaling,CellChatDB v1
+Il10,Il10ra_Il10rb,IL10,Secreted Signaling,CellChatDB v1
+Il19,Il20ra_Il20rb,IL10,Secreted Signaling,CellChatDB v1
+Il20,Il20ra_Il20rb,IL10,Secreted Signaling,CellChatDB v1
+Il24,Il20ra_Il20rb,IL10,Secreted Signaling,CellChatDB v1
+Il20,Il22ra1_Il20rb,IL10,Secreted Signaling,CellChatDB v1
+Il24,Il22ra1_Il20rb,IL10,Secreted Signaling,CellChatDB v1
+Il22,Il22ra1_Il10rb,IL10,Secreted Signaling,CellChatDB v1
+Il1a,Il1r1_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il1b,Il1r1_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il36a,Il1rl2_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il36b,Il1rl2_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il36g,Il1rl2_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il1f10,Il1rl2_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il18,Il18r1_Il18rap,IL1,Secreted Signaling,CellChatDB v1
+Il33,Il1rl1_Il1rap,IL1,Secreted Signaling,CellChatDB v1
+Il17a,Il17ra_Il17rc,IL17,Secreted Signaling,CellChatDB v1
+Il17f,Il17ra_Il17rc,IL17,Secreted Signaling,CellChatDB v1
+Il17a_Il17f,Il17ra_Il17rc,IL17,Secreted Signaling,CellChatDB v1
+Il17b,Il17rb,IL17,Secreted Signaling,CellChatDB v1
+Il17c,Il17ra_Il17re,IL17,Secreted Signaling,CellChatDB v1
+Il25,Il17ra_Il17rb,IL17,Secreted Signaling,CellChatDB v1
+Il34,Csf1r,CSF,Secreted Signaling,CellChatDB v1
+Csf1,Csf1r,CSF,Secreted Signaling,CellChatDB v1
+Il16,Cd4,IL16,Secreted Signaling,CellChatDB v1
+Epo,Epor,EPO,Secreted Signaling,CellChatDB v1
+Gh,Ghr,GH,Secreted Signaling,CellChatDB v1
+Prl,Prlr,PRL,Secreted Signaling,CellChatDB v1
+Thpo,Mpl,THPO,Secreted Signaling,CellChatDB v1
+Csf3,Csf3r,CSF3,Secreted Signaling,CellChatDB v1
+Ifnb1,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifnk,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifne,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna11,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna1,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna2,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna4,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna5,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna6,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna7,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna9,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifnab,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna12,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna13,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna14,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifna15,Ifnar1_Ifnar2,IFN-I,Secreted Signaling,CellChatDB v1
+Ifng,Ifngr1_Ifngr2,IFN-II,Secreted Signaling,CellChatDB v1
+Ifnl2,Ifnlr1_Il10rb,IFN-lII,Secreted Signaling,CellChatDB v1
+Ifnl3,Ifnlr1_Il10rb,IFN-lII,Secreted Signaling,CellChatDB v1
+Tnf,Tnfrsf1a,TNF,Secreted Signaling,CellChatDB v1
+Tnf,Tnfrsf1b,TNF,Secreted Signaling,CellChatDB v1
+Lta,Tnfrsf1a,LT,Secreted Signaling,CellChatDB v1
+Lta,Tnfrsf1b,LT,Secreted Signaling,CellChatDB v1
+Lta,Tnfrsf14,LT,Secreted Signaling,CellChatDB v1
+Lta_Ltb,Ltbr,LT,Secreted Signaling,CellChatDB v1
+Tnfsf14,Ltbr,LIGHT,Secreted Signaling,CellChatDB v1
+Tnfsf14,Tnfrsf14,LIGHT,Secreted Signaling,CellChatDB v1
+Fasl,Fas,FASLG,Secreted Signaling,CellChatDB v1
+Tnfsf15,Tnfrsf25,VEGI,Secreted Signaling,CellChatDB v1
+Tnfsf10,Tnfrsf10b,TRAIL,Secreted Signaling,CellChatDB v1
+Eda,Edar,EDA,Secreted Signaling,CellChatDB v1
+Eda,Eda2r,EDA,Secreted Signaling,CellChatDB v1
+Ngf,Ngfr,NGF,Secreted Signaling,CellChatDB v1
+Klk1b4,Ngfr,NGF,Secreted Signaling,CellChatDB v1
+Tnfsf11,Tnfrsf11a,RANKL,Secreted Signaling,CellChatDB v1
+Tnfsf11,Tnfrsf11b,RANKL,Secreted Signaling,CellChatDB v1
+Tnfsf12,Tnfrsf12a,TWEAK,Secreted Signaling,CellChatDB v1
+Cd70,Cd27,CD70,Secreted Signaling,CellChatDB v1
+Tnfsf8,Tnfrsf8,CD30,Secreted Signaling,CellChatDB v1
+Tnfsf9,Tnfrsf9,CD137,Secreted Signaling,CellChatDB v1
+Tnfsf4,Tnfrsf4,OX40,Secreted Signaling,CellChatDB v1
+Tnfsf18,Tnfrsf18,GITRL,Secreted Signaling,CellChatDB v1
+Tnfsf13,Tnfrsf17,APRIL,Secreted Signaling,CellChatDB v1
+Tnfsf13,Tnfrsf13b,APRIL,Secreted Signaling,CellChatDB v1
+Tnfsf13b,Tnfrsf17,BAFF,Secreted Signaling,CellChatDB v1
+Tnfsf13b,Tnfrsf13b,BAFF,Secreted Signaling,CellChatDB v1
+Tnfsf13b,Tnfrsf13c,BAFF,Secreted Signaling,CellChatDB v1
+Cd40lg,Itga2b_Itgb3,CD40,Secreted Signaling,CellChatDB v1
+Cd40lg,Itga5_Itgb1,CD40,Secreted Signaling,CellChatDB v1
+Cd40lg,Itgam_Itgb2,CD40,Secreted Signaling,CellChatDB v1
+Spp1,Cd44,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itgav_Itgb3,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itgav_Itgb1,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itgav_Itgb5,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itgav_Itgb6,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itga4_Itgb1,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itga9_Itgb1,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itga8_Itgb1,SPP1,Secreted Signaling,CellChatDB v1
+Spp1,Itga5_Itgb1,SPP1,Secreted Signaling,CellChatDB v1
+Adipoq,Adipor1,ADIPONECTIN,Secreted Signaling,CellChatDB v1
+Adipoq,Adipor2,ADIPONECTIN,Secreted Signaling,CellChatDB v1
+Retn,Tlr4,RESISTIN,Secreted Signaling,CellChatDB v1
+Retn,Cap1,RESISTIN,Secreted Signaling,CellChatDB v1
+Nampt,Itga5_Itgb1,VISFATIN,Secreted Signaling,CellChatDB v1
+Angptl1,Itga1_Itgb1,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl2,Itga5_Itgb1,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl2,Tlr4,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl2,Pirb,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl1,Pirb,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl7,Pirb,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Itga5_Itgb1,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Itgav_Itgb3,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Cdh5,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Cdh11,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Sdc1,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Sdc2,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Sdc3,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl4,Sdc4,ANGPTL,Secreted Signaling,CellChatDB v1
+Angptl3,Itgav_Itgb3,ANGPTL,Secreted Signaling,CellChatDB v1
+Angpt1,Tek,ANGPT,Secreted Signaling,CellChatDB v1
+Angpt2,Tek,ANGPT,Secreted Signaling,CellChatDB v1
+Angpt2,Itga5_Itgb1,ANGPT,Secreted Signaling,CellChatDB v1
+Mdk,Sdc1,MK,Secreted Signaling,CellChatDB v1
+Mdk,Sdc2,MK,Secreted Signaling,CellChatDB v1
+Mdk,Sdc4,MK,Secreted Signaling,CellChatDB v1
+Mdk,Ptprz1,MK,Secreted Signaling,CellChatDB v1
+Mdk,Itga4_Itgb1,MK,Secreted Signaling,CellChatDB v1
+Mdk,Itga6_Itgb1,MK,Secreted Signaling,CellChatDB v1
+Mdk,Lrp1,MK,Secreted Signaling,CellChatDB v1
+Mdk,Ncl,MK,Secreted Signaling,CellChatDB v1
+Mdk,Alk,MK,Secreted Signaling,CellChatDB v1
+Ptn,Ptprz1,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Sdc1,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Sdc2,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Sdc3,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Sdc4,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Itgav_Itgb3,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Ncl,PTN,Secreted Signaling,CellChatDB v1
+Ptn,Alk,PTN,Secreted Signaling,CellChatDB v1
+Postn,Itgav_Itgb3,PERIOSTIN,Secreted Signaling,CellChatDB v1
+Postn,Itgav_Itgb5,PERIOSTIN,Secreted Signaling,CellChatDB v1
+Agt,Agtr1a,AGT,Secreted Signaling,CellChatDB v1
+Agt,Agtr1b,AGT,Secreted Signaling,CellChatDB v1
+Grp,Grpr,GPR,Secreted Signaling,CellChatDB v1
+Nmb,Nmbr,GPR,Secreted Signaling,CellChatDB v1
+Kng1,Bdkrb1,BRADYKININ,Secreted Signaling,CellChatDB v1
+Kng1,Bdkrb2,BRADYKININ,Secreted Signaling,CellChatDB v1
+Kng2,Bdkrb1,BRADYKININ,Secreted Signaling,CellChatDB v1
+Kng2,Bdkrb2,BRADYKININ,Secreted Signaling,CellChatDB v1
+C3,C3ar1,COMPLEMENT,Secreted Signaling,CellChatDB v1
+C3,Cr2,COMPLEMENT,Secreted Signaling,CellChatDB v1
+C3,Itgam_Itgb2,COMPLEMENT,Secreted Signaling,CellChatDB v1
+C3,Itgax_Itgb2,COMPLEMENT,Secreted Signaling,CellChatDB v1
+C4a,C3ar1,COMPLEMENT,Secreted Signaling,CellChatDB v1
+C4b,Cr2,COMPLEMENT,Secreted Signaling,CellChatDB v1
+Hc,C5ar1,COMPLEMENT,Secreted Signaling,CellChatDB v1
+Cck,Cckar,CCK,Secreted Signaling,CellChatDB v1
+Cck,Cckbr,CCK,Secreted Signaling,CellChatDB v1
+Edn1,Ednra,EDN,Secreted Signaling,CellChatDB v1
+Edn2,Ednra,EDN,Secreted Signaling,CellChatDB v1
+Edn3,Ednra,EDN,Secreted Signaling,CellChatDB v1
+Edn1,Ednrb,EDN,Secreted Signaling,CellChatDB v1
+Edn2,Ednrb,EDN,Secreted Signaling,CellChatDB v1
+Edn3,Ednrb,EDN,Secreted Signaling,CellChatDB v1
+Gal,Galr1,GALANIN,Secreted Signaling,CellChatDB v1
+Gal,Galr2,GALANIN,Secreted Signaling,CellChatDB v1
+Gal,Galr3,GALANIN,Secreted Signaling,CellChatDB v1
+Galp,Galr1,GALANIN,Secreted Signaling,CellChatDB v1
+Galp,Galr2,GALANIN,Secreted Signaling,CellChatDB v1
+Ghrl,Ghsr,GHRELIN,Secreted Signaling,CellChatDB v1
+Kiss1,Kiss1r,KISS1,Secreted Signaling,CellChatDB v1
+Pomc,Mc1r,MELANOCORTIN,Secreted Signaling,CellChatDB v1
+Pomc,Mc2r,MELANOCORTIN,Secreted Signaling,CellChatDB v1
+Pomc,Mc3r,MELANOCORTIN,Secreted Signaling,CellChatDB v1
+Pomc,Mc4r,MELANOCORTIN,Secreted Signaling,CellChatDB v1
+Pomc,Mc5r,MELANOCORTIN,Secreted Signaling,CellChatDB v1
+Nmu,Nmur1,NMU,Secreted Signaling,CellChatDB v1
+Nmu,Nmur2,NMU,Secreted Signaling,CellChatDB v1
+Nms,Nmur1,NMU,Secreted Signaling,CellChatDB v1
+Nms,Nmur2,NMU,Secreted Signaling,CellChatDB v1
+Npff,Npffr1,NPFF,Secreted Signaling,CellChatDB v1
+Npff,Npffr2,NPFF,Secreted Signaling,CellChatDB v1
+Npy,Npy1r,NPY,Secreted Signaling,CellChatDB v1
+Npy,Npy2r,NPY,Secreted Signaling,CellChatDB v1
+Npy,Npy4r,NPY,Secreted Signaling,CellChatDB v1
+Npy,Npy5r,NPY,Secreted Signaling,CellChatDB v1
+Npy,Npy6r,NPY,Secreted Signaling,CellChatDB v1
+Npy,Gpr83,NPY,Secreted Signaling,CellChatDB v1
+Npy,Pgr15l,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Npy1r,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Npy2r,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Npy4r,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Npy5r,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Npy6r,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Gpr83,NPY,Secreted Signaling,CellChatDB v1
+Ppy,Pgr15l,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Npy1r,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Npy2r,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Npy4r,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Npy5r,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Npy6r,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Gpr83,NPY,Secreted Signaling,CellChatDB v1
+Pyy,Pgr15l,NPY,Secreted Signaling,CellChatDB v1
+Npb,Npbwr1,NPW-B,Secreted Signaling,CellChatDB v1
+Npw,Npbwr1,NPW-B,Secreted Signaling,CellChatDB v1
+Nts,Ntsr1,NTS,Secreted Signaling,CellChatDB v1
+Nts,Ntsr2,NTS,Secreted Signaling,CellChatDB v1
+Pdyn,Oprd1,OPIOID,Secreted Signaling,CellChatDB v1
+Pdyn,Oprk1,OPIOID,Secreted Signaling,CellChatDB v1
+Pdyn,Oprl1,OPIOID,Secreted Signaling,CellChatDB v1
+Pdyn,Oprm1,OPIOID,Secreted Signaling,CellChatDB v1
+Penk,Oprd1,OPIOID,Secreted Signaling,CellChatDB v1
+Penk,Oprk1,OPIOID,Secreted Signaling,CellChatDB v1
+Penk,Oprl1,OPIOID,Secreted Signaling,CellChatDB v1
+Penk,Oprm1,OPIOID,Secreted Signaling,CellChatDB v1
+Pomc,Oprd1,OPIOID,Secreted Signaling,CellChatDB v1
+Pomc,Oprk1,OPIOID,Secreted Signaling,CellChatDB v1
+Pomc,Oprl1,OPIOID,Secreted Signaling,CellChatDB v1
+Pomc,Oprm1,OPIOID,Secreted Signaling,CellChatDB v1
+Hcrt,Hcrtr1,HCRT,Secreted Signaling,CellChatDB v1
+Hcrt,Hcrtr2,HCRT,Secreted Signaling,CellChatDB v1
+Oxt,Oxtr,OXT,Secreted Signaling,CellChatDB v1
+Sst,Sstr1,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Sst,Sstr2,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Sst,Sstr3,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Sst,Sstr4,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Sst,Sstr5,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Cort,Sstr1,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Cort,Sstr2,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Cort,Sstr3,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Cort,Sstr4,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Cort,Sstr5,SOMATOSTATIN,Secreted Signaling,CellChatDB v1
+Tac1,Tacr1,TAC,Secreted Signaling,CellChatDB v1
+Tac4,Tacr1,TAC,Secreted Signaling,CellChatDB v1
+Tac1,Tacr2,TAC,Secreted Signaling,CellChatDB v1
+Tac2,Tacr3,TAC,Secreted Signaling,CellChatDB v1
+Uts2,Uts2r,UTS2,Secreted Signaling,CellChatDB v1
+Avp,Avpr2,AVP,Secreted Signaling,CellChatDB v1
+Avp,Avpr1a,AVP,Secreted Signaling,CellChatDB v1
+Avp,Avpr1b,AVP,Secreted Signaling,CellChatDB v1
+Prlh,Prlhr,PRLH,Secreted Signaling,CellChatDB v1
+Prss3l,F2r,PARs,Secreted Signaling,CellChatDB v1
+Try5,F2r,PARs,Secreted Signaling,CellChatDB v1
+Ctsg,F2r,PARs,Secreted Signaling,CellChatDB v1
+F2,F2r,PARs,Secreted Signaling,CellChatDB v1
+Gzma,F2r,PARs,Secreted Signaling,CellChatDB v1
+Prss2,F2r,PARs,Secreted Signaling,CellChatDB v1
+Try4,F2r,PARs,Secreted Signaling,CellChatDB v1
+Try10,F2r,PARs,Secreted Signaling,CellChatDB v1
+Prss3l,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Try5,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Ctsg,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+F2,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Gzma,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Prss2,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Try4,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Try10,F2rl1,PARs,Secreted Signaling,CellChatDB v1
+Prss3l,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Try5,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Ctsg,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+F2,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Gzma,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Prss2,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Try4,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Try10,F2rl2,PARs,Secreted Signaling,CellChatDB v1
+Prss3l,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Try5,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Ctsg,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+F2,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Gzma,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Plg,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Prss2,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Try4,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Try10,F2rl3,PARs,Secreted Signaling,CellChatDB v1
+Prss3l,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Try5,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Ctsg,Pard3,PARs,Secreted Signaling,CellChatDB v1
+F2,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Gzma,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Plg,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Prss2,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Try4,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Try10,Pard3,PARs,Secreted Signaling,CellChatDB v1
+Pmch,Mchr1,PMCH,Secreted Signaling,CellChatDB v1
+Prok1,Prokr2,PROK,Secreted Signaling,CellChatDB v1
+Prok1,Prokr1,PROK,Secreted Signaling,CellChatDB v1
+Prok2,Prokr1,PROK,Secreted Signaling,CellChatDB v1
+Prok2,Prokr2,PROK,Secreted Signaling,CellChatDB v1
+Adcyap1,Adcyap1r1,PACAP,Secreted Signaling,CellChatDB v1
+Vip,Vipr1,VIP,Secreted Signaling,CellChatDB v1
+Vip,Vipr2,VIP,Secreted Signaling,CellChatDB v1
+Nppa,Npr1,NPR1,Secreted Signaling,CellChatDB v1
+Nppb,Npr1,NPR1,Secreted Signaling,CellChatDB v1
+Nppc,Npr2,NPR2,Secreted Signaling,CellChatDB v1
+Kitl,Kit,KIT,Secreted Signaling,CellChatDB v1
+Gcg,Gipr,GIPR,Secreted Signaling,CellChatDB v1
+Gip,Gipr,GIPR,Secreted Signaling,CellChatDB v1
+Fshb,Fshr,FSH,Secreted Signaling,CellChatDB v1
+Cga,Fshr,FSH,Secreted Signaling,CellChatDB v1
+Lhb,Lhcgr,LHB,Secreted Signaling,CellChatDB v1
+Cga,Lhcgr,LHB,Secreted Signaling,CellChatDB v1
+Tshb,Tshr,TSH,Secreted Signaling,CellChatDB v1
+Cga,Tshr,TSH,Secreted Signaling,CellChatDB v1
+Bdnf,Ntrk2,NT,Secreted Signaling,CellChatDB v1
+Ngf,Ntrk1,NT,Secreted Signaling,CellChatDB v1
+Flt3l,Flt3,FLT3,Secreted Signaling,CellChatDB v1
+Hgf,Met,HGF,Secreted Signaling,CellChatDB v1
+Klk1b4,Ntrk1,NT,Secreted Signaling,CellChatDB v1
+Ntf3,Ntrk1,NT,Secreted Signaling,CellChatDB v1
+Ntf3,Ntrk2,NT,Secreted Signaling,CellChatDB v1
+Ntf3,Ntrk3,NT,Secreted Signaling,CellChatDB v1
+Ntf5,Ntrk2,NT,Secreted Signaling,CellChatDB v1
+Sema3a,Nrp1_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3a,Nrp1_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3a,Nrp1_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3a,Nrp1_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp1_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp1_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp1_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp1_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp1_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp1_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp1_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp1_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp1_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp1_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp1_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp1_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp2_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp2_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp2_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3b,Nrp2_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp2_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp2_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp2_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp2_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp2_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp2_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp2_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3d,Nrp2_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3f,Nrp2_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3f,Nrp2_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3f,Nrp2_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3f,Nrp2_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3g,Nrp2_Plxna1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3g,Nrp2_Plxna2,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3g,Nrp2_Plxna3,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3g,Nrp2_Plxna4,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Nrp1_Nrp2_Plxnd1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3c,Plxnd1,SEMA3,Secreted Signaling,CellChatDB v1
+Sema3e,Plxnd1,SEMA3,Secreted Signaling,CellChatDB v1
+Agt,Mas1,AGT,Secreted Signaling,CellChatDB v1
+Anxa1,Fpr2,ANNEXIN,Secreted Signaling,CellChatDB v1
+Anxa1,Fpr1,ANNEXIN,Secreted Signaling,CellChatDB v1
+Apela,Aplnr,APJ,Secreted Signaling,CellChatDB v1
+Crh,Crhr1,CRH,Secreted Signaling,CellChatDB v1
+Crh,Crhr2,CRH,Secreted Signaling,CellChatDB v1
+Enho,Gpr19,ENHO,Secreted Signaling,CellChatDB v1
+Gas6,Axl,GAS,Secreted Signaling,CellChatDB v1
+Gas6,Mertk,GAS,Secreted Signaling,CellChatDB v1
+Gas6,Tyro3,GAS,Secreted Signaling,CellChatDB v1
+Gcg,Gcgr,GCG,Secreted Signaling,CellChatDB v1
+Gcg,Glp1r,GCG,Secreted Signaling,CellChatDB v1
+Gcg,Glp2r,GCG,Secreted Signaling,CellChatDB v1
+Gh,Prlr,GH,Secreted Signaling,CellChatDB v1
+Ghrh,Vipr1,GHRH,Secreted Signaling,CellChatDB v1
+Ghrh,Vipr2,GHRH,Secreted Signaling,CellChatDB v1
+Ghrh,Ghsr,GHRH,Secreted Signaling,CellChatDB v1
+Ghrh,Ghrhr,GHRH,Secreted Signaling,CellChatDB v1
+Gnrh1,Gnrhr,GNRH,Secreted Signaling,CellChatDB v1
+Grn,Sort1,GRN,Secreted Signaling,CellChatDB v1
+Guca2a,Gucy2c,GUCA,Secreted Signaling,CellChatDB v1
+Guca2b,Gucy2c,GUCA,Secreted Signaling,CellChatDB v1
+Insl3,Rxfp2,RLN,Secreted Signaling,CellChatDB v1
+Insl3,Rxfp1,RLN,Secreted Signaling,CellChatDB v1
+Insl3,Rxfp4,RLN,Secreted Signaling,CellChatDB v1
+Insl3,Rxfp3,RLN,Secreted Signaling,CellChatDB v1
+Insl5,Rxfp4,RLN,Secreted Signaling,CellChatDB v1
+Insl5,Rxfp3,RLN,Secreted Signaling,CellChatDB v1
+Insl5,Rxfp2,RLN,Secreted Signaling,CellChatDB v1
+Insl5,Rxfp1,RLN,Secreted Signaling,CellChatDB v1
+Lep,Lepr,LEP,Secreted Signaling,CellChatDB v1
+Lgals9,Ptprc,GALECTIN,Secreted Signaling,CellChatDB v1
+Lgals9,Ighm,GALECTIN,Secreted Signaling,CellChatDB v1
+Nps,Npsr1,NPS,Secreted Signaling,CellChatDB v1
+Npvf,Npffr1,NPVF,Secreted Signaling,CellChatDB v1
+Npvf,Npffr2,NPVF,Secreted Signaling,CellChatDB v1
+Ostn,Npr3,OSTN,Secreted Signaling,CellChatDB v1
+Pmch,Mertk,PMCH,Secreted Signaling,CellChatDB v1
+Pros1,Axl,PROS,Secreted Signaling,CellChatDB v1
+Pros1,Tyro3,PROS,Secreted Signaling,CellChatDB v1
+Psap,Gpr37l1,PSAP,Secreted Signaling,CellChatDB v1
+Psap,Gpr37,PSAP,Secreted Signaling,CellChatDB v1
+Pth,Pth1r,PTH,Secreted Signaling,CellChatDB v1
+Pth,Pth2r,PTH,Secreted Signaling,CellChatDB v1
+Pth2,Pth1r,PTH,Secreted Signaling,CellChatDB v1
+Pth2,Pth2r,PTH,Secreted Signaling,CellChatDB v1
+Pthlh,Pth1r,PTH,Secreted Signaling,CellChatDB v1
+Qrfp,Qrfpr,QRFP,Secreted Signaling,CellChatDB v1
+Rarres2,Cmklr1,CHEMERIN,Secreted Signaling,CellChatDB v1
+Rln1,Rxfp2,RLN,Secreted Signaling,CellChatDB v1
+Rln1,Rxfp1,RLN,Secreted Signaling,CellChatDB v1
+Rln1,Rxfp3,RLN,Secreted Signaling,CellChatDB v1
+Rln1,Rxfp4,RLN,Secreted Signaling,CellChatDB v1
+Rln3,Rxfp3,RLN,Secreted Signaling,CellChatDB v1
+Rln3,Rxfp1,RLN,Secreted Signaling,CellChatDB v1
+Rln3,Rxfp4,RLN,Secreted Signaling,CellChatDB v1
+Rln3,Rxfp2,RLN,Secreted Signaling,CellChatDB v1
+Saa2,Fpr2,SAA,Secreted Signaling,CellChatDB v1
+Scgb3a2,Marco,UGRP1,Secreted Signaling,CellChatDB v1
+Sct,Sctr,SCT,Secreted Signaling,CellChatDB v1
+Slurp1,Chrnb1,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrnb2,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrnb3,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrnb4,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna1,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna2,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna3,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna4,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna5,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna6,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna9,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna10,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrnd,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrne,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrng,SLURP,Secreted Signaling,CellChatDB v1
+Slurp1,Chrna7,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrnb1,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrnb2,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrnb3,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrnb4,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna1,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna2,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna3,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna4,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna5,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna6,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna7,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna9,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrna10,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrnd,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrne,SLURP,Secreted Signaling,CellChatDB v1
+Slurp2,Chrng,SLURP,Secreted Signaling,CellChatDB v1
+Btla,Tnfrsf14,BTLA,Secreted Signaling,CellChatDB v1
+Trh,Trhr,TRH,Secreted Signaling,CellChatDB v1
+Trh,Trhr2,TRH,Secreted Signaling,CellChatDB v1
+Ucn,Crhr1,UCN,Secreted Signaling,CellChatDB v1
+Ucn,Crhr2,UCN,Secreted Signaling,CellChatDB v1
+Ucn2,Crhr1,UCN,Secreted Signaling,CellChatDB v1
+Ucn2,Crhr2,UCN,Secreted Signaling,CellChatDB v1
+Ucn3,Crhr1,UCN,Secreted Signaling,CellChatDB v1
+Ucn3,Crhr2,UCN,Secreted Signaling,CellChatDB v1
+Uts2b,Uts2r,UROTENSIN,Secreted Signaling,CellChatDB v1
+Uts2b,Sstr5,UROTENSIN,Secreted Signaling,CellChatDB v1
+Bag6,Ncr3-ps,BAG,Secreted Signaling,CellChatDB v1
+Lgals9,Havcr2,GALECTIN,Secreted Signaling,CellChatDB v1
+Lgals9,Cd44,GALECTIN,Secreted Signaling,CellChatDB v1
+Col1a1,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itga1_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a1,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itga2_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Fn1,Itga3_Itgb1,FN1,ECM-Receptor,CellChatDB v1
+Fn1,Itga4_Itgb1,FN1,ECM-Receptor,CellChatDB v1
+Fn1,Itga5_Itgb1,FN1,ECM-Receptor,CellChatDB v1
+Fn1,Itga8_Itgb1,FN1,ECM-Receptor,CellChatDB v1
+Lama1,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga1_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama1,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga2_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Chad,Itga2_Itgb1,CHAD,ECM-Receptor,CellChatDB v1
+Lama1,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga3_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Reln,Itga3_Itgb1,RELN,ECM-Receptor,CellChatDB v1
+Thbs1,Itga3_Itgb1,THBS,ECM-Receptor,CellChatDB v1
+Thbs2,Itga3_Itgb1,THBS,ECM-Receptor,CellChatDB v1
+Thbs3,Itga3_Itgb1,THBS,ECM-Receptor,CellChatDB v1
+Thbs4,Itga3_Itgb1,THBS,ECM-Receptor,CellChatDB v1
+Comp,Itga3_Itgb1,THBS,ECM-Receptor,CellChatDB v1
+Col1a1,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itga3_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Lama1,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga6_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama1,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga7_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Vtn,Itga8_Itgb1,VTN,ECM-Receptor,CellChatDB v1
+Tnc,Itga8_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Itga8_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Itga8_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Itga8_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Npnt_Fras1_Frem1,Itga8_Itgb1,NPNT,ECM-Receptor,CellChatDB v1
+Npnt_Fras1_Frem2,Itga8_Itgb1,NPNT,ECM-Receptor,CellChatDB v1
+Tnc,Itga9_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Itga9_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Itga9_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Itga9_Itgb1,TENASCIN,ECM-Receptor,CellChatDB v1
+Col1a1,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itga9_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Lama1,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga9_Itgb1,LAMININ,ECM-Receptor,CellChatDB v1
+Col1a1,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itga10_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a1,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itga11_Itgb1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Fn1,Itgav_Itgb1,FN1,ECM-Receptor,CellChatDB v1
+Vtn,Itgav_Itgb1,VTN,ECM-Receptor,CellChatDB v1
+Dspp,Itgav_Itgb1,DSPP,ECM-Receptor,CellChatDB v1
+Fn1,Itga4_Itgb7,FN1,ECM-Receptor,CellChatDB v1
+Fn1,Itgav_Itgb3,FN1,ECM-Receptor,CellChatDB v1
+Vtn,Itgav_Itgb3,VTN,ECM-Receptor,CellChatDB v1
+Vwf,Itgav_Itgb3,VWF,ECM-Receptor,CellChatDB v1
+Tnc,Itgav_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Itgav_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Itgav_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Itgav_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Ibsp,Itgav_Itgb3,BSP,ECM-Receptor,CellChatDB v1
+Thbs1,Itgav_Itgb3,THBS,ECM-Receptor,CellChatDB v1
+Thbs2,Itgav_Itgb3,THBS,ECM-Receptor,CellChatDB v1
+Thbs3,Itgav_Itgb3,THBS,ECM-Receptor,CellChatDB v1
+Thbs4,Itgav_Itgb3,THBS,ECM-Receptor,CellChatDB v1
+Comp,Itgav_Itgb3,THBS,ECM-Receptor,CellChatDB v1
+Dmp1,Itgav_Itgb3,DMP1,ECM-Receptor,CellChatDB v1
+Fn1,Itga2b_Itgb3,FN1,ECM-Receptor,CellChatDB v1
+Vtn,Itga2b_Itgb3,VTN,ECM-Receptor,CellChatDB v1
+Vwf,Itga2b_Itgb3,VWF,ECM-Receptor,CellChatDB v1
+Tnc,Itga2b_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Itga2b_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Itga2b_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Itga2b_Itgb3,TENASCIN,ECM-Receptor,CellChatDB v1
+Vtn,Itgav_Itgb5,VTN,ECM-Receptor,CellChatDB v1
+Ibsp,Itgav_Itgb5,BSP,ECM-Receptor,CellChatDB v1
+Tnc,Itgav_Itgb6,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Itgav_Itgb6,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Itgav_Itgb6,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Itgav_Itgb6,TENASCIN,ECM-Receptor,CellChatDB v1
+Fn1,Itgav_Itgb6,FN1,ECM-Receptor,CellChatDB v1
+Dspp,Itgav_Itgb6,DSPP,ECM-Receptor,CellChatDB v1
+Vtn,Itgav_Itgb8,VTN,ECM-Receptor,CellChatDB v1
+Fn1,Itgav_Itgb8,FN1,ECM-Receptor,CellChatDB v1
+Lama1,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itgav_Itgb8,LAMININ,ECM-Receptor,CellChatDB v1
+Col1a1,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Itgav_Itgb8,COLLAGEN,ECM-Receptor,CellChatDB v1
+Lama1,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Itga6_Itgb4,LAMININ,ECM-Receptor,CellChatDB v1
+Fn1,Cd44,FN1,ECM-Receptor,CellChatDB v1
+Col1a1,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Cd44,COLLAGEN,ECM-Receptor,CellChatDB v1
+Lama1,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Cd44,LAMININ,ECM-Receptor,CellChatDB v1
+Col1a1,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Sdc1,COLLAGEN,ECM-Receptor,CellChatDB v1
+Fn1,Sdc1,FN1,ECM-Receptor,CellChatDB v1
+Tnc,Sdc1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Sdc1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Sdc1,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Sdc1,TENASCIN,ECM-Receptor,CellChatDB v1
+Thbs1,Sdc1,THBS,ECM-Receptor,CellChatDB v1
+Thbs2,Sdc1,THBS,ECM-Receptor,CellChatDB v1
+Thbs3,Sdc1,THBS,ECM-Receptor,CellChatDB v1
+Thbs4,Sdc1,THBS,ECM-Receptor,CellChatDB v1
+Comp,Sdc1,THBS,ECM-Receptor,CellChatDB v1
+Col1a1,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Sdc4,COLLAGEN,ECM-Receptor,CellChatDB v1
+Fn1,Sdc4,FN1,ECM-Receptor,CellChatDB v1
+Tnc,Sdc4,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnr,Sdc4,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnn,Sdc4,TENASCIN,ECM-Receptor,CellChatDB v1
+Tnxb,Sdc4,TENASCIN,ECM-Receptor,CellChatDB v1
+Thbs1,Sdc4,THBS,ECM-Receptor,CellChatDB v1
+Thbs2,Sdc4,THBS,ECM-Receptor,CellChatDB v1
+Thbs3,Sdc4,THBS,ECM-Receptor,CellChatDB v1
+Thbs4,Sdc4,THBS,ECM-Receptor,CellChatDB v1
+Comp,Sdc4,THBS,ECM-Receptor,CellChatDB v1
+Lama1,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Sv2a,LAMININ,ECM-Receptor,CellChatDB v1
+Lama1,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Sv2b,LAMININ,ECM-Receptor,CellChatDB v1
+Lama1,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Sv2c,LAMININ,ECM-Receptor,CellChatDB v1
+Thbs1,Cd36,THBS,ECM-Receptor,CellChatDB v1
+Thbs2,Cd36,THBS,ECM-Receptor,CellChatDB v1
+Thbs3,Cd36,THBS,ECM-Receptor,CellChatDB v1
+Thbs4,Cd36,THBS,ECM-Receptor,CellChatDB v1
+Comp,Cd36,THBS,ECM-Receptor,CellChatDB v1
+Vwf,Gp1ba_Gp1bb_Gp5_Gp9,VWF,ECM-Receptor,CellChatDB v1
+Col1a1,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col1a2,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col2a1,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a1,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a2,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a3,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a4,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a5,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col4a6,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a1,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a2,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a3,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a4,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a5,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col6a6,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a1,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a2,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Col9a3,Gp6,COLLAGEN,ECM-Receptor,CellChatDB v1
+Thbs1,Cd47,THBS,ECM-Receptor,CellChatDB v1
+Thbs2,Cd47,THBS,ECM-Receptor,CellChatDB v1
+Thbs3,Cd47,THBS,ECM-Receptor,CellChatDB v1
+Thbs4,Cd47,THBS,ECM-Receptor,CellChatDB v1
+Comp,Cd47,THBS,ECM-Receptor,CellChatDB v1
+Agrn,Dag1,AGRN,ECM-Receptor,CellChatDB v1
+Hspg2,Dag1,HSPG,ECM-Receptor,CellChatDB v1
+Lama1,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama2,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama3,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama4,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lama5,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb1,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb2,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamb3,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc1,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc2,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Lamc3,Dag1,LAMININ,ECM-Receptor,CellChatDB v1
+Anxa1,Fpr2_Fpr3,ANNEXIN,Secreted Signaling,CellChatDB v1
+App,Cd74,APP,Cell-Cell Contact,CellChatDB v1
+Bst2,Pira2,BST2,Cell-Cell Contact,CellChatDB v1
+Cadm1,Cadm1,CADM,Cell-Cell Contact,CellChatDB v1
+Cadm3,Cadm3,CADM,Cell-Cell Contact,CellChatDB v1
+Cd1d2,Pira2,CD1D2,Cell-Cell Contact,CellChatDB v1
+Cd200,Cd200r1,CD200,Cell-Cell Contact,CellChatDB v1
+Cd200,Cd200r2,CD200,Cell-Cell Contact,CellChatDB v1
+Cd200,Cd200r3,CD200,Cell-Cell Contact,CellChatDB v1
+Cd200,Cd200r4,CD200,Cell-Cell Contact,CellChatDB v1
+Fcer2a,Itgam_Itgb2,CD23,Cell-Cell Contact,CellChatDB v1
+Fcer2a,Itgax_Itgb2,CD23,Cell-Cell Contact,CellChatDB v1
+Fcer2a,Itgav_Itgb3,CD23,Cell-Cell Contact,CellChatDB v1
+Fcer2a,Cr2,CD23,Cell-Cell Contact,CellChatDB v1
+Cd34,Selp,CD34,Cell-Cell Contact,CellChatDB v1
+Entpd1,Adora1,CD39,Cell-Cell Contact,CellChatDB v1
+Entpd1,Adora2a,CD39,Cell-Cell Contact,CellChatDB v1
+Entpd1,Adora2b,CD39,Cell-Cell Contact,CellChatDB v1
+Entpd1,Tmigd3,CD39,Cell-Cell Contact,CellChatDB v1
+Cd40lg,Cd40,CD40,Cell-Cell Contact,CellChatDB v1
+Ptprc,Cd22,CD45,Cell-Cell Contact,CellChatDB v1
+Ptprc,Mrc1,CD45,Cell-Cell Contact,CellChatDB v1
+Cd46,Jag1,CD46,Cell-Cell Contact,CellChatDB v1
+Cd48,Cd244a,CD48,Cell-Cell Contact,CellChatDB v1
+Cd52,Siglecg,CD52,Cell-Cell Contact,CellChatDB v1
+Cd6,Alcam,CD6,Cell-Cell Contact,CellChatDB v1
+Cd80,Cd274,CD80,Cell-Cell Contact,CellChatDB v1
+Cd80,Cd28,CD80,Cell-Cell Contact,CellChatDB v1
+Cd80,Ctla4,CD80,Cell-Cell Contact,CellChatDB v1
+Cd86,Cd28,CD86,Cell-Cell Contact,CellChatDB v1
+Cd86,Ctla4,CD86,Cell-Cell Contact,CellChatDB v1
+Cd96,Pvr,CD96,Cell-Cell Contact,CellChatDB v1
+Cd99,Pilra,CD99,Cell-Cell Contact,CellChatDB v1
+Cd99,Cd99,CD99,Cell-Cell Contact,CellChatDB v1
+Cdh15,Cdh15,CDH,Cell-Cell Contact,CellChatDB v1
+Cdh4,Cdh4,CDH,Cell-Cell Contact,CellChatDB v1
+Cdh2,Cdh2,CDH,Cell-Cell Contact,CellChatDB v1
+Cdh1,Cdh1,CDH,Cell-Cell Contact,CellChatDB v1
+Cdh1,Itga2_Itgb1,CDH1,Cell-Cell Contact,CellChatDB v1
+Cdh1,Itgae_Itgb7,CDH1,Cell-Cell Contact,CellChatDB v1
+Cdh1,Klrg1,CDH1,Cell-Cell Contact,CellChatDB v1
+Cdh5,Cdh5,CDH5,Cell-Cell Contact,CellChatDB v1
+Cd1d1,Ceacam5,CEACAM,Cell-Cell Contact,CellChatDB v1
+Cd209a,Ceacam1,CEACAM,Cell-Cell Contact,CellChatDB v1
+Cd8a,Ceacam5,CEACAM,Cell-Cell Contact,CellChatDB v1
+Ceacam1,Ceacam5,CEACAM,Cell-Cell Contact,CellChatDB v1
+Sele,Ceacam1,CEACAM,Cell-Cell Contact,CellChatDB v1
+Cldn11,Cldn11,CLDN,Cell-Cell Contact,CellChatDB v1
+Clec2d,Klrb1b,CLEC,Cell-Cell Contact,CellChatDB v1
+Clec2g,Klrb1,CLEC,Cell-Cell Contact,CellChatDB v1
+Clec2h,Klrb1,CLEC,Cell-Cell Contact,CellChatDB v1
+Clec2i,Klrb1,CLEC,Cell-Cell Contact,CellChatDB v1
+Clec2f,Klrb1f,CLEC,Cell-Cell Contact,CellChatDB v1
+Clec2g,Klrb1f,CLEC,Cell-Cell Contact,CellChatDB v1
+Clec2i,Klrb1f,CLEC,Cell-Cell Contact,CellChatDB v1
+Nfasc,Cntn1_Cntnap1,CNTN,Cell-Cell Contact,CellChatDB v1
+Cntn2,Cntn2_Cntnap2,CNTN,Cell-Cell Contact,CellChatDB v1
+Cntn2,L1cam,CNTN,Cell-Cell Contact,CellChatDB v1
+Cntn2,Cntn2,CNTN,Cell-Cell Contact,CellChatDB v1
+Cntn1,Nrcam,CNTN,Cell-Cell Contact,CellChatDB v1
+Cspg4,Itga3_Itgb1,CSPG4,Cell-Cell Contact,CellChatDB v1
+Dsc1,Dsg1c,DESMOSOME,Cell-Cell Contact,CellChatDB v1
+Dsc1,Dsg2,DESMOSOME,Cell-Cell Contact,CellChatDB v1
+Dsc2,Dsg1c,DESMOSOME,Cell-Cell Contact,CellChatDB v1
+Dsc2,Dsg2,DESMOSOME,Cell-Cell Contact,CellChatDB v1
+Dsg1c,Dsc3,DESMOSOME,Cell-Cell Contact,CellChatDB v1
+Dsg2,Dsc3,DESMOSOME,Cell-Cell Contact,CellChatDB v1
+Epgn,Egfr,EPGN,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha1,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha2,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha3,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha4,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha5,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha7,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna1,Epha8,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha1,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha2,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha3,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha4,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha5,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha7,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna2,Epha8,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha1,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha2,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha3,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha4,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha5,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha7,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna3,Epha8,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha1,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha2,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha3,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha4,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha5,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha7,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna4,Epha8,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha1,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha2,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha3,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha4,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha5,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha7,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Epha8,EPHA,Cell-Cell Contact,CellChatDB v1
+Efna5,Ephb2,EPHA,Cell-Cell Contact,CellChatDB v1
+Efnb1,Epha4,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb1,Ephb1,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb1,Ephb2,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb1,Ephb3,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb1,Ephb4,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb2,Epha4,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb2,Ephb1,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb2,Ephb2,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb2,Ephb3,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb2,Ephb4,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb3,Epha4,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb3,Ephb1,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb3,Ephb2,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb3,Ephb3,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb3,Ephb4,EPHB,Cell-Cell Contact,CellChatDB v1
+Efnb3,Ephb6,EPHB,Cell-Cell Contact,CellChatDB v1
+Esam,Esam,ESAM,Cell-Cell Contact,CellChatDB v1
+Gp1ba,Itgam_Itgb2,GP1BA,Cell-Cell Contact,CellChatDB v1
+Icam1,Itgax_Itgb2,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam1,Itgal_Itgb2,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam2,Itgal_Itgb2,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam1,Itgam_Itgb2,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam2,Itgam_Itgb2,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam1,Itgal_Itgb2l,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam2,Itgal_Itgb2l,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam1,Itgam_Itgb2l,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam2,Itgam_Itgb2l,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam1,Itgal,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam1,Spn,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam5,Cd209a,ICAM,Cell-Cell Contact,CellChatDB v1
+Icam5,Cd209f,ICAM,Cell-Cell Contact,CellChatDB v1
+Icosl,Icos,ICOS,Cell-Cell Contact,CellChatDB v1
+Icosl,Cd28,ICOS,Cell-Cell Contact,CellChatDB v1
+Icosl,Ctla4,ICOS,Cell-Cell Contact,CellChatDB v1
+Jam2,Itga3_Itgb1,JAM,Cell-Cell Contact,CellChatDB v1
+Jam2,Itgav_Itgb1,JAM,Cell-Cell Contact,CellChatDB v1
+Jam3,Itgam_Itgb2,JAM,Cell-Cell Contact,CellChatDB v1
+F11r,Itgal_Itgb2,JAM,Cell-Cell Contact,CellChatDB v1
+Jam3,Itgam_Itgb2l,JAM,Cell-Cell Contact,CellChatDB v1
+Jam2,Jam3,JAM,Cell-Cell Contact,CellChatDB v1
+F11r,F11r,JAM,Cell-Cell Contact,CellChatDB v1
+Jam2,F11r,JAM,Cell-Cell Contact,CellChatDB v1
+Jam2,Jam2,JAM,Cell-Cell Contact,CellChatDB v1
+Jam3,F11r,JAM,Cell-Cell Contact,CellChatDB v1
+Jam3,Jam3,JAM,Cell-Cell Contact,CellChatDB v1
+L1cam,Itgav_Itgb3,L1CAM,Cell-Cell Contact,CellChatDB v1
+L1cam,Itga4_Itgb7,L1CAM,Cell-Cell Contact,CellChatDB v1
+L1cam,L1cam,L1CAM,Cell-Cell Contact,CellChatDB v1
+Lair1,Pira2,LAIR1,Cell-Cell Contact,CellChatDB v1
+Lck,Cd8a_Cd8b1,LCK,Cell-Cell Contact,CellChatDB v1
+Madcam1,Itga4_Itgb7,MADCAM,Cell-Cell Contact,CellChatDB v1
+Mag,Mag,MAG,Cell-Cell Contact,CellChatDB v1
+H2-T23,Klrd1_Klrc1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T23,Klrd1_Klrc2,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M2,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M3,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M9,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q1,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q10,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q2,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q7,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q8,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T22,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T23,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T24,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T3,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T9,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.4,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M11,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M1,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.5,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.2,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.6,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T10,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q6,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.3,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Bl,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-D1,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-K1,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.1,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T18,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q9,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T26,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-L,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+Gm10499,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q4,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T-ps,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T27,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M5,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T25,Cd8a,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M2,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M3,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M9,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q1,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q10,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q2,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q7,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q8,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T22,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T23,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T24,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T3,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T9,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.4,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M11,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M1,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.5,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.2,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.6,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T10,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q6,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.3,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Bl,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-D1,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-K1,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M10.1,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T18,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q9,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T26,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-L,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+Gm10499,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q4,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T-ps,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T27,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-M5,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-T25,Cd8b1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-D1,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-K1,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q1,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q10,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q2,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q4,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q6,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Q7,Kir3dl1,MHC-I,Cell-Cell Contact,CellChatDB v1
+Ulbp1,Klrk1,MHC-I,Cell-Cell Contact,CellChatDB v1
+Raet1a,Klrk1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H60a,Klrk1,MHC-I,Cell-Cell Contact,CellChatDB v1
+H2-Ea,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-Aa,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-Ab1,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-Eb1,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-DMa,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-DMb1,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-DMb2,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-Oa,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+H2-Ob,Cd4,MHC-II,Cell-Cell Contact,CellChatDB v1
+Mpz,Mpzl1,MPZ,Cell-Cell Contact,CellChatDB v1
+Mpz,Mpz,MPZ,Cell-Cell Contact,CellChatDB v1
+Mpzl1,Mpzl1,MPZ,Cell-Cell Contact,CellChatDB v1
+Ncam1,Fgfr1,NCAM,Cell-Cell Contact,CellChatDB v1
+Ncam1,Ncam1,NCAM,Cell-Cell Contact,CellChatDB v1
+Ncam1,Ncam2,NCAM,Cell-Cell Contact,CellChatDB v1
+Ncam1,L1cam,NCAM,Cell-Cell Contact,CellChatDB v1
+Ncam2,L1cam,NCAM,Cell-Cell Contact,CellChatDB v1
+Nectin1,Cadm3,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin1,Cd96,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin1,Nectin4,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin3,Nectin2,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin3,Pvr,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin3,Tigit,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin2,Cd226,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin2,Tigit,NECTIN,Cell-Cell Contact,CellChatDB v1
+Nectin1,Nectin3,NECTIN,Cell-Cell Contact,CellChatDB v1
+Negr1,Negr1,NEGR,Cell-Cell Contact,CellChatDB v1
+Lrrc4c,Ntng1,NGL,Cell-Cell Contact,CellChatDB v1
+Lrrc4,Ntng2,NGL,Cell-Cell Contact,CellChatDB v1
+Lrrc4b,Ptprf,NGL,Cell-Cell Contact,CellChatDB v1
+Ulbp1,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v1
+Dlk1,Notch1,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dlk1,Notch2,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dlk1,Notch3,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dlk1,Notch4,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll1,Notch1,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll1,Notch3,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll1,Notch4,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll3,Notch1,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll3,Notch2,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll3,Notch3,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll3,Notch4,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll4,Notch1,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll4,Notch2,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll4,Notch3,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll4,Notch4,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag1,Notch1,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag1,Notch2,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag1,Notch3,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag1,Notch4,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag2,Notch1,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag2,Notch2,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag2,Notch3,NOTCH,Cell-Cell Contact,CellChatDB v1
+Jag2,Notch4,NOTCH,Cell-Cell Contact,CellChatDB v1
+Dll1,Notch2,NOTCH,Cell-Cell Contact,CellChatDB v1
+Nrxn1,Nlgn1,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn1,Nlgn2,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn1,Nlgn3,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn2,Nlgn1,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn2,Nlgn2,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn2,Nlgn3,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn3,Nlgn1,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn3,Nlgn2,NRXN,Cell-Cell Contact,CellChatDB v1
+Nrxn3,Nlgn3,NRXN,Cell-Cell Contact,CellChatDB v1
+Ocln,Ocln,OCLN,Cell-Cell Contact,CellChatDB v1
+Cd274,Pdcd1,PD-L1,Cell-Cell Contact,CellChatDB v1
+Pdcd1lg2,Pdcd1,PDL2,Cell-Cell Contact,CellChatDB v1
+Pecam1,Pecam1,PECAM1,Cell-Cell Contact,CellChatDB v1
+Ptprm,Ptprm,PTPRM,Cell-Cell Contact,CellChatDB v1
+Pvr,Cd226,PVR,Cell-Cell Contact,CellChatDB v1
+Pvr,Tigit,PVR,Cell-Cell Contact,CellChatDB v1
+Sele,Cd44,SELE,Cell-Cell Contact,CellChatDB v1
+Sele,Glg1,SELE,Cell-Cell Contact,CellChatDB v1
+Sell,Cd34,SELL,Cell-Cell Contact,CellChatDB v1
+Sell,Podxl,SELL,Cell-Cell Contact,CellChatDB v1
+Sell,Glycam1,SELL,Cell-Cell Contact,CellChatDB v1
+Sell,Madcam1,SELL,Cell-Cell Contact,CellChatDB v1
+Selplg,Sele,SELPLG,Cell-Cell Contact,CellChatDB v1
+Selplg,Sell,SELPLG,Cell-Cell Contact,CellChatDB v1
+Selplg,Selp,SELPLG,Cell-Cell Contact,CellChatDB v1
+Sema4a,Nrp1_Plxna1,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Nrp1_Plxna2,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Nrp1_Plxna3,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Nrp1_Plxna4,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Plxnb1,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Plxnb2,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Plxnb3,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4d,Plxnb1,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4d,Plxnb2,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4d,Plxnb3,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4c,Plxnb2,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4g,Plxnb2,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4a,Timd2,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema4d,Cd72,SEMA4,Cell-Cell Contact,CellChatDB v1
+Sema5a,Plxna1,SEMA5,Cell-Cell Contact,CellChatDB v1
+Sema5b,Plxna1,SEMA5,Cell-Cell Contact,CellChatDB v1
+Sema5a,Plxna3,SEMA5,Cell-Cell Contact,CellChatDB v1
+Sema5b,Plxna3,SEMA5,Cell-Cell Contact,CellChatDB v1
+Sema5a,Plxnb3,SEMA5,Cell-Cell Contact,CellChatDB v1
+Sema6d,Plxna1_Kdr,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema6d,Plxna1_Trem2_Tyrobp,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema6d,Plxna1,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema6a,Plxna2,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema6b,Plxna2,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema6a,Plxna4,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema6b,Plxna4,SEMA6,Cell-Cell Contact,CellChatDB v1
+Sema7a,Itgb1_Itga1,SEMA7,Cell-Cell Contact,CellChatDB v1
+Sema7a,Plxnc1,SEMA7,Cell-Cell Contact,CellChatDB v1
+Siglec1,Spn,SN,Cell-Cell Contact,CellChatDB v1
+Thy1,Itgam_Itgb2,THY1,Cell-Cell Contact,CellChatDB v1
+Thy1,Itgax_Itgb2,THY1,Cell-Cell Contact,CellChatDB v1
+Thy1,Itgav_Itgb3,THY1,Cell-Cell Contact,CellChatDB v1
+Itga4_Itgb1,Vcam1,VCAM,Cell-Cell Contact,CellChatDB v1
+Itga9_Itgb1,Vcam1,VCAM,Cell-Cell Contact,CellChatDB v1
+Itga4_Itgb7,Vcam1,VCAM,Cell-Cell Contact,CellChatDB v1
+Vsir,Igsf11,VISTA,Cell-Cell Contact,CellChatDB v1
+Cdh3,Cdh3,CDH,Cell-Cell Contact,CellChatDB v2
+Cdh12,Itga1_Itgb1,CDH,Cell-Cell Contact,CellChatDB v2
+Dsc1,Dsg3,DESMOSOME,Cell-Cell Contact,CellChatDB v2
+Dsc1,Dsg4,DESMOSOME,Cell-Cell Contact,CellChatDB v2
+Dsc2,Dsg3,DESMOSOME,Cell-Cell Contact,CellChatDB v2
+Dsc2,Dsg4,DESMOSOME,Cell-Cell Contact,CellChatDB v2
+Dsc3,Dsg3,DESMOSOME,Cell-Cell Contact,CellChatDB v2
+Dsc3,Dsg4,DESMOSOME,Cell-Cell Contact,CellChatDB v2
+Gja5,Gja5,GAP,Cell-Cell Contact,CellChatDB v2
+Gja1,Gja5,GAP,Cell-Cell Contact,CellChatDB v2
+Gja6,Gja5,GAP,Cell-Cell Contact,CellChatDB v2
+Gjc1,Gja5,GAP,Cell-Cell Contact,CellChatDB v2
+Gja3,Gja5,GAP,Cell-Cell Contact,CellChatDB v2
+Gja1,Gja1,GAP,Cell-Cell Contact,CellChatDB v2
+Gja1,Gja6,GAP,Cell-Cell Contact,CellChatDB v2
+Gja6,Gja6,GAP,Cell-Cell Contact,CellChatDB v2
+Gjc1,Gja1,GAP,Cell-Cell Contact,CellChatDB v2
+Gjc1,Gja6,GAP,Cell-Cell Contact,CellChatDB v2
+Gja3,Gja1,GAP,Cell-Cell Contact,CellChatDB v2
+Gja3,Gja6,GAP,Cell-Cell Contact,CellChatDB v2
+Gjc1,Gjc1,GAP,Cell-Cell Contact,CellChatDB v2
+Gja3,Gjc1,GAP,Cell-Cell Contact,CellChatDB v2
+Gja3,Gja3,GAP,Cell-Cell Contact,CellChatDB v2
+Cldn1,Cldn1,CLDN,Cell-Cell Contact,CellChatDB v2
+Cldn2,Cldn2,CLDN,Cell-Cell Contact,CellChatDB v2
+Cldn3,Cldn3,CLDN,Cell-Cell Contact,CellChatDB v2
+Pcdha9,Pcdha9,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha11,Pcdha11,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha10,Pcdha10,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha12,Pcdha12,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha1,Pcdha1,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha2,Pcdha2,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha3,Pcdha3,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha4b,Pcdha4b,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha4b,Pcdha4,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha4,Pcdha4,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha5,Pcdha5,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha6,Pcdha6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha7,Pcdha7,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdha8,Pcdha8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhac1,Pcdhac1,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhac2,Pcdhac2,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb1,Pcdhb1,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb18,Pcdhb18,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb19,Pcdhb19,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb19,Pcdhb21,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb21,Pcdhb21,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb16,Pcdhb16,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb20,Pcdhb20,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb22,Pcdhb22,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb17,Pcdhb17,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb2,Pcdhb2,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb3,Pcdhb3,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb7,Pcdhb7,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb7,Pcdhb5,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb7,Pcdhb9,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb5,Pcdhb5,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb5,Pcdhb9,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb9,Pcdhb9,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb4,Pcdhb4,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb4,Pcdhb12,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb4,Pcdhb10,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb4,Pcdhb11,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb4,Pcdhb8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb4,Pcdhb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb12,Pcdhb12,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb12,Pcdhb10,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb12,Pcdhb11,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb12,Pcdhb8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb12,Pcdhb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb10,Pcdhb10,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb10,Pcdhb11,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb10,Pcdhb8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb10,Pcdhb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb11,Pcdhb11,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb11,Pcdhb8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb11,Pcdhb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb8,Pcdhb8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb8,Pcdhb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb6,Pcdhb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb13,Pcdhb13,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhb15,Pcdhb15,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga1,Pcdhga1,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga10,Pcdhga10,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga11,Pcdhga11,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga12,Pcdhga12,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga2,Pcdhga2,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga3,Pcdhga3,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga4,Pcdhga4,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga5,Pcdhga5,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga6,Pcdhga6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga7,Pcdhga7,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga8,Pcdhga8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhga9,Pcdhga9,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb1,Pcdhgb1,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb2,Pcdhgb2,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb8,Pcdhgb8,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb4,Pcdhgb4,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb5,Pcdhgb5,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb6,Pcdhgb6,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgb7,Pcdhgb7,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgc3,Pcdhgc3,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgc4,Pcdhgc4,PCDH,Cell-Cell Contact,CellChatDB v2
+Pcdhgc5,Pcdhgc5,PCDH,Cell-Cell Contact,CellChatDB v2
+Klk6,F2r,KLK,Secreted Signaling,CellChatDB v2
+Klk6,F2rl1,KLK,Secreted Signaling,CellChatDB v2
+Klk5,F2rl1,KLK,Secreted Signaling,CellChatDB v2
+Klk4,F2r,KLK,Secreted Signaling,CellChatDB v2
+Klk1,F2r,KLK,Secreted Signaling,CellChatDB v2
+Klk14,F2r,KLK,Secreted Signaling,CellChatDB v2
+Klk4,F2rl1,KLK,Secreted Signaling,CellChatDB v2
+Klk14,F2rl1,KLK,Secreted Signaling,CellChatDB v2
+Klk7,F2rl1,KLK,Secreted Signaling,CellChatDB v2
+Klk8,F2r,KLK,Secreted Signaling,CellChatDB v2
+Adm,Calcr_Ramp1,ADM,Secreted Signaling,CellChatDB v2
+Adm,Calcr_Ramp2,ADM,Secreted Signaling,CellChatDB v2
+Adm,Calcr_Ramp3,ADM,Secreted Signaling,CellChatDB v2
+Adm,Calcr_Ramp1,ADM,Secreted Signaling,CellChatDB v2
+Adm,Calcr_Ramp2,ADM,Secreted Signaling,CellChatDB v2
+Adm,Calcr_Ramp3,ADM,Secreted Signaling,CellChatDB v2
+Calca,Calcr_Ramp1,CALC,Secreted Signaling,CellChatDB v2
+Calca,Calcr_Ramp2,CALC,Secreted Signaling,CellChatDB v2
+Calca,Calcr_Ramp3,CALC,Secreted Signaling,CellChatDB v2
+Calca,Calcr_Ramp1,CALC,Secreted Signaling,CellChatDB v2
+Calca,Calcr_Ramp2,CALC,Secreted Signaling,CellChatDB v2
+Calca,Calcr_Ramp3,CALC,Secreted Signaling,CellChatDB v2
+Calcb,Calcr_Ramp1,CALC,Secreted Signaling,CellChatDB v2
+Calcb,Calcr_Ramp2,CALC,Secreted Signaling,CellChatDB v2
+Calcb,Calcr_Ramp3,CALC,Secreted Signaling,CellChatDB v2
+Calcb,Calcr_Ramp1,CALC,Secreted Signaling,CellChatDB v2
+Calcb,Calcr_Ramp2,CALC,Secreted Signaling,CellChatDB v2
+Calcb,Calcr_Ramp3,CALC,Secreted Signaling,CellChatDB v2
+Iapp,Calcr_Ramp1,IAPP,Secreted Signaling,CellChatDB v2
+Iapp,Calcr_Ramp2,IAPP,Secreted Signaling,CellChatDB v2
+Iapp,Calcr_Ramp3,IAPP,Secreted Signaling,CellChatDB v2
+Iapp,Calcr_Ramp1,IAPP,Secreted Signaling,CellChatDB v2
+Iapp,Calcr_Ramp2,IAPP,Secreted Signaling,CellChatDB v2
+Iapp,Calcr_Ramp3,IAPP,Secreted Signaling,CellChatDB v2
+Proc,Procr_Hsp90aa1,PROCR,Secreted Signaling,CellChatDB v2
+Proc,Procr_F2r,PROCR,Secreted Signaling,CellChatDB v2
+Vtn,Plaur,VTN,ECM-Receptor,CellChatDB v2
+Tph1_Slc18a1,Htr3a_Htr3b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr3a_Htr3b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr3a_Htr3b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr3a_Htr3b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr3a_Htr3b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr3a_Htr3b,5-HT,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrna1_Chrnb1_Chrnd,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrna1_Chrnb1_Chrnd,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrna3_Chrnb4,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrna4_Chrnb2,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrna7,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrna1_Chrnb1_Chrnd,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrna1_Chrnb1_Chrnd,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrna3_Chrnb4,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrna4_Chrnb2,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrna7,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrna1_Chrnb1_Chrnd,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrna1_Chrnb1_Chrnd,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrna3_Chrnb4,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrna4_Chrnb2,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrna7,Ach,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra1_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra1_Gabrb2_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra1_Gabrb2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra1_Gabrb3,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra1_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra2_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra3_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra3_Gabrb3_Gabrq,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra3_Gabrb3_Gabre,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra4_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra4_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra4_Gabrb2_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra5_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra6_Gabrb3_Gabrg2,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabra6_Gabrb3_Gabrd,GABA-A,Non-protein Signaling,CellChatDB v2
+Slc6a5_Shmt1,Glra1_Glrb,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a5_Shmt1,Glra2,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a9_Shmt1,Glra1_Glrb,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a9_Shmt1,Glra2,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a5_Shmt2,Glra1_Glrb,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a5_Shmt2,Glra2,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a9_Shmt2,Glra1_Glrb,Glycine,Non-protein Signaling,CellChatDB v2
+Slc6a9_Shmt2,Glra2,Glycine,Non-protein Signaling,CellChatDB v2
+Sdc1,Adgra2,ADGRA,Cell-Cell Contact,CellChatDB v2
+Sdc2,Adgra2,ADGRA,Cell-Cell Contact,CellChatDB v2
+Itgav_Itgb3,Adgra2,ADGRA,Cell-Cell Contact,CellChatDB v2
+Tax1bp3,Adgrb1,ADGRB,Cell-Cell Contact,CellChatDB v2
+Rtn4r,Adgrb1,ADGRB,Cell-Cell Contact,CellChatDB v2
+Itgav_Itgb5,Adgrb1,ADGRB,Cell-Cell Contact,CellChatDB v2
+Tax1bp3,Adgrb2,ADGRB,Cell-Cell Contact,CellChatDB v2
+C1ql1,Adgrb3,ADGRB,Cell-Cell Contact,CellChatDB v2
+C1ql2,Adgrb3,ADGRB,Cell-Cell Contact,CellChatDB v2
+C1ql3,Adgrb3,ADGRB,Cell-Cell Contact,CellChatDB v2
+C1ql4,Adgrb3,ADGRB,Cell-Cell Contact,CellChatDB v2
+Thy1,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Itgav_Itgb1,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Itgav_Itgb3,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Cd55,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Cd55b,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Lpar1,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Lpar2,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Lpar3,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Sftpd,Adgre5,ADGRE,Cell-Cell Contact,CellChatDB v2
+Col3a1,Adgrg1,ADGRG,Cell-Cell Contact,CellChatDB v2
+Gast,Adgrg1,ADGRG,Cell-Cell Contact,CellChatDB v2
+Tgm2,Adgrg1,ADGRG,Cell-Cell Contact,CellChatDB v2
+Col4a1,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Col4a2,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Col4a3,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Col4a4,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Col4a5,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Col4a6,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Lama2,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Prnp,Adgrg6,ADGRG,Cell-Cell Contact,CellChatDB v2
+Flrt1,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt2,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt3,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Nrxn3,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm1,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm2,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm3,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm4,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm2_Flrt1,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm2_Flrt3,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm4_Flrt1,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm4_Flrt3,Adgrl1,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt1,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt2,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt3,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm1,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm2,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm3,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm4,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm2_Flrt3,Adgrl2,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt1,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt2,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt3,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm1,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm2,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm3,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm4,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Unc5a,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm3_Flrt1,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Tenm3_Flrt3,Adgrl3,ADGRL,Cell-Cell Contact,CellChatDB v2
+Flrt1,Flrt1,FLRT,Cell-Cell Contact,CellChatDB v2
+Flrt2,Flrt2,FLRT,Cell-Cell Contact,CellChatDB v2
+Flrt3,Flrt3,FLRT,Cell-Cell Contact,CellChatDB v2
+Flrt1,Unc5a,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt2,Unc5a,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt3,Unc5a,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt1,Unc5b,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt2,Unc5b,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt3,Unc5b,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt1,Unc5c,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt2,Unc5c,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt3,Unc5c,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt1,Unc5d,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt2,Unc5d,UNC5,Cell-Cell Contact,CellChatDB v2
+Flrt3,Unc5d,UNC5,Cell-Cell Contact,CellChatDB v2
+Slc29a1_Nt5e,Adora1,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a2_Nt5e,Adora1,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a3_Nt5e,Adora1,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a4_Nt5e,Adora1,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a1_Nt5e,Adora2a,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a2_Nt5e,Adora2a,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a3_Nt5e,Adora2a,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a4_Nt5e,Adora2a,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a1_Nt5e,Adora2b,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a2_Nt5e,Adora2b,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a3_Nt5e,Adora2b,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a4_Nt5e,Adora2b,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a1_Nt5e,Adora3,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a2_Nt5e,Adora3,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a3_Nt5e,Adora3,Adenosine,Non-protein Signaling,CellChatDB v2
+Slc29a4_Nt5e,Adora3,Adenosine,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adra1a,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adra1a,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adra1a,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adra1a,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adra1a,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adra1b,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adra1b,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adra1b,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adra1b,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adra1b,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adra1d,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adra1d,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adra1d,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adra1d,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adra1d,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adra2a,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adra2a,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adra2a,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adra2a,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adra2a,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adra2b,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adra2b,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adra2b,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adra2b,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adra2b,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adra2c,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adra2c,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adra2c,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adra2c,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adra2c,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adrb1,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adrb1,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adrb1,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adrb1,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adrb1,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adrb2,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adrb2,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adrb2,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adrb2,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adrb2,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a1,Adrb3,Adrenaline,Non-protein Signaling,CellChatDB v2
+Pnmt_Slc18a2,Adrb3,Adrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a1,Adrb3,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc18a2,Adrb3,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Dbh_Slc6a2,Adrb3,Noradrenaline,Non-protein Signaling,CellChatDB v2
+Agt,Agtr2,AGT,Secreted Signaling,CellChatDB v2
+Slc10a4_Chat,Chrm1,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrm1,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrm1,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrm2,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrm2,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrm2,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrm3,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrm3,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrm3,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrm4,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrm4,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrm4,Ach,Non-protein Signaling,CellChatDB v2
+Slc10a4_Chat,Chrm5,Ach,Non-protein Signaling,CellChatDB v2
+Slc18a3_Chat,Chrm5,Ach,Non-protein Signaling,CellChatDB v2
+Slc5a7_Chat,Chrm5,Ach,Non-protein Signaling,CellChatDB v2
+Nrxn1,Clstn1,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Clstn1,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Clstn2,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Clstn2,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Clstn3,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Clstn3,NRXN,Cell-Cell Contact,CellChatDB v2
+Alox5ap_Alox5_Ltc4s_Akr1c6_Akr1c18,Cysltr1,CysLTs,Non-protein Signaling,CellChatDB v2
+Ggt1_Ggt5,Cysltr1,CysLTs,Non-protein Signaling,CellChatDB v2
+Dpep1,Cysltr1,CysLTs,Non-protein Signaling,CellChatDB v2
+Dpep2,Cysltr1,CysLTs,Non-protein Signaling,CellChatDB v2
+Dpep3,Cysltr1,CysLTs,Non-protein Signaling,CellChatDB v2
+Alox5ap_Alox5_Ltc4s_Akr1c6_Akr1c18,Cysltr2,CysLTs,Non-protein Signaling,CellChatDB v2
+Ggt1_Ggt5,Cysltr2,CysLTs,Non-protein Signaling,CellChatDB v2
+Dpep1,Cysltr2,CysLTs,Non-protein Signaling,CellChatDB v2
+Dpep2,Cysltr2,CysLTs,Non-protein Signaling,CellChatDB v2
+Dpep3,Cysltr2,CysLTs,Non-protein Signaling,CellChatDB v2
+Nrxn1,Dag1,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Dag1,NRXN,Cell-Cell Contact,CellChatDB v2
+Ddc_Slc18a1,Drd1,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a2,Drd1,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc6a3,Drd1,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a1,Drd2,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a2,Drd2,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc6a3,Drd2,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a1,Drd3,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a2,Drd3,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc6a3,Drd3,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a1,Drd4,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a2,Drd4,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc6a3,Drd4,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a1,Drd5,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc18a2,Drd5,Dopamine,Non-protein Signaling,CellChatDB v2
+Ddc_Slc6a3,Drd5,Dopamine,Non-protein Signaling,CellChatDB v2
+Tafa4,Fpr1,TAFA,Secreted Signaling,CellChatDB v2
+Ctsg,Fpr1,CTSG,Secreted Signaling,CellChatDB v2
+Alox12,Fpr-rs7,LXA4,Non-protein Signaling,CellChatDB v2
+Alox12,Fpr-rs6,LXA4,Non-protein Signaling,CellChatDB v2
+Alox12,Fpr3,LXA4,Non-protein Signaling,CellChatDB v2
+Alox12,Fpr-rs4,LXA4,Non-protein Signaling,CellChatDB v2
+Alox12,Fpr-rs3,LXA4,Non-protein Signaling,CellChatDB v2
+Alox12,Fpr2,LXA4,Non-protein Signaling,CellChatDB v2
+Alox5_Alox5ap_Ltc4s,Fpr-rs7,LXA4,Non-protein Signaling,CellChatDB v2
+Alox5_Alox5ap_Ltc4s,Fpr-rs6,LXA4,Non-protein Signaling,CellChatDB v2
+Alox5_Alox5ap_Ltc4s,Fpr3,LXA4,Non-protein Signaling,CellChatDB v2
+Alox5_Alox5ap_Ltc4s,Fpr-rs4,LXA4,Non-protein Signaling,CellChatDB v2
+Alox5_Alox5ap_Ltc4s,Fpr-rs3,LXA4,Non-protein Signaling,CellChatDB v2
+Alox5_Alox5ap_Ltc4s,Fpr2,LXA4,Non-protein Signaling,CellChatDB v2
+Anxa1,Fpr-rs7,ANNEXIN,Secreted Signaling,CellChatDB v2
+Anxa1,Fpr-rs6,ANNEXIN,Secreted Signaling,CellChatDB v2
+Anxa1,Fpr3,ANNEXIN,Secreted Signaling,CellChatDB v2
+Anxa1,Fpr-rs4,ANNEXIN,Secreted Signaling,CellChatDB v2
+Anxa1,Fpr-rs3,ANNEXIN,Secreted Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabbr1,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad1,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc32a1_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a1_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a11_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a12_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a13_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a6_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Slc6a8_Gad2,Gabbr2,GABA-B,Non-protein Signaling,CellChatDB v2
+Galp,Galr3,GALANIN,Secreted Signaling,CellChatDB v2
+Slc17a6_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Gria1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Gria2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Gria3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Gria4,Glutamate,Non-protein Signaling,CellChatDB v2
+Nrxn1_Cbln1,Grid2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm1,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm2,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm3,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm6,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm7,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grm8,Glutamate,Non-protein Signaling,CellChatDB v2
+Hdc,Hrh1,Histamine,Non-protein Signaling,CellChatDB v2
+Hdc,Hrh2,Histamine,Non-protein Signaling,CellChatDB v2
+Hdc,Hrh3,Histamine,Non-protein Signaling,CellChatDB v2
+Hdc,Hrh4,Histamine,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr1a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr1a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr1a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr1a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr1a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr1a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr1b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr1b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr1b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr1b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr1b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr1b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr1d,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr1d,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr1d,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr1d,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr1d,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr1d,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr1e,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr1e,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr1e,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr1e,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr1e,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr1e,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr1f,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr1f,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr1f,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr1f,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr1f,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr1f,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr2a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr2a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr2a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr2a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr2a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr2a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr2b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr2b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr2b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr2b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr2b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr2b,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr2c,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr2c,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr2c,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr2c,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr2c,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr2c,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr4,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr4,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr4,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr4,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr4,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr4,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr5a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr5a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr5a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr5a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr5a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr5a,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr6,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr6,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr6,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr6,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr6,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr6,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a1,Htr7,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc18a2,Htr7,5-HT,Non-protein Signaling,CellChatDB v2
+Tph1_Slc6a4,Htr7,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a1,Htr7,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc18a2,Htr7,5-HT,Non-protein Signaling,CellChatDB v2
+Tph2_Slc6a4,Htr7,5-HT,Non-protein Signaling,CellChatDB v2
+Lrfn4,Ptprd,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrfn4,Ptprf,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrfn4,Ptprs,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrfn5,Ptprd,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrfn5,Ptprf,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrfn5,Ptprs,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrrc4b,Ptprd,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrrc4b,Ptprs,PTPR,Cell-Cell Contact,CellChatDB v2
+Lrrc4c,Ptprf,PTPR,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Lrrtm1,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Lrrtm1,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn3,Lrrtm1,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Lrrtm2,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Lrrtm2,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn3,Lrrtm2,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Lrrtm3,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Lrrtm3,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn3,Lrrtm3,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn1,Lrrtm4,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn2,Lrrtm4,NRXN,Cell-Cell Contact,CellChatDB v2
+Nrxn3,Lrrtm4,NRXN,Cell-Cell Contact,CellChatDB v2
+Lrrtm4,Ptprs,PTPR,Cell-Cell Contact,CellChatDB v2
+Lta4h,Ltb4r1,CysLTs,Non-protein Signaling,CellChatDB v2
+Lta4h,Ltb4r2,CysLTs,Non-protein Signaling,CellChatDB v2
+Grp,Nmbr,GRP,Secreted Signaling,CellChatDB v2
+Ptprs,Ntrk3,PTPR,Secreted Signaling,CellChatDB v2
+Pomc,Oprd1,OPIOID,Non-protein Signaling,CellChatDB v2
+Pomc,Oprm1,OPIOID,Non-protein Signaling,CellChatDB v2
+Pomc,Oprk1,OPIOID,Non-protein Signaling,CellChatDB v2
+Pnoc,Oprl1,OPIOID,Non-protein Signaling,CellChatDB v2
+Ptgds,Ptgdr,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptgds,Ptgdr2,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges,Ptger1,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges2,Ptger1,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges3,Ptger1,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges,Ptger2,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges2,Ptger2,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges3,Ptger2,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges,Ptger3,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges2,Ptger3,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges3,Ptger3,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges,Ptger4,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges2,Ptger4,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptges3,Ptger4,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Akr1c14_Akr1c20_Akr1cl_Chrng,Ptgfr,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Cbr1_Cbr1b,Ptgfr,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Prxl2b,Ptgfr,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Ptgis,Ptgir,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Vip,Sctr,VIP,Secreted Signaling,CellChatDB v2
+Slitrk1,Ptprd,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk1,Ptprs,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk2,Ptprd,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk2,Ptprs,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk3,Ptprd,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk4,Ptprs,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk5,Ptprs,SLITRK,Secreted Signaling,CellChatDB v2
+Slitrk6,Ptprs,SLITRK,Secreted Signaling,CellChatDB v2
+Tbxas1,Tbxa2r,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a6_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a7_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc17a8_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a1_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a2_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a3_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a6_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik1_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik2_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik3_Grik4,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik1_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik2_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grik3_Grik5,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grin1_Grin2a,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grin1_Grin2b,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grin1_Grin2c,Glutamate,Non-protein Signaling,CellChatDB v2
+Slc1a7_Gls2,Grin1_Grin2d,Glutamate,Non-protein Signaling,CellChatDB v2
+Ptgr1,Ltb4r1,12oxoLTB4,Non-protein Signaling,CellChatDB v2
+Ptgr1,Ltb4r2,12oxoLTB5,Non-protein Signaling,CellChatDB v2
+Cyp11a1,Nr1h4,27HC,Non-protein Signaling,CellChatDB v2
+Cyp3a13,Nr1h4,27HC,Non-protein Signaling,CellChatDB v2
+Dagla,Cnr1,2-AG,Non-protein Signaling,CellChatDB v2
+Dagla,Cnr2,2-AG,Non-protein Signaling,CellChatDB v2
+Dagla,Gpr55,2-AG,Non-protein Signaling,CellChatDB v2
+Daglb,Cnr1,2-AG,Non-protein Signaling,CellChatDB v2
+Daglb,Cnr2,2-AG,Non-protein Signaling,CellChatDB v2
+Daglb,Gpr55,2-AG,Non-protein Signaling,CellChatDB v2
+Dhrs9,Pgr,5alphaP,Non-protein Signaling,CellChatDB v2
+App,Sorl1,APP,Cell-Cell Contact,CellChatDB v2
+App,Tnfrsf21,APP,Cell-Cell Contact,CellChatDB v2
+App,Trem2_Tyrobp,APP,Cell-Cell Contact,CellChatDB v2
+Entpd1,Adora3,CD39,Cell-Cell Contact,CellChatDB v2
+Cyp11b2_Cyp11b1,Nr3c1,Aldo,Non-protein Signaling,CellChatDB v2
+Cyp11b2_Cyp11b1,Nr3c2,Aldo,Non-protein Signaling,CellChatDB v2
+Cyp17a1,Ar,Androstenedione,Non-protein Signaling,CellChatDB v2
+Hsd17b6,Nr1h4,Androsterone,Non-protein Signaling,CellChatDB v2
+Apoa1,Abca1,ApoA,Cell-Cell Contact,CellChatDB v2
+Apoa1,Amn_Cubn,ApoA,Cell-Cell Contact,CellChatDB v2
+Apoa1,Trem2_Tyrobp,ApoA,Cell-Cell Contact,CellChatDB v2
+Apoa2,Trem2_Tyrobp,ApoA,Cell-Cell Contact,CellChatDB v2
+Apob,Apobr,ApoB,Cell-Cell Contact,CellChatDB v2
+Apob,Trem2_Tyrobp,ApoB,Cell-Cell Contact,CellChatDB v2
+Apoe,Trem2_Tyrobp,ApoE,Cell-Cell Contact,CellChatDB v2
+Aldh1a1_Aldh1a7,Rara_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rara_Rxra_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rarb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rarb_Rxrb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rarg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rarg_Rxrg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rxra_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rxrb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rxrg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a1_Aldh1a7,Rorb,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rara_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rara_Rxra_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rarb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rarb_Rxrb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rarg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rarg_Rxrg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rxra_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rxrb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rxrg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a2,Rorb,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rara_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rara_Rxra_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rarb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rarb_Rxrb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rarg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rarg_Rxrg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rxra_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rxrb_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rxrg_Crabp2,RA,Non-protein Signaling,CellChatDB v2
+Aldh1a3,Rorb,RA,Non-protein Signaling,CellChatDB v2
+Bdnf,Sort1,NT,Secreted Signaling,CellChatDB v2
+Bdnf,Ngfr,NT,Secreted Signaling,CellChatDB v2
+Cd160,Tnfrsf14,CD160,Cell-Cell Contact,CellChatDB v2
+Cadm1,Nectin3,CADM,Cell-Cell Contact,CellChatDB v2
+Cadm3,Cadm1,CADM,Cell-Cell Contact,CellChatDB v2
+Cadm3,Cadm4,CADM,Cell-Cell Contact,CellChatDB v2
+Cadm3,Epb41l1,CADM,Cell-Cell Contact,CellChatDB v2
+Cadm3,Nectin3,CADM,Cell-Cell Contact,CellChatDB v2
+Cyp27b1,Vdr,Calcitriol,Non-protein Signaling,CellChatDB v2
+Cd276,Treml2,CD276,Cell-Cell Contact,CellChatDB v2
+Cd99,Pilrb1,CD99,Cell-Cell Contact,CellChatDB v2
+Cd99,Pilrb2,CD99,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd209c,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd209a,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd209d,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd209b,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd209e,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd209c,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd209d,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd209b,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd209e,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Ceacam2,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Ceacam2,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Ceacam1,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Psg20,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Psg20,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Sele,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd8a,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd8a,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd1d2,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam2,Cd1d1,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd1d2,CEACAM,Cell-Cell Contact,CellChatDB v2
+Ceacam1,Cd1d1,CEACAM,Cell-Cell Contact,CellChatDB v2
+Cel,Rora,Cholesterol,Non-protein Signaling,CellChatDB v2
+Cel,Rorc,Cholesterol,Non-protein Signaling,CellChatDB v2
+Dhcr24,Rora,Cholesterol,Non-protein Signaling,CellChatDB v2
+Dhcr24,Rorc,Cholesterol,Non-protein Signaling,CellChatDB v2
+Dhcr7,Rora,Cholesterol,Non-protein Signaling,CellChatDB v2
+Dhcr7,Rorc,Cholesterol,Non-protein Signaling,CellChatDB v2
+Lipa,Rora,Cholesterol,Non-protein Signaling,CellChatDB v2
+Lipa,Rorc,Cholesterol,Non-protein Signaling,CellChatDB v2
+Cntn1,Notch1,CNTN,Cell-Cell Contact,CellChatDB v2
+Cntn1,Notch2,CNTN,Cell-Cell Contact,CellChatDB v2
+Cyp11b2_Cyp11b1,Nr3c1,Cort,Non-protein Signaling,CellChatDB v2
+Cyp11b2_Cyp11b1,Nr3c2,Cort,Non-protein Signaling,CellChatDB v2
+Crtam,Cadm1,CADM,Cell-Cell Contact,CellChatDB v2
+Ubash3b,Esr1,DHEA,Non-protein Signaling,CellChatDB v2
+Ubash3b,Nr1i2,DHEA,Non-protein Signaling,CellChatDB v2
+Ubash3b,Ppara,DHEA,Non-protein Signaling,CellChatDB v2
+Dhcr7,Nr1h2,Desmosterol,Non-protein Signaling,CellChatDB v2
+Dhcr7,Nr1h3,Desmosterol,Non-protein Signaling,CellChatDB v2
+Cyp21a1_Fdxr,Nr3c2,Desoxycorticosterone,Non-protein Signaling,CellChatDB v2
+Sult1e1,Ppara,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult1e1,Ppard,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult1e1,Pparg,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult2a1,Ppara,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult2a1,Ppard,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult2a1,Pparg,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult1a1,Ppara,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult1a1,Ppard,DHEAS,Non-protein Signaling,CellChatDB v2
+Sult1a1,Pparg,DHEAS,Non-protein Signaling,CellChatDB v2
+Srd5a1,Ar,DHT,Non-protein Signaling,CellChatDB v2
+Srd5a2,Ar,DHT,Non-protein Signaling,CellChatDB v2
+Srd5a3,Ar,DHT,Non-protein Signaling,CellChatDB v2
+Cyp19a1,Esr1,Estradiol,Non-protein Signaling,CellChatDB v2
+Cyp19a1,Esr2,Estradiol,Non-protein Signaling,CellChatDB v2
+Cyp19a1,Gper1,Estradiol,Non-protein Signaling,CellChatDB v2
+Cyp19a1,Nr1i2,Estradiol,Non-protein Signaling,CellChatDB v2
+Hsd17b1,Esr1,Estradiol,Non-protein Signaling,CellChatDB v2
+Hsd17b1,Esr2,Estradiol,Non-protein Signaling,CellChatDB v2
+Hsd17b1,Gper1,Estradiol,Non-protein Signaling,CellChatDB v2
+Hsd17b1,Nr1i2,Estradiol,Non-protein Signaling,CellChatDB v2
+Igfbp3,Tmem219,IGFBP,Secreted Signaling,CellChatDB v2
+Clec2f,Klrb1b,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2g,Klrb1b,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2h,Klrb1b,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2i,Klrb1b,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2e,Klrb1b,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2f,Klrb1,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2d,Klrb1,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2e,Klrb1,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2h,Klrb1f,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2d,Klrb1f,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2e,Klrb1f,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2f,Klrb1a,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2g,Klrb1a,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2h,Klrb1a,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2d,Klrb1a,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2i,Klrb1a,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2e,Klrb1a,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2f,Klrb1c,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2g,Klrb1c,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2h,Klrb1c,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2d,Klrb1c,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2i,Klrb1c,CLEC,Cell-Cell Contact,CellChatDB v2
+Clec2e,Klrb1c,CLEC,Cell-Cell Contact,CellChatDB v2
+Lair1,Lilrb4a,LAIR1,Cell-Cell Contact,CellChatDB v2
+Lgals9,Bcr_Ptprc_Cd22,GALECTIN,Secreted Signaling,CellChatDB v2
+Lgals9,P4hb,GALECTIN,Secreted Signaling,CellChatDB v2
+Asmt,Mtnr1a,Melatonin,Non-protein Signaling,CellChatDB v2
+Asmt,Mtnr1b,Melatonin,Non-protein Signaling,CellChatDB v2
+Amh,Amhr2_Bmpr1b,AMH,Secreted Signaling,CellChatDB v2
+Mmp2,Mmp14_Itgav_Itgb3,MMP,Cell-Cell Contact,CellChatDB v2
+Ntn1,Dcc,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn1,Dscam,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn1,Unc5a,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn1,Unc5b,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn1,Unc5c,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn4,Ntrk2,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn4,Unc5b,Netrin,Cell-Cell Contact,CellChatDB v2
+Ntn4,Unc5d,Netrin,Cell-Cell Contact,CellChatDB v2
+Nts,Sort1,NTS,Secreted Signaling,CellChatDB v2
+Nrg1,Itga6_Itgb4,NRG,Secreted Signaling,CellChatDB v2
+Ntf3,Ngfr,NT,Secreted Signaling,CellChatDB v2
+Ntf5,Ngfr,NT,Secreted Signaling,CellChatDB v2
+Cd200,Cd200r1l,CD200,Cell-Cell Contact,CellChatDB v2
+Pecam1,Cd177,PECAM1,Cell-Cell Contact,CellChatDB v2
+Pecam1,Cd38,PECAM2,Cell-Cell Contact,CellChatDB v2
+Ppia,Bsg,CypA,Non-protein Signaling,CellChatDB v2
+Cyp11a1_Fdx2_Fdx1,Nr1i2,Pregnenolone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper1_Catsperb,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper1_Catsperd,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper2_Catsperb,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper2_Catsperd,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper3_Catsperb,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper3_Catsperd,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper4_Catsperb,Progesterone,Non-protein Signaling,CellChatDB v2
+Hsd3b1,Catsper4_Catsperd_Chrne,Progesterone,Non-protein Signaling,CellChatDB v2
+Akr1c14_Akr1c20_Akr1cl_Chrng,Ptgdr2,Prostaglandin,Non-protein Signaling,CellChatDB v2
+Reln,Lrp8,RELN,ECM-Receptor,CellChatDB v2
+Reln,Vldlr,RELN,ECM-Receptor,CellChatDB v2
+Raet1e,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+Raet1c,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+Raet1b,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+Raet1a,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+Raet1d,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+H60a,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+H60b,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+H60c,Klrk1_Hcst,NKG2D,Cell-Cell Contact,CellChatDB v2
+Rbp4,Stra6,RBP4,Secreted Signaling,CellChatDB v2
+Ddc,Htr1a,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr1b,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr1d,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr1f,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr2a,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr2b,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr2c,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr3a,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr3b,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr4,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr5a,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr6,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Htr7,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Drd1,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Drd2,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Drd3,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Drd4,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Ddc,Drd5,SerotoninDopamin,Non-protein Signaling,CellChatDB v2
+Sirpb1a,Cd47,SIRP,Cell-Cell Contact,CellChatDB v2
+Sirpb1b,Cd47,SIRP,Cell-Cell Contact,CellChatDB v2
+Sirpb1c,Cd47,SIRP,Cell-Cell Contact,CellChatDB v2
+Slit1,Robo1,SLIT,Secreted Signaling,CellChatDB v2
+Slit2,Robo1,SLIT,Secreted Signaling,CellChatDB v2
+Slit2,Robo2,SLIT,Secreted Signaling,CellChatDB v2
+Akr1d1,Ar,Testosterone,Non-protein Signaling,CellChatDB v2
+Hsd17b12,Ar,Testosterone,Non-protein Signaling,CellChatDB v2
+Hsd17b3,Ar,Testosterone,Non-protein Signaling,CellChatDB v2
+Gphb5_Gpha2,Tshr,TSH,Non-protein Signaling,CellChatDB v2
+Cga_Tshb,Tshr,TSH,Non-protein Signaling,CellChatDB v2
+Dio3_Tg,Thra,Triiodothyronine,Non-protein Signaling,CellChatDB v2
+Dio3_Tg,Thrb,Triiodothyronine,Non-protein Signaling,CellChatDB v2
+Tulp1,Tyro3,TULP,Secreted Signaling,CellChatDB v2
+Tulp2,Tyro3,TULP,Secreted Signaling,CellChatDB v2
+Tulp1,Axl,TULP,Secreted Signaling,CellChatDB v2
+Tulp1,Mertk,TULP,Secreted Signaling,CellChatDB v2
+Tub,Mertk,TULP,Secreted Signaling,CellChatDB v2
+Pros1,Mertk,PROS,Secreted Signaling,CellChatDB v2
+Plau,Plaur,PLAU,Secreted Signaling,CellChatDB v2
+Vcam1,Itgad_Itgb2,VCAM,Cell-Cell Contact,CellChatDB v2
