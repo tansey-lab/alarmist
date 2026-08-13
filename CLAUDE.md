@@ -116,9 +116,13 @@ After re-exporting a DB, copy it into **both**.
 Two packaging notes: `_get_bundled_database_path` is only ever called with the two
 **human** names, so the mouse DB is never auto-resolved — you must pass `--cellchatdb` /
 `cellchatdb_path` explicitly (this is what the non-human hang above is about). And
-`pyproject.toml` ships `config/lri_databases/*.csv` by glob, so the pre-fix
-`CellChatDBv2.0.human.old.csv` currently goes into the wheel — the archive belongs in
-`data/LRdatabase/` only.
+`pyproject.toml:76` ships `config/lri_databases/*.csv` **by glob**, so anything dropped in
+that directory lands in the wheel. **`CellChatDBv2.0.human.old.csv` is therefore
+deliberately NOT tracked under `config/lri_databases/`** (2026-08-12) — a wheel built from
+a clean checkout will not carry the stale archive. A local copy may still sit there
+untracked; delete it before building a wheel from your working tree. The archive lives in
+`data/LRdatabase/` and that is the only copy git knows about. This is the one intentional
+exception to "copy it into both" above.
 
 They are exported from the CellChat R package v2.2.0. **Derive subunits from the
 `complex` table, never from `ligand.symbol` / `receptor.symbol`** — the `*.symbol`

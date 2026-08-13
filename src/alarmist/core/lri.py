@@ -100,10 +100,14 @@ def _split_gene_complex(gene_str: str) -> list[str]:
     ['IL12A', 'IL12B']
     >>> _split_gene_complex("A_B,C")
     ['A', 'B', 'C']
+    >>> _split_gene_complex("INHBA, INHBB")
+    ['INHBA', 'INHBB']
     """
-    # Replace all commas with underscores, then split
+    # Replace all commas with underscores, then split. The strip() matters:
+    # a ", "-separated complex would otherwise yield a leading-space gene that
+    # never matches adata.var_names, silently dropping the whole interaction.
     normalized = gene_str.replace(",", "_")
-    return normalized.split("_")
+    return [g.strip() for g in normalized.split("_") if g.strip()]
 
 
 def load_database_resource(
