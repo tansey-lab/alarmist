@@ -1,0 +1,11 @@
+usage: plot_liana_full.py [-h] [--input {inflow,bivariate}] --inflow-dir
+                          INFLOW_DIR --nmf-dir NMF_DIR --h5ad H5AD --out-dir
+                          OUT_DIR [--count-layer COUNT_LAYER]
+                          [--cell-type-col CELL_TYPE_COL]
+                          [--n-top-interactions N_TOP_INTERACTIONS]
+                          [--global-specificity]
+                          [--reuse-global-specificity | --no-reuse-global-specificity]
+                          [--n-perms N_PERMS] [--seed SEED]
+                          [--required-lrs REQUIRED_LRS]
+                          [--bandwidth BANDWIDTH] [--cutoff CUTOFF]
+plot_liana_full.py: error: argument --input: invalid choice: 'bivariate cellchatdb2 nmf_bivariate' (choose from 'inflow', 'bivariate')

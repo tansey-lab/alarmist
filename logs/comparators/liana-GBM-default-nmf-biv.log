@@ -1,0 +1,14 @@
+[19:47:38] bivariate: 100197 locations x 388 features | min 0 | negatives 0
+[19:47:38]   cross-punch filter (>=5 of 13 punches): 388 -> 388 features (100.0% kept); median punches/feature = 12
+[19:47:38] li.multi.nmf(n_components=None, k_range=range(1, 11), max_iter=200, random_state=0)
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:01<00:10,  1.18s/it]/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/sklearn/decomposition/_nmf.py:1723: ConvergenceWarning: Maximum number of iterations 200 reached. Increase it to improve convergence.
+ 20%|██        | 2/10 [00:09<00:45,  5.67s/it] 30%|███       | 3/10 [00:16<00:40,  5.83s/it] 40%|████      | 4/10 [00:20<00:30,  5.12s/it] 50%|█████     | 5/10 [00:25<00:26,  5.23s/it] 60%|██████    | 6/10 [00:31<00:21,  5.50s/it] 70%|███████   | 7/10 [00:38<00:17,  5.87s/it] 80%|████████  | 8/10 [00:46<00:13,  6.66s/it] 90%|█████████ | 9/10 [01:08<00:11, 11.55s/it]100%|██████████| 10/10 [01:33<00:00, 15.56s/it]100%|██████████| 10/10 [01:33<00:00,  9.33s/it]
+Estimated rank: 4
+[19:49:19]   saved elbow.png (redrawn from nmf_errors; _plot_elbow uses plotnine)
+[19:49:19]   ELBOW RANK = 4  (k_range 1..10 step 1)
+[19:49:19]   W (locations x factors) (100197, 4) | H (features x factors) (388, 4)
+[19:49:19]   saved top-10 loadings for 4 factors
+[19:49:23]   saved factor_maps.png (4 factors)
+[19:49:23]   fit quality: rel_frobenius 0.7705 (40.6% of SS captured) | MAE 0.086906 vs zero-predictor MAE 0.077797
+[19:49:23]   *** WARNING: the fit's MAE does not beat the zero predictor. The elbow is a property of an L1 criterion on a near-all-zero matrix, not evidence of a good rank. ***
+[19:49:23] DONE in 1.8 min -> results/comparators/liana/GBM/nmf_bivariate_default

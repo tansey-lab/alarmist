@@ -1,0 +1,99 @@
+/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/docrep/decorators.py:43: SyntaxWarning: 'n_jobs' is not a valid key!
+/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/docrep/decorators.py:43: SyntaxWarning: 'show_progress_bar' is not a valid key!
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_mofaflex.py:227: FutureWarning: `__version__` is deprecated, use `importlib.metadata.version('scanpy')` instead
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_mofaflex.py:229: FutureWarning: `__version__` is deprecated, use `importlib.metadata.version('anndata')` instead.
+Using device: cpu
+
+[1] loading results/comparators/liana/GBM/cellchatdb2_inflow/data/inflow_lrdata.h5ad
+    dropped obs ['motif', 'patch_id'], uns ['motif_colors', 'moranI']
+
+[2] feature QC on the inflow score
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/qc_inflow_distributions.png
+    nonzero_fraction > 0.001: 4608 -> 1550 features
+    SVI filter: 1550 -> 1550 features (0 dropped)
+    densifying X for the cpu backend (0.58 GB)
+
+[3] lrdata -> MuData (one view per sender cell type)
+  0%|          | 0/9 [00:00<?, ?it/s] 11%|█         | 1/9 [00:00<00:01,  6.32it/s] 22%|██▏       | 2/9 [00:00<00:01,  5.03it/s] 33%|███▎      | 3/9 [00:00<00:01,  4.92it/s] 44%|████▍     | 4/9 [00:00<00:01,  4.72it/s] 56%|█████▌    | 5/9 [00:01<00:00,  4.75it/s] 78%|███████▊  | 7/9 [00:01<00:00,  6.39it/s] 89%|████████▉ | 8/9 [00:01<00:00,  6.50it/s]Skipping 'Lymphoid': 9 features < min_features=25.
+100%|██████████| 9/9 [00:01<00:00,  6.28it/s]
+    views kept: {'Glial-Neuronal': 149, 'NPC-like': 283, 'OPC-like': 247, 'MES-like': 277, 'AC-like': 250, 'non-mGAM': 56, 'mGAM': 121, 'Vascular': 158}
+    views DROPPED (< min_features=25): ['Lymphoid']
+
+[4] reusing cached model at /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/models/mofaflex_inflow_nzf0.001.hdf5
+
+[5] diagnostics
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/factor_correlation.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/variance_explained.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/variance_explained_by_view.png
+    active factors (R2 >= 0.02 in >=1 view): 20 / 20
+    ['Factor 3', 'Factor 16', 'Factor 13', 'Factor 12', 'Factor 18', 'Factor 1', 'Factor 17', 'Factor 11', 'Factor 20', 'Factor 14', 'Factor 4', 'Factor 19', 'Factor 15', 'Factor 7', 'Factor 2', 'Factor 8', 'Factor 5', 'Factor 9', 'Factor 10', 'Factor 6']
+    R2 per view (sender):
+view
+Vascular          0.387938
+NPC-like          0.287316
+AC-like           0.278035
+mGAM              0.259374
+non-mGAM          0.256383
+OPC-like          0.248712
+MES-like          0.198009
+Glial-Neuronal    0.143519
+Name: R2, dtype: float64
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/top_weights.png
+
+[6] factor-space clustering
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/umap_leiden_annotations.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/spatial_leiden_annotations.png
+    focus factors (top total R2): ['Factor 3', 'Factor 16']
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/umap_focus_factors.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/spatial_focus_factors.png
+
+[7] MOFA-Flex weights -> liana interaction table
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/dotplot_focus_factors.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/circle_plot_Factor3.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/circle_plot_Factor16.png
+
+[8] tracing the ligand-receptor pairs of interest
+        source ligand_complex receptor_complex  status top_factor  top_loading  rank_in_top_factor
+          mGAM            GRN            SORT1 present  Factor 19     0.650606                  73
+      Vascular            GRN            SORT1 present  Factor 15    -0.466591                  92
+      non-mGAM            GRN            SORT1 present   Factor 8     0.329641                 113
+      NPC-like            GRN            SORT1 present  Factor 16     0.250677                 209
+      OPC-like            GRN            SORT1 present   Factor 3    -0.121424                 304
+Glial-Neuronal            GRN            SORT1 present  Factor 20     0.208680                 195
+      MES-like            GRN            SORT1 present   Factor 4     0.462904                  94
+       AC-like            GRN            SORT1 present   Factor 3    -0.326086                 153
+          mGAM          ANXA1             FPR1 present   Factor 7    -0.307895                 121
+      MES-like          ANXA1             FPR1 present   Factor 7    -0.278078                 136
+       AC-like          ANXA1             FPR1 present  Factor 20    -0.112587                 329
+      OPC-like          ANXA1             FPR1 present  Factor 20    -0.060215                 500
+      Vascular          ANXA1             FPR1 present   Factor 4     0.145885                 261
+Glial-Neuronal          ANXA1             FPR1 present   Factor 1     0.018281                 880
+      NPC-like          ANXA1             FPR1 present  Factor 20    -0.045351                 574
+
+[9] grade association, aggregated to tma_id
+   factor  n_high  n_low  mean_high  mean_low     delta    U        p     p_bh
+Factor 11       7      6   0.003353  0.084057  0.080703  3.0 0.008159 0.163170
+Factor 18       7      6   0.019498 -0.121451 -0.140948 37.0 0.022145 0.205128
+ Factor 7       7      6  -0.007979  0.053720  0.061698  6.0 0.034965 0.205128
+ Factor 3       7      6  -0.023033  0.114716  0.137749  7.0 0.051282 0.205128
+ Factor 1       7      6  -0.011527  0.068999  0.080526  7.0 0.051282 0.205128
+Factor 16       7      6  -0.005089 -0.100151 -0.095062 32.0 0.137529 0.451632
+ Factor 8       7      6  -0.014590  0.037424  0.052014 11.0 0.180653 0.451632
+ Factor 5       7      6   0.020015 -0.040456 -0.060471 31.0 0.180653 0.451632
+ Factor 4       7      6   0.042533 -0.034950 -0.077483 30.0 0.234266 0.520591
+Factor 15       7      6  -0.024512  0.025381  0.049893 13.0 0.294872 0.536131
+Factor 20       7      6  -0.015822  0.036805  0.052627 13.0 0.294872 0.536131
+ Factor 9       7      6  -0.009291 -0.033432 -0.024140 28.0 0.365967 0.563027
+ Factor 2       7      6  -0.008626 -0.024330 -0.015704 28.0 0.365967 0.563027
+Factor 12       7      6   0.009062 -0.023706 -0.032768 27.0 0.445221 0.593629
+Factor 13       7      6   0.009017  0.030066  0.021048 15.0 0.445221 0.593629
+Factor 17       7      6  -0.006619 -0.029243 -0.022624 26.0 0.533800 0.667249
+Factor 19       7      6   0.009066  0.009613  0.000547 18.0 0.730769 0.859728
+Factor 14       7      6  -0.011598 -0.012110 -0.000513 23.0 0.835664 0.928516
+Factor 10       7      6  -0.008355 -0.026987 -0.018631 21.0 1.000000 1.000000
+ Factor 6       7      6   0.009084  0.000352 -0.008733 21.0 1.000000 1.000000
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/focus_factors_by_region.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/plots/factor_by_punch_grade.png
+
+DONE in 1.4 min, peak RSS 4.2 GB
+manifest -> /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow/sensitivity_nzf0.001/run_manifest.json

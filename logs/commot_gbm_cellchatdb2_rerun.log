@@ -1,0 +1,152 @@
+[20:21:49] reading data/xenium_mm_final_cell_id.h5ad
+[20:21:50] loaded 100197 x 5119
+[20:21:50] X <- layers['counts'] (raw counts)
+[20:21:52] normalize_total + log1p done (tutorial recipe); X max = 5.64
+[20:21:52] LR database: CellChatDBv2.0.human.csv [Secreted Signaling+Non-protein Signaling] -> 2259 pairs before expression filtering
+[20:21:53] GLOBAL filter_lr_database(min_cell=100) on all 100197 cells: 2259 -> 671 pairs, reused for every split
+[20:21:53] splits: 13 (tma_id), smallest first | dis_thr=365.0 | filter_scope=global
+[20:21:53] --- split 2: 819 cells (dense NxN distance matrix = 0.01 GB) ---
+[20:21:53]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:22:09]   spatial_communication done | peak RSS 7.6 GB
+[20:22:11]   obsp: 771 cell x cell transport plans, 25,336 total nonzeros
+[20:22:11]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:22:11]   top 5 pathways by total received signal: FGF, Glutamate, PDGF, GAS, GALECTIN
+[20:22:18]   requested GRN_SORT1: rank 12/671 by total received signal
+[20:22:18]   requested ANXA1_FPR1: rank 94/671 by total received signal
+[20:22:21]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/2/adata_commot.h5ad (0.01 GB)
+[20:22:21]   split 2 done in 0.5 min
+[20:22:21] --- split 14: 2520 cells (dense NxN distance matrix = 0.05 GB) ---
+[20:22:21]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:24:23]   spatial_communication done | peak RSS 8.3 GB
+[20:24:26]   obsp: 771 cell x cell transport plans, 920,156 total nonzeros
+[20:24:26]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:24:26]   top 5 pathways by total received signal: FGF, Glutamate, PDGF, GAS, ANGPTL
+[20:24:34]   requested GRN_SORT1: rank 2/671 by total received signal
+[20:24:34]   requested ANXA1_FPR1: rank 13/671 by total received signal
+[20:24:39]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/14/adata_commot.h5ad (0.03 GB)
+[20:24:39]   split 14 done in 2.3 min
+[20:24:39] --- split 6: 3092 cells (dense NxN distance matrix = 0.08 GB) ---
+[20:24:39]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:25:23]   spatial_communication done | peak RSS 8.3 GB
+[20:25:26]   obsp: 771 cell x cell transport plans, 11,787 total nonzeros
+[20:25:26]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:25:26]   top 5 pathways by total received signal: FGF, PDGF, ANGPTL, GAS, GRN
+[20:25:34]   requested GRN_SORT1: rank 4/671 by total received signal
+[20:25:34]   requested ANXA1_FPR1: rank 126/671 by total received signal
+[20:25:38]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/6/adata_commot.h5ad (0.02 GB)
+[20:25:38]   split 6 done in 1.0 min
+[20:25:38] --- split 12: 3308 cells (dense NxN distance matrix = 0.09 GB) ---
+[20:25:38]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:29:18]   spatial_communication done | peak RSS 8.5 GB
+[20:29:22]   obsp: 771 cell x cell transport plans, 1,785,366 total nonzeros
+[20:29:22]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:29:22]   top 5 pathways by total received signal: FGF, PDGF, GAS, COMPLEMENT, Glutamate
+[20:29:30]   requested GRN_SORT1: rank 2/671 by total received signal
+[20:29:30]   requested ANXA1_FPR1: rank 13/671 by total received signal
+[20:29:38]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/12/adata_commot.h5ad (0.04 GB)
+[20:29:38]   split 12 done in 4.0 min
+[20:29:38] --- split 11: 3826 cells (dense NxN distance matrix = 0.12 GB) ---
+[20:29:38]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:37:56]   spatial_communication done | peak RSS 8.8 GB
+[20:38:00]   obsp: 771 cell x cell transport plans, 4,994,123 total nonzeros
+[20:38:00]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:38:00]   top 5 pathways by total received signal: FGF, COMPLEMENT, PDGF, GAS, Glutamate
+[20:38:10]   requested GRN_SORT1: rank 1/671 by total received signal
+[20:38:10]   requested ANXA1_FPR1: rank 5/671 by total received signal
+[20:38:19]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/11/adata_commot.h5ad (0.07 GB)
+[20:38:19]   split 11 done in 8.7 min
+[20:38:19] --- split 9: 5097 cells (dense NxN distance matrix = 0.21 GB) ---
+[20:38:19]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:49:56]   spatial_communication done | peak RSS 9.5 GB
+[20:50:01]   obsp: 771 cell x cell transport plans, 6,834,223 total nonzeros
+[20:50:01]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:50:01]   top 5 pathways by total received signal: FGF, BMP, PDGF, Glutamate, COMPLEMENT
+[20:50:13]   requested GRN_SORT1: rank 1/671 by total received signal
+[20:50:13]   requested ANXA1_FPR1: rank 4/671 by total received signal
+[20:50:25]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/9/adata_commot.h5ad (0.09 GB)
+[20:50:25]   split 9 done in 12.1 min
+[20:50:25] --- split 4: 5363 cells (dense NxN distance matrix = 0.23 GB) ---
+[20:50:25]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[20:55:47]   spatial_communication done | peak RSS 9.5 GB
+[20:55:51]   obsp: 771 cell x cell transport plans, 2,402,224 total nonzeros
+[20:55:51]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[20:55:51]   top 5 pathways by total received signal: FGF, PDGF, COMPLEMENT, GALECTIN, GAS
+[20:56:02]   requested GRN_SORT1: rank 2/671 by total received signal
+[20:56:02]   requested ANXA1_FPR1: rank 21/671 by total received signal
+[20:56:11]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/4/adata_commot.h5ad (0.04 GB)
+[20:56:11]   split 4 done in 5.8 min
+[20:56:11] --- split 5: 6900 cells (dense NxN distance matrix = 0.38 GB) ---
+[20:56:11]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[21:07:06]   spatial_communication done | peak RSS 9.9 GB
+[21:07:12]   obsp: 771 cell x cell transport plans, 5,981,499 total nonzeros
+[21:07:12]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[21:07:12]   top 5 pathways by total received signal: FGF, PDGF, ncWNT, Glutamate, BMP
+[21:07:24]   requested GRN_SORT1: rank 4/671 by total received signal
+[21:07:24]   requested ANXA1_FPR1: rank 36/671 by total received signal
+[21:07:38]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/5/adata_commot.h5ad (0.08 GB)
+[21:07:38]   split 5 done in 11.4 min
+[21:07:38] --- split 3: 6955 cells (dense NxN distance matrix = 0.39 GB) ---
+[21:07:38]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[21:16:48]   spatial_communication done | peak RSS 9.9 GB
+[21:16:53]   obsp: 771 cell x cell transport plans, 4,805,950 total nonzeros
+[21:16:53]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[21:16:53]   top 5 pathways by total received signal: FGF, PDGF, ncWNT, COMPLEMENT, ANGPTL
+[21:17:05]   requested GRN_SORT1: rank 3/671 by total received signal
+[21:17:06]   requested ANXA1_FPR1: rank 6/671 by total received signal
+[21:17:18]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/3/adata_commot.h5ad (0.07 GB)
+[21:17:18]   split 3 done in 9.7 min
+[21:17:18] --- split 13: 9126 cells (dense NxN distance matrix = 0.67 GB) ---
+[21:17:18]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[22:03:01]   spatial_communication done | peak RSS 9.9 GB
+[22:03:09]   obsp: 771 cell x cell transport plans, 34,279,269 total nonzeros
+[22:03:09]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[22:03:09]   top 5 pathways by total received signal: FGF, Glutamate, PDGF, BMP, GRN
+[22:03:37]   requested GRN_SORT1: rank 1/671 by total received signal
+[22:03:37]   requested ANXA1_FPR1: rank 26/671 by total received signal
+[22:04:05]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/13/adata_commot.h5ad (0.33 GB)
+[22:04:05]   split 13 done in 46.8 min
+[22:04:05] --- split 8: 9300 cells (dense NxN distance matrix = 0.69 GB) ---
+[22:04:05]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[22:58:51]   spatial_communication done | peak RSS 9.9 GB
+[22:58:58]   obsp: 771 cell x cell transport plans, 28,317,717 total nonzeros
+[22:58:58]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[22:58:58]   top 5 pathways by total received signal: IGF, FGF, BMP, Glutamate, PDGF
+[22:59:17]   requested GRN_SORT1: rank 1/671 by total received signal
+[22:59:17]   requested ANXA1_FPR1: rank 11/671 by total received signal
+[22:59:40]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/8/adata_commot.h5ad (0.27 GB)
+[22:59:40]   split 8 done in 55.6 min
+[22:59:41] --- split 10: 17435 cells (dense NxN distance matrix = 2.43 GB) ---
+[22:59:41]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[00:29:04]   spatial_communication done | peak RSS 9.9 GB
+[00:29:15]   obsp: 771 cell x cell transport plans, 63,821,331 total nonzeros
+[00:29:15]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[00:29:15]   top 5 pathways by total received signal: IGF, BMP, FGF, PDGF, GRN
+[00:29:58]   requested GRN_SORT1: rank 1/671 by total received signal
+[00:29:58]   requested ANXA1_FPR1: rank 81/671 by total received signal
+[00:30:44]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/10/adata_commot.h5ad (0.60 GB)
+[00:30:44]   split 10 done in 91.1 min
+[00:30:44] --- split 1: 26456 cells (dense NxN distance matrix = 5.60 GB) ---
+[00:30:44]   filter_lr_database(min_cell=100, scope=global): 2259 -> 671 pairs (29.7% retained; tutorial retained 20.9%)
+[01:16:16]   spatial_communication done | peak RSS 11.5 GB
+[01:16:29]   obsp: 771 cell x cell transport plans, 47,754,901 total nonzeros
+[01:16:30]   ranked 671 LR pairs (+99 pathway aggregates kept separate)
+[01:16:30]   top 5 pathways by total received signal: BMP, ncWNT, PDGF, FGF, PROS
+[01:17:04]   requested GRN_SORT1: rank 4/671 by total received signal
+[01:17:05]   requested ANXA1_FPR1: rank 62/671 by total received signal
+[01:17:57]   saved AnnData (+obsp) -> results/comparators/commot/GBM/cellchatdb2/1/adata_commot.h5ad (0.48 GB)
+[01:17:57]   split 1 done in 47.2 min
+[01:17:57] ALL DONE in 296.1 min -> results/comparators/commot/GBM/cellchatdb2
+split  n_cells status  dense_dist_gb  n_pairs_input  n_pairs_used  n_obsp  obsp_nnz                      top_pathways  n_cluster_tests  adata_gb  peak_rss_gb_running_max  runtime_min  GRN_SORT1_rank  ANXA1_FPR1_rank
+    2      819     ok           0.01           2259           671     771     25336   FGF;Glutamate;PDGF;GAS;GALECTIN                7      0.01                     7.64         0.48              12               94
+   14     2520     ok           0.05           2259           671     771    920156     FGF;Glutamate;PDGF;GAS;ANGPTL                7      0.03                     8.35         2.30               2               13
+    6     3092     ok           0.08           2259           671     771     11787           FGF;PDGF;ANGPTL;GAS;GRN                7      0.02                     8.35         0.98               4              126
+   12     3308     ok           0.09           2259           671     771   1785366 FGF;PDGF;GAS;COMPLEMENT;Glutamate                7      0.04                     8.52         3.99               2               13
+   11     3826     ok           0.12           2259           671     771   4994123 FGF;COMPLEMENT;PDGF;GAS;Glutamate                7      0.07                     8.77         8.69               1                5
+    9     5097     ok           0.21           2259           671     771   6834223 FGF;BMP;PDGF;Glutamate;COMPLEMENT                7      0.09                     9.54        12.09               1                4
+    4     5363     ok           0.23           2259           671     771   2402224  FGF;PDGF;COMPLEMENT;GALECTIN;GAS                7      0.04                     9.54         5.77               2               21
+    5     6900     ok           0.38           2259           671     771   5981499      FGF;PDGF;ncWNT;Glutamate;BMP                7      0.08                     9.91        11.44               4               36
+    3     6955     ok           0.39           2259           671     771   4805950  FGF;PDGF;ncWNT;COMPLEMENT;ANGPTL                7      0.07                     9.91         9.67               3                6
+   13     9126     ok           0.67           2259           671     771  34279269        FGF;Glutamate;PDGF;BMP;GRN                7      0.33                     9.91        46.78               1               26
+    8     9300     ok           0.69           2259           671     771  28317717        IGF;FGF;BMP;Glutamate;PDGF                7      0.27                     9.91        55.58               1               11
+   10    17435     ok           2.43           2259           671     771  63821331              IGF;BMP;FGF;PDGF;GRN                7      0.60                     9.91        91.06               1               81
+    1    26456     ok           5.60           2259           671     771  47754901           BMP;ncWNT;PDGF;FGF;PROS                7      0.48                    11.52        47.22               4               62

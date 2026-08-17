@@ -1,0 +1,118 @@
+==============================================================================
+ALARMIST  seed=53  K=20  patch=50.0um  ->  results/GBM_s53_new
+  stages : bptf
+  figures: none   data-file: data/xenium_mm_final_cell_id.h5ad
+==============================================================================
+timestamp_utc = 2026-07-28T22:55:11Z
+stages = bptf
+seed = 53   n_components = 20   patch_size = 50.0   max_iter = 1000
+data_file = data/xenium_mm_final_cell_id.h5ad
+output_dir = results/GBM_s53_new
+patchify = results/GBM_s53_new/patchify (built here)
+cell_type_column = cell_type   resource = cellchatdb   cellchatdb = data/LRdatabase/CellChatDBv2.0.human.csv
+count_layer = X   glm_backend = torch   glm_device = cpu   gene_tile = 2048
+prefilter_spearman = True   glm_dtype = float64
+figures = none   network_threshold = [100.0]   viz_network_threshold = 0.0
+python = /Users/jiayifan/anaconda3/envs/bptf/bin/python
+alarmist_git_commit = 95208de4180946fd4fed77cd3ff594c6114f93e9
+
+
+>>>> 2026-07-28T22:55:11Z  [bptf] in-process  K=20  max_iter=1000  seed=53  cellchatdb=data/LRdatabase/CellChatDBv2.0.human.csv
+OMP: Info #276: omp_set_nested routine deprecated, please use omp_set_max_active_levels instead.
+ITERATION 0:	Time: 0.000000	Objective: -8051575174.16	Change: nan	
+  0%|          | 0/1000 [00:00<?, ?it/s]ITERATION 1:	Time: 1.048319	Objective: -5642191.34	Change: 9.99299e-01	
+  0%|          | 1/1000 [00:01<17:27,  1.05s/it]ITERATION 2:	Time: 0.995067	Objective: -5618301.86	Change: 4.23408e-03	
+  0%|          | 2/1000 [00:02<16:55,  1.02s/it]ITERATION 3:	Time: 1.011289	Objective: -5555387.79	Change: 1.11981e-02	
+  0%|          | 3/1000 [00:03<16:51,  1.01s/it]ITERATION 4:	Time: 0.983523	Objective: -5463652.28	Change: 1.65129e-02	
+  0%|          | 4/1000 [00:04<16:38,  1.00s/it]ITERATION 5:	Time: 1.015919	Objective: -5317518.96	Change: 2.67465e-02	
+  0%|          | 5/1000 [00:05<16:42,  1.01s/it]ITERATION 6:	Time: 1.002679	Objective: -5046919.82	Change: 5.08882e-02	
+  1%|          | 6/1000 [00:06<16:39,  1.01s/it]ITERATION 7:	Time: 1.012683	Objective: -4559712.25	Change: 9.65356e-02	
+  1%|          | 7/1000 [00:07<16:41,  1.01s/it]ITERATION 8:	Time: 1.002121	Objective: -3828388.91	Change: 1.60388e-01	
+  1%|          | 8/1000 [00:08<16:38,  1.01s/it]ITERATION 9:	Time: 0.997007	Objective: -3084590.00	Change: 1.94285e-01	
+  1%|          | 9/1000 [00:09<16:34,  1.00s/it]ITERATION 10:	Time: 0.997001	Objective: -2531177.49	Change: 1.79412e-01	
+  1%|1         | 10/1000 [00:10<16:31,  1.00s/it]ITERATION 11:	Time: 0.989248	Objective: -2148763.12	Change: 1.51082e-01	
+  1%|1         | 11/1000 [00:11<16:26,  1.00it/s]ITERATION 12:	Time: 0.994687	Objective: -1893659.13	Change: 1.18721e-01	
+  1%|1         | 12/1000 [00:12<16:24,  1.00it/s]ITERATION 13:	Time: 0.997947	Objective: -1725837.26	Change: 8.86231e-02	
+  1%|1         | 13/1000 [00:13<16:24,  1.00it/s]ITERATION 14:	Time: 1.004178	Objective: -1609909.15	Change: 6.71721e-02	
+  1%|1         | 14/1000 [00:14<16:25,  1.00it/s]ITERATION 15:	Time: 0.991242	Objective: -1524654.80	Change: 5.29560e-02	
+  2%|1         | 15/1000 [00:15<16:22,  1.00it/s]ITERATION 16:	Time: 1.002001	Objective: -1458799.57	Change: 4.31935e-02	
+  2%|1         | 16/1000 [00:16<16:22,  1.00it/s]ITERATION 17:	Time: 1.016349	Objective: -1406143.02	Change: 3.60958e-02	
+  2%|1         | 17/1000 [00:17<16:26,  1.00s/it]ITERATION 18:	Time: 1.008106	Objective: -1363109.51	Change: 3.06039e-02	
+  2%|1         | 18/1000 [00:18<16:27,  1.01s/it]ITERATION 19:	Time: 1.015684	Objective: -1327352.43	Change: 2.62320e-02	
+  2%|1         | 19/1000 [00:19<16:29,  1.01s/it]ITERATION 20:	Time: 1.004097	Objective: -1297383.55	Change: 2.25779e-02	
+  2%|2         | 20/1000 [00:20<16:27,  1.01s/it]ITERATION 21:	Time: 1.024127	Objective: -1271696.61	Change: 1.97990e-02	
+  2%|2         | 21/1000 [00:21<16:31,  1.01s/it]ITERATION 22:	Time: 1.004379	Objective: -1249775.58	Change: 1.72376e-02	
+  2%|2         | 22/1000 [00:22<16:27,  1.01s/it]ITERATION 23:	Time: 1.018917	Objective: -1230760.41	Change: 1.52149e-02	
+  2%|2         | 23/1000 [00:23<16:29,  1.01s/it]ITERATION 24:	Time: 1.001991	Objective: -1214385.52	Change: 1.33047e-02	
+  2%|2         | 24/1000 [00:24<16:25,  1.01s/it]ITERATION 25:	Time: 1.020424	Objective: -1200373.67	Change: 1.15382e-02	
+  2%|2         | 25/1000 [00:25<16:27,  1.01s/it]ITERATION 26:	Time: 1.007839	Objective: -1188236.51	Change: 1.01112e-02	
+  3%|2         | 26/1000 [00:26<16:25,  1.01s/it]ITERATION 27:	Time: 1.038205	Objective: -1177707.75	Change: 8.86083e-03	
+  3%|2         | 27/1000 [00:27<16:31,  1.02s/it]ITERATION 28:	Time: 1.018418	Objective: -1168592.35	Change: 7.73996e-03	
+  3%|2         | 28/1000 [00:28<16:30,  1.02s/it]ITERATION 29:	Time: 1.034463	Objective: -1160656.27	Change: 6.79114e-03	
+  3%|2         | 29/1000 [00:29<16:34,  1.02s/it]ITERATION 30:	Time: 1.012267	Objective: -1153833.11	Change: 5.87870e-03	
+  3%|3         | 30/1000 [00:30<16:29,  1.02s/it]ITERATION 31:	Time: 1.003860	Objective: -1147831.14	Change: 5.20177e-03	
+  3%|3         | 31/1000 [00:31<16:24,  1.02s/it]ITERATION 32:	Time: 1.002955	Objective: -1142443.17	Change: 4.69404e-03	
+  3%|3         | 32/1000 [00:32<16:19,  1.01s/it]ITERATION 33:	Time: 0.995757	Objective: -1137642.06	Change: 4.20250e-03	
+  3%|3         | 33/1000 [00:33<16:13,  1.01s/it]ITERATION 34:	Time: 1.045600	Objective: -1133435.83	Change: 3.69732e-03	
+  3%|3         | 34/1000 [00:34<16:24,  1.02s/it]ITERATION 35:	Time: 1.047040	Objective: -1129717.38	Change: 3.28070e-03	
+  4%|3         | 35/1000 [00:35<16:31,  1.03s/it]ITERATION 36:	Time: 1.042449	Objective: -1126321.51	Change: 3.00594e-03	
+  4%|3         | 36/1000 [00:36<16:34,  1.03s/it]ITERATION 37:	Time: 1.033859	Objective: -1123224.07	Change: 2.75005e-03	
+  4%|3         | 37/1000 [00:37<16:34,  1.03s/it]ITERATION 38:	Time: 1.027904	Objective: -1120492.74	Change: 2.43169e-03	
+  4%|3         | 38/1000 [00:38<16:32,  1.03s/it]ITERATION 39:	Time: 1.067925	Objective: -1118212.31	Change: 2.03520e-03	
+  4%|3         | 39/1000 [00:39<16:41,  1.04s/it]ITERATION 40:	Time: 1.063932	Objective: -1116210.98	Change: 1.78975e-03	
+  4%|4         | 40/1000 [00:40<16:46,  1.05s/it]ITERATION 41:	Time: 1.038272	Objective: -1114444.74	Change: 1.58236e-03	
+  4%|4         | 41/1000 [00:41<16:42,  1.05s/it]ITERATION 42:	Time: 1.031465	Objective: -1112830.17	Change: 1.44876e-03	
+  4%|4         | 42/1000 [00:42<16:37,  1.04s/it]ITERATION 43:	Time: 1.056990	Objective: -1111384.46	Change: 1.29913e-03	
+  4%|4         | 43/1000 [00:43<16:41,  1.05s/it]ITERATION 44:	Time: 1.031166	Objective: -1110143.77	Change: 1.11635e-03	
+  4%|4         | 44/1000 [00:44<16:35,  1.04s/it]ITERATION 45:	Time: 1.069472	Objective: -1109004.47	Change: 1.02626e-03	
+  4%|4         | 45/1000 [00:45<16:42,  1.05s/it]ITERATION 46:	Time: 1.054099	Objective: -1107967.30	Change: 9.35232e-04	
+  5%|4         | 46/1000 [00:46<16:43,  1.05s/it]ITERATION 47:	Time: 1.062968	Objective: -1106978.34	Change: 8.92589e-04	
+  5%|4         | 47/1000 [00:47<16:45,  1.05s/it]ITERATION 48:	Time: 1.076401	Objective: -1105999.11	Change: 8.84599e-04	
+  5%|4         | 48/1000 [00:49<16:50,  1.06s/it]ITERATION 49:	Time: 1.044420	Objective: -1105090.96	Change: 8.21108e-04	
+  5%|4         | 49/1000 [00:50<16:44,  1.06s/it]ITERATION 50:	Time: 1.020555	Objective: -1104251.69	Change: 7.59456e-04	
+  5%|5         | 50/1000 [00:51<16:33,  1.05s/it]ITERATION 51:	Time: 1.015240	Objective: -1103502.63	Change: 6.78345e-04	
+  5%|5         | 51/1000 [00:52<16:23,  1.04s/it]ITERATION 52:	Time: 1.020758	Objective: -1102788.99	Change: 6.46704e-04	
+  5%|5         | 52/1000 [00:53<16:18,  1.03s/it]ITERATION 53:	Time: 1.027369	Objective: -1102096.77	Change: 6.27702e-04	
+  5%|5         | 53/1000 [00:54<16:15,  1.03s/it]ITERATION 54:	Time: 1.020795	Objective: -1101463.10	Change: 5.74964e-04	
+  5%|5         | 54/1000 [00:55<16:12,  1.03s/it]ITERATION 55:	Time: 1.057248	Objective: -1100931.73	Change: 4.82422e-04	
+  6%|5         | 55/1000 [00:56<16:19,  1.04s/it]ITERATION 56:	Time: 1.032247	Objective: -1100382.40	Change: 4.98974e-04	
+  6%|5         | 56/1000 [00:57<16:17,  1.04s/it]ITERATION 57:	Time: 1.026529	Objective: -1099828.97	Change: 5.02944e-04	
+  6%|5         | 57/1000 [00:58<16:13,  1.03s/it]ITERATION 58:	Time: 1.036381	Objective: -1099332.13	Change: 4.51736e-04	
+  6%|5         | 58/1000 [00:59<16:13,  1.03s/it]ITERATION 59:	Time: 1.033123	Objective: -1098884.36	Change: 4.07316e-04	
+  6%|5         | 59/1000 [01:00<16:12,  1.03s/it]ITERATION 60:	Time: 1.040371	Objective: -1098450.63	Change: 3.94697e-04	
+  6%|6         | 60/1000 [01:01<16:13,  1.04s/it]ITERATION 61:	Time: 1.019827	Objective: -1098059.53	Change: 3.56044e-04	
+  6%|6         | 61/1000 [01:02<16:08,  1.03s/it]ITERATION 62:	Time: 1.018281	Objective: -1097663.45	Change: 3.60712e-04	
+  6%|6         | 62/1000 [01:03<16:03,  1.03s/it]ITERATION 63:	Time: 1.016092	Objective: -1097315.71	Change: 3.16805e-04	
+  6%|6         | 63/1000 [01:04<15:59,  1.02s/it]ITERATION 64:	Time: 1.014836	Objective: -1096953.09	Change: 3.30455e-04	
+  6%|6         | 64/1000 [01:05<15:55,  1.02s/it]ITERATION 65:	Time: 1.034813	Objective: -1096589.39	Change: 3.31556e-04	
+  6%|6         | 65/1000 [01:06<15:58,  1.03s/it]ITERATION 66:	Time: 1.037745	Objective: -1096254.60	Change: 3.05304e-04	
+  7%|6         | 66/1000 [01:07<16:01,  1.03s/it]ITERATION 67:	Time: 1.054694	Objective: -1095942.36	Change: 2.84819e-04	
+  7%|6         | 67/1000 [01:08<16:07,  1.04s/it]ITERATION 68:	Time: 1.043641	Objective: -1095633.99	Change: 2.81382e-04	
+  7%|6         | 68/1000 [01:09<16:08,  1.04s/it]ITERATION 69:	Time: 1.045384	Objective: -1095386.03	Change: 2.26309e-04	
+  7%|6         | 69/1000 [01:10<16:09,  1.04s/it]ITERATION 70:	Time: 1.051280	Objective: -1095128.15	Change: 2.35424e-04	
+  7%|7         | 70/1000 [01:11<16:11,  1.04s/it]ITERATION 71:	Time: 1.013720	Objective: -1094878.87	Change: 2.27627e-04	
+  7%|7         | 71/1000 [01:12<16:01,  1.04s/it]ITERATION 72:	Time: 1.015730	Objective: -1094653.84	Change: 2.05531e-04	
+  7%|7         | 72/1000 [01:13<15:55,  1.03s/it]ITERATION 73:	Time: 1.017979	Objective: -1094445.42	Change: 1.90397e-04	
+  7%|7         | 73/1000 [01:14<15:51,  1.03s/it]ITERATION 74:	Time: 1.022636	Objective: -1094232.90	Change: 1.94180e-04	
+  7%|7         | 74/1000 [01:15<15:49,  1.03s/it]ITERATION 75:	Time: 1.019532	Objective: -1093981.11	Change: 2.30113e-04	
+  8%|7         | 75/1000 [01:16<15:46,  1.02s/it]ITERATION 76:	Time: 1.020248	Objective: -1093760.97	Change: 2.01220e-04	
+  8%|7         | 76/1000 [01:17<15:44,  1.02s/it]ITERATION 77:	Time: 1.028943	Objective: -1093567.04	Change: 1.77310e-04	
+  8%|7         | 77/1000 [01:18<15:45,  1.02s/it]ITERATION 78:	Time: 1.053201	Objective: -1093380.48	Change: 1.70599e-04	
+  8%|7         | 78/1000 [01:19<15:52,  1.03s/it]ITERATION 79:	Time: 1.020061	Objective: -1093230.81	Change: 1.36887e-04	
+  8%|7         | 79/1000 [01:20<15:47,  1.03s/it]ITERATION 80:	Time: 1.025334	Objective: -1093082.34	Change: 1.35812e-04	
+  8%|8         | 80/1000 [01:21<15:45,  1.03s/it]ITERATION 81:	Time: 1.051408	Objective: -1092936.54	Change: 1.33383e-04	
+  8%|8         | 81/1000 [01:23<15:51,  1.04s/it]ITERATION 82:	Time: 1.049574	Objective: -1092749.83	Change: 1.70833e-04	
+  8%|8         | 82/1000 [01:24<15:54,  1.04s/it]ITERATION 83:	Time: 1.013676	Objective: -1092566.13	Change: 1.68102e-04	
+  8%|8         | 83/1000 [01:25<15:46,  1.03s/it]ITERATION 84:	Time: 1.010918	Objective: -1092427.76	Change: 1.26651e-04	
+  8%|8         | 84/1000 [01:26<15:39,  1.03s/it]ITERATION 85:	Time: 1.019657	Objective: -1092271.04	Change: 1.43457e-04	
+  8%|8         | 85/1000 [01:27<15:36,  1.02s/it]ITERATION 86:	Time: 1.015228	Objective: -1092044.74	Change: 2.07187e-04	
+  9%|8         | 86/1000 [01:28<15:33,  1.02s/it]ITERATION 87:	Time: 1.014959	Objective: -1091908.11	Change: 1.25116e-04	
+  9%|8         | 87/1000 [01:29<15:30,  1.02s/it]ITERATION 88:	Time: 1.022200	Objective: -1091800.08	Change: 9.89287e-05	
+  9%|8         | 87/1000 [01:30<15:46,  1.04s/it]
+results/GBM_s53_new/bptf/bptf_1.npz
+>>>> bptf -> results/GBM_s53_new/bptf
+
+==== DONE  2026-07-28T22:57:09Z  ->  results/GBM_s53_new ====
+  compute : patchify/ bptf/ project/ markers/ glm/ motif_states.parquet
+  figures : plots_original/ (original)   plots/ (workflow)
+  colours : celltype_colors.json + celltype_colors.{png,pdf,svg}

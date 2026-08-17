@@ -1,0 +1,14 @@
+[22:27:23] bivariate: 100197 locations x 388 features | min 0 | negatives 0
+[22:27:23]   cross-punch filter (>=5 of 13 punches): 388 -> 388 features (100.0% kept); median punches/feature = 12
+[22:27:23] li.multi.nmf(n_components=None, k_range=range(1, 21), max_iter=200, random_state=0)
+  0%|          | 0/20 [00:00<?, ?it/s]  5%|▌         | 1/20 [00:00<00:12,  1.55it/s]/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/sklearn/decomposition/_nmf.py:1723: ConvergenceWarning: Maximum number of iterations 200 reached. Increase it to improve convergence.
+ 10%|█         | 2/20 [00:06<01:10,  3.94s/it] 15%|█▌        | 3/20 [00:12<01:21,  4.80s/it] 20%|██        | 4/20 [00:16<01:11,  4.44s/it] 25%|██▌       | 5/20 [00:20<01:02,  4.19s/it] 30%|███       | 6/20 [00:23<00:54,  3.92s/it] 35%|███▌      | 7/20 [00:27<00:50,  3.85s/it] 40%|████      | 8/20 [00:32<00:50,  4.17s/it] 45%|████▌     | 9/20 [00:45<01:15,  6.88s/it] 50%|█████     | 10/20 [00:58<01:30,  9.02s/it] 55%|█████▌    | 11/20 [01:13<01:37, 10.83s/it] 60%|██████    | 12/20 [01:29<01:39, 12.39s/it] 65%|██████▌   | 13/20 [01:46<01:36, 13.79s/it] 70%|███████   | 14/20 [02:04<01:30, 15.09s/it] 75%|███████▌  | 15/20 [02:23<01:21, 16.24s/it] 80%|████████  | 16/20 [02:32<00:55, 13.93s/it] 85%|████████▌ | 17/20 [02:42<00:37, 12.64s/it] 90%|█████████ | 18/20 [02:52<00:23, 11.95s/it] 95%|█████████▌| 19/20 [03:03<00:11, 11.68s/it]100%|██████████| 20/20 [03:12<00:00, 11.02s/it]100%|██████████| 20/20 [03:12<00:00,  9.65s/it]
+Estimated rank: 6
+[22:30:40]   saved elbow.png (redrawn from nmf_errors; _plot_elbow uses plotnine)
+[22:30:40]   ELBOW RANK = 6  (k_range 1..20 step 1)
+[22:30:40]   W (locations x factors) (100197, 6) | H (features x factors) (388, 6)
+[22:30:40]   saved top-10 loadings for 6 factors
+[22:30:43]   saved factor_maps.png (6 factors)
+[22:30:43]   fit quality: rel_frobenius 0.7582 (42.5% of SS captured) | MAE 0.085256 vs zero-predictor MAE 0.077797
+[22:30:43]   *** WARNING: the fit's MAE does not beat the zero predictor. The elbow is a property of an L1 criterion on a near-all-zero matrix, not evidence of a good rank. ***
+[22:30:43] DONE in 3.3 min -> results/comparators/liana/GBM/nmf_bivariate_default

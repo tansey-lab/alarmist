@@ -1,0 +1,237 @@
+[12:21:14] cores with a persisted object: ['1', '2', '3', '4', '5', '6', '8', '9', '10', '11', '12', '13', '14']
+[12:21:14] --- core 1 ---
+[12:21:19]     ok: selected_pair_CD99_CD99
+[12:21:20]     ok: selected_pair_COL4A1_ITGA1_ITGB1
+[12:21:20]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:21:21]     ok: selected_pair_GRN_SORT1
+[12:21:21]     ok: selected_pair_ANXA1_FPR1
+[12:21:29]     ok: plot_pairs.pdf (5 pages)
+[12:21:29]     ok: celltype_contrib_CD99_CD99
+[12:21:29]     ok: celltype_contrib_COL4A1_ITGA1_ITGB1
+[12:21:29]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:21:30]     ok: celltype_contrib_GRN_SORT1
+[12:21:30]     ok: celltype_contrib_ANXA1_FPR1
+[12:21:34]     ok: chord_celltype_CD99_CD99
+[12:21:36]     ok: chord_celltype_COL4A1_ITGA1_ITGB1
+WARNING:bokeh.io.export:The webdriver raised a TimeoutException while waiting for a 'bokeh:idle' event to signify that the layout has rendered. Something may have gone wrong.
+[12:23:53]     FAILED chord_LR_all: JavascriptException: Message: TypeError: can't access property "el", root_view is undefined
+Stacktrace:
+@file:///Users/jiayifan/bokeht9z9s7w3.html:3:33
+@file:///Users/jiayifan/bokeht9z9s7w3.html:6:8
+
+[12:23:53]     ok: global_plot
+[12:23:54]     ok: dot_path
+[12:23:54] --- core 2 ---
+[12:23:54]     ok: selected_pair_CADM3_CADM3
+[12:23:54]     ok: selected_pair_LAMC1_ITGA3_ITGB1
+[12:23:54]     ok: selected_pair_CCK_CCKBR
+[12:23:54]     ok: selected_pair_GRN_SORT1
+[12:23:55]     ok: plot_pairs.pdf (4 pages)
+[12:23:55]     ok: celltype_contrib_CADM3_CADM3
+[12:23:55]     ok: celltype_contrib_LAMC1_ITGA3_ITGB1
+[12:23:55]     ok: celltype_contrib_CCK_CCKBR
+[12:23:55]     ok: celltype_contrib_GRN_SORT1
+[12:23:56]     ok: chord_celltype_CADM3_CADM3
+[12:23:58]     ok: chord_celltype_LAMC1_ITGA3_ITGB1
+[12:23:58]     FAILED chord_LR_all: ValueError: zero-size array to reduction operation minimum which has no identity
+[12:23:58]     ok: global_plot
+[12:23:58]     ok: dot_path
+[12:23:58] --- core 3 ---
+[12:24:00]     ok: selected_pair_COL4A1_ITGA1_ITGB1
+[12:24:00]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:24:00]     ok: selected_pair_PDGFB_PDGFRB
+[12:24:00]     FAILED selected_pair_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:24:01]     ok: selected_pair_ANXA1_FPR1
+[12:24:02]     ok: plot_pairs.pdf (4 pages)
+[12:24:02]     note: ['GRN_SORT1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:24:02]     ok: celltype_contrib_COL4A1_ITGA1_ITGB1
+[12:24:03]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:24:03]     ok: celltype_contrib_PDGFB_PDGFRB
+[12:24:03]     FAILED celltype_contrib_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (6955, 9): given (6955, 0)
+[12:24:03]     ok: celltype_contrib_ANXA1_FPR1
+[12:24:04]     ok: chord_celltype_COL4A1_ITGA1_ITGB1
+[12:24:06]     ok: chord_celltype_COL4A2_ITGA1_ITGB1
+[12:24:29]     ok: chord_LR_all
+[12:24:29]     ok: global_plot
+[12:24:29]     ok: dot_path
+[12:24:29] --- core 4 ---
+[12:24:30]     ok: selected_pair_CNTN2_CNTN2_CNTNAP2
+[12:24:30]     ok: selected_pair_CNTN2_CNTN2
+[12:24:31]     ok: selected_pair_PECAM1_PECAM1
+[12:24:31]     FAILED selected_pair_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:24:31]     FAILED selected_pair_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:24:32]     ok: plot_pairs.pdf (3 pages)
+[12:24:32]     note: ['GRN_SORT1', 'ANXA1_FPR1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:24:32]     ok: celltype_contrib_CNTN2_CNTN2_CNTNAP2
+[12:24:32]     ok: celltype_contrib_CNTN2_CNTN2
+[12:24:32]     ok: celltype_contrib_PECAM1_PECAM1
+[12:24:32]     FAILED celltype_contrib_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:24:32]     FAILED celltype_contrib_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:24:34]     ok: chord_celltype_CNTN2_CNTN2_CNTNAP2
+[12:24:36]     ok: chord_celltype_CNTN2_CNTN2
+[12:24:44]     ok: chord_LR_all
+[12:24:44]     ok: global_plot
+[12:24:44]     ok: dot_path
+[12:24:44] --- core 5 ---
+[12:24:46]     ok: selected_pair_PECAM1_PECAM1
+[12:24:46]     ok: selected_pair_CDH5_CDH5
+[12:24:46]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:24:46]     ok: selected_pair_GRN_SORT1
+[12:24:46]     FAILED selected_pair_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:24:48]     ok: plot_pairs.pdf (4 pages)
+[12:24:48]     note: ['ANXA1_FPR1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:24:48]     ok: celltype_contrib_PECAM1_PECAM1
+[12:24:49]     ok: celltype_contrib_CDH5_CDH5
+[12:24:49]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:24:49]     ok: celltype_contrib_GRN_SORT1
+[12:24:49]     FAILED celltype_contrib_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (6900, 9): given (6900, 0)
+[12:24:50]     ok: chord_celltype_PECAM1_PECAM1
+[12:24:52]     ok: chord_celltype_CDH5_CDH5
+WARNING:bokeh.io.export:The webdriver raised a TimeoutException while waiting for a 'bokeh:idle' event to signify that the layout has rendered. Something may have gone wrong.
+[12:25:17]     FAILED chord_LR_all: JavascriptException: Message: TypeError: can't access property "el", root_view is undefined
+Stacktrace:
+@file:///Users/jiayifan/bokehkxlwpm0t.html:3:33
+@file:///Users/jiayifan/bokehkxlwpm0t.html:6:8
+
+[12:25:17]     ok: global_plot
+[12:25:17]     ok: dot_path
+[12:25:17] --- core 6 ---
+[12:25:18]     ok: selected_pair_LAMA3_ITGA1_ITGB1
+[12:25:18]     ok: selected_pair_PECAM1_PECAM1
+[12:25:19]     ok: selected_pair_TNXB_ITGAV_ITGB3
+[12:25:19]     ok: selected_pair_GRN_SORT1
+[12:25:20]     ok: plot_pairs.pdf (4 pages)
+[12:25:20]     ok: celltype_contrib_LAMA3_ITGA1_ITGB1
+[12:25:20]     ok: celltype_contrib_PECAM1_PECAM1
+[12:25:20]     ok: celltype_contrib_TNXB_ITGAV_ITGB3
+[12:25:20]     ok: celltype_contrib_GRN_SORT1
+[12:25:21]     ok: chord_celltype_LAMA3_ITGA1_ITGB1
+[12:25:23]     ok: chord_celltype_PECAM1_PECAM1
+[12:25:23]     FAILED chord_LR_all: ValueError: zero-size array to reduction operation minimum which has no identity
+[12:25:23]     ok: global_plot
+[12:25:24]     ok: dot_path
+[12:25:24] --- core 8 ---
+[12:25:26]     ok: selected_pair_IL16_CD4
+[12:25:26]     ok: selected_pair_NCAM1_NCAM1
+[12:25:26]     ok: selected_pair_CXCL12_CXCR4
+[12:25:26]     ok: selected_pair_GRN_SORT1
+[12:25:27]     ok: selected_pair_ANXA1_FPR1
+[12:25:30]     ok: plot_pairs.pdf (5 pages)
+[12:25:30]     ok: celltype_contrib_IL16_CD4
+[12:25:30]     ok: celltype_contrib_NCAM1_NCAM1
+[12:25:30]     ok: celltype_contrib_CXCL12_CXCR4
+[12:25:30]     ok: celltype_contrib_GRN_SORT1
+[12:25:30]     ok: celltype_contrib_ANXA1_FPR1
+[12:25:35]     ok: chord_celltype_IL16_CD4
+[12:25:37]     ok: chord_celltype_NCAM1_NCAM1
+[12:27:05]     ok: chord_LR_all
+[12:27:05]     ok: global_plot
+[12:27:06]     ok: dot_path
+[12:27:06] --- core 9 ---
+[12:27:07]     ok: selected_pair_CXCL12_CXCR4
+[12:27:07]     ok: selected_pair_IL16_CD4
+[12:27:08]     ok: selected_pair_NCAM1_NCAM1
+[12:27:08]     FAILED selected_pair_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:27:08]     ok: selected_pair_ANXA1_FPR1
+[12:27:10]     ok: plot_pairs.pdf (4 pages)
+[12:27:10]     note: ['GRN_SORT1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:27:10]     ok: celltype_contrib_CXCL12_CXCR4
+[12:27:10]     ok: celltype_contrib_IL16_CD4
+[12:27:10]     ok: celltype_contrib_NCAM1_NCAM1
+[12:27:10]     FAILED celltype_contrib_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5097, 9): given (5097, 0)
+[12:27:10]     ok: celltype_contrib_ANXA1_FPR1
+[12:27:13]     ok: chord_celltype_CXCL12_CXCR4
+[12:27:15]     ok: chord_celltype_IL16_CD4
+[12:27:31]     ok: chord_LR_all
+[12:27:31]     ok: global_plot
+[12:27:31]     ok: dot_path
+[12:27:31] --- core 10 ---
+[12:27:35]     ok: selected_pair_PECAM1_PECAM1
+[12:27:35]     ok: selected_pair_COL4A1_ITGA1_ITGB1
+[12:27:36]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:27:36]     ok: selected_pair_GRN_SORT1
+[12:27:36]     FAILED selected_pair_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:27:41]     ok: plot_pairs.pdf (4 pages)
+[12:27:41]     note: ['ANXA1_FPR1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:27:41]     ok: celltype_contrib_PECAM1_PECAM1
+[12:27:41]     ok: celltype_contrib_COL4A1_ITGA1_ITGB1
+[12:27:41]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:27:41]     ok: celltype_contrib_GRN_SORT1
+[12:27:41]     FAILED celltype_contrib_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (17435, 9): given (17435, 0)
+[12:27:43]     ok: chord_celltype_PECAM1_PECAM1
+[12:27:44]     ok: chord_celltype_COL4A1_ITGA1_ITGB1
+[12:29:31]     FAILED chord_LR_all: ValueError: zero-size array to reduction operation minimum which has no identity
+[12:29:31]     ok: global_plot
+[12:29:31]     ok: dot_path
+[12:29:31] --- core 11 ---
+[12:29:32]     ok: selected_pair_COL4A1_ITGA1_ITGB1
+[12:29:32]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:29:32]     ok: selected_pair_CDH5_CDH5
+[12:29:32]     FAILED selected_pair_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:29:32]     FAILED selected_pair_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:29:33]     ok: plot_pairs.pdf (3 pages)
+[12:29:33]     note: ['GRN_SORT1', 'ANXA1_FPR1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:29:33]     ok: celltype_contrib_COL4A1_ITGA1_ITGB1
+[12:29:33]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:29:33]     ok: celltype_contrib_CDH5_CDH5
+[12:29:33]     FAILED celltype_contrib_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:29:33]     FAILED celltype_contrib_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:29:35]     ok: chord_celltype_COL4A1_ITGA1_ITGB1
+[12:29:37]     ok: chord_celltype_COL4A2_ITGA1_ITGB1
+[12:29:43]     ok: chord_LR_all
+[12:29:43]     ok: global_plot
+[12:29:43]     ok: dot_path
+[12:29:43] --- core 12 ---
+[12:29:44]     ok: selected_pair_CDH5_CDH5
+[12:29:44]     ok: selected_pair_COL4A1_ITGA1_ITGB1
+[12:29:44]     ok: selected_pair_ANGPT2_ITGA5_ITGB1
+[12:29:44]     FAILED selected_pair_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:29:44]     ok: selected_pair_ANXA1_FPR1
+[12:29:45]     ok: plot_pairs.pdf (4 pages)
+[12:29:45]     note: ['GRN_SORT1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:29:45]     ok: celltype_contrib_CDH5_CDH5
+[12:29:45]     ok: celltype_contrib_COL4A1_ITGA1_ITGB1
+[12:29:45]     ok: celltype_contrib_ANGPT2_ITGA5_ITGB1
+[12:29:45]     FAILED celltype_contrib_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3308, 9): given (3308, 0)
+[12:29:46]     ok: celltype_contrib_ANXA1_FPR1
+[12:29:47]     ok: chord_celltype_CDH5_CDH5
+[12:29:49]     ok: chord_celltype_COL4A1_ITGA1_ITGB1
+[12:29:50]     FAILED chord_LR_all: ValueError: zero-size array to reduction operation minimum which has no identity
+[12:29:50]     ok: global_plot
+[12:29:50]     ok: dot_path
+[12:29:50] --- core 13 ---
+[12:29:52]     ok: selected_pair_PECAM1_PECAM1
+[12:29:53]     ok: selected_pair_CDH5_CDH5
+[12:29:53]     ok: selected_pair_PDYN_OPRK1
+[12:29:53]     ok: selected_pair_GRN_SORT1
+[12:29:53]     ok: selected_pair_ANXA1_FPR1
+[12:29:56]     ok: plot_pairs.pdf (5 pages)
+[12:29:56]     ok: celltype_contrib_PECAM1_PECAM1
+[12:29:56]     ok: celltype_contrib_CDH5_CDH5
+[12:29:56]     ok: celltype_contrib_PDYN_OPRK1
+[12:29:56]     ok: celltype_contrib_GRN_SORT1
+[12:29:56]     ok: celltype_contrib_ANXA1_FPR1
+[12:29:58]     ok: chord_celltype_PECAM1_PECAM1
+[12:30:00]     ok: chord_celltype_CDH5_CDH5
+[12:31:41]     ok: chord_LR_all
+[12:31:41]     ok: global_plot
+[12:31:41]     ok: dot_path
+[12:31:41] --- core 14 ---
+[12:31:42]     ok: selected_pair_NCAM1_NCAM1
+[12:31:42]     ok: selected_pair_PECAM1_PECAM1
+[12:31:42]     ok: selected_pair_JAG1_NOTCH3
+[12:31:42]     FAILED selected_pair_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:31:42]     FAILED selected_pair_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:31:43]     ok: plot_pairs.pdf (3 pages)
+[12:31:43]     note: ['GRN_SORT1', 'ANXA1_FPR1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:31:43]     ok: celltype_contrib_NCAM1_NCAM1
+[12:31:43]     ok: celltype_contrib_PECAM1_PECAM1
+[12:31:43]     ok: celltype_contrib_JAG1_NOTCH3
+[12:31:43]     FAILED celltype_contrib_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:31:43]     FAILED celltype_contrib_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:31:45]     ok: chord_celltype_NCAM1_NCAM1
+[12:31:47]     ok: chord_celltype_PECAM1_PECAM1
+[12:31:51]     ok: chord_LR_all
+[12:31:51]     ok: global_plot
+[12:31:52]     ok: dot_path
+[12:31:52] DONE in 10.6 min | refused 0 blank figures | 143 legacy 7544-byte blanks still on disk

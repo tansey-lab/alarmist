@@ -1,0 +1,128 @@
+/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/docrep/decorators.py:43: SyntaxWarning: 'n_jobs' is not a valid key!
+/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/docrep/decorators.py:43: SyntaxWarning: 'show_progress_bar' is not a valid key!
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_mofaflex.py:248: FutureWarning: `__version__` is deprecated, use `importlib.metadata.version('scanpy')` instead
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_mofaflex.py:250: FutureWarning: `__version__` is deprecated, use `importlib.metadata.version('anndata')` instead.
+Using device: cpu
+
+[1] loading results/comparators/liana/GBM/cellchatdb2_inflow/data/inflow_lrdata.h5ad
+    dropped obs ['motif', 'patch_id'], uns ['motif_colors', 'moranI']
+
+[2] feature QC on the inflow score
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/qc_inflow_distributions.png
+    reachability-normalised nonzero_fraction > 0.01 (support radius 28.2096 um): 4608 -> 779 features
+              sender   reach   kept  / total
+            NPC-like   0.761    114      601
+             AC-like   0.750    111      590
+            OPC-like   0.748     92      596
+            MES-like   0.727    122      602
+      Glial-Neuronal   0.379     63      559
+                mGAM   0.319     66      508
+            non-mGAM   0.205     34      382
+            Vascular   0.157    138      520
+            Lymphoid   0.025     39      250
+    NOTE: reachability < 0.05 for [np.str_('Lymphoid')] -- their features rest on a small cell base; check per-view R2 before interpreting those factors.
+    SVI filter: 779 -> 779 features (0 dropped)
+    densifying X for the cpu backend (0.29 GB)
+
+[3] lrdata -> MuData (one view per sender cell type)
+  0%|          | 0/9 [00:00<?, ?it/s] 11%|█         | 1/9 [00:00<00:01,  7.35it/s] 22%|██▏       | 2/9 [00:00<00:00,  7.17it/s] 44%|████▍     | 4/9 [00:00<00:00,  9.35it/s] 56%|█████▌    | 5/9 [00:00<00:00,  8.48it/s] 67%|██████▋   | 6/9 [00:00<00:00,  8.29it/s] 78%|███████▊  | 7/9 [00:00<00:00,  8.25it/s] 89%|████████▉ | 8/9 [00:00<00:00,  8.39it/s]100%|██████████| 9/9 [00:01<00:00,  8.69it/s]
+    views kept: {'Glial-Neuronal': 63, 'MES-like': 122, 'mGAM': 66, 'non-mGAM': 34, 'Vascular': 138, 'AC-like': 111, 'NPC-like': 114, 'OPC-like': 92, 'Lymphoid': 39}
+    views DROPPED (< min_features=25): []
+
+[4] reusing cached model at /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/models/mofaflex_inflow_reachnorm0.01.hdf5
+
+[5] diagnostics
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/factor_correlation.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/variance_explained.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/variance_explained_by_view.png
+    active factors (R2 >= 0.02 in >=1 view): 19 / 20
+    ['Factor 3', 'Factor 18', 'Factor 5', 'Factor 4', 'Factor 16', 'Factor 13', 'Factor 7', 'Factor 12', 'Factor 1', 'Factor 20', 'Factor 11', 'Factor 2', 'Factor 19', 'Factor 10', 'Factor 9', 'Factor 17', 'Factor 8', 'Factor 15', 'Factor 6']
+    R2 per view (sender):
+view
+Glial-Neuronal    0.505846
+mGAM              0.445280
+NPC-like          0.393066
+MES-like          0.354223
+OPC-like          0.325417
+Vascular          0.270762
+AC-like           0.262931
+non-mGAM          0.139696
+Lymphoid          0.001278
+Name: R2, dtype: float64
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/top_weights.png
+    top_weights.png: top 10 features per factor
+
+[6] factor-space clustering
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/umap_leiden_annotations.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/spatial_leiden_annotations.png
+    focus factors (top total R2): ['Factor 3', 'Factor 18']
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/umap_focus_factors.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/spatial_focus_factors.png
+
+[7] MOFA-Flex weights -> liana interaction table
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/dotplot_focus_factors.png
+
+    circle plots for 19 factor(s) (ALL active)
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor3.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor18.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor5.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor4.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor16.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor13.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor7.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor12.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor1.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor20.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor11.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor2.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor19.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor10.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor9.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor17.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor8.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor15.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/circle_plot_Factor6.png
+
+[8] tracing the ligand-receptor pairs of interest
+        source ligand_complex receptor_complex  status top_factor  top_loading  rank_in_top_factor
+          mGAM            GRN            SORT1 present  Factor 19     0.329396                  67
+      Vascular            GRN            SORT1 present  Factor 16    -0.331709                 103
+      non-mGAM            GRN            SORT1 present  Factor 20    -0.197473                 125
+      MES-like            GRN            SORT1 present   Factor 4     0.257530                 121
+       AC-like            GRN            SORT1 present   Factor 3    -0.134080                 185
+      OPC-like            GRN            SORT1 present   Factor 2     0.052739                 324
+Glial-Neuronal            GRN            SORT1 present   Factor 5    -0.212462                  81
+      NPC-like            GRN            SORT1 present  Factor 16     0.121315                 236
+      Lymphoid            GRN            SORT1 present  Factor 15    -0.010799                 605
+          mGAM          ANXA1             FPR1 present   Factor 1     0.164712                 164
+      MES-like          ANXA1             FPR1 present   Factor 1     0.078323                 276
+      Lymphoid          ANXA1             FPR1 present   Factor 1     0.039421                 419
+      Vascular          ANXA1             FPR1 present  Factor 15    -0.098327                 227
+
+[9] grade association, aggregated to tma_id
+   factor  n_high  n_low  mean_high  mean_low     delta    U        p     p_bh
+Factor 18       7      6   0.041155 -0.220117 -0.261272 37.0 0.022145 0.332168
+ Factor 3       7      6  -0.042134  0.188905  0.231038  6.0 0.034965 0.332168
+Factor 16       7      6  -0.004614 -0.153907 -0.149293 32.0 0.137529 0.556381
+ Factor 7       7      6  -0.004519  0.043297  0.047816 10.0 0.137529 0.556381
+Factor 13       7      6   0.010469  0.051150  0.040681 11.0 0.180653 0.556381
+ Factor 5       7      6   0.009000 -0.118924 -0.127924 30.0 0.234266 0.556381
+Factor 12       7      6   0.027408 -0.042117 -0.069524 30.0 0.234266 0.556381
+Factor 11       7      6   0.016115  0.101122  0.085007 12.0 0.234266 0.556381
+ Factor 4       7      6   0.036995 -0.015693 -0.052688 28.0 0.365967 0.632125
+ Factor 1       7      6  -0.002472  0.037112  0.039584 14.0 0.365967 0.632125
+Factor 15       7      6  -0.032535  0.051599  0.084135 14.0 0.365967 0.632125
+ Factor 8       7      6  -0.027227  0.007239  0.034467 15.0 0.445221 0.704934
+ Factor 9       7      6  -0.022127 -0.040964 -0.018837 25.0 0.628205 0.918146
+ Factor 6       7      6   0.014518 -0.006049 -0.020567 23.0 0.835664 1.000000
+ Factor 2       7      6  -0.015735 -0.037180 -0.021445 23.0 0.835664 1.000000
+Factor 19       7      6   0.016310  0.006992 -0.009318 20.0 0.945221 1.000000
+Factor 17       7      6  -0.018566 -0.038389 -0.019823 21.0 1.000000 1.000000
+Factor 10       7      6  -0.020942 -0.038584 -0.017642 21.0 1.000000 1.000000
+Factor 20       7      6  -0.019923 -0.028825 -0.008902 21.0 1.000000 1.000000
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/focus_factors_by_region.png
+  [plot] /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/plots/factor_by_punch_grade.png
+  [manifest] replot: fit provenance carried forward from the previous manifest
+
+DONE in 1.4 min, peak RSS 6.8 GB
+manifest -> /Users/jiayifan/tansey_lab/alarmist/results/comparators/liana/GBM/mofaflex_inflow_reachnorm/run_manifest.json

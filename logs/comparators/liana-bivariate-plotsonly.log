@@ -1,0 +1,65 @@
+[18:05:19] reading data/xenium_mm_final_cell_id.h5ad
+[18:05:19] loaded 100197 x 5119
+[18:05:24] dropped 21 control-probe genes containing '_' -> 5098 genes
+[18:05:27] normalize_total(1e4) + log1p (tutorial recipe); X max = 8.73
+[18:05:27] extent 7484 x 16483 um, whole slide (no core split)
+[18:05:27] spatial_neighbors(bandwidth=13.1454, cutoff=0.1, kernel=gaussian) -> effective radius 28.2 um
+[18:05:29]   connectivities: 10,119,897 nonzeros | neighbours per cell median 14, max 52 | max_neighbours cap binds for 0.0000%
+[18:05:29] resource: CellChatDBv2.0.human.csv -> 3218 unique LR pairs | fingerprint {'path': '/Users/jiayifan/tansey_lab/alarmist/data/LRdatabase/CellChatDBv2.0.human.csv', 'rows': 3233, 'unique_pairs': 3218, 'has_TGFBR1_TGFBR2': True, 'has_TGFBR2_TGFBR1': False}
+[18:05:29]   PLOTS-ONLY: reloaded 100197 cells x 131 LR pairs from results/comparators/liana/GBM/cellchatdb2/data (layers: ['pvals', 'cats'])
+[18:05:29] top by morans: ['COL4A1^CD44', 'COL4A2^CD44', 'APP^TNFRSF21', 'DLL3^NOTCH1', 'C3^C3AR1', 'TNC^SDC4']
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:05:41]   plot ok: top_morans
+[18:05:44]   plot ok: local_COL4A1-CD44
+[18:05:46]   plot ok: local_COL4A1-CD44_pvals
+[18:05:49]   plot ok: local_COL4A1-CD44_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:05:55]   plot ok: genes_COL4A1-CD44
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:05:58]   plot ok: local_COL4A2-CD44
+[18:06:01]   plot ok: local_COL4A2-CD44_pvals
+[18:06:04]   plot ok: local_COL4A2-CD44_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:09]   plot ok: genes_COL4A2-CD44
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:12]   plot ok: local_APP-TNFRSF21
+[18:06:15]   plot ok: local_APP-TNFRSF21_pvals
+[18:06:18]   plot ok: local_APP-TNFRSF21_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:24]   plot ok: genes_APP-TNFRSF21
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:27]   plot ok: local_DLL3-NOTCH1
+[18:06:30]   plot ok: local_DLL3-NOTCH1_pvals
+[18:06:32]   plot ok: local_DLL3-NOTCH1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:38]   plot ok: genes_DLL3-NOTCH1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:41]   plot ok: local_C3-C3AR1
+[18:06:44]   plot ok: local_C3-C3AR1_pvals
+[18:06:47]   plot ok: local_C3-C3AR1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:52]   plot ok: genes_C3-C3AR1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:06:55]   plot ok: local_TNC-SDC4
+[18:06:58]   plot ok: local_TNC-SDC4_pvals
+[18:07:01]   plot ok: local_TNC-SDC4_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:07:07]   plot ok: genes_TNC-SDC4
+[18:07:07]   requested GRN^SORT1: rank 33/131 by morans
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:07:10]   plot ok: rank33_GRN-SORT1
+[18:07:12]   plot ok: rank33_GRN-SORT1_pvals
+[18:07:15]   plot ok: rank33_GRN-SORT1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:07:21]   plot ok: rank33_GRN-SORT1_genes
+[18:07:21]   requested ANXA1^FPR1: rank 60/131 by morans
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:07:24]   plot ok: rank60_ANXA1-FPR1
+[18:07:27]   plot ok: rank60_ANXA1-FPR1_pvals
+[18:07:30]   plot ok: rank60_ANXA1-FPR1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[18:07:35]   plot ok: rank60_ANXA1-FPR1_genes
+[18:07:40]   plot ok: bandwidth_query
+/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/liana/plotting/_connectivity_plot.py:47: FutureWarning: The method obsm_keys is deprecated and will be removed in the future. Use obsm instead of obsm_keys. (e.g. `k in adata.obsm` or `adata.obsm.keys() | {'u'}`)
+[18:07:41]   plot ok: connectivity_idx57404
+[18:07:41] DONE in 2.4 min -> results/comparators/liana/GBM/cellchatdb2 (35 figures, 0 blank suppressed) [plot_manifest.json]

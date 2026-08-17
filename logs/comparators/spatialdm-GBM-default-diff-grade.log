@@ -1,0 +1,67 @@
+[12:21:28] splits with a persisted object: ['1', '2', '3', '4', '5', '6', '8', '9', '10', '11', '12', '13', '14']
+[12:21:33]   1: 26,456 cells | grade=high | 825 pairs, 131 selected
+[12:21:33]   2: 819 cells | grade=low | 261 pairs, 62 selected
+[12:21:34]   3: 6,955 cells | grade=high | 787 pairs, 159 selected
+[12:21:35]   4: 5,363 cells | grade=low | 821 pairs, 66 selected
+[12:21:37]   5: 6,900 cells | grade=high | 770 pairs, 162 selected
+[12:21:37]   6: 3,092 cells | grade=low | 568 pairs, 34 selected
+[12:21:39]   8: 9,300 cells | grade=high | 746 pairs, 323 selected
+[12:21:41]   9: 5,097 cells | grade=low | 717 pairs, 162 selected
+[12:21:44]   10: 17,435 cells | grade=high | 805 pairs, 386 selected
+[12:21:45]   11: 3,826 cells | grade=high | 727 pairs, 75 selected
+[12:21:46]   12: 3,308 cells | grade=low | 694 pairs, 134 selected
+[12:21:48]   13: 9,126 cells | grade=high | 800 pairs, 272 selected
+[12:21:49]   14: 2,520 cells | grade=low | 611 pairs, 59 selected
+[12:21:49] design: high=1 -> ['1', '3', '5', '8', '10', '11', '13'] | low=0 -> ['2', '4', '6', '9', '12', '14']
+[12:21:49] concat: 100,197 cells x 826 union LR pairs across 13 splits
+[12:21:49] union pairs 826 | tested in all 13 splits: 239 | zero-filled cells in zscore_df: 1606 (15.0%)
+[12:21:50] differential: 0 pairs at diff FDR < 0.1 (min diff FDR = 0.1208) | high_specific=0 (high_only=0) | low_specific=0 (low_only=0)
+[12:21:51]   ok: clustermap_1_minus_p_all_pairs
+[12:21:51]   ok: differential_dendrogram
+[12:21:51]   ok: differential_volcano
+[12:21:51]   ok: differential_volcano_requested
+[12:21:51]   skipped dot_path: dot_path / compute_pathway: both `_specific` sets are empty (no pair reached diff FDR < 0.1, and none is selected in every high split while absent from every low split) -- nothing to enrich
+[12:21:51] density design: dense=1 -> ['1', '3', '5', '8', '9', '10', '13'] | differs from the grade design at split(s) ['9', '11']
+[12:21:52] sensitivity: dense_specific=5 sparse_specific=0 | Jaccard vs high/low = 0.0/0.0
+[12:21:52] DONE in 0.4 min -> results/comparators/spatialdm/GBM/default/differential_grade | 0 failure(s)
+
+Requested LRs:
+                diff     p_val  diff_fdr  mean_z_high  mean_z_low  n_selected_high  n_selected_low  high_specific  low_specific
+GRN_SORT1   4.393367  0.204303  0.587312     6.073341    1.679974                5               2          False         False
+ANXA1_FPR1  0.384666  0.848601  0.956892     2.946204    2.561539                4               2          False         False
+
+Top 15 by differential FDR (RAW -- includes testability artefacts):
+                          diff  diff_fdr  n_tested_high  n_tested_low  n_selected_high  n_selected_low          annotation pathway_name  non_protein_origin
+CDH5_CDH5            18.893802  0.120752              7             6                7               4   Cell-Cell Contact         CDH5               False
+COL4A1_ITGA1_ITGB1   24.148110  0.120752              7             5                7               5        ECM-Receptor     COLLAGEN               False
+DLL3_NOTCH3          -5.954053  0.140413              7             6                0               0   Cell-Cell Contact        NOTCH               False
+COL4A2_ITGA1_ITGB1   20.182068  0.140413              7             5                7               4        ECM-Receptor     COLLAGEN               False
+VEGFC_VEGFR2          6.206869  0.157587              7             4                7               2  Secreted Signaling         VEGF               False
+PECAM1_PECAM1        21.141279  0.197484              7             6                7               5   Cell-Cell Contact       PECAM1               False
+VEGFC_VEGFR2R3        6.936890  0.205933              7             4                7               2  Secreted Signaling         VEGF               False
+LAMC1_ITGA1_ITGB1    10.898868  0.211965              7             5                7               4        ECM-Receptor      LAMININ               False
+SEMA3C_NRP2_PLXNA1    2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+SEMA3C_NRP2_PLXNA3    2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+SEMA3C_NRP2_PLXNA4    2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+TGFB1_ACVR1C_TGFBR2   3.388372  0.227061              7             5                6               2  Secreted Signaling         TGFb               False
+SEMA3C_NRP2_PLXNA2    2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+ENTPD1_ADORA2B        3.032632  0.260228              7             5                4               0   Cell-Cell Contact         CD39               False
+DLL1_NOTCH3          -2.503660  0.263987              7             6                0               0   Cell-Cell Contact        NOTCH               False
+
+Top 15 among the 224 pairs tested in ALL splits and selected somewhere:
+                         diff  diff_fdr  n_tested_high  n_tested_low  n_selected_high  n_selected_low          annotation pathway_name  non_protein_origin
+CDH5_CDH5           18.893802  0.120752              7             6                7               4   Cell-Cell Contact         CDH5               False
+PECAM1_PECAM1       21.141279  0.197484              7             6                7               5   Cell-Cell Contact       PECAM1               False
+SEMA3C_NRP2_PLXNA1   2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+SEMA3C_NRP2_PLXNA3   2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+SEMA3C_NRP2_PLXNA4   2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+SEMA3C_NRP2_PLXNA2   2.000575  0.227061              7             6                2               0  Secreted Signaling        SEMA3               False
+MPZL1_MPZL1          4.032323  0.263987              7             6                6               2   Cell-Cell Contact          MPZ               False
+TNC_SDC4             8.280812  0.263987              7             6                7               1        ECM-Receptor     TENASCIN               False
+ICAM1_ITGAM_ITGB2    3.932599  0.263987              7             6                5               0   Cell-Cell Contact         ICAM               False
+L1CAM_L1CAM         10.412535  0.263987              7             6                7               2   Cell-Cell Contact        L1CAM               False
+THBS2_SDC4           3.069851  0.280897              7             6                4               0        ECM-Receptor         THBS               False
+ICAM1_ITGAX_ITGB2    3.496262  0.280897              7             6                5               0   Cell-Cell Contact         ICAM               False
+TNC_ITGAV_ITGB3      6.911940  0.280897              7             6                6               1        ECM-Receptor     TENASCIN               False
+TNC_ITGA2B_ITGB3     2.139862  0.280897              7             6                6               0        ECM-Receptor     TENASCIN               False
+CSF1_CSF1R           3.333428  0.280897              7             6                6               1  Secreted Signaling          CSF               False

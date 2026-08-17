@@ -1,0 +1,337 @@
+[12:04:35] reading data/xenium_mm_final_cell_id.h5ad
+[12:04:36] loaded 100197 x 5119
+[12:04:37] .raw <- layers['counts'] (raw counts; used by local spot selection)
+[12:04:37] .X max = 8.73 (expect log-scale; tutorial melanoma is 9.98)
+[12:04:37] splits: 13 (tma_id) | l=75.0 cutoff=0.2 -> effective radius 134.6 coord units
+[12:04:37] LR database: builtin (datahost=package), 1939 rows before filtering
+[12:04:37] --- split 1: 26456 cells ---
+[12:04:38]   n_neighbors=709 (max within 135 units = 708, median 532) | cap binds for 0.000% of cells
+[12:04:54]   W stored nnz 18,757,304 -> 13,259,866 after eliminate_zeros
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/main.py:71: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[12:06:32]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 825 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:06:55]   globally significant (FDR<0.1): 131 / 825
+[12:06:57]   saved local_z_p (131, 26456) (float32 npz)
+[12:06:57]   saved local_z (131, 26456) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:07:56]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:08:09]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:08:09]   split 1 done in 3.5 min
+[12:08:09] --- split 2: 819 cells ---
+[12:08:09]   n_neighbors=94 (max within 135 units = 93, median 35) | cap binds for 0.000% of cells
+[12:08:09]   W stored nnz 76,986 -> 32,968 after eliminate_zeros
+[12:08:13]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 261 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:244: RuntimeWarning: invalid value encountered in divide
+  adata.uns['local_z'][r] = (adata.uns['local_stat']['local_I'][:, r] + \
+[12:08:14]   globally significant (FDR<0.1): 62 / 261
+[12:08:14]   saved local_z_p (62, 819) (float32 npz)
+[12:08:14]   saved local_z (62, 819) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:08:16]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:08:16]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:08:16]   split 2 done in 0.1 min
+[12:08:17] --- split 3: 6955 cells ---
+[12:08:17]   n_neighbors=222 (max within 135 units = 221, median 144) | cap binds for 0.000% of cells
+[12:08:17]   W stored nnz 1,544,010 -> 964,900 after eliminate_zeros
+[12:08:43]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 787 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:244: RuntimeWarning: invalid value encountered in divide
+  adata.uns['local_z'][r] = (adata.uns['local_stat']['local_I'][:, r] + \
+[12:08:49]   globally significant (FDR<0.1): 159 / 787
+[12:08:50]   saved local_z_p (159, 6955) (float32 npz)
+[12:08:50]   saved local_z (159, 6955) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:08:50]   plot FAILED rank756_GRN_SORT1: KeyError: 'GRN_SORT1'
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:08:51]   plot FAILED ligand_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (6955, 9): given (6955, 0)
+[12:08:51]   plot FAILED receptor_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (6955, 9): given (6955, 0)
+[12:08:51]   plot FAILED chord_celltype_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (6955, 9): given (6955, 0)
+[12:08:55]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:08:58]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:08:58]   split 3 done in 0.7 min
+[12:08:58] --- split 4: 5363 cells ---
+[12:08:58]   n_neighbors=154 (max within 135 units = 153, median 108) | cap binds for 0.000% of cells
+[12:08:59]   W stored nnz 825,902 -> 542,676 after eliminate_zeros
+[12:09:19]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 821 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:244: RuntimeWarning: invalid value encountered in divide
+  adata.uns['local_z'][r] = (adata.uns['local_stat']['local_I'][:, r] + \
+[12:09:24]   globally significant (FDR<0.1): 66 / 821
+[12:09:24]   saved local_z_p (66, 5363) (float32 npz)
+[12:09:24]   saved local_z (66, 5363) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:09:24]   plot FAILED rank98_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:09:24]   plot FAILED rank484_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:09:25]   plot FAILED ligand_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:09:25]   plot FAILED receptor_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:09:25]   plot FAILED chord_celltype_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:09:25]   plot FAILED ligand_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:09:25]   plot FAILED receptor_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:09:25]   plot FAILED chord_celltype_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (5363, 9): given (5363, 0)
+[12:09:26]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:09:28]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:09:28]   split 4 done in 0.5 min
+[12:09:28] --- split 5: 6900 cells ---
+[12:09:28]   n_neighbors=246 (max within 135 units = 245, median 152) | cap binds for 0.000% of cells
+[12:09:29]   W stored nnz 1,697,400 -> 1,017,606 after eliminate_zeros
+[12:09:56]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 770 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:10:02]   globally significant (FDR<0.1): 162 / 770
+[12:10:02]   saved local_z_p (162, 6900) (float32 npz)
+[12:10:03]   saved local_z (162, 6900) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:10:03]   plot FAILED rank432_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:10:06]   plot FAILED ligand_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (6900, 9): given (6900, 0)
+[12:10:06]   plot FAILED receptor_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (6900, 9): given (6900, 0)
+[12:10:06]   plot FAILED chord_celltype_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (6900, 9): given (6900, 0)
+[12:10:08]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:10:11]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:10:11]   split 5 done in 0.7 min
+[12:10:11] --- split 6: 3092 cells ---
+[12:10:11]   n_neighbors=94 (max within 135 units = 93, median 55) | cap binds for 0.000% of cells
+[12:10:11]   W stored nnz 290,648 -> 166,768 after eliminate_zeros
+[12:10:23]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 568 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:10:25]   globally significant (FDR<0.1): 34 / 568
+[12:10:25]   saved local_z_p (34, 3092) (float32 npz)
+[12:10:25]   saved local_z (34, 3092) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:10:27]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:10:28]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:10:28]   split 6 done in 0.3 min
+[12:10:28] --- split 8: 9300 cells ---
+[12:10:29]   n_neighbors=384 (max within 135 units = 383, median 243) | cap binds for 0.000% of cells
+[12:10:31]   W stored nnz 3,571,200 -> 2,246,360 after eliminate_zeros
+[12:11:07]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 746 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:11:18]   globally significant (FDR<0.1): 323 / 746
+[12:11:18]   saved local_z_p (323, 9300) (float32 npz)
+[12:11:19]   saved local_z (323, 9300) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:11:40]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:11:44]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:11:44]   split 8 done in 1.3 min
+[12:11:44] --- split 9: 5097 cells ---
+[12:11:44]   n_neighbors=232 (max within 135 units = 231, median 118) | cap binds for 0.000% of cells
+[12:11:45]   W stored nnz 1,182,504 -> 595,138 after eliminate_zeros
+[12:12:06]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 717 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:12:12]   globally significant (FDR<0.1): 162 / 717
+[12:12:12]   saved local_z_p (162, 5097) (float32 npz)
+[12:12:12]   saved local_z (162, 5097) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:12:12]   plot FAILED rank266_GRN_SORT1: KeyError: 'GRN_SORT1'
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:12:15]   plot FAILED ligand_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5097, 9): given (5097, 0)
+[12:12:15]   plot FAILED receptor_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5097, 9): given (5097, 0)
+[12:12:15]   plot FAILED chord_celltype_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (5097, 9): given (5097, 0)
+[12:12:18]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:12:20]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:12:20]   split 9 done in 0.6 min
+[12:12:21] --- split 10: 17435 cells ---
+[12:12:21]   n_neighbors=678 (max within 135 units = 677, median 437) | cap binds for 0.000% of cells
+[12:12:31]   W stored nnz 11,820,930 -> 7,218,270 after eliminate_zeros
+[12:13:39]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 805 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:14:01]   globally significant (FDR<0.1): 386 / 805
+[12:14:03]   saved local_z_p (386, 17435) (float32 npz)
+[12:14:04]   saved local_z (386, 17435) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:14:04]   plot FAILED rank609_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:14:17]   plot FAILED ligand_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (17435, 9): given (17435, 0)
+[12:14:17]   plot FAILED receptor_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (17435, 9): given (17435, 0)
+[12:14:17]   plot FAILED chord_celltype_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (17435, 9): given (17435, 0)
+[12:14:56]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:15:04]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:15:04]   split 10 done in 2.7 min
+[12:15:04] --- split 11: 3826 cells ---
+[12:15:04]   n_neighbors=144 (max within 135 units = 143, median 78) | cap binds for 0.000% of cells
+[12:15:05]   W stored nnz 550,944 -> 296,464 after eliminate_zeros
+[12:15:21]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 727 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:15:26]   globally significant (FDR<0.1): 75 / 727
+[12:15:26]   saved local_z_p (75, 3826) (float32 npz)
+[12:15:26]   saved local_z (75, 3826) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:15:26]   plot FAILED rank655_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:15:26]   plot FAILED rank679_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:15:27]   plot FAILED ligand_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:15:27]   plot FAILED receptor_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:15:27]   plot FAILED chord_celltype_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:15:27]   plot FAILED ligand_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:15:27]   plot FAILED receptor_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:15:27]   plot FAILED chord_celltype_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (3826, 9): given (3826, 0)
+[12:15:27]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:15:29]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:15:29]   split 11 done in 0.4 min
+[12:15:29] --- split 12: 3308 cells ---
+[12:15:29]   n_neighbors=129 (max within 135 units = 128, median 59) | cap binds for 0.000% of cells
+[12:15:29]   W stored nnz 426,732 -> 194,150 after eliminate_zeros
+[12:15:43]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 694 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:244: RuntimeWarning: invalid value encountered in divide
+  adata.uns['local_z'][r] = (adata.uns['local_stat']['local_I'][:, r] + \
+[12:15:46]   globally significant (FDR<0.1): 134 / 694
+[12:15:46]   saved local_z_p (134, 3308) (float32 npz)
+[12:15:46]   saved local_z (134, 3308) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:15:47]   plot FAILED rank509_GRN_SORT1: KeyError: 'GRN_SORT1'
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:15:47]   plot FAILED ligand_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3308, 9): given (3308, 0)
+[12:15:47]   plot FAILED receptor_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3308, 9): given (3308, 0)
+[12:15:48]   plot FAILED chord_celltype_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (3308, 9): given (3308, 0)
+[12:15:49]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:15:50]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:15:50]   split 12 done in 0.4 min
+[12:15:50] --- split 13: 9126 cells ---
+[12:15:51]   n_neighbors=693 (max within 135 units = 692, median 353) | cap binds for 0.000% of cells
+[12:15:56]   W stored nnz 6,324,318 -> 3,238,334 after eliminate_zeros
+[12:16:32]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 800 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:244: RuntimeWarning: invalid value encountered in divide
+  adata.uns['local_z'][r] = (adata.uns['local_stat']['local_I'][:, r] + \
+[12:16:44]   globally significant (FDR<0.1): 272 / 800
+[12:16:45]   saved local_z_p (272, 9126) (float32 npz)
+[12:16:45]   saved local_z (272, 9126) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:17:07]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:17:12]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:17:12]   split 13 done in 1.4 min
+[12:17:12] --- split 14: 2520 cells ---
+[12:17:12]   n_neighbors=94 (max within 135 units = 93, median 62) | cap binds for 0.000% of cells
+[12:17:12]   W stored nnz 236,880 -> 148,350 after eliminate_zeros
+[12:17:23]   LR db 'CellChatDB v1 (extract_lr datahost=package)': 611 valid pairs
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/utils.py:174: RuntimeWarning: invalid value encountered in divide
+  X = X/X.max()
+[12:17:26]   globally significant (FDR<0.1): 59 / 611
+[12:17:26]   saved local_z_p (59, 2520) (float32 npz)
+[12:17:26]   saved local_z (59, 2520) (float32 npz)
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/Users/jiayifan/anaconda3/envs/comp-spatialdm/lib/python3.10/site-packages/spatialdm/plottings.py:393: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+[12:17:26]   plot FAILED rank81_GRN_SORT1: KeyError: 'GRN_SORT1'
+[12:17:26]   plot FAILED rank433_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:17:27]   plot FAILED ligand_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:17:27]   plot FAILED receptor_ct_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:17:27]   plot FAILED chord_celltype_GRN_SORT1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:17:27]   plot FAILED ligand_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:17:27]   plot FAILED receptor_ct_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:17:27]   plot FAILED chord_celltype_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (2520, 9): given (2520, 0)
+[12:17:27]   plot FAILED chord_LR_all: KeyError: 'Glial-Neuronal'
+[12:17:29]   saved spatialdm.h5ad (re-readable via sdm.read_spatialdm_h5ad)
+[12:17:29]   split 14 done in 0.3 min
+[12:17:29] ALL DONE in 12.9 min -> results/comparators/spatialdm/GBM/default
+split  n_cells  n_neighbors  max_within_radius  median_within_radius  cap_bind_frac  stored_nnz_before  stored_nnz  n_pairs_valid  n_significant  runtime_min  GRN_SORT1_rank  GRN_SORT1_selected  GRN_SORT1_fdr  ANXA1_FPR1_rank  ANXA1_FPR1_selected  ANXA1_FPR1_fdr
+    1    26456          709                708                   532            0.0           18757304    13259866            825            131         3.53             105                True   2.220040e-02             72.0                 True    3.559668e-03
+    2      819           94                 93                    35            0.0              76986       32968            261             62         0.13              34                True   4.086981e-02              NaN                False             NaN
+    3     6955          222                221                   144            0.0            1544010      964900            787            159         0.70             756               False   1.000000e+00             30.0                 True    6.475467e-17
+    4     5363          154                153                   108            0.0             825902      542676            821             66         0.50              98               False   2.147423e-01            484.0                False    9.316109e-01
+    5     6900          246                245                   152            0.0            1697400     1017606            770            162         0.71             149                True   6.056696e-02            432.0                False    9.384277e-01
+    6     3092           94                 93                    55            0.0             290648      166768            568             34         0.29              22                True   1.712004e-02              NaN                False             NaN
+    8     9300          384                383                   243            0.0            3571200     2246360            746            323         1.26             110                True   3.320959e-10             98.0                 True    8.658303e-13
+    9     5097          232                231                   118            0.0            1182504      595138            717            162         0.60             266               False   4.314928e-01             20.0                 True    3.050343e-13
+   10    17435          678                677                   437            0.0           11820930     7218270            805            386         2.74              15                True  2.443955e-125            609.0                False    7.783965e-01
+   11     3826          144                143                    78            0.0             550944      296464            727             75         0.41             655               False   1.000000e+00            679.0                False    1.000000e+00
+   12     3308          129                128                    59            0.0             426732      194150            694            134         0.35             509               False   9.658729e-01             20.0                 True    1.595057e-14
+   13     9126          693                692                   353            0.0            6324318     3238334            800            272         1.36              32                True   2.056343e-20            211.0                 True    3.197441e-02
+   14     2520           94                 93                    62            0.0             236880      148350            611             59         0.29              81               False   1.854368e-01            433.0                False    8.273413e-01

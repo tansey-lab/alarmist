@@ -1,0 +1,35 @@
+[18:19:17] loading inflow lrdata + NMF
+[18:19:17]   lrdata (100197, 131) | W (100197, 6) | H (131, 6) | 6 factors
+[18:19:17]   loadings reindexed onto nmf_WH.npz feature order (131 features)
+[18:19:24]   expression aligned: (100197, 5098)
+[18:19:24]   ok: cell_types
+[18:19:24] top interactions by total_local_cosine (within the NMF feature set): ['APP^TNFRSF21', 'DLL3^NOTCH1', 'CADM3^CADM4', 'APP^SORL1', 'NRXN2^CLSTN1']
+[18:19:24]   REQUIRED GRN^SORT1: 1 feature(s), best GRN^SORT1 at rank 25/131 by total_local_cosine
+[18:19:24]   REQUIRED ANXA1^FPR1: 1 feature(s), best ANXA1^FPR1 at rank 97/131 by total_local_cosine
+[18:19:24]   ok: top violin APP^TNFRSF21
+[18:19:25]   ok: top feature_by_group APP^TNFRSF21
+[18:19:25]   ok: top violin DLL3^NOTCH1
+[18:19:26]   ok: top feature_by_group DLL3^NOTCH1
+[18:19:26]   ok: top violin CADM3^CADM4
+[18:19:26]   ok: top feature_by_group CADM3^CADM4
+[18:19:27]   ok: top violin APP^SORL1
+[18:19:27]   ok: top feature_by_group APP^SORL1
+[18:19:28]   ok: top violin NRXN2^CLSTN1
+[18:19:28]   ok: top feature_by_group NRXN2^CLSTN1
+[18:19:28]   ok: REQUIRED violin GRN^SORT1
+[18:19:29]   ok: REQUIRED feature_by_group GRN^SORT1
+[18:19:29]   ok: REQUIRED violin ANXA1^FPR1
+[18:19:29]   ok: REQUIRED feature_by_group ANXA1^FPR1
+[18:19:33]   ok: connectivity
+[18:19:33]   ok: identity Factor1
+[18:19:34]   ok: identity Factor2
+[18:19:34]   ok: identity Factor3
+[18:19:34]   ok: identity Factor4
+[18:19:35]   ok: identity Factor5
+[18:19:35]   ok: identity Factor6
+[18:19:35]   skip sender heatmap: bivariate features carry no sender cell type
+[18:19:35]   ok: receiver heatmap
+[18:19:35]   ok: LR-pair heatmap
+[18:19:35]   FAILED celltype_communication_by_factor: RuntimeError: bivariate features carry no sender cell type -- not applicable
+[18:19:36]   ok: top_lri_dot_by_factor
+[18:19:36] DONE in 0.3 min -> results/comparators/liana/GBM/nmf_bivariate/plots_full (30 files); 0 blank figure(s) suppressed
