@@ -98,7 +98,16 @@ target-version = "py310"
 # that makes it auditable. Per CLAUDE.md, package code gets software standards and
 # analysis code gets reproducible-science standards — `src/alarmist/` and the other
 # tracked `scripts/*.py` stay linted.
-extend-exclude = ["notebooks", "scripts/comparators"]
+# `tutorials` joins `notebooks` for the same reason: it holds one notebook, GBM.ipynb, and
+# CLAUDE.md describes it as the reference notebook the "original plots" suite came from —
+# analysis, not package code. Every other tracked .ipynb already lives under `notebooks/`
+# and was exempt, so linting this one was an accident of directory naming rather than a
+# policy. Ruff on a notebook is dominated by findings that are normal notebook practice:
+# of the 229 it reported here, 183 were trailing/blank-line whitespace and the rest were
+# cross-cell redefinitions, exploratory unused names, and a name defined in an earlier
+# cell (F821 `pivot`). Rewriting a researcher's notebook to silence those would change
+# their code without improving it.
+extend-exclude = ["notebooks", "tutorials", "scripts/comparators"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]

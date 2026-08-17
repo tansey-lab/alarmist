@@ -34,7 +34,7 @@ HTTP_TIMEOUT = 60  # seconds per request
 MAX_RETRIES = 3
 
 
-class BudgetExceeded(RuntimeError):
+class BudgetExceededError(RuntimeError):
     """Raised when the download budget would be blown -- never caught silently."""
 
 
@@ -70,7 +70,7 @@ class ByteMeter:
         self.total += n
         self.n_requests += 1
         if self.total > self.budget:
-            raise BudgetExceeded(
+            raise BudgetExceededError(
                 f"Download budget exceeded: {self.total / 1e6:.1f} MB fetched "
                 f"(limit {self.budget / 1e6:.0f} MB) over {self.n_requests} range "
                 f"requests. Aborting rather than continuing to download."
@@ -97,7 +97,7 @@ def instrument(f, meter):
                 data = original(start, end)
                 meter.charge(len(data))
                 return data
-            except BudgetExceeded:
+            except BudgetExceededError:
                 raise  # never retry past the budget
             except Exception as exc:  # noqa: BLE001 - report, don't hang
                 last = exc
@@ -477,7 +477,7 @@ def main():
             log(f"### obs['{c}']   (~{cost / 1e6:.2f} MB)")
             try:
                 ser, kind, _ = read_column(obs, c, meter, log)
-            except BudgetExceeded:
+            except BudgetExceededError:
                 raise
             except Exception as exc:  # noqa: BLE001
                 log(f"    !! FAILED: {type(exc).__name__}: {exc}")
@@ -605,7 +605,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except BudgetExceeded as exc:
+    except BudgetExceededError as exc:
         print(f"\n*** ABORTED ON BUDGET ***\n{exc}", file=sys.stderr)
         sys.exit(2)
     except Exception:  # noqa: BLE001
