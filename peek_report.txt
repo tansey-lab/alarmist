@@ -1,0 +1,255 @@
+==============================================================================
+REMOTE h5ad METADATA PEEK  (range requests only, X body never read)
+==============================================================================
+URL    : https://ftp.cngb.org/pub/SciRAID/stomics/STDS0000058/stomics/Mouse_embryo_all_stage.h5ad
+budget : 524 MB   block_size: 512 KiB
+
+remote size: 23,011,190,802 bytes (21.43 GiB)
+root keys  : ['X', 'layers', 'obs', 'obsm', 'uns', 'var']
+root attrs : {}
+[wire so far: 0.5 MB in 1 requests]
+
+##############################################################################
+# 1. SHAPE
+##############################################################################
+n_obs = 520,815
+n_var = 23,761
+
+##############################################################################
+# 5. X STORAGE FORMAT
+##############################################################################
+h5['X'] is a Group
+attrs: {'encoding-type': 'csr_matrix', 'encoding-version': '0.1.0', 'shape': [520815, 23761]}
+members: ['data', 'indices', 'indptr']
+  X/data:
+      shape=(1146817208,) dtype=float32
+      chunks=(69997,) compression=None shuffle=False
+      stored (compressed) bytes = not queried (chunk-index walk too costly remotely)  |  logical bytes = 4,587,268,832
+  X/indices:
+      shape=(1146817208,) dtype=int32
+      chunks=(69997,) compression=None shuffle=False
+      stored (compressed) bytes = not queried (chunk-index walk too costly remotely)  |  logical bytes = 4,587,268,832
+  X/indptr:
+      shape=(520816,) dtype=int32
+      chunks=(4069,) compression=None shuffle=False
+      stored (compressed) bytes = 2,083,328  |  logical bytes = 2,083,264
+
+##############################################################################
+# 6. layers / raw
+##############################################################################
+layers: PRESENT (Group)
+  attrs: {}
+  keys: ['count']
+  layers['count'] is a Group
+    attrs: {'encoding-type': 'csr_matrix', 'encoding-version': '0.1.0', 'shape': [520815, 23761]}
+    layers/count/data:
+        shape=(1146817208,) dtype=int64
+        chunks=(34999,) compression=None shuffle=False
+        stored (compressed) bytes = not queried (chunk-index walk too costly remotely)  |  logical bytes = 9,174,537,664
+    layers/count/indices:
+        shape=(1146817208,) dtype=int32
+        chunks=(69997,) compression=None shuffle=False
+        stored (compressed) bytes = not queried (chunk-index walk too costly remotely)  |  logical bytes = 4,587,268,832
+    layers/count/indptr:
+        shape=(520816,) dtype=int32
+        chunks=(4069,) compression=None shuffle=False
+        stored (compressed) bytes = 2,083,328  |  logical bytes = 2,083,264
+raw: ABSENT
+
+##############################################################################
+# 4. obsm
+##############################################################################
+obsm: ['spatial']
+  obsm['spatial']: shape=(520815, 2) dtype=float64 chunks=None compression=None stored=8,333,040 B
+varm: ABSENT
+obsp: ABSENT
+uns: ['annotation_colors']
+
+[wire so far: 21.4 MB in 41 requests]
+
+##############################################################################
+# 3. var
+##############################################################################
+var attrs   : {'_index': 'gene_short_name', 'column-order': ['n_cells_by_counts', 'mean_counts', 'log1p_mean_counts', 'pct_dropout_by_counts', 'total_counts', 'log1p_total_counts'], 'encoding-type': 'dataframe', 'encoding-version': '0.1.0'}
+var index   : 'gene_short_name'
+var columns : ['gene_short_name', 'log1p_mean_counts', 'log1p_total_counts', 'mean_counts', 'n_cells_by_counts', 'pct_dropout_by_counts', 'total_counts']
+  var['gene_short_name']: shape=(23761,) dtype=object stored=380,176 B
+  var['log1p_mean_counts']: shape=(23761,) dtype=float64 stored=190,088 B
+  var['log1p_total_counts']: shape=(23761,) dtype=float64 stored=190,088 B
+  var['mean_counts']: shape=(23761,) dtype=float64 stored=190,088 B
+  var['n_cells_by_counts']: shape=(23761,) dtype=int64 stored=190,088 B
+  var['pct_dropout_by_counts']: shape=(23761,) dtype=float64 stored=190,088 B
+  var['total_counts']: shape=(23761,) dtype=int64 stored=190,088 B
+
+first 20 var index entries:
+  [ 0] 1700007G11Rik
+  [ 1] 1700123O20Rik
+  [ 2] 1810030O07Rik
+  [ 3] 2010107E04Rik
+  [ 4] 2210016F16Rik
+  [ 5] 2600014E21Rik
+  [ 6] 2610001J05Rik
+  [ 7] 2810429I04Rik
+  [ 8] 3830406C13Rik
+  [ 9] 4930481A15Rik
+  [10] 9430060I03Rik
+  [11] AC154200.1
+  [12] Abcb7
+  [13] Abcc1
+  [14] Abcc5
+  [15] Abl2
+  [16] Abr
+  [17] Acbd6
+  [18] Ackr3
+  [19] Aco2
+
+##############################################################################
+# 2. obs
+##############################################################################
+obs attrs : {'_index': 'cell_name', 'column-order': ['annotation', 'timepoint', 'n_genes_by_counts', 'log1p_n_genes_by_counts', 'total_counts', 'log1p_total_counts', 'pct_counts_in_top_50_genes', 'pct_counts_in_top_100_genes', 'pct_counts_in_top_200_genes', 'pct_counts_in_top_500_genes'], 'encoding-type': 'dataframe', 'encoding-version': '0.1.0'}
+obs index : 'cell_name'
+column-order (10): ['annotation', 'timepoint', 'n_genes_by_counts', 'log1p_n_genes_by_counts', 'total_counts', 'log1p_total_counts', 'pct_counts_in_top_50_genes', 'pct_counts_in_top_100_genes', 'pct_counts_in_top_200_genes', 'pct_counts_in_top_500_genes']
+all obs keys (12): ['__categories', 'annotation', 'cell_name', 'log1p_n_genes_by_counts', 'log1p_total_counts', 'n_genes_by_counts', 'pct_counts_in_top_100_genes', 'pct_counts_in_top_200_genes', 'pct_counts_in_top_500_genes', 'pct_counts_in_top_50_genes', 'timepoint', 'total_counts']
+NOTE: legacy h5ad encoding -- categories live in obs/__categories/: ['annotation', 'timepoint']
+
+--- per-column inventory (cost = compressed bytes a full read pulls) ---
+  annotation                   categorical  n_categories=45       codes_dtype=int8  cost~    0.52 MB
+  cell_name                    string       shape=(520815,)        cost~    8.33 MB
+  log1p_n_genes_by_counts      float64      shape=(520815,)        cost~    4.17 MB
+  log1p_total_counts           float64      shape=(520815,)        cost~    4.17 MB
+  n_genes_by_counts            int32        shape=(520815,)        cost~    2.08 MB
+  pct_counts_in_top_100_genes  float64      shape=(520815,)        cost~    4.17 MB
+  pct_counts_in_top_200_genes  float64      shape=(520815,)        cost~    4.17 MB
+  pct_counts_in_top_500_genes  float64      shape=(520815,)        cost~    4.17 MB
+  pct_counts_in_top_50_genes   float64      shape=(520815,)        cost~    4.17 MB
+  timepoint                    categorical  n_categories=8        codes_dtype=int8  cost~    0.52 MB
+  total_counts                 int64        shape=(520815,)        cost~    4.17 MB
+
+object/category columns to read: 3  |  total ~9.4 MB
+[wire so far: 29.3 MB]
+
+--- value_counts().head(20) ---
+
+### obs['annotation']   (~0.52 MB)
+    kind=categorical  n_unique=45  n_rows=520,815
+      Brain                                          86,520
+      Cavity                                         59,538
+      Connective tissue                              48,462
+      Meninges                                       37,768
+      Muscle                                         35,427
+      Liver                                          31,745
+      Spinal cord                                    28,925
+      Epidermis                                      24,354
+      Cartilage primordium                           18,818
+      Jaw and tooth                                  18,449
+      Heart                                          15,930
+      Cartilage                                      13,903
+      Lung                                            9,850
+      Mucosal epithelium                              9,289
+      GI tract                                        8,855
+      Adipose tissue                                  7,916
+      Dorsal root ganglion                            7,487
+      Choroid plexus                                  5,683
+      Smooth muscle                                   4,931
+      Mesothelium                                     4,792
+      ... 25 more distinct values
+    [wire so far: 29.8 MB]
+
+### obs['cell_name']   (~8.33 MB)
+    kind=string  n_unique=520,815  n_rows=520,815
+      147_104-0                                           1
+      323_64-6                                            1
+      323_77-6                                            1
+      323_76-6                                            1
+      323_75-6                                            1
+      323_74-6                                            1
+      323_73-6                                            1
+      323_72-6                                            1
+      323_71-6                                            1
+      323_70-6                                            1
+      323_69-6                                            1
+      323_68-6                                            1
+      323_67-6                                            1
+      323_66-6                                            1
+      323_65-6                                            1
+      323_63-6                                            1
+      323_79-6                                            1
+      323_62-6                                            1
+      323_61-6                                            1
+      323_60-6                                            1
+      ... 520,795 more distinct values
+    [wire so far: 83.4 MB]
+
+### obs['timepoint']   (~0.52 MB)
+    kind=categorical  n_unique=8  n_rows=520,815
+      E16.5                                         121,767
+      E15.5                                         113,350
+      E14.5                                         102,519
+      E13.5                                          77,369
+      E12.5                                          51,365
+      E11.5                                          30,124
+      E10.5                                          18,408
+      E9.5                                            5,913
+    [wire so far: 87.1 MB]
+
+##############################################################################
+# JUDGEMENT CALLS
+##############################################################################
+n_obs = 520,815
+MOSTA cell_bin across all 53 sections is ~10^7 cells; bin50 is 1-2 orders of magnitude smaller (~10^5-10^6).
+
+--- candidate columns for section id and developmental stage ---
+  annotation                   n_unique=45       
+      sample: ['AGM', 'Adipose tissue', 'Adrenal gland', 'Blood vessel', 'Bone', 'Brain', 'Branchial arch', 'Cartilage', 'Cartilage primordium', 'Cavity', 'Choroid plexus', 'Connective tissue', 'Dermomyotome', 'Dorsal root ganglion', 'Epidermis', 'Facial nerve', 'GI tract', 'Head mesenchyme', 'Heart', 'Inner ear', 'Jaw and tooth', 'Kidney', 'Liver', 'Lung', 'Lung primordium']
+  cell_name                    n_unique=520,815  
+      sample: ['100_100-6', '100_101-6', '100_102-6', '100_103-6', '100_104-6', '100_105-6', '100_106-6', '100_107-6', '100_108-6', '100_109-6', '100_110-6', '100_111-6', '100_112-6', '100_113-6', '100_114-6', '100_115-6', '100_116-6', '100_117-6', '100_118-6', '100_119-6', '100_120-6', '100_121-6', '100_122-6', '100_123-6', '100_124-3']
+  timepoint                    n_unique=8        STAGE?
+      sample: ['E10.5', 'E11.5', 'E12.5', 'E13.5', 'E14.5', 'E15.5', 'E16.5', 'E9.5']
+
+--- locating E12.5 E1S1 / E1S2 ---
+  No obs column contained the literal 'E1S1' / 'E1S2'.
+
+--- obs index suffix ('-N' concat batch tag) x timepoint ---
+distinct suffixes: ['0', '1', '2', '3', '4', '5', '6', '7']
+
+col_0  E10.5  E11.5  E12.5  E13.5   E14.5   E15.5   E16.5  E9.5
+row_0                                                          
+0          0      0      0      0       0       0       0  5913
+1      18408      0      0      0       0       0       0     0
+2          0  30124      0      0       0       0       0     0
+3          0      0  51365      0       0       0       0     0
+4          0      0      0  77369       0       0       0     0
+5          0      0      0      0  102519       0       0     0
+6          0      0      0      0       0  113350       0     0
+7          0      0      0      0       0       0  121767     0
+
+=> 8 distinct batch tags vs 8 timepoints
+
+--- contiguous row ranges per timepoint ---
+  E10.5:   18,408 rows, 1 run(s)
+      rows 5,913 .. 24,320  (18,408)
+  E11.5:   30,124 rows, 1 run(s)
+      rows 24,321 .. 54,444  (30,124)
+  E12.5:   51,365 rows, 1 run(s)
+      rows 54,445 .. 105,809  (51,365)
+  E13.5:   77,369 rows, 1 run(s)
+      rows 105,810 .. 183,178  (77,369)
+  E14.5:  102,519 rows, 1 run(s)
+      rows 183,179 .. 285,697  (102,519)
+  E15.5:  113,350 rows, 1 run(s)
+      rows 285,698 .. 399,047  (113,350)
+  E16.5:  121,767 rows, 1 run(s)
+      rows 399,048 .. 520,814  (121,767)
+  E9.5:    5,913 rows, 1 run(s)
+      rows 0 .. 5,912  (5,913)
+
+--- E12.5 subset (the stage E1S1/E1S2 belong to) ---
+  boolean mask True count: 51,365
+  row range: 54,445 .. 105,809  (51,365 rows)
+  batch tags present within E12.5: ['3']
+  cells per tag within E12.5: {'3': 51365}
+
+==============================================================================
+DONE. Total fetched over the wire: 87.1 MB in 149 range requests (0.3785% of the 21.4 GiB file).
+X data body was never read.
+==============================================================================

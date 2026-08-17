@@ -1,0 +1,47 @@
+[12:33:36] cores with a persisted object: ['1', '5']
+[12:33:36] --- core 1 ---
+[12:33:41]     ok: selected_pair_CD99_CD99
+[12:33:41]     ok: selected_pair_COL4A1_ITGA1_ITGB1
+[12:33:42]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:33:42]     ok: selected_pair_GRN_SORT1
+[12:33:43]     ok: selected_pair_ANXA1_FPR1
+[12:33:51]     ok: plot_pairs.pdf (5 pages)
+[12:33:51]     ok: celltype_contrib_CD99_CD99
+[12:33:51]     ok: celltype_contrib_COL4A1_ITGA1_ITGB1
+[12:33:51]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:33:51]     ok: celltype_contrib_GRN_SORT1
+[12:33:51]     ok: celltype_contrib_ANXA1_FPR1
+[12:33:55]     ok: chord_celltype_CD99_CD99
+[12:33:57]     ok: chord_celltype_COL4A1_ITGA1_ITGB1
+WARNING:bokeh.io.export:The webdriver raised a TimeoutException while waiting for a 'bokeh:idle' event to signify that the layout has rendered. Something may have gone wrong.
+[12:36:07]     FAILED chord_LR_all: JavascriptException: Message: TypeError: can't access property "el", root_view is undefined
+Stacktrace:
+@file:///Users/jiayifan/bokehdna8jb2k.html:3:33
+@file:///Users/jiayifan/bokehdna8jb2k.html:6:8
+
+[12:36:07]     ok: global_plot
+[12:36:07]     ok: dot_path
+[12:36:07] --- core 5 ---
+[12:36:09]     ok: selected_pair_PECAM1_PECAM1
+[12:36:09]     ok: selected_pair_CDH5_CDH5
+[12:36:09]     ok: selected_pair_COL4A2_ITGA1_ITGB1
+[12:36:09]     ok: selected_pair_GRN_SORT1
+[12:36:09]     FAILED selected_pair_ANXA1_FPR1: KeyError: 'ANXA1_FPR1'
+[12:36:11]     ok: plot_pairs.pdf (4 pages)
+[12:36:11]     note: ['ANXA1_FPR1'] not globally selected in this core -> no local statistic exists, so SpatialDM cannot plot them (excluded from the pdf, by design)
+[12:36:11]     ok: celltype_contrib_PECAM1_PECAM1
+[12:36:11]     ok: celltype_contrib_CDH5_CDH5
+[12:36:11]     ok: celltype_contrib_COL4A2_ITGA1_ITGB1
+[12:36:11]     ok: celltype_contrib_GRN_SORT1
+[12:36:11]     FAILED celltype_contrib_ANXA1_FPR1: ValueError: Unable to coerce to DataFrame, shape must be (6900, 9): given (6900, 0)
+[12:36:13]     ok: chord_celltype_PECAM1_PECAM1
+[12:36:15]     ok: chord_celltype_CDH5_CDH5
+WARNING:bokeh.io.export:The webdriver raised a TimeoutException while waiting for a 'bokeh:idle' event to signify that the layout has rendered. Something may have gone wrong.
+[12:36:38]     FAILED chord_LR_all: JavascriptException: Message: TypeError: can't access property "el", root_view is undefined
+Stacktrace:
+@file:///Users/jiayifan/bokehunjbuh44.html:3:33
+@file:///Users/jiayifan/bokehunjbuh44.html:6:8
+
+[12:36:38]     ok: global_plot
+[12:36:38]     ok: dot_path
+[12:36:38] DONE in 3.0 min | refused 0 blank figures | 143 legacy 7544-byte blanks still on disk

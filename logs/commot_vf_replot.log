@@ -1,0 +1,15 @@
+[01:26:22] cores: ['1', '10', '11', '12', '13', '14', '2', '3', '4', '5', '6', '8', '9']
+[01:26:26] --- core 1: 26456 cells, x-extent 2110 um -> scale 1.280e-04
+[01:27:08] --- core 10: 17435 cells, x-extent 1911 um -> scale 1.413e-04
+[01:27:53] --- core 11: 3826 cells, x-extent 1780 um -> scale 1.517e-04
+[01:28:06] --- core 12: 3308 cells, x-extent 2438 um -> scale 1.108e-04
+[01:28:18] --- core 13: 9126 cells, x-extent 1898 um -> scale 1.423e-04
+[01:28:48] --- core 14: 2520 cells, x-extent 1800 um -> scale 1.500e-04
+[01:28:56] --- core 2: 819 cells, x-extent 1896 um -> scale 1.424e-04
+[01:29:01] --- core 3: 6955 cells, x-extent 2051 um -> scale 1.316e-04
+[01:29:16] --- core 4: 5363 cells, x-extent 2441 um -> scale 1.106e-04
+[01:29:28] --- core 5: 6900 cells, x-extent 2259 um -> scale 1.195e-04
+[01:29:44] --- core 6: 3092 cells, x-extent 2358 um -> scale 1.145e-04
+[01:29:51] --- core 8: 9300 cells, x-extent 1808 um -> scale 1.493e-04
+[01:30:18] --- core 9: 5097 cells, x-extent 1834 um -> scale 1.473e-04
+[01:30:32] DONE: 364 figures, 0 failures

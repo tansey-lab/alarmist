@@ -1,0 +1,109 @@
+==============================================================================
+ALARMIST  seed=53  K=20  patch=50.0um  ->  results/GBM_s53_legacy
+  stages : bptf
+  figures: none   data-file: data/xenium_mm_final_cell_id.h5ad
+==============================================================================
+timestamp_utc = 2026-07-28T22:53:46Z
+stages = bptf
+seed = 53   n_components = 20   patch_size = 50.0   max_iter = 1000
+data_file = data/xenium_mm_final_cell_id.h5ad
+output_dir = results/GBM_s53_legacy
+patchify = results/GBM_s53_legacy/patchify (built here)
+cell_type_column = cell_type   resource = cellchatdb   cellchatdb = /private/tmp/claude-501/-Users-jiayifan-tansey-lab-alarmist/c9bb7632-3fa0-4091-a310-d98997fd8568/scratchpad/CellChatDBv2.0.human.legacy_effective.csv
+count_layer = X   glm_backend = torch   glm_device = cpu   gene_tile = 2048
+prefilter_spearman = True   glm_dtype = float64
+figures = none   network_threshold = [100.0]   viz_network_threshold = 0.0
+python = /Users/jiayifan/anaconda3/envs/bptf/bin/python
+alarmist_git_commit = 95208de4180946fd4fed77cd3ff594c6114f93e9
+
+
+>>>> 2026-07-28T22:53:46Z  [bptf] in-process  K=20  max_iter=1000  seed=53  cellchatdb=/private/tmp/claude-501/-Users-jiayifan-tansey-lab-alarmist/c9bb7632-3fa0-4091-a310-d98997fd8568/scratchpad/CellChatDBv2.0.human.legacy_effective.csv
+OMP: Info #276: omp_set_nested routine deprecated, please use omp_set_max_active_levels instead.
+ITERATION 0:	Time: 0.000000	Objective: -6748902797.49	Change: nan	
+  0%|          | 0/1000 [00:00<?, ?it/s]ITERATION 1:	Time: 0.983087	Objective: -5047857.68	Change: 9.99252e-01	
+  0%|          | 1/1000 [00:00<16:22,  1.02it/s]ITERATION 2:	Time: 0.921237	Objective: -5026392.83	Change: 4.25227e-03	
+  0%|          | 2/1000 [00:01<15:44,  1.06it/s]ITERATION 3:	Time: 0.903573	Objective: -4967425.98	Change: 1.17314e-02	
+  0%|          | 3/1000 [00:02<15:24,  1.08it/s]ITERATION 4:	Time: 0.940484	Objective: -4868543.38	Change: 1.99062e-02	
+  0%|          | 4/1000 [00:03<15:28,  1.07it/s]ITERATION 5:	Time: 0.886091	Objective: -4699112.89	Change: 3.48011e-02	
+  0%|          | 5/1000 [00:04<15:11,  1.09it/s]ITERATION 6:	Time: 0.889550	Objective: -4401810.93	Change: 6.32677e-02	
+  1%|          | 6/1000 [00:05<15:01,  1.10it/s]ITERATION 7:	Time: 0.882768	Objective: -3913550.42	Change: 1.10923e-01	
+  1%|          | 7/1000 [00:06<14:52,  1.11it/s]ITERATION 8:	Time: 0.907040	Objective: -3232920.48	Change: 1.73916e-01	
+  1%|          | 8/1000 [00:07<14:54,  1.11it/s]ITERATION 9:	Time: 0.914961	Objective: -2500373.36	Change: 2.26590e-01	
+  1%|          | 9/1000 [00:08<14:57,  1.10it/s]ITERATION 10:	Time: 0.911908	Objective: -1934592.92	Change: 2.26278e-01	
+  1%|1         | 10/1000 [00:09<14:58,  1.10it/s]ITERATION 11:	Time: 0.898477	Objective: -1600650.41	Change: 1.72616e-01	
+  1%|1         | 11/1000 [00:10<14:55,  1.10it/s]ITERATION 12:	Time: 0.898258	Objective: -1416052.94	Change: 1.15327e-01	
+  1%|1         | 12/1000 [00:10<14:52,  1.11it/s]ITERATION 13:	Time: 0.867582	Objective: -1301467.04	Change: 8.09192e-02	
+  1%|1         | 13/1000 [00:11<14:40,  1.12it/s]ITERATION 14:	Time: 0.928822	Objective: -1220294.48	Change: 6.23700e-02	
+  1%|1         | 14/1000 [00:12<14:50,  1.11it/s]ITERATION 15:	Time: 0.894439	Objective: -1157585.10	Change: 5.13887e-02	
+  2%|1         | 15/1000 [00:13<14:47,  1.11it/s]ITERATION 16:	Time: 0.868058	Objective: -1106749.36	Change: 4.39153e-02	
+  2%|1         | 16/1000 [00:14<14:36,  1.12it/s]ITERATION 17:	Time: 0.872696	Objective: -1065031.15	Change: 3.76944e-02	
+  2%|1         | 17/1000 [00:15<14:30,  1.13it/s]ITERATION 18:	Time: 0.909537	Objective: -1030338.17	Change: 3.25746e-02	
+  2%|1         | 18/1000 [00:16<14:36,  1.12it/s]ITERATION 19:	Time: 0.912511	Objective: -1000999.05	Change: 2.84752e-02	
+  2%|1         | 19/1000 [00:17<14:41,  1.11it/s]ITERATION 20:	Time: 0.932532	Objective: -975929.32	Change: 2.50447e-02	
+  2%|2         | 20/1000 [00:18<14:50,  1.10it/s]ITERATION 21:	Time: 0.928234	Objective: -954341.72	Change: 2.21200e-02	
+  2%|2         | 21/1000 [00:19<14:55,  1.09it/s]ITERATION 22:	Time: 0.949171	Objective: -935639.43	Change: 1.95971e-02	
+  2%|2         | 22/1000 [00:20<15:04,  1.08it/s]ITERATION 23:	Time: 0.933127	Objective: -919448.71	Change: 1.73044e-02	
+  2%|2         | 23/1000 [00:20<15:06,  1.08it/s]ITERATION 24:	Time: 0.915574	Objective: -905631.42	Change: 1.50278e-02	
+  2%|2         | 24/1000 [00:21<15:01,  1.08it/s]ITERATION 25:	Time: 0.918879	Objective: -893936.94	Change: 1.29131e-02	
+  2%|2         | 25/1000 [00:22<14:59,  1.08it/s]ITERATION 26:	Time: 0.891476	Objective: -883741.22	Change: 1.14054e-02	
+  3%|2         | 26/1000 [00:23<14:49,  1.09it/s]ITERATION 27:	Time: 0.901786	Objective: -874747.55	Change: 1.01768e-02	
+  3%|2         | 27/1000 [00:24<14:45,  1.10it/s]ITERATION 28:	Time: 0.880737	Objective: -867077.14	Change: 8.76872e-03	
+  3%|2         | 28/1000 [00:25<14:35,  1.11it/s]ITERATION 29:	Time: 0.886921	Objective: -860301.22	Change: 7.81466e-03	
+  3%|2         | 29/1000 [00:26<14:30,  1.11it/s]ITERATION 30:	Time: 0.894823	Objective: -854295.10	Change: 6.98142e-03	
+  3%|3         | 30/1000 [00:27<14:29,  1.12it/s]ITERATION 31:	Time: 0.898721	Objective: -849023.55	Change: 6.17064e-03	
+  3%|3         | 31/1000 [00:28<14:29,  1.11it/s]ITERATION 32:	Time: 0.899046	Objective: -844423.03	Change: 5.41860e-03	
+  3%|3         | 32/1000 [00:29<14:29,  1.11it/s]ITERATION 33:	Time: 0.926080	Objective: -840407.63	Change: 4.75520e-03	
+  3%|3         | 33/1000 [00:29<14:36,  1.10it/s]ITERATION 34:	Time: 0.904586	Objective: -836913.25	Change: 4.15796e-03	
+  3%|3         | 34/1000 [00:30<14:35,  1.10it/s]ITERATION 35:	Time: 0.898034	Objective: -833777.90	Change: 3.74632e-03	
+  4%|3         | 35/1000 [00:31<14:31,  1.11it/s]ITERATION 36:	Time: 0.910692	Objective: -831008.72	Change: 3.32124e-03	
+  4%|3         | 36/1000 [00:32<14:33,  1.10it/s]ITERATION 37:	Time: 0.941715	Objective: -828503.28	Change: 3.01494e-03	
+  4%|3         | 37/1000 [00:33<14:42,  1.09it/s]ITERATION 38:	Time: 0.904190	Objective: -826176.37	Change: 2.80857e-03	
+  4%|3         | 38/1000 [00:34<14:38,  1.10it/s]ITERATION 39:	Time: 0.920088	Objective: -824026.90	Change: 2.60171e-03	
+  4%|3         | 39/1000 [00:35<14:39,  1.09it/s]ITERATION 40:	Time: 0.892042	Objective: -822069.78	Change: 2.37507e-03	
+  4%|4         | 40/1000 [00:36<14:31,  1.10it/s]ITERATION 41:	Time: 0.955612	Objective: -820298.97	Change: 2.15409e-03	
+  4%|4         | 41/1000 [00:37<14:44,  1.08it/s]ITERATION 42:	Time: 0.937358	Objective: -818531.07	Change: 2.15519e-03	
+  4%|4         | 42/1000 [00:38<14:48,  1.08it/s]ITERATION 43:	Time: 0.921363	Objective: -816808.64	Change: 2.10429e-03	
+  4%|4         | 43/1000 [00:39<14:45,  1.08it/s]ITERATION 44:	Time: 0.973618	Objective: -815318.65	Change: 1.82416e-03	
+  4%|4         | 44/1000 [00:40<14:58,  1.06it/s]ITERATION 45:	Time: 0.958350	Objective: -813932.94	Change: 1.69960e-03	
+  4%|4         | 45/1000 [00:41<15:02,  1.06it/s]ITERATION 46:	Time: 0.952346	Objective: -812624.24	Change: 1.60787e-03	
+  5%|4         | 46/1000 [00:42<15:04,  1.06it/s]ITERATION 47:	Time: 0.963030	Objective: -811409.38	Change: 1.49498e-03	
+  5%|4         | 47/1000 [00:42<15:07,  1.05it/s]ITERATION 48:	Time: 0.942018	Objective: -810236.87	Change: 1.44503e-03	
+  5%|4         | 48/1000 [00:43<15:03,  1.05it/s]ITERATION 49:	Time: 0.919367	Objective: -809096.72	Change: 1.40718e-03	
+  5%|4         | 49/1000 [00:44<14:54,  1.06it/s]ITERATION 50:	Time: 0.914809	Objective: -808061.46	Change: 1.27953e-03	
+  5%|5         | 50/1000 [00:45<14:46,  1.07it/s]ITERATION 51:	Time: 0.909459	Objective: -807067.81	Change: 1.22967e-03	
+  5%|5         | 51/1000 [00:46<14:38,  1.08it/s]ITERATION 52:	Time: 0.960145	Objective: -806087.10	Change: 1.21515e-03	
+  5%|5         | 52/1000 [00:47<14:47,  1.07it/s]ITERATION 53:	Time: 0.918265	Objective: -805197.27	Change: 1.10388e-03	
+  5%|5         | 53/1000 [00:48<14:41,  1.07it/s]ITERATION 54:	Time: 0.983251	Objective: -804373.32	Change: 1.02329e-03	
+  5%|5         | 54/1000 [00:49<14:55,  1.06it/s]ITERATION 55:	Time: 0.953738	Objective: -803562.30	Change: 1.00826e-03	
+  6%|5         | 55/1000 [00:50<14:56,  1.05it/s]ITERATION 56:	Time: 0.979357	Objective: -802840.24	Change: 8.98573e-04	
+  6%|5         | 56/1000 [00:51<15:04,  1.04it/s]ITERATION 57:	Time: 0.963547	Objective: -802138.50	Change: 8.74080e-04	
+  6%|5         | 57/1000 [00:52<15:05,  1.04it/s]ITERATION 58:	Time: 0.935156	Objective: -801438.01	Change: 8.73271e-04	
+  6%|5         | 58/1000 [00:53<14:57,  1.05it/s]ITERATION 59:	Time: 0.921609	Objective: -800746.93	Change: 8.62304e-04	
+  6%|5         | 59/1000 [00:54<14:47,  1.06it/s]ITERATION 60:	Time: 0.942747	Objective: -800110.98	Change: 7.94199e-04	
+  6%|6         | 60/1000 [00:55<14:46,  1.06it/s]ITERATION 61:	Time: 0.923560	Objective: -799529.60	Change: 7.26625e-04	
+  6%|6         | 61/1000 [00:56<14:40,  1.07it/s]ITERATION 62:	Time: 0.942223	Objective: -798974.28	Change: 6.94556e-04	
+  6%|6         | 62/1000 [00:57<14:40,  1.07it/s]ITERATION 63:	Time: 0.917153	Objective: -798481.84	Change: 6.16340e-04	
+  6%|6         | 63/1000 [00:58<14:33,  1.07it/s]ITERATION 64:	Time: 0.952960	Objective: -798029.13	Change: 5.66967e-04	
+  6%|6         | 64/1000 [00:58<14:38,  1.07it/s]ITERATION 65:	Time: 0.940868	Objective: -797566.79	Change: 5.79350e-04	
+  6%|6         | 65/1000 [00:59<14:38,  1.06it/s]ITERATION 66:	Time: 0.945274	Objective: -797113.50	Change: 5.68336e-04	
+  7%|6         | 66/1000 [01:00<14:39,  1.06it/s]ITERATION 67:	Time: 0.935563	Objective: -796662.83	Change: 5.65382e-04	
+  7%|6         | 67/1000 [01:01<14:36,  1.06it/s]ITERATION 68:	Time: 0.919809	Objective: -796242.05	Change: 5.28181e-04	
+  7%|6         | 68/1000 [01:02<14:30,  1.07it/s]ITERATION 69:	Time: 0.943466	Objective: -795876.93	Change: 4.58551e-04	
+  7%|6         | 69/1000 [01:03<14:32,  1.07it/s]ITERATION 70:	Time: 0.907796	Objective: -795489.93	Change: 4.86256e-04	
+  7%|7         | 70/1000 [01:04<14:23,  1.08it/s]ITERATION 71:	Time: 0.907909	Objective: -795127.24	Change: 4.55926e-04	
+  7%|7         | 71/1000 [01:05<14:16,  1.08it/s]ITERATION 72:	Time: 0.908989	Objective: -794809.13	Change: 4.00084e-04	
+  7%|7         | 72/1000 [01:06<14:12,  1.09it/s]ITERATION 73:	Time: 0.918785	Objective: -794462.85	Change: 4.35671e-04	
+  7%|7         | 73/1000 [01:07<14:11,  1.09it/s]ITERATION 74:	Time: 0.922832	Objective: -794153.99	Change: 3.88763e-04	
+  7%|7         | 74/1000 [01:08<14:11,  1.09it/s]ITERATION 75:	Time: 0.919477	Objective: -793860.75	Change: 3.69253e-04	
+  8%|7         | 75/1000 [01:09<14:10,  1.09it/s]ITERATION 76:	Time: 0.964629	Objective: -793578.14	Change: 3.55997e-04	
+  8%|7         | 76/1000 [01:10<14:22,  1.07it/s]ITERATION 77:	Time: 0.967174	Objective: -793351.27	Change: 2.85876e-04	
+  8%|7         | 77/1000 [01:11<14:30,  1.06it/s]ITERATION 78:	Time: 0.952924	Objective: -793140.22	Change: 2.66028e-04	
+  8%|7         | 78/1000 [01:12<14:32,  1.06it/s]ITERATION 79:	Time: 0.950020	Objective: -792949.60	Change: 2.40335e-04	
+  8%|7         | 79/1000 [01:12<14:32,  1.06it/s]ITERATION 80:	Time: 0.948676	Objective: -792784.01	Change: 2.08833e-04	
+  8%|8         | 80/1000 [01:13<14:32,  1.05it/s]ITERATION 81:	Time: 0.979556	Objective: -792636.19	Change: 1.86450e-04	
+  8%|8         | 81/1000 [01:14<14:39,  1.04it/s]ITERATION 82:	Time: 0.925472	Objective: -792472.84	Change: 2.06087e-04	
+  8%|8         | 82/1000 [01:15<14:30,  1.05it/s]ITERATION 83:	Time: 0.926801	Objective: -792299.81	Change: 2.18343e-04	
+  8%|8         | 83/1000 [01:16<14:23,  1.06it/s]ITERATION 84:	Time: 0.933117	Objective: -792153.28	Change: 1.84935e-04	
+  8%|8         | 84/1000 [01:17<14:20,  1.06it/s]ITERATION 85:	Time: 0.920880	Objective: -792014.19	Change: 1.75586e-04	
+  8%|8         | 85/1000 [01:18<14:14,  1.07it/s]/Users/jiayifan/anaconda3/envs/bptf/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

@@ -1,0 +1,92 @@
+[19:49:45] reading data/xenium_mm_final_cell_id.h5ad
+[19:49:47] loaded 100197 x 5119
+[19:49:59] dropped 21 control-probe genes containing '_' -> 5098 genes
+[19:50:03] normalize_total(1e4) + log1p (tutorial recipe); X max = 8.73
+[19:50:03] extent 7484 x 16483 um, whole slide (no core split)
+[19:50:03] spatial_neighbors(bandwidth=13.1454, cutoff=0.1, kernel=gaussian) -> effective radius 28.2 um
+[19:50:05]   connectivities: 10,119,897 nonzeros | neighbours per cell median 14, max 52 | max_neighbours cap binds for 0.0000%
+[19:50:05] resource: CellChatDBv2.0.human.csv -> 3218 unique LR pairs | fingerprint {'path': '/Users/jiayifan/tansey_lab/alarmist/data/LRdatabase/CellChatDBv2.0.human.csv', 'rows': 3233, 'unique_pairs': 3218, 'has_TGFBR1_TGFBR2': True, 'has_TGFBR2_TGFBR1': False}
+[19:50:05] bivariate(local=morans, global=morans, n_perms=100, nz_prop=0.02)
+Using `.X`!
+Converting to sparse csr matrix!
+Removing 27 self-interactions
+Using provided `resource`.
+  0%|          | 0/100 [00:00<?, ?it/s]  1%|          | 1/100 [00:00<00:16,  6.16it/s]  2%|▏         | 2/100 [00:00<00:15,  6.27it/s]  3%|▎         | 3/100 [00:00<00:15,  6.23it/s]  4%|▍         | 4/100 [00:00<00:15,  6.24it/s]  5%|▌         | 5/100 [00:00<00:14,  6.34it/s]  6%|▌         | 6/100 [00:00<00:14,  6.41it/s]  7%|▋         | 7/100 [00:01<00:14,  6.41it/s]  8%|▊         | 8/100 [00:01<00:14,  6.38it/s]  9%|▉         | 9/100 [00:01<00:14,  6.23it/s] 10%|█         | 10/100 [00:01<00:14,  6.20it/s] 11%|█         | 11/100 [00:01<00:14,  6.21it/s] 12%|█▏        | 12/100 [00:01<00:14,  6.15it/s] 13%|█▎        | 13/100 [00:02<00:14,  6.14it/s] 14%|█▍        | 14/100 [00:02<00:14,  5.74it/s] 15%|█▌        | 15/100 [00:02<00:14,  5.86it/s] 16%|█▌        | 16/100 [00:02<00:14,  5.98it/s] 17%|█▋        | 17/100 [00:02<00:13,  6.08it/s] 18%|█▊        | 18/100 [00:02<00:13,  6.17it/s] 19%|█▉        | 19/100 [00:03<00:12,  6.24it/s] 20%|██        | 20/100 [00:03<00:12,  6.26it/s] 21%|██        | 21/100 [00:03<00:12,  6.30it/s] 22%|██▏       | 22/100 [00:03<00:12,  6.33it/s] 23%|██▎       | 23/100 [00:03<00:12,  6.27it/s] 24%|██▍       | 24/100 [00:03<00:12,  6.33it/s] 25%|██▌       | 25/100 [00:04<00:11,  6.37it/s] 26%|██▌       | 26/100 [00:04<00:11,  6.39it/s] 27%|██▋       | 27/100 [00:04<00:11,  6.44it/s] 28%|██▊       | 28/100 [00:04<00:11,  6.48it/s] 29%|██▉       | 29/100 [00:04<00:10,  6.53it/s] 30%|███       | 30/100 [00:04<00:10,  6.52it/s] 31%|███       | 31/100 [00:04<00:10,  6.51it/s] 32%|███▏      | 32/100 [00:05<00:10,  6.53it/s] 33%|███▎      | 33/100 [00:05<00:10,  6.52it/s] 34%|███▍      | 34/100 [00:05<00:10,  6.51it/s] 35%|███▌      | 35/100 [00:05<00:09,  6.52it/s] 36%|███▌      | 36/100 [00:05<00:09,  6.53it/s] 37%|███▋      | 37/100 [00:05<00:09,  6.54it/s] 38%|███▊      | 38/100 [00:06<00:09,  6.57it/s] 39%|███▉      | 39/100 [00:06<00:09,  6.54it/s] 40%|████      | 40/100 [00:06<00:09,  6.54it/s] 41%|████      | 41/100 [00:06<00:09,  6.55it/s] 42%|████▏     | 42/100 [00:06<00:08,  6.57it/s] 43%|████▎     | 43/100 [00:06<00:08,  6.57it/s] 44%|████▍     | 44/100 [00:06<00:08,  6.53it/s] 45%|████▌     | 45/100 [00:07<00:08,  6.40it/s] 46%|████▌     | 46/100 [00:07<00:08,  6.36it/s] 47%|████▋     | 47/100 [00:07<00:08,  6.33it/s] 48%|████▊     | 48/100 [00:07<00:08,  6.29it/s] 49%|████▉     | 49/100 [00:07<00:08,  6.19it/s] 50%|█████     | 50/100 [00:07<00:08,  6.19it/s] 51%|█████     | 51/100 [00:08<00:07,  6.23it/s] 52%|█████▏    | 52/100 [00:08<00:07,  6.25it/s] 53%|█████▎    | 53/100 [00:08<00:07,  6.25it/s] 54%|█████▍    | 54/100 [00:08<00:07,  6.24it/s] 55%|█████▌    | 55/100 [00:08<00:07,  6.27it/s] 56%|█████▌    | 56/100 [00:08<00:06,  6.29it/s] 57%|█████▋    | 57/100 [00:09<00:06,  6.36it/s] 58%|█████▊    | 58/100 [00:09<00:06,  6.42it/s] 59%|█████▉    | 59/100 [00:09<00:06,  6.43it/s] 60%|██████    | 60/100 [00:09<00:06,  6.43it/s] 61%|██████    | 61/100 [00:09<00:06,  6.43it/s] 62%|██████▏   | 62/100 [00:09<00:05,  6.42it/s] 63%|██████▎   | 63/100 [00:09<00:05,  6.42it/s] 64%|██████▍   | 64/100 [00:10<00:05,  6.45it/s] 65%|██████▌   | 65/100 [00:10<00:05,  6.47it/s] 66%|██████▌   | 66/100 [00:10<00:05,  6.49it/s] 67%|██████▋   | 67/100 [00:10<00:05,  6.49it/s] 68%|██████▊   | 68/100 [00:10<00:04,  6.50it/s] 69%|██████▉   | 69/100 [00:10<00:04,  6.40it/s] 70%|███████   | 70/100 [00:11<00:04,  6.41it/s] 71%|███████   | 71/100 [00:11<00:04,  6.40it/s] 72%|███████▏  | 72/100 [00:11<00:04,  6.41it/s] 73%|███████▎  | 73/100 [00:11<00:04,  6.43it/s] 74%|███████▍  | 74/100 [00:11<00:04,  6.45it/s] 75%|███████▌  | 75/100 [00:11<00:03,  6.48it/s] 76%|███████▌  | 76/100 [00:11<00:03,  6.48it/s] 77%|███████▋  | 77/100 [00:12<00:03,  6.46it/s] 78%|███████▊  | 78/100 [00:12<00:03,  6.48it/s] 79%|███████▉  | 79/100 [00:12<00:03,  6.48it/s] 80%|████████  | 80/100 [00:12<00:03,  6.47it/s] 81%|████████  | 81/100 [00:12<00:02,  6.36it/s] 82%|████████▏ | 82/100 [00:12<00:02,  6.23it/s] 83%|████████▎ | 83/100 [00:13<00:02,  6.22it/s] 84%|████████▍ | 84/100 [00:13<00:02,  6.25it/s] 85%|████████▌ | 85/100 [00:13<00:02,  6.24it/s] 86%|████████▌ | 86/100 [00:13<00:02,  6.12it/s] 87%|████████▋ | 87/100 [00:13<00:02,  6.14it/s] 88%|████████▊ | 88/100 [00:13<00:01,  6.18it/s] 89%|████████▉ | 89/100 [00:14<00:01,  6.23it/s] 90%|█████████ | 90/100 [00:14<00:01,  6.27it/s] 91%|█████████ | 91/100 [00:14<00:01,  6.33it/s] 92%|█████████▏| 92/100 [00:14<00:01,  6.34it/s] 93%|█████████▎| 93/100 [00:14<00:01,  6.40it/s] 94%|█████████▍| 94/100 [00:14<00:00,  6.41it/s] 95%|█████████▌| 95/100 [00:14<00:00,  6.45it/s] 96%|█████████▌| 96/100 [00:15<00:00,  6.47it/s] 97%|█████████▋| 97/100 [00:15<00:00,  6.46it/s] 98%|█████████▊| 98/100 [00:15<00:00,  6.46it/s] 99%|█████████▉| 99/100 [00:15<00:00,  6.44it/s]100%|██████████| 100/100 [00:15<00:00,  6.42it/s]100%|██████████| 100/100 [00:15<00:00,  6.36it/s]
+  0%|          | 0/100 [00:00<?, ?it/s]  1%|          | 1/100 [00:00<00:30,  3.21it/s]  2%|▏         | 2/100 [00:00<00:30,  3.22it/s]  3%|▎         | 3/100 [00:00<00:29,  3.25it/s]  4%|▍         | 4/100 [00:01<00:29,  3.27it/s]  5%|▌         | 5/100 [00:01<00:29,  3.27it/s]  6%|▌         | 6/100 [00:01<00:28,  3.27it/s]  7%|▋         | 7/100 [00:02<00:29,  3.11it/s]  8%|▊         | 8/100 [00:02<00:29,  3.11it/s]  9%|▉         | 9/100 [00:02<00:29,  3.12it/s] 10%|█         | 10/100 [00:03<00:28,  3.11it/s] 11%|█         | 11/100 [00:03<00:28,  3.13it/s] 12%|█▏        | 12/100 [00:03<00:28,  3.14it/s] 13%|█▎        | 13/100 [00:04<00:27,  3.16it/s] 14%|█▍        | 14/100 [00:04<00:27,  3.17it/s] 15%|█▌        | 15/100 [00:04<00:26,  3.19it/s] 16%|█▌        | 16/100 [00:05<00:26,  3.19it/s] 17%|█▋        | 17/100 [00:05<00:26,  3.18it/s] 18%|█▊        | 18/100 [00:05<00:25,  3.17it/s] 19%|█▉        | 19/100 [00:05<00:25,  3.19it/s] 20%|██        | 20/100 [00:06<00:24,  3.22it/s] 21%|██        | 21/100 [00:06<00:24,  3.23it/s] 22%|██▏       | 22/100 [00:06<00:24,  3.24it/s] 23%|██▎       | 23/100 [00:07<00:23,  3.25it/s] 24%|██▍       | 24/100 [00:07<00:23,  3.26it/s] 25%|██▌       | 25/100 [00:07<00:23,  3.26it/s] 26%|██▌       | 26/100 [00:08<00:22,  3.25it/s] 27%|██▋       | 27/100 [00:08<00:22,  3.25it/s] 28%|██▊       | 28/100 [00:08<00:22,  3.22it/s] 29%|██▉       | 29/100 [00:09<00:22,  3.18it/s] 30%|███       | 30/100 [00:09<00:22,  3.17it/s] 31%|███       | 31/100 [00:09<00:21,  3.17it/s] 32%|███▏      | 32/100 [00:10<00:21,  3.17it/s] 33%|███▎      | 33/100 [00:10<00:21,  3.17it/s] 34%|███▍      | 34/100 [00:10<00:20,  3.16it/s] 35%|███▌      | 35/100 [00:10<00:20,  3.19it/s] 36%|███▌      | 36/100 [00:11<00:19,  3.20it/s] 37%|███▋      | 37/100 [00:11<00:19,  3.22it/s] 38%|███▊      | 38/100 [00:11<00:19,  3.24it/s] 39%|███▉      | 39/100 [00:12<00:18,  3.25it/s] 40%|████      | 40/100 [00:12<00:18,  3.26it/s] 41%|████      | 41/100 [00:12<00:18,  3.26it/s] 42%|████▏     | 42/100 [00:13<00:17,  3.27it/s] 43%|████▎     | 43/100 [00:13<00:17,  3.28it/s] 44%|████▍     | 44/100 [00:13<00:17,  3.29it/s] 45%|████▌     | 45/100 [00:14<00:16,  3.30it/s] 46%|████▌     | 46/100 [00:14<00:16,  3.29it/s] 47%|████▋     | 47/100 [00:14<00:16,  3.30it/s] 48%|████▊     | 48/100 [00:14<00:15,  3.27it/s] 49%|████▉     | 49/100 [00:15<00:15,  3.23it/s] 50%|█████     | 50/100 [00:15<00:15,  3.21it/s] 51%|█████     | 51/100 [00:15<00:15,  3.21it/s] 52%|█████▏    | 52/100 [00:16<00:15,  3.19it/s] 53%|█████▎    | 53/100 [00:16<00:14,  3.17it/s] 54%|█████▍    | 54/100 [00:16<00:14,  3.18it/s] 55%|█████▌    | 55/100 [00:17<00:14,  3.15it/s] 56%|█████▌    | 56/100 [00:17<00:14,  3.10it/s] 57%|█████▋    | 57/100 [00:17<00:13,  3.07it/s] 58%|█████▊    | 58/100 [00:18<00:13,  3.05it/s] 59%|█████▉    | 59/100 [00:18<00:13,  3.02it/s] 60%|██████    | 60/100 [00:18<00:13,  3.05it/s] 61%|██████    | 61/100 [00:19<00:12,  3.02it/s] 62%|██████▏   | 62/100 [00:19<00:12,  3.07it/s] 63%|██████▎   | 63/100 [00:19<00:11,  3.10it/s] 64%|██████▍   | 64/100 [00:20<00:11,  3.12it/s] 65%|██████▌   | 65/100 [00:20<00:11,  3.09it/s] 66%|██████▌   | 66/100 [00:20<00:10,  3.10it/s] 67%|██████▋   | 67/100 [00:21<00:10,  3.12it/s] 68%|██████▊   | 68/100 [00:21<00:10,  3.10it/s] 69%|██████▉   | 69/100 [00:21<00:10,  3.10it/s] 70%|███████   | 70/100 [00:22<00:09,  3.08it/s] 71%|███████   | 71/100 [00:22<00:09,  3.07it/s] 72%|███████▏  | 72/100 [00:22<00:09,  3.08it/s] 73%|███████▎  | 73/100 [00:23<00:08,  3.10it/s] 74%|███████▍  | 74/100 [00:23<00:08,  3.09it/s] 75%|███████▌  | 75/100 [00:23<00:08,  3.09it/s] 76%|███████▌  | 76/100 [00:23<00:07,  3.07it/s] 77%|███████▋  | 77/100 [00:24<00:07,  3.08it/s] 78%|███████▊  | 78/100 [00:24<00:07,  3.07it/s] 79%|███████▉  | 79/100 [00:24<00:06,  3.09it/s] 80%|████████  | 80/100 [00:25<00:06,  3.12it/s] 81%|████████  | 81/100 [00:25<00:06,  3.14it/s] 82%|████████▏ | 82/100 [00:25<00:05,  3.16it/s] 83%|████████▎ | 83/100 [00:26<00:05,  3.18it/s] 84%|████████▍ | 84/100 [00:26<00:05,  3.16it/s] 85%|████████▌ | 85/100 [00:26<00:04,  3.17it/s] 86%|████████▌ | 86/100 [00:27<00:04,  3.18it/s] 87%|████████▋ | 87/100 [00:27<00:04,  3.20it/s] 88%|████████▊ | 88/100 [00:27<00:03,  3.19it/s] 89%|████████▉ | 89/100 [00:28<00:03,  3.21it/s] 90%|█████████ | 90/100 [00:28<00:03,  3.22it/s] 91%|█████████ | 91/100 [00:28<00:02,  3.21it/s] 92%|█████████▏| 92/100 [00:29<00:02,  3.21it/s] 93%|█████████▎| 93/100 [00:29<00:02,  3.23it/s] 94%|█████████▍| 94/100 [00:29<00:01,  3.23it/s] 95%|█████████▌| 95/100 [00:29<00:01,  3.22it/s] 96%|█████████▌| 96/100 [00:30<00:01,  3.21it/s] 97%|█████████▋| 97/100 [00:30<00:00,  3.21it/s] 98%|█████████▊| 98/100 [00:30<00:00,  3.20it/s] 99%|█████████▉| 99/100 [00:31<00:00,  3.21it/s]100%|██████████| 100/100 [00:31<00:00,  3.21it/s]100%|██████████| 100/100 [00:31<00:00,  3.17it/s]
+[19:51:03]   lrdata: 100197 cells x 131 LR pairs
+[19:51:08]   saved global_scores.csv ((131, 10)) + local score/pval matrices
+[19:51:08] top by morans: ['COL4A1^CD44', 'COL4A2^CD44', 'APP^TNFRSF21', 'DLL3^NOTCH1', 'C3^C3AR1', 'TNC^SDC4']
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+... storing 'ligand' as categorical
+... storing 'receptor' as categorical
+[19:51:20]   plot ok: top_morans
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:23]   plot ok: local_COL4A1-CD44
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:25]   plot ok: local_COL4A1-CD44_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:28]   plot ok: local_COL4A1-CD44_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:34]   plot ok: genes_COL4A1-CD44
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:37]   plot ok: local_COL4A2-CD44
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:40]   plot ok: local_COL4A2-CD44_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:43]   plot ok: local_COL4A2-CD44_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:48]   plot ok: genes_COL4A2-CD44
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:51]   plot ok: local_APP-TNFRSF21
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:54]   plot ok: local_APP-TNFRSF21_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:51:57]   plot ok: local_APP-TNFRSF21_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:02]   plot ok: genes_APP-TNFRSF21
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:05]   plot ok: local_DLL3-NOTCH1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:08]   plot ok: local_DLL3-NOTCH1_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:11]   plot ok: local_DLL3-NOTCH1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:16]   plot ok: genes_DLL3-NOTCH1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:19]   plot ok: local_C3-C3AR1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:22]   plot ok: local_C3-C3AR1_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:25]   plot ok: local_C3-C3AR1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:31]   plot ok: genes_C3-C3AR1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:34]   plot ok: local_TNC-SDC4
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:37]   plot ok: local_TNC-SDC4_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:40]   plot ok: local_TNC-SDC4_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:46]   plot ok: genes_TNC-SDC4
+[19:52:46]   requested GRN^SORT1: rank 33/131 by morans
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:49]   plot ok: rank33_GRN-SORT1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:52]   plot ok: rank33_GRN-SORT1_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:52:55]   plot ok: rank33_GRN-SORT1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:53:01]   plot ok: rank33_GRN-SORT1_genes
+[19:53:01]   requested ANXA1^FPR1: rank 60/131 by morans
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:53:04]   plot ok: rank60_ANXA1-FPR1
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:53:07]   plot ok: rank60_ANXA1-FPR1_pvals
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:217: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:53:10]   plot ok: rank60_ANXA1-FPR1_cats
+/Users/jiayifan/tansey_lab/alarmist/scripts/comparators/liana/run_liana.py:232: FutureWarning: Use `squidpy.pl.spatial_scatter` instead.
+[19:53:15]   plot ok: rank60_ANXA1-FPR1_genes
+[19:53:20]   plot ok: bandwidth_query
+/Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages/liana/plotting/_connectivity_plot.py:47: FutureWarning: The method obsm_keys is deprecated and will be removed in the future. Use obsm instead of obsm_keys. (e.g. `k in adata.obsm` or `adata.obsm.keys() | {'u'}`)
+[19:53:22]   plot ok: connectivity_idx57404
+[19:53:22] DONE in 3.6 min -> results/comparators/liana/GBM/cellchatdb2_morans (35 figures, 0 blank suppressed) [run_manifest.json]

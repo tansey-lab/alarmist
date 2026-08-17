@@ -1,0 +1,43 @@
+[2026-08-07 16:29:35] [INFO]    [OmnipathR] Welcome to OmnipathR!
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/Library/Caches/OmnipathR/cache.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [INFO]    [OmnipathR] Initialized cache: `/Users/jiayifan/Library/Caches/OmnipathR`.
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/anaconda3/envs/comp-niches/lib/R/library/OmnipathR/db/db_def.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/anaconda3/envs/comp-niches/lib/R/library/OmnipathR/internal/magic_bytes.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/anaconda3/envs/comp-niches/lib/R/library/OmnipathR/internal/urls.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/anaconda3/envs/comp-niches/lib/R/library/OmnipathR/internal/id_types.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [INFO]    [OmnipathR] Loading database `Ensembl and OMA organism names`.
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/Library/Caches/OmnipathR/cache.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [INFO]    [OmnipathR] Looking up in cache `https://www.ensembl.org/info/about/species.html`: key=7332486db7400730697234bad76ca0c8e4d00799, no version available.
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/Library/Caches/OmnipathR/cache.json` (encoding: UTF-8).
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:35] [INFO]    [OmnipathR] Created new version for cache record 7332486db7400730697234bad76ca0c8e4d00799: version 1.
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Cache file path: /Users/jiayifan/Library/Caches/OmnipathR/7332486db7400730697234bad76ca0c8e4d00799-1.html
+[2026-08-07 16:29:35] [INFO]    [OmnipathR] Retrieving URL: `https://www.ensembl.org/info/about/species.html`
+[2026-08-07 16:29:35] [TRACE]   [OmnipathR] Attempt 1/3: `https://www.ensembl.org/info/about/species.html`
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] HTTP 200
+[2026-08-07 16:29:52] [INFO]    [OmnipathR] Download ready [key=7332486db7400730697234bad76ca0c8e4d00799, version=1]
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/Library/Caches/OmnipathR/cache.json` (encoding: UTF-8).
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:52] [INFO]    [OmnipathR] Cache item `7332486db7400730697234bad76ca0c8e4d00799` version 1: status changed from `unknown` to `ready`.
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Looking up in cache: `https://omabrowser.org/All/oma-species.txt`.
+[2026-08-07 16:29:52] [INFO]    [OmnipathR] Cache record does not exist: `https://omabrowser.org/All/oma-species.txt`
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Could not find in cache, initiating download: `https://omabrowser.org/All/oma-species.txt`.
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/Library/Caches/OmnipathR/cache.json` (encoding: UTF-8).
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Reading JSON from `/Users/jiayifan/Library/Caches/OmnipathR/cache.json` (encoding: UTF-8).
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2026-08-07 16:29:52] [INFO]    [OmnipathR] Cache item `30e690cbb55dfc63b5903ab337f34ffc2f4be397` version 1: status changed from `unknown` to `started`.
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Exporting object to RDS: `/Users/jiayifan/Library/Caches/OmnipathR/30e690cbb55dfc63b5903ab337f34ffc2f4be397-1.rds`.
+[2026-08-07 16:29:52] [INFO]    [OmnipathR] Retrieving URL: `https://omabrowser.org/All/oma-species.txt`
+[2026-08-07 16:29:52] [TRACE]   [OmnipathR] Attempt 1/3: `https://omabrowser.org/All/oma-species.txt`
+[2026-08-07 16:30:23] [WARN]    [OmnipathR] Failed to download `https://omabrowser.org/All/oma-species.txt` (attempt 1/3); error: cannot open the connection
+[2026-08-07 16:30:28] [TRACE]   [OmnipathR] Attempt 2/3: `https://omabrowser.org/All/oma-species.txt`
+[2026-08-07 16:30:59] [WARN]    [OmnipathR] Failed to download `https://omabrowser.org/All/oma-species.txt` (attempt 2/3); error: cannot open the connection
+[2026-08-07 16:31:04] [TRACE]   [OmnipathR] Attempt 3/3: `https://omabrowser.org/All/oma-species.txt`
+[2026-08-07 16:31:35] [ERROR]   [OmnipathR] Failed to download `https://omabrowser.org/All/oma-species.txt` (attempt 3/3); error: cannot open the connection

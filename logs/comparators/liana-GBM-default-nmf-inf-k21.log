@@ -1,0 +1,13 @@
+[22:30:48] inflow: 100190 locations x 9448 features | min 0 | negatives 0
+[22:30:49]   cross-punch filter (>=5 of 13 punches): 9448 -> 6178 features (65.4% kept); median punches/feature = 7
+[22:30:50] li.multi.nmf(n_components=None, k_range=range(1, 21), max_iter=200, random_state=0)
+  0%|          | 0/20 [00:00<?, ?it/s]  5%|▌         | 1/20 [00:05<01:39,  5.25s/it] 10%|█         | 2/20 [00:08<01:08,  3.81s/it] 15%|█▌        | 3/20 [00:11<01:00,  3.56s/it] 20%|██        | 4/20 [00:14<00:55,  3.46s/it] 25%|██▌       | 5/20 [00:19<00:59,  3.99s/it] 30%|███       | 6/20 [00:24<00:59,  4.26s/it] 35%|███▌      | 7/20 [00:29<00:58,  4.48s/it] 40%|████      | 8/20 [00:34<00:56,  4.72s/it] 45%|████▌     | 9/20 [00:40<00:55,  5.03s/it] 50%|█████     | 10/20 [00:46<00:53,  5.40s/it] 55%|█████▌    | 11/20 [00:53<00:51,  5.77s/it] 60%|██████    | 12/20 [00:59<00:48,  6.00s/it] 65%|██████▌   | 13/20 [01:06<00:44,  6.36s/it] 70%|███████   | 14/20 [01:14<00:39,  6.66s/it] 75%|███████▌  | 15/20 [01:22<00:35,  7.08s/it] 80%|████████  | 16/20 [01:29<00:28,  7.11s/it] 85%|████████▌ | 17/20 [01:38<00:22,  7.62s/it] 90%|█████████ | 18/20 [01:44<00:14,  7.25s/it] 95%|█████████▌| 19/20 [01:51<00:07,  7.23s/it]100%|██████████| 20/20 [01:58<00:00,  7.10s/it]100%|██████████| 20/20 [01:58<00:00,  5.93s/it]
+Estimated rank: 5
+[22:32:52]   saved elbow.png (redrawn from nmf_errors; _plot_elbow uses plotnine)
+[22:32:52]   ELBOW RANK = 5  (k_range 1..20 step 1)
+[22:32:52]   W (locations x factors) (100190, 5) | H (features x factors) (6178, 5)
+[22:32:52]   saved top-10 loadings for 5 factors
+[22:32:55]   saved factor_maps.png (5 factors)
+[22:33:00]   fit quality: rel_frobenius 0.8294 (31.2% of SS captured) | MAE 0.016617 vs zero-predictor MAE 0.012344
+[22:33:00]   *** WARNING: the fit's MAE does not beat the zero predictor. The elbow is a property of an L1 criterion on a near-all-zero matrix, not evidence of a good rank. ***
+[22:33:01] DONE in 2.2 min -> results/comparators/liana/GBM/nmf_inflow_default

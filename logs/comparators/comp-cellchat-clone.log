@@ -1,0 +1,78 @@
+Error while loading conda entry point: conda-libmamba-solver (dlopen(/Users/jiayifan/anaconda3/lib/python3.11/site-packages/libmambapy/bindings.cpython-311-darwin.so, 0x0002): Library not loaded: @rpath/libarchive.13.dylib
+  Referenced from: <4ECF8000-AE95-37D8-9B58-21026572BA97> /Users/jiayifan/anaconda3/lib/libmamba.2.0.0.dylib
+  Reason: tried: '/Users/jiayifan/anaconda3/lib/libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/lib/python3.11/site-packages/libmambapy/../../../libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/lib/python3.11/site-packages/libmambapy/../../../libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/bin/../lib/libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/bin/../lib/libarchive.13.dylib' (no such file), '/usr/local/lib/libarchive.13.dylib' (no such file), '/usr/lib/libarchive.13.dylib' (no such file, not in dyld cache))
+Error while loading conda entry point: anaconda-cloud-auth (cannot import name 'ChannelAuthBase' from 'conda.plugins.types' (/Users/jiayifan/anaconda3/lib/python3.11/site-packages/conda/plugins/types.py))
+Error while loading conda entry point: conda-libmamba-solver (dlopen(/Users/jiayifan/anaconda3/lib/python3.11/site-packages/libmambapy/bindings.cpython-311-darwin.so, 0x0002): Library not loaded: @rpath/libarchive.13.dylib
+  Referenced from: <4ECF8000-AE95-37D8-9B58-21026572BA97> /Users/jiayifan/anaconda3/lib/libmamba.2.0.0.dylib
+  Reason: tried: '/Users/jiayifan/anaconda3/lib/libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/lib/python3.11/site-packages/libmambapy/../../../libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/lib/python3.11/site-packages/libmambapy/../../../libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/bin/../lib/libarchive.13.dylib' (no such file), '/Users/jiayifan/anaconda3/bin/../lib/libarchive.13.dylib' (no such file), '/usr/local/lib/libarchive.13.dylib' (no such file), '/usr/lib/libarchive.13.dylib' (no such file, not in dyld cache))
+Error while loading conda entry point: anaconda-cloud-auth (cannot import name 'ChannelAuthBase' from 'conda.plugins.types' (/Users/jiayifan/anaconda3/lib/python3.11/site-packages/conda/plugins/types.py))
+Source:      /Users/jiayifan/anaconda3/envs/comp-cytosignal
+Destination: /Users/jiayifan/anaconda3/envs/comp-cellchat
+Packages: 173
+Files: 1234
+
+Downloading and Extracting Packages
+
+
+Downloading and Extracting Packages
+
+Preparing transaction: ...working... done
+Verifying transaction: ...working... 
+SafetyError: The package for r-base located at /Users/jiayifan/anaconda3/pkgs/r-base-4.3.3-hbe055e8_21
+appears to be corrupted. The path 'lib/R/doc/html/packages.html'
+has an incorrect size.
+  reported size: 3423 bytes
+  actual size: 64385 bytes
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/noarch::libgfortran-devel_osx-arm64-14.3.0-hc965647_1, conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/include/ISO_Fortran_binding.h'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/ar'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/as'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/clang'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/ld'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/nm'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/ranlib'
+
+
+ClobberError: This transaction has incompatible packages due to a shared path.
+  packages: conda-forge/osx-arm64::gfortran_impl_osx-arm64-14.3.0-h6d03799_1, conda-forge/osx-arm64::gfortran_osx-arm64-14.3.0-h3c33bd0_0
+  path: 'lib/gcc/arm64-apple-darwin20.0.0/14.3.0/strip'
+
+
+
+done
+Executing transaction: ...working... done
+#
+# To activate this environment, use
+#
+#     $ conda activate comp-cellchat
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+

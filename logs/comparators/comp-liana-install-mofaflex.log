@@ -1,0 +1,55 @@
+### torch + decoupler
+Requirement already satisfied: pillow>=9 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from matplotlib->adjusttext->decoupler) (12.3.0)
+Requirement already satisfied: pyparsing>=3 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from matplotlib->adjusttext->decoupler) (3.3.2)
+Requirement already satisfied: llvmlite<0.49,>=0.48.0dev0 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from numba->decoupler) (0.48.0)
+Requirement already satisfied: pyarrow>=10.0.1 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from pandas[parquet]->marsilea->decoupler) (25.0.0)
+Requirement already satisfied: charset_normalizer<4,>=2 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from requests->decoupler) (3.4.9)
+Requirement already satisfied: idna<4,>=2.5 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from requests->decoupler) (3.18)
+Requirement already satisfied: urllib3<3,>=1.26 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from requests->decoupler) (2.7.0)
+Requirement already satisfied: certifi>=2023.5.7 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from requests->decoupler) (2026.7.22)
+Downloading torch-2.13.0-cp311-cp311-macosx_14_0_arm64.whl (111.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.2/111.2 MB 8.4 MB/s  0:00:13
+Downloading decoupler-2.2.0-py3-none-any.whl (147 kB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Downloading adjusttext-1.4.0-py3-none-any.whl (13 kB)
+Using cached filelock-3.32.2-py3-none-any.whl (98 kB)
+Downloading marsilea-0.6.2-py3-none-any.whl (87 kB)
+Downloading legendkit-0.5.1-py3-none-any.whl (35 kB)
+Installing collected packages: mpmath, sympy, filelock, torch, legendkit, adjusttext, marsilea, decoupler
+
+Successfully installed adjusttext-1.4.0 decoupler-2.2.0 filelock-3.32.2 legendkit-0.5.1 marsilea-0.6.2 mpmath-1.3.0 sympy-1.14.0 torch-2.13.0
+
+### mofaflex @ git main
+Requirement already satisfied: pyparsing>=3 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from matplotlib>=3.8.0->plotnine->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main) (3.3.2)
+Requirement already satisfied: patsy>=0.5.6 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from statsmodels->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main) (1.0.2)
+Collecting opt-einsum>=2.3.2 (from pyro-ppl->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main)
+  Using cached opt_einsum-3.4.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting pyro-api>=0.1.1 (from pyro-ppl->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main)
+  Using cached pyro_api-0.1.2-py3-none-any.whl.metadata (2.5 kB)
+Requirement already satisfied: joblib>=1.4.0 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from scikit-learn->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main) (1.5.3)
+Requirement already satisfied: narwhals>=2.0.1 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from scikit-learn->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main) (2.24.0)
+Requirement already satisfied: threadpoolctl>=3.5.0 in /Users/jiayifan/anaconda3/envs/comp-liana/lib/python3.11/site-packages (from scikit-learn->mofaflex @ git+https://github.com/bioFAM/mofaflex.git@main) (3.6.0)
+Downloading dtw_python-1.7.5-cp311-cp311-macosx_11_0_arm64.whl (353 kB)
+Downloading gpytorch-1.15.2-py3-none-any.whl (291 kB)
+Downloading linear_operator-0.6.1-py3-none-any.whl (174 kB)
+Downloading pyro_ppl-1.9.1-py3-none-any.whl (755 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 756.0/756.0 kB 15.3 MB/s  0:00:00
+Using cached opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+Using cached pyro_api-0.1.2-py3-none-any.whl (11 kB)
+Building wheels for collected packages: mofaflex
+  Building wheel for mofaflex (pyproject.toml): started
+  Building wheel for mofaflex (pyproject.toml): finished with status 'done'
+  Created wheel for mofaflex: filename=mofaflex-0.1.0.post2.dev179+g9792b435f-py3-none-any.whl size=132223 sha256=74d5a37032aee9c725b445adecbd6bfb54e75ecc9468dcf33d71edad5f7b8582
+  Stored in directory: /private/var/folders/jh/_sfwm3vd08d4gwykxfql9h580000gn/T/pip-ephem-wheel-cache-upsb8k27/wheels/2c/20/d1/d07c8ae3bd3b7a14190f606bd18fb7b4fde4a9b569279ae85f
+Successfully built mofaflex
+Installing collected packages: pyro-api, opt-einsum, dtw-python, pyro-ppl, linear_operator, gpytorch, mofaflex
+
+Successfully installed dtw-python-1.7.5 gpytorch-1.15.2 linear_operator-0.6.1 mofaflex-0.1.0.post2.dev179+g9792b435f opt-einsum-3.4.0 pyro-api-0.1.2 pyro-ppl-1.9.1
+
+### import check
+torch      2.13.0
+decoupler  2.2.0
+mofaflex   0.1.0.post2.dev179+g9792b435f
+liana      1.8.1
+mps available: True

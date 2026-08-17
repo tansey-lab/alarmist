@@ -1,0 +1,64 @@
+[18:18:40] loading inflow lrdata + NMF
+[18:18:40]   lrdata (100190, 4608) | W (100190, 7) | H (2704, 7) | 7 factors
+[18:18:40]   loadings reindexed onto nmf_WH.npz feature order (2704 features)
+[18:18:40]   note: lrdata has 4608 features, NMF used 2704 (run_nmf.py cross-punch filter) -- top interactions are chosen from the NMF set
+[18:18:47]   expression aligned: (100190, 5098)
+[18:18:47]   ok: cell_types
+[18:18:47] top interactions by total_inflow (within the NMF feature set): ['NPC-like^NCAM1^NCAM1', 'OPC-like^NCAM1^NCAM1', 'Glial-Neuronal^CNTN2^CNTN2', 'AC-like^NCAM1^NCAM1', 'NPC-like^DLL3^NOTCH1']
+[18:18:47]   REQUIRED GRN^SORT1: 9 feature(s), best MES-like^GRN^SORT1 at rank 153/4608 by total_inflow
+[18:18:47]   REQUIRED ANXA1^FPR1: 9 feature(s), best MES-like^ANXA1^FPR1 at rank 352/4608 by total_inflow
+[18:18:48]   ok: top panel NPC-like^NCAM1^NCAM1
+[18:18:48]   ok: top violin NPC-like^NCAM1^NCAM1
+[18:18:49]   ok: top feature_by_group NPC-like^NCAM1^NCAM1
+[18:18:50]   ok: top panel OPC-like^NCAM1^NCAM1
+[18:18:50]   ok: top violin OPC-like^NCAM1^NCAM1
+[18:18:51]   ok: top feature_by_group OPC-like^NCAM1^NCAM1
+[18:18:51]   ok: top panel Glial-Neuronal^CNTN2^CNTN2
+[18:18:52]   ok: top violin Glial-Neuronal^CNTN2^CNTN2
+[18:18:52]   ok: top feature_by_group Glial-Neuronal^CNTN2^CNTN2
+[18:18:53]   ok: top panel AC-like^NCAM1^NCAM1
+[18:18:53]   ok: top violin AC-like^NCAM1^NCAM1
+[18:18:54]   ok: top feature_by_group AC-like^NCAM1^NCAM1
+[18:18:54]   ok: top panel NPC-like^DLL3^NOTCH1
+[18:18:55]   ok: top violin NPC-like^DLL3^NOTCH1
+[18:18:55]   ok: top feature_by_group NPC-like^DLL3^NOTCH1
+[18:18:56]   ok: REQUIRED panel MES-like^GRN^SORT1
+[18:18:56]   ok: REQUIRED violin MES-like^GRN^SORT1
+[18:18:57]   ok: REQUIRED feature_by_group MES-like^GRN^SORT1
+[18:18:58]   ok: REQUIRED panel mGAM^GRN^SORT1
+[18:18:58]   ok: REQUIRED violin mGAM^GRN^SORT1
+[18:18:58]   ok: REQUIRED feature_by_group mGAM^GRN^SORT1
+[18:18:59]   ok: REQUIRED panel NPC-like^GRN^SORT1
+[18:18:59]   ok: REQUIRED violin NPC-like^GRN^SORT1
+[18:19:00]   ok: REQUIRED feature_by_group NPC-like^GRN^SORT1
+[18:19:01]   ok: REQUIRED panel MES-like^ANXA1^FPR1
+[18:19:01]   ok: REQUIRED violin MES-like^ANXA1^FPR1
+[18:19:01]   ok: REQUIRED feature_by_group MES-like^ANXA1^FPR1
+[18:19:02]   ok: REQUIRED panel mGAM^ANXA1^FPR1
+[18:19:02]   ok: REQUIRED violin mGAM^ANXA1^FPR1
+[18:19:03]   ok: REQUIRED feature_by_group mGAM^ANXA1^FPR1
+[18:19:04]   ok: REQUIRED panel AC-like^ANXA1^FPR1
+[18:19:04]   ok: REQUIRED violin AC-like^ANXA1^FPR1
+[18:19:04]   ok: REQUIRED feature_by_group AC-like^ANXA1^FPR1
+[18:19:08]   ok: connectivity
+[18:19:08]   ok: identity Factor1
+[18:19:09]   ok: identity Factor2
+[18:19:09]   ok: identity Factor3
+[18:19:09]   ok: identity Factor4
+[18:19:10]   ok: identity Factor5
+[18:19:10]   ok: identity Factor6
+[18:19:11]   ok: identity Factor7
+[18:19:11]   ok: sender heatmap
+[18:19:11]   ok: receiver heatmap
+[18:19:11]   ok: LR-pair heatmap
+[18:19:12]   ok: celltype_communication_by_factor
+[18:19:13]   ok: top_lri_dot_by_factor
+[18:19:13]   global specificity: reused results/comparators/liana/GBM/cellchatdb2_inflow/data/global_interactions.csv (n_perms=1000, seed=1337), 41,472 rows
+[18:19:13]   ok: sender_receiver heatmap (top)
+[18:19:13]   ok: sender_receiver heatmap MES-like^GRN^SORT1
+[18:19:13]   ok: sender_receiver heatmap mGAM^GRN^SORT1
+[18:19:13]   ok: sender_receiver heatmap NPC-like^GRN^SORT1
+[18:19:13]   ok: sender_receiver heatmap MES-like^ANXA1^FPR1
+[18:19:13]   ok: sender_receiver heatmap mGAM^ANXA1^FPR1
+[18:19:14]   ok: sender_receiver heatmap AC-like^ANXA1^FPR1
+[18:19:14] DONE in 0.6 min -> results/comparators/liana/GBM/nmf_inflow/plots_full (62 files); 0 blank figure(s) suppressed

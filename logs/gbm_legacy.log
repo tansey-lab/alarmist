@@ -1,0 +1,312 @@
+==============================================================================
+ALARMIST  seed=0  K=20  patch=50.0um  ->  results/GBM_rerun_legacy
+  stages : patchify bptf
+  figures: none   data-file: data/xenium_mm_final_cell_id.h5ad
+==============================================================================
+timestamp_utc = 2026-07-28T22:27:21Z
+stages = patchify bptf
+seed = 0   n_components = 20   patch_size = 50.0   max_iter = 1000
+data_file = data/xenium_mm_final_cell_id.h5ad
+output_dir = results/GBM_rerun_legacy
+patchify = results/GBM_rerun_legacy/patchify (built here)
+cell_type_column = cell_type   resource = cellchatdb   cellchatdb = /private/tmp/claude-501/-Users-jiayifan-tansey-lab-alarmist/c9bb7632-3fa0-4091-a310-d98997fd8568/scratchpad/CellChatDBv2.0.human.legacy_effective.csv
+count_layer = X   glm_backend = torch   glm_device = cpu   gene_tile = 2048
+prefilter_spearman = True   glm_dtype = float64
+figures = none   network_threshold = [100.0]   viz_network_threshold = 0.0
+python = /Users/jiayifan/anaconda3/envs/bptf/bin/python
+alarmist_git_commit = 95208de4180946fd4fed77cd3ff594c6114f93e9
+
+
+>>>> 2026-07-28T22:27:21Z  /Users/jiayifan/anaconda3/envs/bptf/bin/python -m alarmist.cli.patchify --adata data/xenium_mm_final_cell_id.h5ad --output-dir results/GBM_rerun_legacy/patchify --cell-type-column cell_type --resource cellchatdb --patch-size 50.0 -v --cellchatdb-path /private/tmp/claude-501/-Users-jiayifan-tansey-lab-alarmist/c9bb7632-3fa0-4091-a310-d98997fd8568/scratchpad/CellChatDBv2.0.human.legacy_effective.csv
+OMP: Info #276: omp_set_nested routine deprecated, please use omp_set_max_active_levels instead.
+2026-07-28 18:27:24 - alarmist - INFO - Loading dependencies...
+Loading dependencies...
+2026-07-28 18:27:24 - alarmist - INFO - Loading AnnData from data/xenium_mm_final_cell_id.h5ad
+Loading AnnData from data/xenium_mm_final_cell_id.h5ad
+2026-07-28 18:27:24 - alarmist - INFO - Loaded 100197 cells, 5119 genes
+Loaded 100197 cells, 5119 genes
+2026-07-28 18:27:24 - alarmist - INFO - Creating PatchLRIAnalyzer with patch_size=50.0
+Creating PatchLRIAnalyzer with patch_size=50.0
+2026-07-28 18:27:24 - alarmist - INFO - Running patchify...
+Running patchify...
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Starting patch-based LRI analysis (single sample)...
+Starting patch-based LRI analysis (single sample)...
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Patch size: 50.0 μm
+Patch size: 50.0 μm
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Data shape: (100197, 5119)
+Data shape: (100197, 5119)
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Loading cellchatdb database...
+Loading cellchatdb database...
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Filtering with 5119 available genes
+Filtering with 5119 available genes
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Initial L-R pairs in data: 748
+Initial L-R pairs in data: 748
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Single ligand: 748
+  Single ligand: 748
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Multi ligand: 0
+  Multi ligand: 0
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Single receptor: 528
+  Single receptor: 528
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Multi receptor: 220
+  Multi receptor: 220
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Signaling type distribution:
+Signaling type distribution:
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Secreted Signaling: 455
+  Secreted Signaling: 455
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   ECM-Receptor: 60
+  ECM-Receptor: 60
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Cell-Cell Contact: 164
+  Cell-Cell Contact: 164
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG -   Non-protein Signaling: 69
+  Non-protein Signaling: 69
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Building patch-LRI matrix with autocrine/paracrine distinction...
+Building patch-LRI matrix with autocrine/paracrine distinction...
+2026-07-28 18:27:24 - alarmist.core.lri - DEBUG - Processing 13113 patches × 65844 LRI combinations
+Processing 13113 patches × 65844 LRI combinations
+2026-07-28 18:27:25 - alarmist.core.lri - DEBUG - Building patch-by-ligand matrices (individual genes)...
+Building patch-by-ligand matrices (individual genes)...
+2026-07-28 18:27:33 - alarmist.core.lri - DEBUG - Building patch-by-receptor matrices (individual genes)...
+Building patch-by-receptor matrices (individual genes)...
+2026-07-28 18:27:41 - alarmist.core.lri - DEBUG - Computing LRI interactions...
+Computing LRI interactions...
+
+Processing LRI interactions:   0%|          | 0/65844 [00:00<?, ?interaction/s]
+Processing LRI interactions:   1%|          | 420/65844 [00:00<00:15, 4198.65interaction/s]
+Processing LRI interactions:   1%|▏         | 840/65844 [00:00<00:16, 4034.66interaction/s]
+Processing LRI interactions:   2%|▏         | 1305/65844 [00:00<00:14, 4308.27interaction/s]
+Processing LRI interactions:   3%|▎         | 1745/65844 [00:00<00:14, 4333.97interaction/s]
+Processing LRI interactions:   3%|▎         | 2207/65844 [00:00<00:14, 4435.67interaction/s]
+Processing LRI interactions:   4%|▍         | 2688/65844 [00:00<00:13, 4561.86interaction/s]
+Processing LRI interactions:   5%|▍         | 3163/65844 [00:00<00:13, 4612.96interaction/s]
+Processing LRI interactions:   6%|▌         | 3646/65844 [00:00<00:13, 4680.72interaction/s]
+Processing LRI interactions:   6%|▌         | 4115/65844 [00:00<00:13, 4478.49interaction/s]
+Processing LRI interactions:   7%|▋         | 4565/65844 [00:01<00:14, 4362.58interaction/s]
+Processing LRI interactions:   8%|▊         | 5003/65844 [00:01<00:14, 4270.97interaction/s]
+Processing LRI interactions:   8%|▊         | 5445/65844 [00:01<00:14, 4309.83interaction/s]
+Processing LRI interactions:   9%|▉         | 5933/65844 [00:01<00:13, 4476.84interaction/s]
+Processing LRI interactions:  10%|▉         | 6382/65844 [00:01<00:13, 4459.63interaction/s]
+Processing LRI interactions:  11%|█         | 6953/65844 [00:01<00:12, 4826.52interaction/s]
+Processing LRI interactions:  11%|█▏        | 7516/65844 [00:01<00:11, 5064.22interaction/s]
+Processing LRI interactions:  12%|█▏        | 8077/65844 [00:01<00:11, 5221.35interaction/s]
+Processing LRI interactions:  13%|█▎        | 8639/65844 [00:01<00:10, 5332.65interaction/s]
+Processing LRI interactions:  14%|█▍        | 9173/65844 [00:01<00:10, 5206.35interaction/s]
+Processing LRI interactions:  15%|█▍        | 9695/65844 [00:02<00:11, 4857.49interaction/s]
+Processing LRI interactions:  15%|█▌        | 10186/65844 [00:02<00:12, 4608.06interaction/s]
+Processing LRI interactions:  16%|█▌        | 10652/65844 [00:02<00:12, 4475.99interaction/s]
+Processing LRI interactions:  17%|█▋        | 11104/65844 [00:02<00:12, 4388.19interaction/s]
+Processing LRI interactions:  18%|█▊        | 11546/65844 [00:02<00:12, 4318.06interaction/s]
+Processing LRI interactions:  18%|█▊        | 12127/65844 [00:02<00:11, 4735.24interaction/s]
+Processing LRI interactions:  20%|█▉        | 12891/65844 [00:02<00:09, 5565.82interaction/s]
+Processing LRI interactions:  21%|██        | 13529/65844 [00:02<00:09, 5801.72interaction/s]
+Processing LRI interactions:  22%|██▏       | 14164/65844 [00:02<00:08, 5953.72interaction/s]
+Processing LRI interactions:  23%|██▎       | 14862/65844 [00:03<00:08, 6248.30interaction/s]
+Processing LRI interactions:  24%|██▎       | 15616/65844 [00:03<00:07, 6622.12interaction/s]
+Processing LRI interactions:  25%|██▍       | 16357/65844 [00:03<00:07, 6854.48interaction/s]
+Processing LRI interactions:  26%|██▌       | 17045/65844 [00:03<00:07, 6839.39interaction/s]
+Processing LRI interactions:  27%|██▋       | 17731/65844 [00:03<00:07, 6685.08interaction/s]
+Processing LRI interactions:  28%|██▊       | 18402/65844 [00:03<00:07, 6272.08interaction/s]
+Processing LRI interactions:  29%|██▉       | 19181/65844 [00:03<00:06, 6699.85interaction/s]
+Processing LRI interactions:  30%|███       | 20048/65844 [00:03<00:06, 7262.99interaction/s]
+Processing LRI interactions:  32%|███▏      | 20914/65844 [00:03<00:05, 7663.83interaction/s]
+Processing LRI interactions:  33%|███▎      | 21724/65844 [00:03<00:05, 7781.16interaction/s]
+Processing LRI interactions:  34%|███▍      | 22507/65844 [00:04<00:06, 7162.12interaction/s]
+Processing LRI interactions:  35%|███▌      | 23236/65844 [00:04<00:06, 6927.82interaction/s]
+Processing LRI interactions:  36%|███▋      | 23938/65844 [00:04<00:06, 6226.58interaction/s]
+Processing LRI interactions:  37%|███▋      | 24578/65844 [00:04<00:06, 6021.68interaction/s]
+Processing LRI interactions:  38%|███▊      | 25260/65844 [00:04<00:06, 6232.23interaction/s]
+Processing LRI interactions:  39%|███▉      | 25894/65844 [00:04<00:06, 5753.87interaction/s]
+Processing LRI interactions:  40%|████      | 26549/65844 [00:04<00:06, 5960.81interaction/s]
+Processing LRI interactions:  42%|████▏     | 27362/65844 [00:04<00:05, 6553.83interaction/s]
+Processing LRI interactions:  43%|████▎     | 28125/65844 [00:04<00:05, 6850.40interaction/s]
+Processing LRI interactions:  44%|████▍     | 28822/65844 [00:05<00:05, 6852.64interaction/s]
+Processing LRI interactions:  45%|████▍     | 29516/65844 [00:05<00:05, 6803.25interaction/s]
+Processing LRI interactions:  46%|████▌     | 30202/65844 [00:05<00:05, 6485.69interaction/s]
+Processing LRI interactions:  47%|████▋     | 30922/65844 [00:05<00:05, 6687.42interaction/s]
+Processing LRI interactions:  48%|████▊     | 31748/65844 [00:05<00:04, 7131.80interaction/s]
+Processing LRI interactions:  49%|████▉     | 32587/65844 [00:05<00:04, 7497.58interaction/s]
+Processing LRI interactions:  51%|█████     | 33413/65844 [00:05<00:04, 7719.08interaction/s]
+Processing LRI interactions:  52%|█████▏    | 34202/65844 [00:05<00:04, 7767.87interaction/s]
+Processing LRI interactions:  53%|█████▎    | 35012/65844 [00:05<00:03, 7866.00interaction/s]
+Processing LRI interactions:  54%|█████▍    | 35801/65844 [00:06<00:03, 7703.26interaction/s]
+Processing LRI interactions:  56%|█████▌    | 36574/65844 [00:06<00:03, 7349.90interaction/s]
+Processing LRI interactions:  57%|█████▋    | 37314/65844 [00:06<00:03, 7268.54interaction/s]
+Processing LRI interactions:  58%|█████▊    | 38048/65844 [00:06<00:03, 7284.84interaction/s]
+Processing LRI interactions:  59%|█████▉    | 38868/65844 [00:06<00:03, 7544.66interaction/s]
+Processing LRI interactions:  60%|██████    | 39625/65844 [00:06<00:03, 7402.78interaction/s]
+Processing LRI interactions:  61%|██████▏   | 40368/65844 [00:06<00:03, 6440.50interaction/s]
+Processing LRI interactions:  62%|██████▏   | 41035/65844 [00:06<00:04, 6030.18interaction/s]
+Processing LRI interactions:  63%|██████▎   | 41676/65844 [00:06<00:03, 6128.35interaction/s]
+Processing LRI interactions:  64%|██████▍   | 42390/65844 [00:07<00:03, 6401.86interaction/s]
+Processing LRI interactions:  65%|██████▌   | 43110/65844 [00:07<00:03, 6622.79interaction/s]
+Processing LRI interactions:  67%|██████▋   | 43886/65844 [00:07<00:03, 6945.10interaction/s]
+Processing LRI interactions:  68%|██████▊   | 44590/65844 [00:07<00:03, 6780.77interaction/s]
+Processing LRI interactions:  69%|██████▉   | 45366/65844 [00:07<00:02, 7052.20interaction/s]
+Processing LRI interactions:  70%|███████   | 46399/65844 [00:07<00:02, 7993.54interaction/s]
+Processing LRI interactions:  72%|███████▏  | 47333/65844 [00:07<00:02, 8386.86interaction/s]
+Processing LRI interactions:  73%|███████▎  | 48201/65844 [00:07<00:02, 8471.72interaction/s]
+Processing LRI interactions:  75%|███████▍  | 49123/65844 [00:07<00:01, 8692.82interaction/s]
+Processing LRI interactions:  76%|███████▌  | 50005/65844 [00:07<00:01, 8729.84interaction/s]
+Processing LRI interactions:  77%|███████▋  | 50881/65844 [00:08<00:01, 8583.93interaction/s]
+Processing LRI interactions:  79%|███████▊  | 51742/65844 [00:08<00:01, 8474.76interaction/s]
+Processing LRI interactions:  80%|███████▉  | 52604/65844 [00:08<00:01, 8516.31interaction/s]
+Processing LRI interactions:  82%|████████▏ | 53669/65844 [00:08<00:01, 9143.31interaction/s]
+Processing LRI interactions:  83%|████████▎ | 54586/65844 [00:08<00:01, 9036.22interaction/s]
+Processing LRI interactions:  84%|████████▍ | 55556/65844 [00:08<00:01, 9231.73interaction/s]
+Processing LRI interactions:  86%|████████▌ | 56481/65844 [00:08<00:01, 9146.70interaction/s]
+Processing LRI interactions:  87%|████████▋ | 57397/65844 [00:08<00:00, 9118.45interaction/s]
+Processing LRI interactions:  89%|████████▊ | 58310/65844 [00:08<00:00, 8703.79interaction/s]
+Processing LRI interactions:  90%|████████▉ | 59185/65844 [00:09<00:00, 8020.40interaction/s]
+Processing LRI interactions:  91%|█████████ | 59999/65844 [00:09<00:00, 7805.93interaction/s]
+Processing LRI interactions:  92%|█████████▏| 60788/65844 [00:09<00:00, 7671.93interaction/s]
+Processing LRI interactions:  94%|█████████▎| 61565/65844 [00:09<00:00, 7693.81interaction/s]
+Processing LRI interactions:  95%|█████████▍| 62342/65844 [00:09<00:00, 7711.63interaction/s]
+Processing LRI interactions:  96%|█████████▌| 63128/65844 [00:09<00:00, 7748.87interaction/s]
+Processing LRI interactions:  97%|█████████▋| 63905/65844 [00:09<00:00, 7746.52interaction/s]
+Processing LRI interactions:  98%|█████████▊| 64692/65844 [00:09<00:00, 7778.54interaction/s]
+Processing LRI interactions:  99%|█████████▉| 65479/65844 [00:09<00:00, 7799.71interaction/s]
+Processing LRI interactions: 100%|██████████| 65844/65844 [00:09<00:00, 6662.36interaction/s]
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - Matrix density: 0.16%
+Matrix density: 0.16%
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - Filtering zero columns:
+Filtering zero columns:
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG -   Total columns: 65844
+  Total columns: 65844
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG -   Non-zero columns: 25271
+  Non-zero columns: 25271
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG -   Zero columns removed: 40573 (61.6%)
+  Zero columns removed: 40573 (61.6%)
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - Added 'patch_idx' to adata.obs (100197 cells assigned to patches)
+Added 'patch_idx' to adata.obs (100197 cells assigned to patches)
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - Saving results...
+Saving results...
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - Results saved to: results/GBM_rerun_legacy/patchify
+Results saved to: results/GBM_rerun_legacy/patchify
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - - Patch-LRI matrix: results/GBM_rerun_legacy/patchify/patch_lri_matrix.npz
+- Patch-LRI matrix: results/GBM_rerun_legacy/patchify/patch_lri_matrix.npz
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - - Column names: results/GBM_rerun_legacy/patchify/patch_lri_columns.csv
+- Column names: results/GBM_rerun_legacy/patchify/patch_lri_columns.csv
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - - Analysis parameters: results/GBM_rerun_legacy/patchify/analysis_parameters.csv
+- Analysis parameters: results/GBM_rerun_legacy/patchify/analysis_parameters.csv
+2026-07-28 18:27:51 - alarmist.core.lri - DEBUG - - Patch metadata: results/GBM_rerun_legacy/patchify/patch_metadata.parquet
+- Patch metadata: results/GBM_rerun_legacy/patchify/patch_metadata.parquet
+2026-07-28 18:27:51 - alarmist - INFO - Generating LRI database / input data gene overlap plot...
+Generating LRI database / input data gene overlap plot...
+2026-07-28 18:27:51 - alarmist - INFO -   Database genes: 1,259, input genes: 5,119, gene overlap: 765
+  Database genes: 1,259, input genes: 5,119, gene overlap: 765
+2026-07-28 18:27:51 - alarmist - INFO - Patch-LRI matrix shape: (13113, 25271)
+Patch-LRI matrix shape: (13113, 25271)
+2026-07-28 18:27:51 - alarmist - INFO - Number of patches: 13113
+Number of patches: 13113
+2026-07-28 18:27:51 - alarmist - INFO - Number of LRI combinations: 25271
+Number of LRI combinations: 25271
+2026-07-28 18:27:51 - alarmist - INFO - Results saved to: results/GBM_rerun_legacy/patchify
+Results saved to: results/GBM_rerun_legacy/patchify
+OMP: Info #276: omp_set_nested routine deprecated, please use omp_set_max_active_levels instead.
+>>>> cells-per-patch histogram -> results/GBM_rerun_legacy/cells_per_patch.png
+
+>>>> 2026-07-28T22:27:55Z  [bptf] in-process  K=20  max_iter=1000  seed=0  cellchatdb=/private/tmp/claude-501/-Users-jiayifan-tansey-lab-alarmist/c9bb7632-3fa0-4091-a310-d98997fd8568/scratchpad/CellChatDBv2.0.human.legacy_effective.csv
+ITERATION 0:	Time: 0.000000	Objective: -6750614712.06	Change: nan	
+  0%|          | 0/1000 [00:00<?, ?it/s]ITERATION 1:	Time: 0.904944	Objective: -5047926.70	Change: 9.99252e-01	
+  0%|          | 1/1000 [00:00<15:04,  1.10it/s]ITERATION 2:	Time: 0.858421	Objective: -5026845.78	Change: 4.17615e-03	
+  0%|          | 2/1000 [00:01<14:35,  1.14it/s]ITERATION 3:	Time: 0.858219	Objective: -4970160.65	Change: 1.12765e-02	
+  0%|          | 3/1000 [00:02<14:26,  1.15it/s]ITERATION 4:	Time: 0.865399	Objective: -4879753.22	Change: 1.81900e-02	
+  0%|          | 4/1000 [00:03<14:24,  1.15it/s]ITERATION 5:	Time: 0.862571	Objective: -4715519.98	Change: 3.36561e-02	
+  0%|          | 5/1000 [00:04<14:21,  1.15it/s]ITERATION 6:	Time: 0.857904	Objective: -4373201.75	Change: 7.25940e-02	
+  1%|          | 6/1000 [00:05<14:18,  1.16it/s]ITERATION 7:	Time: 0.874906	Objective: -3806202.46	Change: 1.29653e-01	
+  1%|          | 7/1000 [00:06<14:21,  1.15it/s]ITERATION 8:	Time: 0.862346	Objective: -3094920.71	Change: 1.86874e-01	
+  1%|          | 8/1000 [00:06<14:18,  1.16it/s]ITERATION 9:	Time: 0.857877	Objective: -2428100.04	Change: 2.15456e-01	
+  1%|          | 9/1000 [00:07<14:15,  1.16it/s]ITERATION 10:	Time: 0.856287	Objective: -1965375.77	Change: 1.90571e-01	
+  1%|1         | 10/1000 [00:08<14:12,  1.16it/s]ITERATION 11:	Time: 0.864804	Objective: -1673006.88	Change: 1.48760e-01	
+  1%|1         | 11/1000 [00:09<14:12,  1.16it/s]ITERATION 12:	Time: 0.861825	Objective: -1484120.64	Change: 1.12902e-01	
+  1%|1         | 12/1000 [00:10<14:11,  1.16it/s]ITERATION 13:	Time: 0.861205	Objective: -1355173.63	Change: 8.68845e-02	
+  1%|1         | 13/1000 [00:11<14:10,  1.16it/s]ITERATION 14:	Time: 0.861914	Objective: -1259467.55	Change: 7.06227e-02	
+  1%|1         | 14/1000 [00:12<14:09,  1.16it/s]ITERATION 15:	Time: 0.870107	Objective: -1184510.76	Change: 5.95147e-02	
+  2%|1         | 15/1000 [00:12<14:11,  1.16it/s]ITERATION 16:	Time: 0.877542	Objective: -1123716.76	Change: 5.13241e-02	
+  2%|1         | 16/1000 [00:13<14:14,  1.15it/s]ITERATION 17:	Time: 0.860038	Objective: -1073911.56	Change: 4.43218e-02	
+  2%|1         | 17/1000 [00:14<14:11,  1.15it/s]ITERATION 18:	Time: 0.876513	Objective: -1032923.41	Change: 3.81671e-02	
+  2%|1         | 18/1000 [00:15<14:13,  1.15it/s]ITERATION 19:	Time: 0.910064	Objective: -999154.25	Change: 3.26928e-02	
+  2%|1         | 19/1000 [00:16<14:24,  1.13it/s]ITERATION 20:	Time: 0.907847	Objective: -971064.01	Change: 2.81140e-02	
+  2%|2         | 20/1000 [00:17<14:31,  1.12it/s]ITERATION 21:	Time: 0.894564	Objective: -947408.59	Change: 2.43603e-02	
+  2%|2         | 21/1000 [00:18<14:32,  1.12it/s]ITERATION 22:	Time: 0.890632	Objective: -927225.36	Change: 2.13036e-02	
+  2%|2         | 22/1000 [00:19<14:31,  1.12it/s]ITERATION 23:	Time: 0.877241	Objective: -909743.13	Change: 1.88543e-02	
+  2%|2         | 23/1000 [00:20<14:26,  1.13it/s]ITERATION 24:	Time: 0.880494	Objective: -894503.24	Change: 1.67519e-02	
+  2%|2         | 24/1000 [00:20<14:23,  1.13it/s]ITERATION 25:	Time: 0.880769	Objective: -881113.96	Change: 1.49684e-02	
+  2%|2         | 25/1000 [00:21<14:21,  1.13it/s]ITERATION 26:	Time: 0.889006	Objective: -869267.89	Change: 1.34444e-02	
+  3%|2         | 26/1000 [00:22<14:22,  1.13it/s]ITERATION 27:	Time: 0.887620	Objective: -858772.60	Change: 1.20737e-02	
+  3%|2         | 27/1000 [00:23<14:22,  1.13it/s]ITERATION 28:	Time: 0.918303	Objective: -849651.21	Change: 1.06214e-02	
+  3%|2         | 28/1000 [00:24<14:30,  1.12it/s]ITERATION 29:	Time: 0.910101	Objective: -841638.20	Change: 9.43094e-03	
+  3%|2         | 29/1000 [00:25<14:34,  1.11it/s]ITERATION 30:	Time: 0.896365	Objective: -834517.10	Change: 8.46100e-03	
+  3%|3         | 30/1000 [00:26<14:32,  1.11it/s]ITERATION 31:	Time: 0.898000	Objective: -828102.97	Change: 7.68603e-03	
+  3%|3         | 31/1000 [00:27<14:30,  1.11it/s]ITERATION 32:	Time: 0.848188	Objective: -822592.87	Change: 6.65388e-03	
+  3%|3         | 32/1000 [00:28<14:15,  1.13it/s]ITERATION 33:	Time: 0.839061	Objective: -817764.38	Change: 5.86985e-03	
+  3%|3         | 33/1000 [00:28<14:01,  1.15it/s]ITERATION 34:	Time: 0.845668	Objective: -813419.83	Change: 5.31271e-03	
+  3%|3         | 34/1000 [00:29<13:53,  1.16it/s]ITERATION 35:	Time: 0.901305	Objective: -809556.47	Change: 4.74953e-03	
+  4%|3         | 35/1000 [00:30<14:03,  1.14it/s]ITERATION 36:	Time: 0.895297	Objective: -806142.62	Change: 4.21694e-03	
+  4%|3         | 36/1000 [00:31<14:09,  1.14it/s]ITERATION 37:	Time: 0.910723	Objective: -803129.86	Change: 3.73725e-03	
+  4%|3         | 37/1000 [00:32<14:16,  1.12it/s]ITERATION 38:	Time: 0.894377	Objective: -800415.70	Change: 3.37947e-03	
+  4%|3         | 38/1000 [00:33<14:17,  1.12it/s]ITERATION 39:	Time: 0.897874	Objective: -798027.06	Change: 2.98426e-03	
+  4%|3         | 39/1000 [00:34<14:18,  1.12it/s]ITERATION 40:	Time: 0.885607	Objective: -795823.65	Change: 2.76106e-03	
+  4%|4         | 40/1000 [00:35<14:15,  1.12it/s]ITERATION 41:	Time: 0.910577	Objective: -793955.95	Change: 2.34688e-03	
+  4%|4         | 41/1000 [00:36<14:20,  1.11it/s]ITERATION 42:	Time: 0.914473	Objective: -792322.30	Change: 2.05760e-03	
+  4%|4         | 42/1000 [00:36<14:24,  1.11it/s]ITERATION 43:	Time: 0.919744	Objective: -790821.62	Change: 1.89403e-03	
+  4%|4         | 43/1000 [00:37<14:28,  1.10it/s]ITERATION 44:	Time: 0.891066	Objective: -789354.82	Change: 1.85478e-03	
+  4%|4         | 44/1000 [00:38<14:22,  1.11it/s]ITERATION 45:	Time: 0.895234	Objective: -788016.83	Change: 1.69504e-03	
+  4%|4         | 45/1000 [00:39<14:19,  1.11it/s]ITERATION 46:	Time: 0.890142	Objective: -786829.59	Change: 1.50662e-03	
+  5%|4         | 46/1000 [00:40<14:16,  1.11it/s]ITERATION 47:	Time: 0.913670	Objective: -785757.36	Change: 1.36272e-03	
+  5%|4         | 47/1000 [00:41<14:19,  1.11it/s]ITERATION 48:	Time: 0.896024	Objective: -784727.99	Change: 1.31003e-03	
+  5%|4         | 48/1000 [00:42<14:17,  1.11it/s]ITERATION 49:	Time: 0.900375	Objective: -783794.33	Change: 1.18980e-03	
+  5%|4         | 49/1000 [00:43<14:16,  1.11it/s]ITERATION 50:	Time: 0.899426	Objective: -782916.97	Change: 1.11938e-03	
+  5%|5         | 50/1000 [00:44<14:15,  1.11it/s]ITERATION 51:	Time: 0.925366	Objective: -782122.42	Change: 1.01485e-03	
+  5%|5         | 51/1000 [00:45<14:21,  1.10it/s]ITERATION 52:	Time: 0.926506	Objective: -781269.92	Change: 1.08998e-03	
+  5%|5         | 52/1000 [00:46<14:26,  1.09it/s]ITERATION 53:	Time: 0.935227	Objective: -780464.66	Change: 1.03072e-03	
+  5%|5         | 53/1000 [00:46<14:31,  1.09it/s]ITERATION 54:	Time: 0.926246	Objective: -779842.49	Change: 7.97174e-04	
+  5%|5         | 54/1000 [00:47<14:32,  1.08it/s]ITERATION 55:	Time: 0.897441	Objective: -779219.65	Change: 7.98674e-04	
+  6%|5         | 55/1000 [00:48<14:24,  1.09it/s]ITERATION 56:	Time: 0.907466	Objective: -778620.62	Change: 7.68753e-04	
+  6%|5         | 56/1000 [00:49<14:21,  1.10it/s]ITERATION 57:	Time: 0.896002	Objective: -778118.32	Change: 6.45118e-04	
+  6%|5         | 57/1000 [00:50<14:15,  1.10it/s]ITERATION 58:	Time: 0.907605	Objective: -777640.61	Change: 6.13936e-04	
+  6%|5         | 58/1000 [00:51<14:15,  1.10it/s]ITERATION 59:	Time: 0.899983	Objective: -777204.73	Change: 5.60506e-04	
+  6%|5         | 59/1000 [00:52<14:12,  1.10it/s]ITERATION 60:	Time: 0.904391	Objective: -776807.62	Change: 5.10946e-04	
+  6%|6         | 60/1000 [00:53<14:10,  1.10it/s]ITERATION 61:	Time: 0.903285	Objective: -776399.63	Change: 5.25225e-04	
+  6%|6         | 61/1000 [00:54<14:09,  1.11it/s]ITERATION 62:	Time: 0.909039	Objective: -776008.48	Change: 5.03796e-04	
+  6%|6         | 62/1000 [00:55<14:09,  1.10it/s]ITERATION 63:	Time: 0.899713	Objective: -775608.85	Change: 5.14983e-04	
+  6%|6         | 63/1000 [00:56<14:07,  1.11it/s]ITERATION 64:	Time: 0.896327	Objective: -775230.28	Change: 4.88087e-04	
+  6%|6         | 64/1000 [00:56<14:04,  1.11it/s]ITERATION 65:	Time: 0.906977	Objective: -774861.53	Change: 4.75666e-04	
+  6%|6         | 65/1000 [00:57<14:04,  1.11it/s]ITERATION 66:	Time: 0.894972	Objective: -774573.46	Change: 3.71775e-04	
+  7%|6         | 66/1000 [00:58<14:01,  1.11it/s]ITERATION 67:	Time: 0.890312	Objective: -774277.97	Change: 3.81483e-04	
+  7%|6         | 67/1000 [00:59<13:57,  1.11it/s]ITERATION 68:	Time: 0.895077	Objective: -773974.56	Change: 3.91868e-04	
+  7%|6         | 68/1000 [01:00<13:56,  1.11it/s]ITERATION 69:	Time: 0.891855	Objective: -773675.14	Change: 3.86852e-04	
+  7%|6         | 69/1000 [01:01<13:53,  1.12it/s]ITERATION 70:	Time: 0.887929	Objective: -773411.89	Change: 3.40266e-04	
+  7%|7         | 70/1000 [01:02<13:50,  1.12it/s]ITERATION 71:	Time: 0.885772	Objective: -773172.20	Change: 3.09908e-04	
+  7%|7         | 71/1000 [01:03<13:47,  1.12it/s]ITERATION 72:	Time: 0.883993	Objective: -772929.91	Change: 3.13366e-04	
+  7%|7         | 72/1000 [01:04<13:45,  1.12it/s]ITERATION 73:	Time: 0.889648	Objective: -772726.14	Change: 2.63635e-04	
+  7%|7         | 73/1000 [01:04<13:44,  1.12it/s]ITERATION 74:	Time: 0.908365	Objective: -772545.88	Change: 2.33283e-04	
+  7%|7         | 74/1000 [01:05<13:48,  1.12it/s]ITERATION 75:	Time: 0.916200	Objective: -772372.39	Change: 2.24566e-04	
+  8%|7         | 75/1000 [01:06<13:53,  1.11it/s]ITERATION 76:	Time: 0.932225	Objective: -772178.70	Change: 2.50772e-04	
+  8%|7         | 76/1000 [01:07<14:01,  1.10it/s]ITERATION 77:	Time: 0.937042	Objective: -771999.73	Change: 2.31781e-04	
+  8%|7         | 77/1000 [01:08<14:07,  1.09it/s]ITERATION 78:	Time: 0.919309	Objective: -771814.50	Change: 2.39934e-04	
+  8%|7         | 78/1000 [01:09<14:07,  1.09it/s]ITERATION 79:	Time: 0.938627	Objective: -771662.16	Change: 1.97375e-04	
+  8%|7         | 79/1000 [01:10<14:11,  1.08it/s]ITERATION 80:	Time: 0.913840	Objective: -771528.24	Change: 1.73554e-04	
+  8%|8         | 80/1000 [01:11<14:07,  1.09it/s]ITERATION 81:	Time: 0.906229	Objective: -771395.55	Change: 1.71980e-04	
+  8%|8         | 81/1000 [01:12<14:02,  1.09it/s]ITERATION 82:	Time: 0.907236	Objective: -771277.18	Change: 1.53444e-04	
+  8%|8         | 82/1000 [01:13<13:59,  1.09it/s]ITERATION 83:	Time: 0.929484	Objective: -771172.47	Change: 1.35770e-04	
+  8%|8         | 83/1000 [01:14<14:02,  1.09it/s]ITERATION 84:	Time: 0.920334	Objective: -771062.29	Change: 1.42864e-04	
+  8%|8         | 84/1000 [01:15<14:02,  1.09it/s]ITERATION 85:	Time: 0.941410	Objective: -770933.65	Change: 1.66840e-04	
+  8%|8         | 85/1000 [01:16<14:07,  1.08it/s]ITERATION 86:	Time: 0.949305	Objective: -770815.03	Change: 1.53864e-04	
+  9%|8         | 86/1000 [01:16<14:12,  1.07it/s]ITERATION 87:	Time: 0.930721	Objective: -770710.02	Change: 1.36229e-04	
+  9%|8         | 87/1000 [01:17<14:11,  1.07it/s]ITERATION 88:	Time: 0.912951	Objective: -770563.41	Change: 1.90233e-04	
+  9%|8         | 88/1000 [01:18<14:05,  1.08it/s]ITERATION 89:	Time: 0.915136	Objective: -770416.95	Change: 1.90067e-04	
+  9%|8         | 89/1000 [01:19<14:01,  1.08it/s]ITERATION 90:	Time: 0.905552	Objective: -770327.59	Change: 1.15986e-04	
+  9%|9         | 90/1000 [01:20<13:55,  1.09it/s]ITERATION 91:	Time: 0.913738	Objective: -770238.15	Change: 1.16113e-04	
+  9%|9         | 91/1000 [01:21<13:53,  1.09it/s]ITERATION 92:	Time: 0.912026	Objective: -770153.88	Change: 1.09403e-04	
+  9%|9         | 92/1000 [01:22<13:51,  1.09it/s]ITERATION 93:	Time: 0.920808	Objective: -770075.58	Change: 1.01663e-04	
+  9%|9         | 93/1000 [01:23<13:51,  1.09it/s]ITERATION 94:	Time: 0.921649	Objective: -769989.23	Change: 1.12144e-04	
+  9%|9         | 94/1000 [01:24<13:52,  1.09it/s]ITERATION 95:	Time: 0.903944	Objective: -769893.38	Change: 1.24481e-04	
+ 10%|9         | 95/1000 [01:25<13:47,  1.09it/s]ITERATION 96:	Time: 0.908254	Objective: -769827.63	Change: 8.53949e-05	
+ 10%|9         | 95/1000 [01:26<13:40,  1.10it/s]
+results/GBM_rerun_legacy/bptf/bptf_1.npz
+>>>> bptf -> results/GBM_rerun_legacy/bptf
+
+==== DONE  2026-07-28T22:29:42Z  ->  results/GBM_rerun_legacy ====
+  compute : patchify/ bptf/ project/ markers/ glm/ motif_states.parquet
+  figures : plots_original/ (original)   plots/ (workflow)
+  colours : celltype_colors.json + celltype_colors.{png,pdf,svg}

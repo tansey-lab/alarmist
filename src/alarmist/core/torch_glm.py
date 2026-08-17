@@ -177,9 +177,19 @@ def batched_poisson_glm(
         n_iter_out[start:end] = last_iter
 
     if not_converged_total:
-        raise RuntimeError(
-            f"torch GLM: {not_converged_total}/{n_genes} genes failed to converge "
-            f"within max_iter={max_iter}. Consider raising max_iter."
+        # A handful of degenerate/near-separable genes may never satisfy the
+        # step tolerance (especially on MPS float32, where tol is relaxed). Their
+        # estimates use the last IRLS iterate and are flagged per-tile above. This
+        # is not fatal — one stubborn gene must not abort an entire multi-celltype
+        # analysis — so warn with a summary and return the results.
+        logger.warning(
+            "torch GLM: %d/%d genes did not fully converge within max_iter=%d; "
+            "their estimates use the last iterate and may be less precise. Most "
+            "genes are unaffected. Raise max_iter or use --device cpu (float64) "
+            "if this is widespread.",
+            not_converged_total,
+            n_genes,
+            max_iter,
         )
 
     return beta1, se, n_iter_out

@@ -1,0 +1,8 @@
++ /Users/jiayifan/anaconda3/envs/bptf/bin/python run_pipeline_new.py --data-file data/xenium_mm_final_cell_id.h5ad --output-dir results/GBM_rerun_legacy --cellchatdb /private/tmp/claude-501/-Users-jiayifan-tansey-lab-alarmist/c9bb7632-3fa0-4091-a310-d98997fd8568/scratchpad/CellChatDBv2.0.human.legacy_effective.csv --cell-type-column cell_type --patch-size 50 --n-components 20 --seed 0 --stages patchify,bptf --figures none
++ echo LEGACY_EXIT=0
+LEGACY_EXIT=0
++ /Users/jiayifan/anaconda3/envs/bptf/bin/python run_pipeline_new.py --data-file data/xenium_mm_final_cell_id.h5ad --output-dir results/GBM_rerun_new --cellchatdb data/LRdatabase/CellChatDBv2.0.human.csv --cell-type-column cell_type --patch-size 50 --n-components 20 --seed 0 --stages patchify,bptf --figures none
++ echo NEW_EXIT=0
+NEW_EXIT=0
++ echo ALL_DONE
+ALL_DONE
