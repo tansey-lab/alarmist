@@ -214,7 +214,11 @@ def categorical_parts(grp, name):
         if LEGACY_CATS in grp and name in grp[LEGACY_CATS]:
             return grp[LEGACY_CATS][name], obj
 
-    if LEGACY_CATS in grp and name in grp[LEGACY_CATS] and isinstance(obj, h5py.Dataset):
+    if (
+        LEGACY_CATS in grp
+        and name in grp[LEGACY_CATS]
+        and isinstance(obj, h5py.Dataset)
+    ):
         return grp[LEGACY_CATS][name], obj
 
     return None
@@ -361,7 +365,9 @@ def main():
                         log(f"  raw/X is a {type(rx).__name__}, attrs={attrs_of(rx)}")
                         if isinstance(rx, h5py.Group):
                             for k in rx.keys():
-                                log(f"    raw/X/{k}: shape={rx[k].shape} dtype={rx[k].dtype}")
+                                log(
+                                    f"    raw/X/{k}: shape={rx[k].shape} dtype={rx[k].dtype}"
+                                )
                         else:
                             log(describe_dataset(rx, indent="    "))
                     if key == "raw" and "var" in node:
@@ -407,7 +413,9 @@ def main():
         for k in var.keys():
             o = var[k]
             if isinstance(o, h5py.Dataset):
-                log(f"  var['{k}']: shape={o.shape} dtype={o.dtype} stored={fmt_stored(o)} B")
+                log(
+                    f"  var['{k}']: shape={o.shape} dtype={o.dtype} stored={fmt_stored(o)} B"
+                )
             else:
                 log(f"  var['{k}']: categorical Group {list(o.keys())}")
         first20 = decode(var[var_idx_key][:20])
