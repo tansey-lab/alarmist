@@ -252,7 +252,16 @@ def plot_motif_spatial(
     hspace: float = 0.4,
     output_dir: str | None = None,
     intersect: bool = False,
-) -> plt.Figure | list[plt.Figure]:
+    spatial_key: str = "spatial",
+    ax: plt.Axes | None = None,
+    save_path: str | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
+    show_celltype_legend: bool = True,
+    invert_y: bool = False,
+    per_panel_files: bool = False,
+    file_format: str = "png",
+) -> plt.Figure | list[plt.Figure] | list[str]:
     """
     Plot spatial distribution of motif ON/OFF states.
 
@@ -298,18 +307,42 @@ def plot_motif_spatial(
     hspace : float, default 0.4
         Vertical spacing between panels (fraction of panel height)
     output_dir : str, optional
-        Directory to save figures. Files named motif_{k}_spatial.png
+        Directory to save figures. Files named motif_{k}_spatial.{file_format}
     intersect : bool, default False
         If True and motif_idx is a list, plot cells that are positive for ALL
         specified motifs (intersection). Returns a single Figure.
         If False (default), plot each motif separately, returning a list of Figures.
+    spatial_key : str, default 'spatial'
+        Key in adata.obsm holding the coordinates (first two columns are used).
+    ax : matplotlib.axes.Axes, optional
+        Draw into an existing axes. Only valid for a single panel (one sample,
+        one motif or an intersection). The legend is then drawn inside the axes.
+    save_path : str, optional
+        Exact file to save to. Takes precedence over ``output_dir``. Not valid
+        with a list of motifs unless ``intersect=True``.
+    title : str, optional
+        Overrides the panel title (single panel) or the suptitle (grid).
+    show_legend : bool, default True
+        Draw the ON/OFF (and cell type) legend.
+    show_celltype_legend : bool, default True
+        When ``color_by_celltype=True``, list the top cell types in the legend.
+        False keeps only the ON/OFF entries.
+    invert_y : bool, default False
+        Flip the y axis (image-style coordinates, origin top-left).
+    per_panel_files : bool, default False
+        Instead of one grid figure, save one borderless file per sample to
+        ``output_dir`` as ``motif_{k}_{sample}_spatial.{file_format}``. Figures
+        are closed after saving and the list of written paths is returned.
+    file_format : str, default 'png'
+        File extension used when saving into ``output_dir``.
 
     Returns
     -------
-    plt.Figure or List[plt.Figure]
+    plt.Figure or List[plt.Figure] or List[str]
         - Single Figure if motif_idx is int
         - Single Figure if motif_idx is list and intersect=True
         - List of Figures if motif_idx is list and intersect=False
+        - List of saved file paths if per_panel_files=True
 
     Examples
     --------
@@ -324,41 +357,55 @@ def plot_motif_spatial(
     >>>
     >>> # Multiple motifs - intersection (cells positive for ALL motifs)
     >>> fig = al.plot_motif_spatial(adata_dict, motif_idx=[0, 5, 10], intersect=True)
+    >>>
+    >>> # One red-on-gray SVG per TMA core
+    >>> paths = al.plot_motif_spatial(
+    ...     adata, motif_idx=1, sample_column='tma_id', color_by_celltype=False,
+    ...     positive_color='red', per_panel_files=True, output_dir='out',
+    ...     file_format='svg', invert_y=True,
+    ... )
     """
     import matplotlib.lines as mlines
 
+    is_motif_list = isinstance(motif_idx, list | tuple | range)
+
     # Handle list of motifs
-    if isinstance(motif_idx, list | tuple | range):
-        motif_list = list(motif_idx)
-
-        if not intersect:
-            # Default behavior: plot each motif separately
-            figs = []
-            for k in motif_list:
-                fig = plot_motif_spatial(
-                    adata=adata,
-                    motif_idx=k,
-                    sample_column=sample_column,
-                    cell_type_column=cell_type_column,
-                    n_cols=n_cols,
-                    figsize_per_panel=figsize_per_panel,
-                    point_size=point_size,
-                    color_by_celltype=color_by_celltype,
-                    ct_colors=ct_colors,
-                    positive_color=positive_color,
-                    negative_color=negative_color,
-                    legend_top_n=legend_top_n,
-                    wspace=wspace,
-                    hspace=hspace,
-                    output_dir=output_dir,
-                    intersect=False,
-                )
-                figs.append(fig)
-                logger.debug(f"Plotted motif {k}")
-            return figs
-
-        # intersect=True: plot cells positive for ALL motifs
-        # We'll handle this below by computing intersection mask
+    if is_motif_list and not intersect:
+        if ax is not None or save_path is not None:
+            raise ValueError(
+                "'ax' and 'save_path' need a single motif (or intersect=True)"
+            )
+        # Default behavior: plot each motif separately
+        figs = []
+        for k in list(motif_idx):
+            fig = plot_motif_spatial(
+                adata=adata,
+                motif_idx=k,
+                sample_column=sample_column,
+                cell_type_column=cell_type_column,
+                n_cols=n_cols,
+                figsize_per_panel=figsize_per_panel,
+                point_size=point_size,
+                color_by_celltype=color_by_celltype,
+                ct_colors=ct_colors,
+                positive_color=positive_color,
+                negative_color=negative_color,
+                legend_top_n=legend_top_n,
+                wspace=wspace,
+                hspace=hspace,
+                output_dir=output_dir,
+                intersect=False,
+                spatial_key=spatial_key,
+                title=title,
+                show_legend=show_legend,
+                show_celltype_legend=show_celltype_legend,
+                invert_y=invert_y,
+                per_panel_files=per_panel_files,
+                file_format=file_format,
+            )
+            figs.append(fig)
+            logger.debug(f"Plotted motif {k}")
+        return figs
 
     # Get color map if coloring by cell type
     ct_color_hex = {}
@@ -403,8 +450,13 @@ def plot_motif_spatial(
 
     n_samples = len(adata_dict)
 
+    if ax is not None and (n_samples != 1 or per_panel_files):
+        raise ValueError("'ax' is only supported for a single-panel plot")
+    if per_panel_files and output_dir is None:
+        raise ValueError("per_panel_files=True requires output_dir")
+
     # Determine if we're in intersect mode (list of motifs with intersect=True)
-    intersect_mode = intersect and isinstance(motif_idx, list | tuple | range)
+    intersect_mode = intersect and is_motif_list
     if intersect_mode:
         motif_list = list(motif_idx)
         state_cols = [f"motif_{k}_state" for k in motif_list]
@@ -415,31 +467,11 @@ def plot_motif_spatial(
         motif_label = f"Motif {motif_idx}"
         motif_label_short = f"motif_{motif_idx}"
 
-    # Determine grid layout
-    if n_samples == 1:
-        n_rows, n_cols_actual = 1, 1
-    else:
-        n_cols_actual = min(n_cols, n_samples)
-        n_rows = (n_samples + n_cols_actual - 1) // n_cols_actual
-
-    # Add extra width for legend
-    fig_width = figsize_per_panel[0] * n_cols_actual + 2.5
-    fig_height = figsize_per_panel[1] * n_rows
-
-    fig, axes = plt.subplots(
-        n_rows, n_cols_actual, figsize=(fig_width, fig_height), squeeze=False
-    )
-    axes = axes.flatten()
-
     # Collect cell type counts across all samples (for legend)
     all_ct_counts = {}
-    total_pos = 0
-    total_neg = 0
 
-    for i, (sample_id, ad) in enumerate(adata_dict.items()):
-        ax = axes[i]
-        coords = ad.obsm["spatial"][:, :2]
-
+    def _draw_panel(ax, sample_id, ad):
+        """Scatter one sample; returns (n_pos, n_neg) or None if data missing."""
         # Check if all required state columns exist
         missing_cols = [col for col in state_cols if col not in ad.obs.columns]
         if missing_cols:
@@ -448,23 +480,16 @@ def plot_motif_spatial(
             else:
                 ax.set_title(f"{sample_id}\n(no motif {motif_idx} data)")
             ax.axis("off")
-            continue
+            return None
+
+        coords = np.asarray(ad.obsm[spatial_key])[:, :2]
 
         # Compute positive mask (intersection if multiple motifs)
-        if intersect_mode:
-            # Intersection: positive for ALL motifs
-            mask_pos = np.ones(len(ad), dtype=bool)
-            for col in state_cols:
-                mask_pos &= (ad.obs[col].astype(str) == "positive").values
-        else:
-            mask_pos = (ad.obs[state_cols[0]].astype(str) == "positive").values
+        mask_pos = np.ones(len(ad), dtype=bool)
+        for col in state_cols:
+            mask_pos &= (ad.obs[col].astype(str) == "positive").values
 
         mask_neg = ~mask_pos
-        n_pos = mask_pos.sum()
-        n_neg = mask_neg.sum()
-        total_pos += n_pos
-        total_neg += n_neg
-        frac_pos = n_pos / len(ad) * 100 if len(ad) > 0 else 0
 
         # Plot negatives (background, gray)
         ax.scatter(
@@ -506,23 +531,82 @@ def plot_motif_spatial(
                 zorder=3,
             )
 
+        ax.set_aspect("equal")
+        if invert_y:
+            ax.invert_yaxis()
+        return int(mask_pos.sum()), int(mask_neg.sum())
+
+    def _pct(n_pos, n_neg):
+        return n_pos / (n_pos + n_neg) * 100 if (n_pos + n_neg) > 0 else 0
+
+    # One borderless file per sample
+    if per_panel_files:
+        os.makedirs(output_dir, exist_ok=True)
+        paths = []
+        for sample_id, ad in adata_dict.items():
+            fig_s, ax_s = plt.subplots(figsize=figsize_per_panel)
+            counts = _draw_panel(ax_s, sample_id, ad)
+            if counts is not None:
+                ax_s.set_title(title or f"{sample_id}\n{_pct(*counts):.1f}% ON")
+                ax_s.set_axis_off()
+            path = os.path.join(
+                output_dir, f"{motif_label_short}_{sample_id}_spatial.{file_format}"
+            )
+            fig_s.savefig(path, dpi=300, bbox_inches="tight")
+            plt.close(fig_s)
+            paths.append(path)
+            logger.debug(f"Saved: {path}")
+        return paths
+
+    created_fig = ax is None
+    if created_fig:
+        # Determine grid layout
+        if n_samples == 1:
+            n_rows, n_cols_actual = 1, 1
+        else:
+            n_cols_actual = min(n_cols, n_samples)
+            n_rows = (n_samples + n_cols_actual - 1) // n_cols_actual
+
+        # Add extra width for legend
+        fig_width = figsize_per_panel[0] * n_cols_actual + 2.5
+        fig_height = figsize_per_panel[1] * n_rows
+
+        fig, axes = plt.subplots(
+            n_rows, n_cols_actual, figsize=(fig_width, fig_height), squeeze=False
+        )
+        axes = axes.flatten()
+    else:
+        fig = ax.get_figure()
+        axes = [ax]
+
+    total_pos = 0
+    total_neg = 0
+
+    for i, (sample_id, ad) in enumerate(adata_dict.items()):
+        panel_ax = axes[i]
+        counts = _draw_panel(panel_ax, sample_id, ad)
+        if counts is None:
+            continue
+        n_pos, n_neg = counts
+        total_pos += n_pos
+        total_neg += n_neg
+        frac_pos = _pct(n_pos, n_neg)
+
         # Title
         if mode_str == "single":
-            ax.set_title(f"{motif_label}: {frac_pos:.1f}% ON")
+            panel_ax.set_title(title or f"{motif_label}: {frac_pos:.1f}% ON")
         else:
-            ax.set_title(f"{sample_id}\n{frac_pos:.1f}% ON")
+            panel_ax.set_title(f"{sample_id}\n{frac_pos:.1f}% ON")
 
-        ax.set_aspect("equal")
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
+        panel_ax.set_xlabel("X")
+        panel_ax.set_ylabel("Y")
 
     # Hide unused axes
     for j in range(i + 1, len(axes)):
         axes[j].axis("off")
 
-    # Create figure-level legend on the right
-    total_cells = total_pos + total_neg
-    total_frac = total_pos / total_cells * 100 if total_cells > 0 else 0
+    # Legend: figure-level on the right, or inside a caller-provided axes
+    total_frac = _pct(total_pos, total_neg)
 
     handles = []
 
@@ -550,22 +634,23 @@ def plot_motif_spatial(
         )
         handles.append(on_handle)
 
-        # Add separator
-        handles.append(mlines.Line2D([], [], color="none", label=""))
+        if show_celltype_legend:
+            # Add separator
+            handles.append(mlines.Line2D([], [], color="none", label=""))
 
-        # Cell type handles (top N)
-        sorted_cts = sorted(all_ct_counts.items(), key=lambda x: -x[1])
-        for ct_name, ct_count in sorted_cts[:legend_top_n]:
-            ct_handle = mlines.Line2D(
-                [],
-                [],
-                color=ct_color_hex.get(ct_name, "#000000"),
-                marker="o",
-                linestyle="None",
-                markersize=8,
-                label=ct_name,
-            )
-            handles.append(ct_handle)
+            # Cell type handles (top N)
+            sorted_cts = sorted(all_ct_counts.items(), key=lambda x: -x[1])
+            for ct_name, ct_count in sorted_cts[:legend_top_n]:
+                ct_handle = mlines.Line2D(
+                    [],
+                    [],
+                    color=ct_color_hex.get(ct_name, "#000000"),
+                    marker="o",
+                    linestyle="None",
+                    markersize=8,
+                    label=ct_name,
+                )
+                handles.append(ct_handle)
     else:
         on_handle = mlines.Line2D(
             [],
@@ -578,33 +663,42 @@ def plot_motif_spatial(
         )
         handles.append(on_handle)
 
-    # Place legend outside on the right
-    fig.legend(
-        handles=handles,
-        loc="center left",
-        bbox_to_anchor=(1.0, 0.5),
-        fontsize=10,
-        frameon=False,
-        title="Cell type" if color_by_celltype else "State",
-    )
+    if show_legend and created_fig:
+        # Place legend outside on the right
+        fig.legend(
+            handles=handles,
+            loc="center left",
+            bbox_to_anchor=(1.0, 0.5),
+            fontsize=10,
+            frameon=False,
+            title="Cell type" if color_by_celltype else "State",
+        )
+    elif show_legend:
+        ax.legend(handles=handles, loc="upper right", fontsize=8, frameon=False)
 
-    # Suptitle
-    if color_by_celltype:
-        suptitle = f"{motif_label} Spatial Distribution (ON colored by cell type)"
-    else:
-        suptitle = f"{motif_label} Spatial Distribution"
+    if created_fig:
+        # Suptitle
+        if title is not None:
+            suptitle = title
+        elif color_by_celltype:
+            suptitle = f"{motif_label} Spatial Distribution (ON colored by cell type)"
+        else:
+            suptitle = f"{motif_label} Spatial Distribution"
 
-    if mode_str != "single":
-        plt.suptitle(suptitle, fontsize=14)
+        if mode_str != "single":
+            fig.suptitle(suptitle, fontsize=14)
 
-    plt.subplots_adjust(wspace=wspace, hspace=hspace, right=0.85)
-    plt.tight_layout()
+        fig.subplots_adjust(wspace=wspace, hspace=hspace, right=0.85)
+        fig.tight_layout()
 
     # Save
-    if output_dir is not None:
+    if save_path is None and output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, f"{motif_label_short}_spatial.png")
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        save_path = os.path.join(
+            output_dir, f"{motif_label_short}_spatial.{file_format}"
+        )
+    if save_path is not None:
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
         logger.debug(f"Saved: {save_path}")
 
     return fig
@@ -1080,3 +1174,109 @@ def analyze_motif_state_counts(
     )
 
     return fig, ax, counts_df
+
+
+def plot_motif_celltype_enrichment(
+    data: anndata.AnnData | dict[str, anndata.AnnData] | pd.DataFrame,
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
+    log2: bool = False,
+    cmap: str = "RdBu_r",
+    vmin: float | None = None,
+    vmax: float | None = None,
+    annotate: bool = True,
+    fmt: str = ".2f",
+    figsize: tuple[float, float] | None = None,
+    title: str | None = None,
+    ax: plt.Axes | None = None,
+    save_path: str | None = None,
+) -> plt.Figure:
+    """
+    Heatmap of cell-type enrichment among each motif's ON cells.
+
+    Shows ``E_k(h) = p_k(h) / p(h)`` (see
+    :func:`alarmist.core.single_cell.compute_motif_celltype_enrichment`), with a
+    diverging colormap centred on no enrichment (1, or 0 when ``log2=True``).
+
+    Parameters
+    ----------
+    data : AnnData, Dict[str, AnnData] or pd.DataFrame
+        AnnData input is passed to ``compute_motif_celltype_enrichment``; a
+        DataFrame must be that function's output.
+    cell_type_column : str, default 'cell_type'
+        Cell type column (AnnData input only).
+    log2 : bool, default False
+        Plot log2(E) instead of E (symmetric for depletion vs enrichment).
+    cmap : str, default 'RdBu_r'
+        Diverging colormap.
+    vmin, vmax : float, optional
+        Colour limits. Default: 0–3 for E, ±2 for log2(E).
+    annotate : bool, default True
+        Write values in cells.
+    fmt : str, default '.2f'
+        Annotation format.
+    figsize : tuple, optional
+        Figure size; default scales with the matrix shape.
+    title : str, optional
+        Axes title.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw into.
+    save_path : str, optional
+        File to save to.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+    """
+    import seaborn as sns
+
+    from alarmist.core.single_cell import compute_motif_celltype_enrichment
+
+    if isinstance(data, pd.DataFrame):
+        enr = data
+    else:
+        enr = compute_motif_celltype_enrichment(data, cell_type_column=cell_type_column)
+
+    wide = enr.pivot(
+        index=COLUMN_NAME_MOTIF, columns=COLUMN_NAME_CELL_TYPE, values="enrichment"
+    ).sort_index()
+    if log2:
+        with np.errstate(divide="ignore"):
+            wide = np.log2(wide)
+        center = 0.0
+        vmin = -2.0 if vmin is None else vmin
+        vmax = 2.0 if vmax is None else vmax
+        label = "log2 enrichment"
+    else:
+        center = 1.0
+        vmin = 0.0 if vmin is None else vmin
+        vmax = 3.0 if vmax is None else vmax
+        label = "Enrichment p_k(h) / p(h)"
+
+    if ax is None:
+        if figsize is None:
+            figsize = (0.6 * wide.shape[1] + 3, 0.4 * wide.shape[0] + 2)
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.get_figure()
+
+    sns.heatmap(
+        wide,
+        cmap=cmap,
+        center=center,
+        vmin=vmin,
+        vmax=vmax,
+        annot=annotate,
+        fmt=fmt,
+        annot_kws={"fontsize": 7},
+        ax=ax,
+        cbar_kws={"label": label},
+    )
+    ax.set_xlabel("Cell type")
+    ax.set_ylabel("Motif")
+    ax.set_title(title or "Cell-type enrichment among motif ON cells")
+    fig.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
+        logger.debug(f"Saved: {save_path}")
+    return fig
