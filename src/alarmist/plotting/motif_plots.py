@@ -436,6 +436,8 @@ def plot_celltype_communication_by_motif(
         raise ValueError("No motifs found in data after filtering")
 
     # Setup layout
+    # Never lay out more columns than motifs: hidden empty panels still take width.
+    n_cols = max(1, min(n_cols, n_motifs))
     n_rows = (n_motifs + n_cols - 1) // n_cols
 
     # Create figure
@@ -592,6 +594,8 @@ def plot_top_lri_interactions_dot(
     motifs = sorted(lri_motifs_df[COLUMN_NAME_MOTIF_IDX].unique())
     n_prog = len(motifs)
 
+    # Never lay out more columns than motifs: hidden empty panels still take width.
+    n_cols = max(1, min(n_cols, n_prog))
     n_rows = int(np.ceil(n_prog / n_cols))
     fig, axes = plt.subplots(
         n_rows,
@@ -601,9 +605,15 @@ def plot_top_lri_interactions_dot(
     )
     axes = np.array(axes).reshape(-1)
 
-    # Give some room for text on both sides
+    # Give some room for text on both sides; reserve a fixed ~1.1 in at the top
+    # for the two-line suptitle so it never collides with a single row's titles.
     fig.subplots_adjust(
-        right=0.85, left=0.10, top=0.94, bottom=0.06, wspace=0.9, hspace=0.4
+        right=0.85,
+        left=0.10,
+        top=1 - 1.1 / fig.get_figheight(),
+        bottom=0.06,
+        wspace=0.9,
+        hspace=0.4,
     )
 
     # --- label spacing knobs (in "points") ---
@@ -1521,6 +1531,8 @@ def plot_top_lri_interactions_by_pathway(
     n_prog = len(motifs)
 
     # Layout
+    # Never lay out more columns than motifs: hidden empty panels still take width.
+    n_cols = max(1, min(n_cols, n_prog))
     n_rows = int(np.ceil(n_prog / n_cols))
     fig, axes = plt.subplots(
         n_rows,
@@ -1528,7 +1540,7 @@ def plot_top_lri_interactions_by_pathway(
         figsize=(n_cols * figsize_per_motif[0], n_rows * figsize_per_motif[1]),
         constrained_layout=False,
     )
-    axes = axes.flatten()
+    axes = np.array(axes).reshape(-1)
 
     fig.subplots_adjust(
         right=0.85, left=0.15, top=0.94, bottom=0.06, wspace=1.35, hspace=0.4
@@ -1860,6 +1872,8 @@ def plot_lri_networks(
 
     motifs = sorted(lri_motifs_df[COLUMN_NAME_MOTIF_IDX].unique())
     n_motifs = len(motifs)
+    # Never lay out more columns than motifs: hidden empty panels still take width.
+    n_cols = max(1, min(n_cols, n_motifs))
     n_rows = (n_motifs + n_cols - 1) // n_cols
 
     fig, axes = plt.subplots(
@@ -1868,7 +1882,7 @@ def plot_lri_networks(
         figsize=(n_cols * figsize_per_motif[0], n_rows * figsize_per_motif[1]),
         constrained_layout=False,
     )
-    axes = axes.flatten()
+    axes = np.array(axes).reshape(-1)
     fig.subplots_adjust(right=0.90, bottom=0.05)
 
     motif_celltypes: dict[int, set[str]] = {m: set() for m in motifs}
