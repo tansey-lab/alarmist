@@ -216,6 +216,26 @@ Examples:
             f"unique values, spatial plots are emitted per-sample (default: {COLUMN_NAME_SAMPLE_ID})"
         ),
     )
+    parser.add_argument(
+        "--xenium-ranger-dir",
+        type=str,
+        default=None,
+        help=(
+            "Xenium Ranger output directory. If given, the 'spatial' and "
+            "'motif_states' plots draw each cell as its segmented boundary "
+            "polygon (read with spatialdata-io) instead of a scatter point. "
+            "Single-sample only. Requires: pip install 'alarmist[xenium]'."
+        ),
+    )
+    parser.add_argument(
+        "--xenium-cell-id-column",
+        type=str,
+        default=None,
+        help=(
+            "Column in adata.obs holding the Xenium cell_id, used to match cells "
+            "to their boundary polygons (default: adata.obs_names)."
+        ),
+    )
 
     log_config.add_logging_args(parser)
 
@@ -519,6 +539,101 @@ def main():
 
             exclusion_state = filter_glm_df
 
+    # Xenium cell boundary polygons: when given, spatial plots draw each cell as
+    # its segmented shape instead of a scatter point.
+    cell_geoms = None
+    if (
+        args.xenium_ranger_dir
+        and adata is not None
+        and ("spatial" in plot_types or "motif_states" in plot_types)
+    ):
+        from alarmist.plotting.cell_shapes import (
+            align_cell_shapes,
+            check_shape_alignment,
+            load_xenium_cell_shapes,
+        )
+
+        sample_col = args.sample_column
+        if (
+            sample_col in adata.obs.columns
+            and adata.obs[sample_col].astype(str).nunique() > 1
+        ):
+            raise ValueError(
+                f"--xenium-ranger-dir takes a single Xenium Ranger output, but "
+                f"adata.obs['{sample_col}'] holds "
+                f"{adata.obs[sample_col].nunique()} samples"
+            )
+
+        if args.xenium_cell_id_column:
+            if args.xenium_cell_id_column not in adata.obs.columns:
+                raise ValueError(
+                    f"--xenium-cell-id-column '{args.xenium_cell_id_column}' "
+                    "not found in adata.obs"
+                )
+            cell_ids = adata.obs[args.xenium_cell_id_column].astype(str)
+            id_source = f"obs['{args.xenium_cell_id_column}']"
+        else:
+            cell_ids = adata.obs_names.astype(str)
+            id_source = "obs_names"
+
+        shapes = load_xenium_cell_shapes(args.xenium_ranger_dir)
+        cell_geoms, shape_matched = align_cell_shapes(shapes, cell_ids)
+        n_matched = int(shape_matched.sum())
+        if n_matched == 0:
+            raise ValueError(
+                f"None of the {adata.n_obs:,} cells in adata ({id_source}, e.g. "
+                f"{list(cell_ids[:3])}) match a Xenium cell_id (e.g. "
+                f"{list(shapes.index[:3])}); pass --xenium-cell-id-column"
+            )
+        logger.info(
+            f"Matched {n_matched:,}/{adata.n_obs:,} cells to Xenium boundary "
+            f"polygons via {id_source}"
+        )
+        if n_matched < adata.n_obs:
+            logger.warning(
+                f"{adata.n_obs - n_matched:,} cells have no boundary polygon and "
+                "will not be drawn in spatial plots"
+            )
+        if "spatial" in adata.obsm:
+            offset = check_shape_alignment(
+                cell_geoms, adata.obsm["spatial"], shape_matched
+            )
+            logger.info(
+                f"Median polygon-centroid to obsm['spatial'] distance: {offset:.2f}"
+            )
+            if offset > 10:
+                logger.warning(
+                    "Cell polygons sit far from obsm['spatial'] coordinates; "
+                    "check that the IDs pair correctly and both are in µm"
+                )
+
+    def draw_cells(
+        ax, mask, coords, *, color=None, colors=None, values=None, cmap=None
+    ):
+        """Draw the cells in ``mask`` as boundary polygons if loaded, else as points."""
+        if cell_geoms is not None:
+            from alarmist.plotting.cell_shapes import draw_cell_shapes
+
+            return draw_cell_shapes(
+                ax,
+                cell_geoms[mask],
+                color=color,
+                facecolors=colors,
+                values=values,
+                cmap=cmap,
+                alpha=0.8,
+            )
+        c = next(x for x in (color, colors, values) if x is not None)
+        return ax.scatter(
+            coords[:, 0],
+            coords[:, 1],
+            c=c,
+            cmap=cmap,
+            s=1,
+            alpha=0.8,
+            rasterized=True,
+        )
+
     # Generate plots
     plots_generated = []
 
@@ -761,14 +876,7 @@ def main():
                     cell_types = full_cell_types[mask]
                     cell_colors = [color_map[ct] for ct in cell_types]
 
-                    ax.scatter(
-                        coords[:, 0],
-                        coords[:, 1],
-                        c=cell_colors,
-                        s=1,
-                        alpha=0.8,
-                        rasterized=True,
-                    )
+                    draw_cells(ax, mask, coords, colors=cell_colors)
                     ax.set_aspect("equal")
                     ax.set_xlabel("X")
                     ax.set_ylabel("Y")
@@ -822,14 +930,8 @@ def main():
                         loadings = sample_loadings[:, k]
 
                         fig, ax = plt.subplots(figsize=(10, 10))
-                        scatter = ax.scatter(
-                            coords[:, 0],
-                            coords[:, 1],
-                            c=loadings,
-                            cmap="viridis",
-                            s=1,
-                            alpha=0.8,
-                            rasterized=True,
+                        scatter = draw_cells(
+                            ax, mask, coords, values=loadings, cmap="viridis"
                         )
                         ax.set_aspect("equal")
                         ax.set_xlabel("X")
@@ -954,30 +1056,34 @@ def main():
                         pos = is_pos[mask, j]
                         m_label = motif_label(k)
                         fig, ax = plt.subplots(figsize=(10, 10))
+                        off_label = f"OFF (n={int((~pos).sum()):,})"
+                        on_label = f"ON (n={int(pos.sum()):,})"
                         # Draw OFF cells first so ON cells sit on top
-                        ax.scatter(
-                            coords[~pos, 0],
-                            coords[~pos, 1],
-                            c="#d3d3d3",
-                            s=1,
-                            alpha=0.8,
-                            rasterized=True,
-                            label=f"OFF (n={int((~pos).sum()):,})",
-                        )
-                        ax.scatter(
-                            coords[pos, 0],
-                            coords[pos, 1],
-                            c="#1f77b4",
-                            s=1,
-                            alpha=0.8,
-                            rasterized=True,
-                            label=f"ON (n={int(pos.sum()):,})",
-                        )
+                        sample_idx = np.flatnonzero(mask)
+                        for sel, color, label in (
+                            (~pos, "#d3d3d3", off_label),
+                            (pos, "#1f77b4", on_label),
+                        ):
+                            sel_mask = np.zeros(adata.n_obs, dtype=bool)
+                            sel_mask[sample_idx[sel]] = True
+                            artist = draw_cells(ax, sel_mask, coords[sel], color=color)
+                            artist.set_label(label)
                         ax.set_aspect("equal")
                         ax.set_xlabel("X")
                         ax.set_ylabel("Y")
                         ax.set_title(f"{m_label} ON/OFF{sample_title}")
-                        ax.legend(markerscale=8, loc="upper right")
+                        if cell_geoms is not None:
+                            from matplotlib.patches import Patch
+
+                            ax.legend(
+                                handles=[
+                                    Patch(color="#d3d3d3", label=off_label),
+                                    Patch(color="#1f77b4", label=on_label),
+                                ],
+                                loc="upper right",
+                            )
+                        else:
+                            ax.legend(markerscale=8, loc="upper right")
 
                         outpath = (
                             output_dir

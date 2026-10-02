@@ -46,6 +46,14 @@ dependencies = [
     "gseapy>=1.1.0",
 ]
 
+[project.optional-dependencies]
+# Draw cells as their segmented boundaries in alarmist-visualize (--xenium-ranger-dir)
+xenium = [
+    "spatialdata-io>=0.1.5",
+    "geopandas",
+    "shapely>=2.0",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/tansey-lab/alarmist"
 "Source" = "https://github.com/tansey-lab/alarmist"

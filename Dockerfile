@@ -15,7 +15,7 @@ COPY pyproject.toml uv.lock* ./
 COPY src/ ./src/
 
 # Install dependencies
-RUN uv sync --no-dev
+RUN uv sync --no-dev --extra xenium
 
 # Add venv to PATH so CLI commands are available
 ENV PATH="/app/.venv/bin:$PATH"

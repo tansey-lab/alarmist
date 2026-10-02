@@ -9,6 +9,12 @@ from alarmist.plotting.bptf_plots import (
     plot_lri_factor_scatter,
     plot_motif_activities,
 )
+from alarmist.plotting.cell_shapes import (
+    align_cell_shapes,
+    check_shape_alignment,
+    draw_cell_shapes,
+    load_xenium_cell_shapes,
+)
 from alarmist.plotting.colors import (
     clear_celltype_colors,
     get_celltype_colors,
@@ -90,6 +96,11 @@ __all__ = [
     "plot_motif_score_spatial",
     "plot_two_motif_spatial",
     "plot_spatial_categorical",
+    # Xenium cell shapes
+    "load_xenium_cell_shapes",
+    "align_cell_shapes",
+    "check_shape_alignment",
+    "draw_cell_shapes",
     # Motif similarity across runs
     "plot_motif_similarity",
     # GSEA

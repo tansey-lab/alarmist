@@ -121,6 +121,13 @@
                     "description": "Column in adata.obs identifying samples. Setting this enables multi-sample mode in patchify/project and produces per-sample spatial plots in visualize.",
                     "fa_icon": "fas fa-vials"
                 },
+                "xenium_ranger_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Xenium Ranger output directory. If set, visualize draws cells as their segmented boundary polygons instead of points. Single-sample only. Cells are matched on adata.obs_names (override with --xenium-cell-id-column via ext.args).",
+                    "fa_icon": "fas fa-draw-polygon"
+                },
                 "n_components": {
                     "type": "integer",
                     "default": 15,

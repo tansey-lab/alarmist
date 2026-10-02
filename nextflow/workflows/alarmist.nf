@@ -63,7 +63,10 @@ workflow ALARMIST {
         .join(ALARMIST_BPTF.out.results)
         .join(ALARMIST_PROJECT.out.results)
         .join(ALARMIST_PATCHIFY.out.results)
-    ALARMIST_VISUALIZE(ch_visualize_input)
+    ch_xenium_ranger_dir = params.xenium_ranger_dir
+        ? file(params.xenium_ranger_dir, checkIfExists: true)
+        : []
+    ALARMIST_VISUALIZE(ch_visualize_input, ch_xenium_ranger_dir)
     ch_versions = ch_versions.mix(ALARMIST_VISUALIZE.out.versions.first())
 
     // Collect visualize plots for MultiQC
