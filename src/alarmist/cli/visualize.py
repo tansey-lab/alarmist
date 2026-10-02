@@ -659,9 +659,7 @@ def main():
             # Align each slide's polygons only to that slide's cells: Xenium
             # cell_ids are unique per slide, not across slides.
             in_slide = (
-                np.ones(adata.n_obs, dtype=bool)
-                if key is None
-                else slide_keys == key
+                np.ones(adata.n_obs, dtype=bool) if key is None else slide_keys == key
             )
             shapes = load_xenium_cell_shapes(xenium_dir)
             geoms, matched = align_cell_shapes(shapes, cell_ids[in_slide])
