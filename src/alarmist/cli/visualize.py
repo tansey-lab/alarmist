@@ -78,6 +78,7 @@ Examples:
             "heatmap",
             "motif_summary",
             "spatial",
+            "motif_states",
             "lri_dot",
             "lri_network",
         ],
@@ -87,11 +88,12 @@ Examples:
             "heatmap",
             "motif_summary",
             "spatial",
+            "motif_states",
             "lri_dot",
             "lri_network",
             "all",
         ],
-        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial lri_dot lri_network)",
+        help="Types of plots to generate (default: volcano forest heatmap motif_summary spatial motif_states lri_dot lri_network)",
     )
     parser.add_argument(
         "--format",
@@ -300,6 +302,7 @@ def main():
             "heatmap",
             "motif_summary",
             "spatial",
+            "motif_states",
             "lri_dot",
             "lri_network",
         ]
@@ -708,6 +711,7 @@ def main():
 
             if loading_key is None:
                 import os
+                import re
 
                 loadings_path = os.path.join(
                     args.project_dir, "cell_motif_loadings.parquet"
@@ -716,10 +720,14 @@ def main():
                     logger.info(f"  Loading cell loadings from {loadings_path}")
                     cell_loadings = pd.read_parquet(loadings_path)
                     loading_cols = [
-                        c for c in cell_loadings.columns if c.startswith("motif_")
+                        c
+                        for c in cell_loadings.columns
+                        if re.fullmatch(r"motif_\d+", c)
                     ]
                     if loading_cols:
-                        cell_loadings_arr = cell_loadings[sorted(loading_cols)].values
+                        # Sort numerically: a plain sort puts motif_10 before motif_2
+                        loading_cols.sort(key=lambda c: int(c.split("_")[1]))
+                        cell_loadings_arr = cell_loadings[loading_cols].values
                     else:
                         cell_loadings_arr = None
                 else:
@@ -851,6 +859,141 @@ def main():
                 )
 
             logger.info("Generated spatial plots")
+
+    # Motif ON/OFF state plots (from alarmist-project's GMM binarization)
+    if "motif_states" in plot_types and adata is not None:
+        import os
+        import re
+
+        import numpy as np
+
+        from alarmist.plotting import plot_motif_state_counts
+
+        # Prefer state columns already in projected_adata.obs; fall back to
+        # motif_states.parquet aligned on cell id.
+        state_re = re.compile(r"^motif_(\d+)_state$")
+        states_df = adata.obs[[c for c in adata.obs.columns if state_re.match(c)]]
+        if states_df.shape[1] == 0 and args.project_dir:
+            states_path = os.path.join(args.project_dir, "motif_states.parquet")
+            if os.path.exists(states_path):
+                logger.info(f"Loading motif states from {states_path}")
+                states_df = pd.read_parquet(states_path).reindex(
+                    adata.obs_names.astype(str)
+                )
+        state_cols = sorted(
+            states_df.columns, key=lambda c: int(state_re.match(c).group(1))
+        )
+
+        if not state_cols:
+            logger.warning(
+                "No motif_{k}_state columns found in projected_adata.obs or "
+                "motif_states.parquet; skipping motif state plots "
+                "(rerun alarmist-project without --no-motif-states)"
+            )
+        else:
+            logger.info(f"Generating motif state plots for {len(state_cols)} motifs...")
+            states = states_df[state_cols].astype(str).to_numpy()
+            motif_ids = [int(state_re.match(c).group(1)) for c in state_cols]
+            is_pos = states == "positive"
+
+            # Plot 1: positive vs negative cell counts per motif
+            counts = pd.DataFrame(
+                {
+                    "positive": is_pos.sum(axis=0),
+                    "negative": (states == "negative").sum(axis=0),
+                },
+                index=[motif_label(k) for k in motif_ids],
+            )
+            counts.to_csv(output_dir / "motif_state_counts.csv")
+            fig, _ax = plot_motif_state_counts(counts)
+            outpath = output_dir / f"motif_state_counts_mqc.{args.format}"
+            fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
+            plt.close(fig)
+            write_mqc_yaml(
+                outpath,
+                "Motif ON/OFF State Counts",
+                "Number of cells called positive (ON) vs negative (OFF) per motif "
+                "by a 2-component GMM on log cell loadings",
+            )
+            plots_generated.append(str(outpath))
+
+            # Plot 2: spatial ON/OFF map per motif (per sample if several)
+            if "spatial" not in adata.obsm:
+                logger.warning(
+                    "No spatial coordinates found in adata.obsm['spatial'], "
+                    "skipping spatial motif state plots"
+                )
+            else:
+                all_coords = adata.obsm["spatial"][:, :2]
+                sample_col = args.sample_column
+                if sample_col in adata.obs.columns:
+                    sample_series = adata.obs[sample_col].astype(str)
+                    unique_samples = list(dict.fromkeys(sample_series.tolist()))
+                else:
+                    sample_series = None
+                    unique_samples = [None]
+
+                for sample in unique_samples:
+                    if sample is None:
+                        mask = np.ones(adata.n_obs, dtype=bool)
+                        sample_suffix = ""
+                        sample_title = ""
+                    else:
+                        mask = (sample_series == sample).to_numpy()
+                        safe = "".join(
+                            c if c.isalnum() or c in ("-", "_") else "_" for c in sample
+                        )
+                        sample_suffix = f"_{safe}"
+                        sample_title = f" — {sample}"
+
+                    coords = all_coords[mask]
+                    if coords.shape[0] == 0:
+                        continue
+
+                    for j, k in enumerate(motif_ids):
+                        pos = is_pos[mask, j]
+                        m_label = motif_label(k)
+                        fig, ax = plt.subplots(figsize=(10, 10))
+                        # Draw OFF cells first so ON cells sit on top
+                        ax.scatter(
+                            coords[~pos, 0],
+                            coords[~pos, 1],
+                            c="#d3d3d3",
+                            s=1,
+                            alpha=0.8,
+                            rasterized=True,
+                            label=f"OFF (n={int((~pos).sum()):,})",
+                        )
+                        ax.scatter(
+                            coords[pos, 0],
+                            coords[pos, 1],
+                            c="#1f77b4",
+                            s=1,
+                            alpha=0.8,
+                            rasterized=True,
+                            label=f"ON (n={int(pos.sum()):,})",
+                        )
+                        ax.set_aspect("equal")
+                        ax.set_xlabel("X")
+                        ax.set_ylabel("Y")
+                        ax.set_title(f"{m_label} ON/OFF{sample_title}")
+                        ax.legend(markerscale=8, loc="upper right")
+
+                        outpath = (
+                            output_dir
+                            / f"spatial_motif_{motif_slug(k)}_state{sample_suffix}_mqc.{args.format}"
+                        )
+                        fig.savefig(outpath, dpi=args.dpi, bbox_inches="tight")
+                        plt.close(fig)
+                        write_mqc_yaml(
+                            outpath,
+                            f"Spatial {m_label} ON/OFF{sample_title}",
+                            f"Cells called ON (blue) vs OFF (grey) for {m_label}"
+                            + (f" ({sample})" if sample is not None else ""),
+                        )
+                        plots_generated.append(str(outpath))
+
+            logger.info("Generated motif state plots")
 
     # LRI dot plots (one per motif)
     if "lri_dot" in plot_types and bptf_results is not None:
