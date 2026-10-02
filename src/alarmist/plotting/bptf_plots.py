@@ -15,27 +15,10 @@ from alarmist.constants import (
     COLUMN_NAME_LR_GLOBAL_MEAN,
     COLUMN_NAME_MEAN,
     COLUMN_NAME_MOTIF_IDX,
-    COLUMN_NAME_N_CELLS,
     COLUMN_NAME_SCORE,
 )
 
 logger = logging.getLogger(__name__)
-
-
-def plot_cells_per_patch(patch_metadata_df: pd.DataFrame, save_path: str | None = None):
-    """Plot distribution of cells per patch"""
-    plt.figure(figsize=(8, 6))
-    plt.hist(patch_metadata_df[COLUMN_NAME_N_CELLS], bins=50, edgecolor="black")
-    plt.xlabel("Number of cells per patch")
-    plt.ylabel("Number of patches")
-    plt.title("Distribution of cells per patch")
-    plt.tight_layout()
-
-    if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        logger.debug(f"Saved: {save_path}")
-
-    return plt.gcf()
 
 
 def plot_factor_distributions(

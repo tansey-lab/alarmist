@@ -43,6 +43,15 @@ dependencies = [
     "adjustText>=1.0.0",
     "bptf @ git+https://github.com/aschein/bptf.git",
     "graphviz",
+    "gseapy>=1.1.0",
+]
+
+[project.optional-dependencies]
+# Draw cells as their segmented boundaries in alarmist-visualize (--xenium-ranger-dir)
+xenium = [
+    "spatialdata-io>=0.1.5",
+    "geopandas",
+    "shapely>=2.0",
 ]
 
 [project.urls]

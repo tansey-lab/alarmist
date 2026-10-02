@@ -817,6 +817,11 @@ def plot_single_motif_lri_lollipop(
     show_legend: bool = True,
     ax: plt.Axes | None = None,
     ct_colors: dict[str, str] | None = None,
+    include: str | list[str] | None = None,
+    merge_celltypes: dict[str, str] | None = None,
+    hide_celltypes: list[str] | None = None,
+    dedup: bool = True,
+    xlabel: str | None = None,
 ) -> plt.Figure:
     """
     Plot top LRI interactions for a SINGLE motif as a lollipop chart.
@@ -848,7 +853,26 @@ def plot_single_motif_lri_lollipop(
         Axes to plot on. If None, creates new figure.
     ct_colors : dict, optional
         Cell type color mapping. If None, uses global colors from set_celltype_colors()
-        or auto-generates from data.
+        or auto-generates from data. Labels created by ``merge_celltypes`` need an
+        entry here (or in the global registry); otherwise they are auto-coloured.
+    include : str or list of str, optional
+        Keep only interactions involving these cell types. A single cell type keeps
+        rows where it is the sender *or* the receiver. Two or more keep rows where
+        both sender and receiver are in the set and differ, i.e. interactions
+        *between* the listed types (same-type pairs are dropped). Cannot be combined
+        with ``sender_type`` / ``receiver_type``.
+    merge_celltypes : dict, optional
+        Relabel cell types before filtering, e.g.
+        ``{"AC-like": "non-MES", "OPC-like": "non-MES"}``. Rows that collapse onto
+        the same (sender, receiver, ligand, receptor, signaling type) are summed.
+    hide_celltypes : list of str, optional
+        Drop rows whose sender or receiver is in this list. Applied after
+        ``merge_celltypes``, so merged labels can be hidden.
+    dedup : bool, default True
+        Keep only the top ligand per (signaling type, receptor, sender, receiver).
+        Set False to show every ligand.
+    xlabel : str, optional
+        X-axis label. Defaults to ``factor_col``.
 
     Returns
     -------
@@ -862,6 +886,11 @@ def plot_single_motif_lri_lollipop(
 
     >>> # Only interactions where Tumor cells are the sender
     >>> fig = plot_single_motif_lri_lollipop(lri_motifs, motif_idx=5, sender_type='Tumor', top_n=20)
+
+    >>> # Interactions between two cell types, in either direction
+    >>> fig = plot_single_motif_lri_lollipop(
+    ...     lri_motifs, motif_idx=1, include=['mGAM', 'MES-like']
+    ... )
 
     >>> # Only interactions from Macrophage to T cell
     >>> fig = plot_single_motif_lri_lollipop(
@@ -884,10 +913,50 @@ def plot_single_motif_lri_lollipop(
     if missing:
         raise ValueError(f"Missing columns in lri_motifs_df: {sorted(missing)}")
 
+    if include is not None and (sender_type is not None or receiver_type is not None):
+        raise ValueError(
+            "'include' cannot be combined with 'sender_type' or 'receiver_type'"
+        )
+    if isinstance(include, str):
+        include = [include]
+
+    ct_cols = [COLUMN_NAME_CELLTYPE1, COLUMN_NAME_CELLTYPE2]
+
     # Filter to single motif
     dfp = lri_motifs_df[lri_motifs_df[COLUMN_NAME_MOTIF_IDX] == motif_idx].copy()
     if dfp.empty:
         raise ValueError(f"No data found for motif_idx={motif_idx}")
+
+    # Merge cell-type labels, summing rows that collapse onto the same interaction
+    if merge_celltypes:
+        for c in ct_cols:
+            dfp[c] = dfp[c].astype(str).replace(merge_celltypes)
+        key_cols = [
+            COLUMN_NAME_MOTIF_IDX,
+            *ct_cols,
+            COLUMN_NAME_LIGAND,
+            COLUMN_NAME_RECEPTOR,
+            COLUMN_NAME_SIGNALING_TYPE,
+        ]
+        dfp = dfp.groupby(key_cols, as_index=False, observed=True)[factor_col].sum()
+
+    if hide_celltypes:
+        dfp = dfp[~dfp[ct_cols].isin(hide_celltypes).any(axis=1)]
+        if dfp.empty:
+            raise ValueError(
+                f"No data left for motif_idx={motif_idx} after hiding {hide_celltypes}"
+            )
+
+    if include is not None:
+        ct1, ct2 = dfp[COLUMN_NAME_CELLTYPE1], dfp[COLUMN_NAME_CELLTYPE2]
+        if len(include) == 1:
+            dfp = dfp[(ct1 == include[0]) | (ct2 == include[0])]
+        else:
+            dfp = dfp[ct1.isin(include) & ct2.isin(include) & (ct1 != ct2)]
+        if dfp.empty:
+            raise ValueError(
+                f"No data found for motif_idx={motif_idx} with include={include}"
+            )
 
     # Filter by sender_type (celltype1) if specified
     if sender_type is not None:
@@ -909,10 +978,14 @@ def plot_single_motif_lri_lollipop(
             )
 
     # Get cell type colors
-    all_celltypes = list(
-        set(lri_motifs_df[COLUMN_NAME_CELLTYPE1])
-        | set(lri_motifs_df[COLUMN_NAME_CELLTYPE2])
+    all_celltypes = set(lri_motifs_df[COLUMN_NAME_CELLTYPE1]) | set(
+        lri_motifs_df[COLUMN_NAME_CELLTYPE2]
     )
+    if merge_celltypes:
+        all_celltypes = {merge_celltypes.get(str(ct), ct) for ct in all_celltypes}
+    if hide_celltypes:
+        all_celltypes -= set(hide_celltypes)
+    all_celltypes = list(all_celltypes)
     ct_color_map = _get_colors_for_plotting(ct_colors, all_celltypes)
 
     # Create figure if no ax provided
@@ -924,16 +997,17 @@ def plot_single_motif_lri_lollipop(
         fig = ax.get_figure()
 
     # Filter: keep top per (signaling_type, receptor, direction)
-    dfp_sorted = dfp.sort_values(factor_col, ascending=False)
-    dfp_filtered = dfp_sorted.drop_duplicates(
-        subset=[
-            COLUMN_NAME_SIGNALING_TYPE,
-            COLUMN_NAME_RECEPTOR,
-            COLUMN_NAME_CELLTYPE1,
-            COLUMN_NAME_CELLTYPE2,
-        ],
-        keep="first",
-    )
+    dfp_filtered = dfp.sort_values(factor_col, ascending=False)
+    if dedup:
+        dfp_filtered = dfp_filtered.drop_duplicates(
+            subset=[
+                COLUMN_NAME_SIGNALING_TYPE,
+                COLUMN_NAME_RECEPTOR,
+                COLUMN_NAME_CELLTYPE1,
+                COLUMN_NAME_CELLTYPE2,
+            ],
+            keep="first",
+        )
 
     top_df = dfp_filtered.nlargest(top_n, factor_col).reset_index(drop=True)
     y = np.arange(len(top_df))
@@ -1013,7 +1087,7 @@ def plot_single_motif_lri_lollipop(
         )
 
     ax.invert_yaxis()
-    ax.set_xlabel(factor_col, fontsize=11)
+    ax.set_xlabel(xlabel if xlabel is not None else factor_col, fontsize=11)
 
     # Title
     if title is None:
@@ -1024,6 +1098,11 @@ def plot_single_motif_lri_lollipop(
             filter_parts.append(f"Sender: {sender_type}")
         if receiver_type is not None:
             filter_parts.append(f"Receiver: {receiver_type}")
+        if include is not None:
+            joined = ", ".join(include)
+            filter_parts.append(
+                f"involving {joined}" if len(include) == 1 else f"between {joined}"
+            )
         if filter_parts:
             title += f"\n({', '.join(filter_parts)})"
     ax.set_title(title, fontsize=13, fontweight="bold")
@@ -1689,7 +1768,8 @@ def plot_lri_networks(
     ct_colors: dict[str, str] | None = None,
     max_celltypes: int = 4,
     outlier_z: float = 3.5,
-) -> plt.Figure:
+    return_celltypes: bool = False,
+) -> plt.Figure | tuple[plt.Figure, dict[int, set[str]]]:
     """Plot LRI networks for each motif using Graphviz
 
     Parameters
@@ -1727,11 +1807,15 @@ def plot_lri_networks(
         Modified z-score threshold (MAD-based) used to flag a celltype-pair's
         aggregate weight as an outlier. Falls back to a std-based z-score when
         MAD is zero.
+    return_celltypes : bool, default False
+        Also return the cell types that appear on the drawn edges of each motif.
 
     Returns
     -------
     matplotlib.figure.Figure
-        Figure object
+        Figure object. If ``return_celltypes`` is True, a tuple
+        ``(fig, {motif_idx: set_of_celltypes})``; motifs with no drawn edges map to
+        an empty set.
 
     Raises
     ------
@@ -1787,6 +1871,7 @@ def plot_lri_networks(
     axes = axes.flatten()
     fig.subplots_adjust(right=0.90, bottom=0.05)
 
+    motif_celltypes: dict[int, set[str]] = {m: set() for m in motifs}
     for i, motif in enumerate(motifs):
         ax = axes[i]
         df = lri_motifs_df[lri_motifs_df[COLUMN_NAME_MOTIF_IDX] == motif].copy()
@@ -1901,6 +1986,7 @@ def plot_lri_networks(
         cells = sorted(
             set(agg[COLUMN_NAME_CELLTYPE1]) | set(agg[COLUMN_NAME_CELLTYPE2])
         )
+        motif_celltypes[motif] = set(cells)
         for c in cells:
             dot.node(c, fillcolor=ct_color_map_hex.get(c, "#CCCCCC"))
 
@@ -1981,6 +2067,8 @@ def plot_lri_networks(
         plt.savefig(save_path, dpi=600, bbox_inches="tight")
         logger.debug(f"Saved: {save_path}")
 
+    if return_celltypes:
+        return fig, motif_celltypes
     return fig
 
 

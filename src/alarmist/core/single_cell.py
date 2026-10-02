@@ -470,3 +470,76 @@ def compute_positive_motifs_per_cell(adata) -> pd.Series:
     )
 
     return counts
+
+
+def compute_motif_celltype_enrichment(
+    adata: anndata.AnnData | dict[str, anndata.AnnData],
+    cell_type_column: str = COLUMN_NAME_CELL_TYPE,
+) -> pd.DataFrame:
+    """
+    Enrichment of each cell type among a motif's ON cells, relative to baseline.
+
+    ``E_k(h) = p_k(h) / p(h)``, where ``p_k(h)`` is the fraction of motif-k ON
+    cells that are of type h and ``p(h)`` is the fraction of all cells that are
+    of type h. E > 1 means h is over-represented among ON cells.
+
+    Counts are pooled over all cells (all samples for dict input). This is a
+    descriptive summary, not a test; for condition comparisons aggregate per
+    sample instead.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData or Dict[str, anndata.AnnData]
+        Must contain motif_{k}_state columns in obs (from gmm_binarize_all_motifs).
+        A merged multi-sample AnnData is handled as one pool.
+    cell_type_column : str, default 'cell_type'
+        Column in obs with cell type annotations.
+
+    Returns
+    -------
+    pd.DataFrame
+        Long format, one row per (motif, cell type), with columns ``motif``,
+        ``cell_type``, ``n_on_celltype`` (#h among ON cells), ``n_on`` (#ON cells),
+        ``p_on`` (p_k(h)), ``p_baseline`` (p(h)) and ``enrichment`` (E_k(h)).
+        Motifs with no ON cells are omitted.
+
+    Examples
+    --------
+    >>> enr = compute_motif_celltype_enrichment(adata_dict)
+    >>> enr.pivot(index="motif", columns="cell_type", values="enrichment")
+    """
+    import re
+
+    obs_list = adata.values() if isinstance(adata, dict) else [adata]
+    obs = pd.concat([ad.obs for ad in obs_list], axis=0, join="outer")
+
+    state_re = re.compile(r"^motif_(\d+)_state$")
+    motifs = sorted(int(m.group(1)) for c in obs.columns if (m := state_re.match(c)))
+    if not motifs:
+        raise ValueError("No motif_{k}_state columns found in adata.obs")
+
+    cell_types = obs[cell_type_column].astype(str)
+    baseline = cell_types.value_counts() / len(cell_types)
+
+    records = []
+    for k in motifs:
+        on = (obs[f"motif_{k}_state"].astype(str) == "positive").to_numpy()
+        n_on = int(on.sum())
+        if n_on == 0:
+            continue
+        on_counts = cell_types[on].value_counts()
+        for ct, p_h in baseline.items():
+            n_h_on = int(on_counts.get(ct, 0))
+            p_k_h = n_h_on / n_on
+            records.append(
+                {
+                    COLUMN_NAME_MOTIF: k,
+                    COLUMN_NAME_CELL_TYPE: ct,
+                    "n_on_celltype": n_h_on,
+                    "n_on": n_on,
+                    "p_on": p_k_h,
+                    "p_baseline": p_h,
+                    "enrichment": p_k_h / p_h,
+                }
+            )
+    return pd.DataFrame(records)

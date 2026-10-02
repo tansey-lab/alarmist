@@ -9,6 +9,12 @@ from alarmist.plotting.bptf_plots import (
     plot_lri_factor_scatter,
     plot_motif_activities,
 )
+from alarmist.plotting.cell_shapes import (
+    align_cell_shapes,
+    check_shape_alignment,
+    draw_cell_shapes,
+    load_xenium_cell_shapes,
+)
 from alarmist.plotting.colors import (
     clear_celltype_colors,
     get_celltype_colors,
@@ -20,6 +26,7 @@ from alarmist.plotting.glm_plots import (
     generate_volcano_plots,
     volcano_plot,
 )
+from alarmist.plotting.gsea_plots import gsea_barplot
 from alarmist.plotting.lri_overlap import (
     plot_lr_pair_overlap,
     plot_lri_database_overlap,
@@ -42,16 +49,24 @@ from alarmist.plotting.motif_plots import (
     plot_top_lri_interactions_by_pathway,
     plot_top_lri_interactions_dot,
 )
+from alarmist.plotting.qc_plots import plot_total_counts_per_cell
+from alarmist.plotting.similarity_plots import plot_motif_similarity
 from alarmist.plotting.single_cell_plots import (
     analyze_motif_celltype_composition,
     analyze_motif_celltype_counts,
     analyze_motif_state_counts,
     plot_motif_celltype_composition,
+    plot_motif_celltype_enrichment,
     plot_motif_spatial,
     plot_motif_state_counts,
     plot_positive_motifs_distribution,
 )
-from alarmist.plotting.spatial_plots import plot_cells_per_patch
+from alarmist.plotting.spatial_plots import (
+    plot_cells_per_patch,
+    plot_motif_score_spatial,
+    plot_spatial_categorical,
+    plot_two_motif_spatial,
+)
 
 __all__ = [
     # Color management
@@ -72,11 +87,26 @@ __all__ = [
     "plot_motif_state_counts",
     "plot_positive_motifs_distribution",
     "plot_motif_spatial",
+    "plot_motif_celltype_enrichment",
     "analyze_motif_celltype_composition",
     "analyze_motif_celltype_counts",
     "analyze_motif_state_counts",
     # Spatial plots
     "plot_cells_per_patch",
+    "plot_motif_score_spatial",
+    "plot_two_motif_spatial",
+    "plot_spatial_categorical",
+    # Xenium cell shapes
+    "load_xenium_cell_shapes",
+    "align_cell_shapes",
+    "check_shape_alignment",
+    "draw_cell_shapes",
+    # Motif similarity across runs
+    "plot_motif_similarity",
+    # GSEA
+    "gsea_barplot",
+    # QC
+    "plot_total_counts_per_cell",
     # Motif plots
     "parse_lri_full",
     "get_cell_type_colors",

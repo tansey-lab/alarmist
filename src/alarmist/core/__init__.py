@@ -45,6 +45,7 @@ from .lri import (
 
 # Single Cell Analysis
 from .single_cell import (
+    compute_motif_celltype_enrichment,
     compute_motif_state_counts,
     compute_positive_motifs_per_cell,
     gmm_binarize_all_motifs,
@@ -87,5 +88,6 @@ __all__ = [
     "weighted_celltypes_by_motif",
     "gmm_binarize_all_motifs",
     "compute_motif_state_counts",
+    "compute_motif_celltype_enrichment",
     "compute_positive_motifs_per_cell",
 ]
