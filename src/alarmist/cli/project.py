@@ -91,6 +91,15 @@ Examples:
         default=50000,
         help="Number of cells per chunk for memory efficiency (default: 50000)",
     )
+    parser.add_argument(
+        "--no-motif-states",
+        action="store_true",
+        help=(
+            "Skip GMM binarization of cell loadings into motif ON/OFF states "
+            "(motif_states.parquet, gmm_summary.csv). Run by default."
+        ),
+    )
+    common.add_seed_argument(parser)
 
     log_config.add_logging_args(parser)
 
@@ -211,7 +220,7 @@ def main():
 
     # Project cell loadings
     logger.info("Projecting cell loadings...")
-    np.random.seed(42)
+    np.random.seed(args.seed)
 
     cell_loadings = al.project_cell_loadings(
         model=model,
@@ -234,13 +243,44 @@ def main():
     )
     cell_loadings_df.to_parquet(output_dir / "cell_motif_loadings.parquet")
 
-    # Add to adata and save
+    # Add to adata
     adata.obsm["X_motif"] = cell_loadings
+
+    # Binarize each motif into ON/OFF states with a 2-component GMM on
+    # log(loading). The GMM is fit on all cells pooled, so in multi-sample
+    # mode every sample shares one threshold per motif.
+    if not args.no_motif_states:
+        logger.info("Binarizing motif loadings into ON/OFF states (GMM)...")
+        np.random.seed(args.seed)
+        gmm_summary, states, _posprob = al.gmm_binarize_all_motifs(
+            cell_loadings, adata=None, random_state=args.seed, return_arrays=True
+        )
+        gmm_summary.to_csv(output_dir / "gmm_summary.csv", index=False)
+
+        state_cols = [f"motif_{k}_state" for k in range(cell_loadings.shape[1])]
+        states_df = pd.DataFrame(
+            states.astype(str), index=adata.obs_names.astype(str), columns=state_cols
+        )
+        states_df.index.name = "cell_id"
+        states_df.to_parquet(output_dir / "motif_states.parquet")
+        for col in state_cols:
+            adata.obs[col] = pd.Categorical(
+                states_df[col].values, categories=["negative", "positive"]
+            )
+        n_pos = (states_df == "positive").sum()
+        logger.info(
+            "Positive cells per motif: "
+            + ", ".join(f"{k}={n}" for k, n in enumerate(n_pos.tolist()))
+        )
+
     adata.write_h5ad(output_dir / "projected_adata.h5ad")
 
     logger.info(f"Results saved to: {output_dir}")
     logger.info("  - cell_loadings.npy")
     logger.info("  - cell_motif_loadings.parquet")
+    if not args.no_motif_states:
+        logger.info("  - motif_states.parquet")
+        logger.info("  - gmm_summary.csv")
     logger.info("  - projected_adata.h5ad")
 
     return 0

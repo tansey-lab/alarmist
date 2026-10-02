@@ -146,6 +146,9 @@ workflow ALARMIST {
     )
 
     emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    cell_loadings  = ALARMIST_PROJECT.out.cell_loadings // channel: [ val(meta), path(cell_motif_loadings.parquet) ]
+    motif_states   = ALARMIST_PROJECT.out.motif_states  // channel: [ val(meta), path(motif_states.parquet) ]
+    gmm_summary    = ALARMIST_PROJECT.out.gmm_summary   // channel: [ val(meta), path(gmm_summary.csv) ]
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

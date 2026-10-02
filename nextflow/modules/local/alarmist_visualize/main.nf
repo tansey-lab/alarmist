@@ -48,6 +48,8 @@ process ALARMIST_VISUALIZE {
     touch ${prefix}/bptf_diagnostics_mqc.png
     touch ${prefix}/spatial_celltypes_mqc.png
     touch ${prefix}/spatial_motif_0_loading_mqc.png
+    touch ${prefix}/motif_state_counts_mqc.png
+    touch ${prefix}/spatial_motif_0_state_mqc.png
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

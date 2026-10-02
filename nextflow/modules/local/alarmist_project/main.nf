@@ -10,8 +10,12 @@ process ALARMIST_PROJECT {
     tuple val(meta), path(adata), path(patchify_results), path(bptf_results)
 
     output:
-    tuple val(meta), path("${prefix}"), emit: results
-    path "versions.yml"               , emit: versions
+    tuple val(meta), path("${prefix}")                              , emit: results
+    tuple val(meta), path("${prefix}/cell_motif_loadings.parquet")  , emit: cell_loadings
+    // Absent when task.ext.args contains --no-motif-states
+    tuple val(meta), path("${prefix}/motif_states.parquet")         , emit: motif_states, optional: true
+    tuple val(meta), path("${prefix}/gmm_summary.csv")              , emit: gmm_summary , optional: true
+    path "versions.yml"                                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -41,8 +45,11 @@ process ALARMIST_PROJECT {
     prefix = task.ext.prefix ?: "${meta.id}_project"
     """
     mkdir -p ${prefix}
-    touch ${prefix}/cell_motif_scores.parquet
+    touch ${prefix}/cell_loadings.npy
+    touch ${prefix}/cell_motif_loadings.parquet
     touch ${prefix}/projected_adata.h5ad
+    touch ${prefix}/motif_states.parquet
+    touch ${prefix}/gmm_summary.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

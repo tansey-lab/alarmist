@@ -42,6 +42,9 @@ workflow NFCORE_ALARMIST {
     )
     emit:
     multiqc_report = ALARMIST.out.multiqc_report // channel: /path/to/multiqc_report.html
+    cell_loadings  = ALARMIST.out.cell_loadings  // channel: [ val(meta), path(cell_motif_loadings.parquet) ]
+    motif_states   = ALARMIST.out.motif_states   // channel: [ val(meta), path(motif_states.parquet) ]
+    gmm_summary    = ALARMIST.out.gmm_summary    // channel: [ val(meta), path(gmm_summary.csv) ]
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
