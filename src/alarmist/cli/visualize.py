@@ -219,12 +219,25 @@ Examples:
     parser.add_argument(
         "--xenium-ranger-dir",
         type=str,
+        action="append",
         default=None,
         help=(
             "Xenium Ranger output directory. If given, the 'spatial' and "
             "'motif_states' plots draw each cell as its segmented boundary "
             "polygon (read with spatialdata-io) instead of a scatter point. "
-            "Single-sample only. Requires: pip install 'alarmist[xenium]'."
+            "A bare DIR is single-sample only. For data merged from several "
+            "slides, repeat as KEY=DIR together with --xenium-dir-column, where "
+            "KEY is a value of that column. "
+            "Requires: pip install 'alarmist[xenium]'."
+        ),
+    )
+    parser.add_argument(
+        "--xenium-dir-column",
+        type=str,
+        default=None,
+        help=(
+            "Column in adata.obs naming each cell's slide; its values are the "
+            "KEYs of --xenium-ranger-dir KEY=DIR."
         ),
     )
     parser.add_argument(
@@ -242,10 +255,42 @@ Examples:
     return parser
 
 
+def _parse_xenium_dirs(values):
+    """
+    Map each --xenium-ranger-dir value to its slide key.
+
+    Returns ``{None: DIR}`` for a single bare DIR, else ``{KEY: DIR}`` for
+    repeated KEY=DIR values. Mixing the two forms, or giving more than one bare
+    DIR, raises ValueError.
+    """
+    dirs = {}
+    for value in values or []:
+        key, sep, path = value.partition("=")
+        if not sep:
+            key, path = None, value
+        elif not key or not path:
+            raise ValueError(f"--xenium-ranger-dir '{value}' is not KEY=DIR")
+        if key in dirs:
+            raise ValueError(
+                "--xenium-ranger-dir given more than once"
+                + ("" if key is None else f" for key '{key}'")
+            )
+        dirs[key] = path
+    if None in dirs and len(dirs) > 1:
+        raise ValueError(
+            "--xenium-ranger-dir: use either one bare DIR or KEY=DIR per slide, not both"
+        )
+    return dirs
+
+
 def main():
     """Main entry point for visualize command"""
     parser = get_parser()
     args = parser.parse_args()
+    try:
+        _parse_xenium_dirs(args.xenium_ranger_dir)
+    except ValueError as e:
+        parser.error(str(e))
 
     # Configure logging
     logger = log_config.configure_logging(args)
@@ -547,22 +592,53 @@ def main():
         and adata is not None
         and ("spatial" in plot_types or "motif_states" in plot_types)
     ):
+        import numpy as np
+
         from alarmist.plotting.cell_shapes import (
             align_cell_shapes,
             check_shape_alignment,
             load_xenium_cell_shapes,
         )
 
+        xenium_dirs = _parse_xenium_dirs(args.xenium_ranger_dir)
+        keyed = None not in xenium_dirs
         sample_col = args.sample_column
         if (
-            sample_col in adata.obs.columns
+            not keyed
+            and sample_col in adata.obs.columns
             and adata.obs[sample_col].astype(str).nunique() > 1
         ):
             raise ValueError(
                 f"--xenium-ranger-dir takes a single Xenium Ranger output, but "
                 f"adata.obs['{sample_col}'] holds "
-                f"{adata.obs[sample_col].nunique()} samples"
+                f"{adata.obs[sample_col].nunique()} samples; pass KEY=DIR per "
+                "slide with --xenium-dir-column"
             )
+        if keyed:
+            dir_col = args.xenium_dir_column
+            if not dir_col:
+                raise ValueError(
+                    "--xenium-ranger-dir KEY=DIR requires --xenium-dir-column"
+                )
+            if dir_col not in adata.obs.columns:
+                raise ValueError(
+                    f"--xenium-dir-column '{dir_col}' not found in adata.obs"
+                )
+            slide_keys = adata.obs[dir_col].astype(str).to_numpy()
+            unknown = sorted(set(xenium_dirs) - set(slide_keys))
+            if unknown:
+                raise ValueError(
+                    f"--xenium-ranger-dir keys {unknown} are not values of "
+                    f"adata.obs['{dir_col}'] (e.g. {sorted(set(slide_keys))[:5]})"
+                )
+            missing = sorted(set(slide_keys) - set(xenium_dirs))
+            if missing:
+                logger.warning(
+                    f"No --xenium-ranger-dir for obs['{dir_col}'] values {missing}; "
+                    "their cells will not be drawn in spatial plots"
+                )
+        else:
+            slide_keys = None
 
         if args.xenium_cell_id_column:
             if args.xenium_cell_id_column not in adata.obs.columns:
@@ -576,19 +652,33 @@ def main():
             cell_ids = adata.obs_names.astype(str)
             id_source = "obs_names"
 
-        shapes = load_xenium_cell_shapes(args.xenium_ranger_dir)
-        cell_geoms, shape_matched = align_cell_shapes(shapes, cell_ids)
-        n_matched = int(shape_matched.sum())
-        if n_matched == 0:
-            raise ValueError(
-                f"None of the {adata.n_obs:,} cells in adata ({id_source}, e.g. "
-                f"{list(cell_ids[:3])}) match a Xenium cell_id (e.g. "
-                f"{list(shapes.index[:3])}); pass --xenium-cell-id-column"
+        cell_geoms = np.full(adata.n_obs, None, dtype=object)
+        shape_matched = np.zeros(adata.n_obs, dtype=bool)
+        cell_ids = np.asarray(cell_ids)
+        for key, xenium_dir in xenium_dirs.items():
+            # Align each slide's polygons only to that slide's cells: Xenium
+            # cell_ids are unique per slide, not across slides.
+            in_slide = (
+                np.ones(adata.n_obs, dtype=bool) if key is None else slide_keys == key
             )
-        logger.info(
-            f"Matched {n_matched:,}/{adata.n_obs:,} cells to Xenium boundary "
-            f"polygons via {id_source}"
-        )
+            shapes = load_xenium_cell_shapes(xenium_dir)
+            geoms, matched = align_cell_shapes(shapes, cell_ids[in_slide])
+            n_slide = int(in_slide.sum())
+            n_matched = int(matched.sum())
+            label = "" if key is None else f" for {key}"
+            if n_matched == 0:
+                raise ValueError(
+                    f"None of the {n_slide:,} cells in adata{label} ({id_source}, "
+                    f"e.g. {list(cell_ids[in_slide][:3])}) match a Xenium cell_id "
+                    f"(e.g. {list(shapes.index[:3])}); pass --xenium-cell-id-column"
+                )
+            cell_geoms[in_slide] = geoms
+            shape_matched[in_slide] = matched
+            logger.info(
+                f"Matched {n_matched:,}/{n_slide:,} cells{label} to Xenium "
+                f"boundary polygons via {id_source}"
+            )
+        n_matched = int(shape_matched.sum())
         if n_matched < adata.n_obs:
             logger.warning(
                 f"{adata.n_obs - n_matched:,} cells have no boundary polygon and "
