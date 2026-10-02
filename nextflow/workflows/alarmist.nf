@@ -63,10 +63,29 @@ workflow ALARMIST {
         .join(ALARMIST_BPTF.out.results)
         .join(ALARMIST_PROJECT.out.results)
         .join(ALARMIST_PATCHIFY.out.results)
-    ch_xenium_ranger_dir = params.xenium_ranger_dir
-        ? file(params.xenium_ranger_dir, checkIfExists: true)
-        : []
-    ALARMIST_VISUALIZE(ch_visualize_input, ch_xenium_ranger_dir)
+    // Xenium cell boundaries: either one dir (single slide) or KEY=DIR per
+    // slide, keyed on the values of params.xenium_dir_column
+    if (params.xenium_ranger_dir && params.xenium_ranger_dirs) {
+        error "Set only one of --xenium_ranger_dir and --xenium_ranger_dirs"
+    }
+    def xenium_keys = []
+    def xenium_dirs = []
+    if (params.xenium_ranger_dirs) {
+        if (!params.xenium_dir_column) {
+            error "--xenium_ranger_dirs requires --xenium_dir_column"
+        }
+        params.xenium_ranger_dirs.tokenize(',').each { entry ->
+            def parts = entry.trim().split('=', 2)
+            if (parts.size() != 2 || !parts[0] || !parts[1]) {
+                error "--xenium_ranger_dirs entry '${entry}' is not KEY=DIR"
+            }
+            xenium_keys << parts[0]
+            xenium_dirs << file(parts[1], checkIfExists: true)
+        }
+    } else if (params.xenium_ranger_dir) {
+        xenium_dirs = [file(params.xenium_ranger_dir, checkIfExists: true)]
+    }
+    ALARMIST_VISUALIZE(ch_visualize_input, xenium_keys, xenium_dirs)
     ch_versions = ch_versions.mix(ALARMIST_VISUALIZE.out.versions.first())
 
     // Collect visualize plots for MultiQC

@@ -86,13 +86,25 @@ def test_draw_cell_shapes_per_cell_facecolors():
     plt.close(fig)
 
 
-def _run_visualize(monkeypatch, tmp_path, adata, shapes, extra_args=()):
+def _run_visualize(
+    monkeypatch,
+    tmp_path,
+    adata,
+    shapes,
+    extra_args=(),
+    shape_loader=None,
+    xenium_dir=None,
+):
     project_dir = tmp_path / "project"
     project_dir.mkdir()
     adata.write_h5ad(project_dir / "projected_adata.h5ad")
     out_dir = tmp_path / "plots"
 
-    monkeypatch.setattr(cell_shapes, "load_xenium_cell_shapes", lambda _dir: shapes)
+    monkeypatch.setattr(
+        cell_shapes,
+        "load_xenium_cell_shapes",
+        shape_loader or (lambda _dir: shapes),
+    )
     n_motifs = adata.obsm["cell_motif_loadings"].shape[1]
     monkeypatch.setattr(
         "alarmist.load_bptf_results",
@@ -125,7 +137,7 @@ def _run_visualize(monkeypatch, tmp_path, adata, shapes, extra_args=()):
             "spatial",
             "motif_states",
             "--xenium-ranger-dir",
-            str(tmp_path / "xenium"),
+            xenium_dir or str(tmp_path / "xenium"),
             *extra_args,
         ],
     )
@@ -173,3 +185,75 @@ def test_visualize_rejects_multiple_samples(monkeypatch, tmp_path, adata_merged)
     adata_merged.obsm["cell_motif_loadings"] = np.ones((adata_merged.n_obs, 3))
     with pytest.raises(ValueError, match="single Xenium Ranger output"):
         _run_visualize(monkeypatch, tmp_path, adata_merged, _shapes_for(adata_merged))
+
+
+def _merged_two_slides(adata_merged):
+    """Merged adata whose two slides reuse the same Xenium cell_ids."""
+    adata = adata_merged
+    adata.obsm["cell_motif_loadings"] = np.ones((adata.n_obs, 3))
+    adata.obs["slide"] = adata.obs["sample_id"].astype(str)
+    # cell_ids restart per slide, so they collide across slides
+    adata.obs["xenium_id"] = (
+        adata.obs.groupby("slide", observed=True).cumcount().map("cell{:05d}-1".format)
+    )
+    shapes = {}
+    for slide in ("S1", "S2"):
+        sub = adata[adata.obs["slide"] == slide]
+        s = _shapes_for(sub)
+        s.index = sub.obs["xenium_id"].to_numpy()
+        shapes[f"/xenium/{slide}"] = s
+    return adata, shapes
+
+
+def test_visualize_draws_polygons_per_slide(
+    monkeypatch, tmp_path, adata_merged, caplog
+):
+    adata, shapes = _merged_two_slides(adata_merged)
+    caplog.set_level("INFO")
+    out_dir, drawn = _run_visualize(
+        monkeypatch,
+        tmp_path,
+        adata,
+        None,
+        extra_args=[
+            "--xenium-ranger-dir",
+            "S2=/xenium/S2",
+            "--xenium-dir-column",
+            "slide",
+            "--xenium-cell-id-column",
+            "xenium_id",
+        ],
+        shape_loader=shapes.__getitem__,
+        xenium_dir="S1=/xenium/S1",
+    )
+    for slide in ("S1", "S2"):
+        assert (out_dir / f"spatial_celltypes_{slide}_mqc.png").exists()
+    assert "Matched 200/200 cells for S1" in caplog.text
+    assert "Matched 150/150 cells for S2" in caplog.text
+    # Colliding cell_ids must pair with their own slide's polygons
+    assert "Median polygon-centroid to obsm['spatial'] distance: 0.00" in caplog.text
+    assert drawn and all(isinstance(c, PolyCollection) for c in drawn)
+    # Per slide: 1 cell-type map + 3 loading maps + 3 motifs × (OFF, ON)
+    assert len(drawn) == 2 * (1 + 3 + 3 * 2)
+
+
+def test_visualize_rejects_unknown_slide_key(monkeypatch, tmp_path, adata_merged):
+    adata, shapes = _merged_two_slides(adata_merged)
+    with pytest.raises(ValueError, match="not values of"):
+        _run_visualize(
+            monkeypatch,
+            tmp_path,
+            adata,
+            None,
+            extra_args=["--xenium-dir-column", "slide"],
+            shape_loader=shapes.__getitem__,
+            xenium_dir="S9=/xenium/S1",
+        )
+
+
+def test_parse_xenium_dirs():
+    assert visualize._parse_xenium_dirs(["/a"]) == {None: "/a"}
+    assert visualize._parse_xenium_dirs(["A=/a", "B=/b"]) == {"A": "/a", "B": "/b"}
+    for bad in (["/a", "B=/b"], ["/a", "/b"], ["A=/a", "A=/b"], ["=/a"]):
+        with pytest.raises(ValueError):
+            visualize._parse_xenium_dirs(bad)

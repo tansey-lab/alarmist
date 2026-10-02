@@ -125,8 +125,19 @@
                     "type": "string",
                     "format": "directory-path",
                     "exists": true,
-                    "description": "Xenium Ranger output directory. If set, visualize draws cells as their segmented boundary polygons instead of points. Single-sample only. Cells are matched on adata.obs_names (override with --xenium-cell-id-column via ext.args).",
+                    "description": "Xenium Ranger output directory. If set, visualize draws cells as their segmented boundary polygons instead of points. Single-slide only; for data merged from several slides use --xenium_ranger_dirs. Cells are matched on adata.obs_names (override with --xenium-cell-id-column via ext.args).",
                     "fa_icon": "fas fa-draw-polygon"
+                },
+                "xenium_ranger_dirs": {
+                    "type": "string",
+                    "pattern": "^[^=,]+=[^,]+(,[^=,]+=[^,]+)*$",
+                    "description": "Comma-separated KEY=DIR list of Xenium Ranger output directories, one per slide, for data merged from several slides. KEY is a value of --xenium_dir_column; each cell is matched to the polygons of its own slide.",
+                    "fa_icon": "fas fa-draw-polygon"
+                },
+                "xenium_dir_column": {
+                    "type": "string",
+                    "description": "Column in adata.obs naming each cell's slide (the KEYs of --xenium_ranger_dirs).",
+                    "fa_icon": "fas fa-columns"
                 },
                 "n_components": {
                     "type": "integer",

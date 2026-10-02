@@ -8,7 +8,8 @@ process ALARMIST_VISUALIZE {
 
     input:
     tuple val(meta), path(glm_results), path(bptf_results), path(project_results), path(patchify_results)
-    path xenium_ranger_dir
+    val  xenium_keys
+    path xenium_dirs
 
     output:
     tuple val(meta), path("${prefix}"), emit: results
@@ -20,7 +21,14 @@ process ALARMIST_VISUALIZE {
     script:
     def args = task.ext.args ?: ''
     def sample_args = params.sample_column ? "--sample-column ${params.sample_column}" : ''
-    def xenium_args = xenium_ranger_dir ? "--xenium-ranger-dir ${xenium_ranger_dir}" : ''
+    def dirs = xenium_dirs ? (xenium_dirs instanceof Collection ? xenium_dirs as List : [xenium_dirs]) : []
+    def xenium_args = ''
+    if (xenium_keys) {
+        xenium_args = "--xenium-dir-column ${params.xenium_dir_column} " +
+            [xenium_keys, dirs].transpose().collect { k, d -> "--xenium-ranger-dir ${k}=${d}" }.join(' ')
+    } else if (dirs) {
+        xenium_args = "--xenium-ranger-dir ${dirs[0]}"
+    }
     prefix = task.ext.prefix ?: "${meta.id}_visualize"
     """
     alarmist-visualize \\
