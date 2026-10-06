@@ -116,7 +116,15 @@ target-version = "py310"
 # cross-cell redefinitions, exploratory unused names, and a name defined in an earlier
 # cell (F821 `pivot`). Rewriting a researcher's notebook to silence those would change
 # their code without improving it.
-extend-exclude = ["notebooks", "tutorials", "scripts/comparators"]
+# `scripts/research` is the same category, under the same CLAUDE.md rule: one-off analysis
+# written per dataset, kept so a figure can be regenerated and audited as it was run. It was
+# never linted because it was never tracked; the first tracked part of it (luad_revision, the
+# AIS->LUAD per-vessel work) brought 103 findings, 48 of them E702 for the one-line
+# `x = ...; y = ...` style these scripts use throughout, plus a `ruff format` pass over 21
+# files. Reformatting them would rewrite hand-laid plotting code without changing what it
+# does, and would break the correspondence between a figure in the paper and the script that
+# drew it. Everything outside this path stays linted: `ruff check .` is clean without it.
+extend-exclude = ["notebooks", "tutorials", "scripts/comparators", "scripts/research"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
