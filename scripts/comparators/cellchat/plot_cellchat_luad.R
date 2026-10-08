@@ -4,7 +4,7 @@
 #   plot_cellchat.R
 # Regenerate with: bash scripts/comparators/_common/make_luad_variants.sh
 # Substitutions applied: REQUESTED_LR -> character(0); dataset -> "LUAD".
-# Source sha256 at generation time: bc26c7bef558b7034730ca1e3e3fb1159001c8c6dea0cafc4b708ace0a12fac7 85258334a51539b6c44de81ef6e3a8057b7628399348943a526268aba421ccce 
+# Source sha256 at generation time: 35d9ae18c2c4c34ec0b7bdbb361399afe1c6761b34ab094326648fdae87af178 85258334a51539b6c44de81ef6e3a8057b7628399348943a526268aba421ccce 
 # ------------------------------------------------------------------------------------
 #!/usr/bin/env Rscript
 # plot_cellchat.R -- NOTES.md stages E (per-condition visualization) and F (high-vs-low
@@ -46,7 +46,7 @@ log <- function(...) {
   cat(msg, "\n"); cat(msg, "\n", file = log_file, append = TRUE)
 }
 P <- function(...) file.path(out_dir, "plots", ...)
-REQUESTED_LR <- character(0)   # LUAD: no requested LRIs (ANXA1 is not on this panel)
+REQUESTED_LR <- character(0)   # LUAD: the LGG motif-1 pair is not a hypothesis here. Do NOT repoint.
 dropped <- character(0)   # anything we deliberately do not draw gets recorded, never silent
 
 # Wrap the saver so a plot that ERRORS is recorded too, not merely logged. Without this a

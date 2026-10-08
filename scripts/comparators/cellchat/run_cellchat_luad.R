@@ -4,7 +4,7 @@
 #   run_cellchat.R
 # Regenerate with: bash scripts/comparators/_common/make_luad_variants.sh
 # Substitutions applied: REQUESTED_LR -> character(0); dataset -> "LUAD".
-# Source sha256 at generation time: bc26c7bef558b7034730ca1e3e3fb1159001c8c6dea0cafc4b708ace0a12fac7 85258334a51539b6c44de81ef6e3a8057b7628399348943a526268aba421ccce 
+# Source sha256 at generation time: 35d9ae18c2c4c34ec0b7bdbb361399afe1c6761b34ab094326648fdae87af178 85258334a51539b6c44de81ef6e3a8057b7628399348943a526268aba421ccce 
 # ------------------------------------------------------------------------------------
 #!/usr/bin/env Rscript
 # run_cellchat.R -- CellChat inference (NOTES.md stages A-D + centrality), one object per
@@ -51,7 +51,18 @@ trim              <- as.numeric(getarg("--trim", "0.1"))
 nboot             <- as.numeric(getarg("--nboot", "100"))
 seed              <- as.numeric(getarg("--seed", "1"))
 workers           <- as.numeric(getarg("--workers", "4"))
+plan_arg          <- getarg("--plan", "multisession")   # multisession | multicore | sequential
 min_cells         <- as.numeric(getarg("--min-cells", "10"))
+# RESUME. Added 2026-08-20. Default FALSE => behaviour is byte-identical to before.
+# The loop at the bottom of this file has no skip logic: it recomputes every condition named
+# by --conditions and overwrites its outputs. That is correct for a clean run and destructive
+# for a resume -- the 2026-08-20 LUAD run completed AIS in 2166.7 s and was then OOM-killed
+# inside the LUAD condition, so a naive re-run would have thrown the good AIS away. With
+# --reuse-existing TRUE a condition whose objects/<cond>.rds already exists is LOADED instead
+# of recomputed, which also keeps run_manifest.json complete (it is written once, after the
+# loop, from every element of `results`). Everything about a reused condition is recomputed
+# FROM the saved object -- nothing is copied out of a previous manifest.
+reuse_existing    <- as_logical_arg(getarg("--reuse-existing", "FALSE"))
 
 stopifnot(!is.null(input_dir), !is.null(out_dir))
 stopifnot(tier %in% c("default", "cellchatdb2"))
@@ -81,7 +92,7 @@ log("DB tier '", tier, "': ", nrow(CellChatDB.use$interaction), " interactions, 
     length(unique(CellChatDB.use$interaction$pathway_name)), " pathways; categories: ",
     paste(sort(unique(CellChatDB.use$interaction$annotation)), collapse = ", "))
 
-REQUESTED_LR <- character(0)   # LUAD: no requested LRIs (ANXA1 is not on this panel)
+REQUESTED_LR <- character(0)   # LUAD: the LGG motif-1 pair is not a hypothesis here. Do NOT repoint.
 log("requested LRIs in this tier: ",
     paste(sprintf("%s=%s", REQUESTED_LR, REQUESTED_LR %in% CellChatDB.use$interaction$interaction_name),
           collapse = ", "))
@@ -133,8 +144,55 @@ read_condition <- function(cond) {
   list(data.input = data.input, meta = meta.cc, coords = coords, spatial.factors = spatial.factors)
 }
 
+# Where do the requested LRIs land? Lifted verbatim out of run_condition on 2026-08-20 so
+# that the --reuse-existing path can produce the identical table from a loaded object. It
+# reads only slots that survive saveRDS, so a reused condition and a freshly computed one
+# give the same answer.
+requested_lr_status <- function(cellchat, cond) {
+  df.net <- tryCatch(subsetCommunication(cellchat), error = function(e) NULL)
+  do.call(rbind, lapply(REQUESTED_LR, function(lr) {
+    in_db   <- lr %in% CellChatDB.use$interaction$interaction_name
+    in_test <- lr %in% cellchat@LR$LRsig$interaction_name
+    hits    <- if (!is.null(df.net)) df.net[df.net$interaction_name == lr, , drop = FALSE] else NULL
+    data.frame(condition = cond, interaction_name = lr, in_db = in_db,
+               tested = in_test, n_significant_pairs = if (is.null(hits)) 0L else nrow(hits),
+               max_prob = if (is.null(hits) || nrow(hits) == 0) NA_real_ else max(hits$prob),
+               stringsAsFactors = FALSE)
+  }))
+}
+
 run_condition <- function(cond) {
   t0 <- Sys.time()
+
+  # ---- resume: load a completed condition instead of recomputing it -------------------
+  rds_path <- file.path(out_dir, "objects", sprintf("%s.rds", cond))
+  if (reuse_existing && file.exists(rds_path)) {
+    log(cond, ": --reuse-existing -> loading ", rds_path, " (NOT recomputing)")
+    cellchat <- readRDS(rds_path)
+    stopifnot(inherits(cellchat, "CellChat"))
+    # d.obs below omits inp$spatial.factors$ratio, which saveRDS does not keep on the object
+    # (@images$scale.factors is NULL). For this dataset 04_cellchat.sh passes --ratio 1.0
+    # (coordinates already in microns) so the two agree; on a dataset with ratio != 1 the
+    # reused d_obs would be in native units. It is a reported sanity check, not an input to
+    # any model -- nothing downstream consumes it.
+    d.obs <- tryCatch({
+      knn <- BiocNeighbors::findKNN(as.matrix(cellchat@images$coordinates), k = 1,
+                                    BNPARAM = BiocNeighbors::KmknnParam(), get.index = FALSE)
+      min(knn$distance[, 1])
+    }, error = function(e) NA_real_)
+    # save_rds = FALSE: we just read this file. Rewriting it buys nothing and a kill during
+    # the re-serialisation would destroy the very condition we are resuming around.
+    stats <- save_cellchat_quant(cellchat, cond, out_dir, log = log, save_rds = FALSE)
+    req   <- requested_lr_status(cellchat, cond)
+    log(cond, ": reused ", nrow(cellchat@meta), " cells, ",
+        nrow(cellchat@LR$LRsig), " LR pairs tested, ",
+        nlevels(cellchat@meta$samples), " samples")
+    return(list(object = cellchat, stats = stats, wall = NA_real_, req = req,
+                scale_distance = cellchat@options$parameter$scale.distance,
+                d_obs = d.obs, n_cells = nrow(cellchat@meta),
+                n_samples = nlevels(cellchat@meta$samples), reused = TRUE))
+  }
+
   inp <- read_condition(cond)
   log(cond, ": ", ncol(inp$data.input), " cells x ", nrow(inp$data.input), " genes, ",
       nlevels(inp$meta$samples), " samples, ", nlevels(inp$meta$labels), " cell types")
@@ -159,7 +217,82 @@ run_condition <- function(cond) {
 
   # Stage C
   cellchat <- subsetData(cellchat)                                          # C1
-  future::plan("multisession", workers = workers)                           # C2
+  # C2 -- the tutorial's call is future::plan("multisession", workers = 4) (NOTES.md:92).
+  # DEFAULT IS UNCHANGED. `--plan multicore` is an opt-in added 2026-08-19 after the LUAD run
+  # was OOM-killed at MaxRSS 192.0 GiB against --mem=192G (SLURM job 9051862, oom_kill event).
+  #
+  # WHY multicore, and why it cannot change a single number:
+  #   computeCommunProb calls future_sapply INSIDE the per-LR-pair loop (deparse line 214,
+  #   loop closes at 271), i.e. ONCE PER LR PAIR -- 709 times for LUAD/AIS. With multisession
+  #   every one of those 709 calls serialises the globals to all 4 PSOCK workers; future's own
+  #   error named the payload: "the 11 globals exported is 2.81 GiB ... data.use (2.63 GiB)".
+  #   data.use is nSignalingGenes x nCells dense: 2.6 GiB for AIS (475,240 cells) and 6.6 GiB
+  #   for LUAD (1,200,922). fork/multicore is copy-on-write, so nothing is serialised at all.
+  #   This is a mechanism deviation, not a modelling one. Declare it as such.
+  #
+  # WHY THE BACKEND CANNOT CHANGE A NUMBER. Full write-up in cellchat/DEVIATIONS.md D-9/D-10;
+  # the short version, all MEASURED 2026-08-20:
+  #   1. THE ONLY RNG IN computeCommunProb IS IN THE PARENT. deparse 158-159:
+  #        set.seed(seed.use); permutation <- replicate(nboot, sample.int(nC, size = nC))
+  #      above BOTH my.sapply calls (line 160, once per condition; line 214, once per LR pair).
+  #      Both bodies only INDEX it: group[permutation[, nE]].
+  #   2. NO RNG IS REACHABLE FROM A WORKER. A namespace-wide grep finds RNG only in
+  #      computeCommunProb itself and in computeEnrichmentScore / netAnalysis_contribution /
+  #      netVisual* / runPCA / runUMAP. computeExpr_LR, computeExpr_complex,
+  #      computeExpr_coreceptor, computeExpr_agonist, computeExpr_antagonist, triMean,
+  #      thresholdedMean, computeRegionDistance -- everything the two bodies call -- have none.
+  #   3. THE TEST CAN FAIL, so passing it means something: future_sapply(1:8, \(i) runif(1))
+  #      returns three DIFFERENT vectors under sequential / multicore / multisession, and
+  #      formals(future_sapply)$future.seed is NULL, i.e. future actively detects and warns.
+  #   4. NO BLAS CHANNEL EITHER: every crossprod in either body has inner dimension k = 1
+  #      (matrix(x, nrow = 1), deparse 169-170 and 227) -- a rank-1 outer product, no
+  #      accumulation, so no reduction order to permute. Plus OMP/OPENBLAS/MKL_NUM_THREADS=1.
+  #   5. END TO END on a real 4,200-cell / 6-group / 104-LR-pair CellChat object at the
+  #      runner's own nboot = 100: sequential vs multisession vs multicore give
+  #      identical() == TRUE and max |difference| == 0 for BOTH net$prob and net$pval, in all
+  #      three pairwise comparisons. (Coverage caveat: those 104 pairs are all simple Secreted
+  #      Signaling, so the agonist / antagonist / co-receptor branches and the contact
+  #      P.spatial mutation are covered by 1/2/4 above rather than by the measurement.)
+  #
+  # THE SCARY WARNING IS NOT ABOUT THIS FUNCTION. Every run, under every plan, emits per
+  # condition: "UNRELIABLE VALUE: One of the 'future.apply' iterations ... unexpectedly
+  # generated random numbers ... results might be invalid". Per-stage instrumentation puts
+  # ZERO of those inside computeCommunProb. All 4 come from netAnalysis_computeCentrality,
+  # which has its OWN my.sapply called once per condition, and the single RNG consumer is
+  # CellChat:::computeCentralityLocal deparse line 12,
+  #     centr$eigen <- igraph::eigen_centrality(G)$vector
+  # i.e. ARPACK with a random start vector. It shifts centr$eigen by ~3e-14 and NOTHING reads
+  # centr$eigen -- cellchat_io.R:89-92 exports only outdeg/indeg/flowbet/info, plot_cellchat.R
+  # never mentions it, and netClustering's `eigen` is base R eigen() on a different matrix.
+  # The warning is also present in the macOS/multisession GBM logs, so it did not arrive with
+  # this port. Do NOT set future.rng.onMisuse = "ignore": it is the authors' own diagnostic and
+  # silencing it would hide a real change if CellChat ever grows one. Point readers at D-10.
+  #
+  #   workers <= 1 takes an even quieter path: CellChat does
+  #     my.sapply <- ifelse(nbrOfWorkers() == 1, sapply, future.apply::future_sapply)
+  #   (deparse lines 35-36), so a single worker bypasses `future` ENTIRELY -- no export, no
+  #   fork, no serialisation. That is the zero-risk fallback if multicore misbehaves.
+  #
+  # HAZARD: forking a process that already has live OpenMP/BLAS threads can deadlock. Export
+  # OMP_NUM_THREADS=1 before starting R when using multicore; 04_cellchat.sh does.
+  plan_used <- local({
+    if (!is.finite(workers) || workers <= 1) {
+      future::plan("sequential")
+      return("sequential (workers<=1: CellChat's my.sapply becomes plain sapply; future bypassed)")
+    }
+    if (identical(plan_arg, "multicore")) {
+      if (isTRUE(parallelly::supportsMulticore())) {
+        future::plan("multicore", workers = workers)
+        return(paste0("multicore, workers=", workers, " (fork; globals are NOT serialised)"))
+      }
+      future::plan("multisession", workers = workers)
+      return(paste0("multisession, workers=", workers,
+                    " (multicore requested but parallelly::supportsMulticore() is FALSE)"))
+    }
+    future::plan(plan_arg, workers = workers)
+    paste0(plan_arg, ", workers=", workers)
+  })
+  log(cond, ": future plan -> ", plan_used)
   cellchat <- identifyOverExpressedGenes(cellchat)                          # C3
   cellchat <- identifyOverExpressedInteractions(cellchat)                   # C4 (variable.both=TRUE)
   log(cond, ": ", nrow(cellchat@data.signaling), " signaling genes on the panel; ",
@@ -208,20 +341,11 @@ run_condition <- function(cond) {
   wall <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
   log(cond, ": done in ", round(wall, 1), " s")
 
-  # where do the requested LRIs land?
-  df.net <- tryCatch(subsetCommunication(cellchat), error = function(e) NULL)
-  req <- do.call(rbind, lapply(REQUESTED_LR, function(lr) {
-    in_db   <- lr %in% CellChatDB.use$interaction$interaction_name
-    in_test <- lr %in% cellchat@LR$LRsig$interaction_name
-    hits    <- if (!is.null(df.net)) df.net[df.net$interaction_name == lr, , drop = FALSE] else NULL
-    data.frame(condition = cond, interaction_name = lr, in_db = in_db,
-               tested = in_test, n_significant_pairs = if (is.null(hits)) 0L else nrow(hits),
-               max_prob = if (is.null(hits) || nrow(hits) == 0) NA_real_ else max(hits$prob),
-               stringsAsFactors = FALSE)
-  }))
+  req <- requested_lr_status(cellchat, cond)
   list(object = cellchat, stats = stats, wall = wall, req = req,
        scale_distance = scale_distance, d_obs = d.obs,
-       n_cells = ncol(inp$data.input), n_samples = nlevels(inp$meta$samples))
+       n_cells = ncol(inp$data.input), n_samples = nlevels(inp$meta$samples),
+       reused = FALSE)
 }
 
 results <- list()
@@ -262,7 +386,10 @@ manifest <- list(
     list(condition = k, n_cells = r$n_cells, n_samples = r$n_samples,
          n_celltypes = r$stats$n_celltypes, n_lr_tested = r$stats$n_lr_tested,
          n_significant_links = r$stats$n_significant, n_pathways = r$stats$n_pathways,
-         observed_min_cell_distance_um = r$d_obs, wall_seconds = round(r$wall, 1))
+         observed_min_cell_distance_um = r$d_obs, wall_seconds = round(r$wall, 1),
+         # TRUE => loaded from objects/<cond>.rds by --reuse-existing, not recomputed in
+         # this process. wall_seconds is then NA: the figure belongs to the earlier run.
+         reused = isTRUE(r$reused))
   }),
   # gc()'s LAST column is the "max used" figure in Mb. Index it positionally from the right:
   # this R adds a "limit (Mb)" column, so a hardcoded index 6 lands on the raw object count.

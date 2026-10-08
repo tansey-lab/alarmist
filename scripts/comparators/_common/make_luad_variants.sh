@@ -58,7 +58,7 @@ EOF
 {
     banner "run_cellchat.R"
     sed \
-      -e 's/^REQUESTED_LR <- c("GRN_SORT1", "ANXA1_FPR1")$/REQUESTED_LR <- character(0)   # LUAD: no requested LRIs (ANXA1 is not on this panel)/' \
+      -e 's/^REQUESTED_LR <- c("GRN_SORT1", "ANXA1_FPR1")$/REQUESTED_LR <- character(0)   # LUAD: the LGG motif-1 pair is not a hypothesis here. Do NOT repoint./' \
       -e 's/dataset = "GBM"/dataset = "LUAD"/' \
       "$RUN_SRC"
 } > "$RUN_DST"
@@ -67,7 +67,7 @@ EOF
 {
     banner "plot_cellchat.R"
     sed \
-      -e 's/^REQUESTED_LR <- c("GRN_SORT1", "ANXA1_FPR1")$/REQUESTED_LR <- character(0)   # LUAD: no requested LRIs (ANXA1 is not on this panel)/' \
+      -e 's/^REQUESTED_LR <- c("GRN_SORT1", "ANXA1_FPR1")$/REQUESTED_LR <- character(0)   # LUAD: the LGG motif-1 pair is not a hypothesis here. Do NOT repoint./' \
       -e 's|^#   plots/requested_lr/  -- always GRN_SORT1 and ANXA1_FPR1, whatever their rank|#   plots/requested_lr/  -- EMPTY on LUAD: no requested LRIs were named for this dataset|' \
       "$PLOT_SRC"
 } > "$PLOT_DST"

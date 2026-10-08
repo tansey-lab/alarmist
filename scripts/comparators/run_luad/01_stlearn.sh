@@ -29,13 +29,70 @@ require_prep
 
 banner "stLearn — 4 per-section runs"
 
-SECS="${*:-}"
-SECS="$(echo "$SECS" | tr ' ' '\n' | grep -v '^--' | tr '\n' ' ')"
+# Optional positional SECTION args; any flag (--dry-run, -n) is not a section.
+# NB: the obvious `echo "$*" | grep -v '^--'` cannot be used here. Under `set -o pipefail`
+# (line 23) a grep that filters EVERY line exits 1, the whole pipeline inherits that, and
+# `set -e` then kills the script silently right after the banner -- which is exactly what
+# `01_stlearn.sh --dry-run` did (fixed 2026-08-17). A plain loop has no such hazard, and it
+# also drops `-n`, which the grep form would have passed through as a section name.
+# --skip-run does only the export/plot tail, for sections whose run_stlearn.py already
+# finished. Added 2026-08-18: the ArrowStringArray crash killed the script inside the FIRST
+# loop, so the second loop never ran for the section that had already completed, and re-running
+# it wholesale would redo a ~3.8 h fit and overwrite good output.
+SKIP_RUN=0
+SECS=""
+for _arg in "$@"; do
+    case "$_arg" in
+        --skip-run) SKIP_RUN=1 ;;
+        -*) ;;                          # a flag, already handled by _lib.sh
+        *)  SECS="$SECS $_arg" ;;
+    esac
+done
 [ -z "${SECS// /}" ] && SECS="$LUAD_SECTIONS"
 
 ST_LRS="$LUAD_RESULTS_DIR/stlearn/LUAD/cellchatdb2_lrs.txt"
 
+# --n-cpus MUST be passed. stLearn's grid(), run() and run_cci() all do
+#     if n_cpus is not None: numba.set_num_threads(n_cpus)
+#     else:                  numba.set_num_threads(os.cpu_count())
+# (analysis.py:112-115, :280-283, :619-622). os.cpu_count() reports the NODE's core count --
+# 56 on isca* -- while numba's ceiling is the cgroup affinity, i.e. --cpus-per-task. So the
+# default path raises
+#     ValueError: The number of threads must be between 1 and <cpus-per-task>
+# the moment gridding starts. This CANNOT be fixed by asking for more CPUs: componc_cpu's
+# MaxCPUsPerNode is 52 and the nodes have 56 cores, so os.cpu_count() is unreachable by
+# construction. Passing n_cpus is the authors' own documented parameter, not a workaround.
+#
+# The default is 1, deliberately, for two reasons:
+#   1. It is what the GBM runs used. run_stlearn.py:40-46 pins the thread caps to 1 only on
+#      Darwin, and those runs were on the Mac with no --n-cpus, so they were single-threaded.
+#      The runbook's "1.5-4 h per section" is that single-thread measurement.
+#   2. run_cci's permutation p-values are THREAD-COUNT DEPENDENT. het.py:157-200 draws
+#      np.random.choice inside a `prange(n_perms)` loop after np.random.seed(seed); under
+#      numba each thread carries its own RNG state, so the realised permutations change with
+#      the thread count. random_state alone does not pin the result -- n_cpus is part of it.
+# Raise it with LUAD_STLEARN_NCPUS=<n> if you want the speed and accept that the run_cci
+# p-values will not match a 1-thread run. Keep it the SAME for all four sections either way.
+STLEARN_NCPUS="${LUAD_STLEARN_NCPUS:-1}"
+_avail=$(nproc)          # affinity-aware, i.e. what the cgroup actually grants
+if [ "$STLEARN_NCPUS" -gt "$_avail" ]; then
+    echo "ERROR: LUAD_STLEARN_NCPUS=$STLEARN_NCPUS but only $_avail CPUs are visible here."
+    echo "       numba would raise 'number of threads must be between 1 and $_avail'."
+    echo "       Either lower it or request --cpus-per-task $STLEARN_NCPUS."
+    exit 1
+fi
+echo "  n_cpus   $STLEARN_NCPUS  (of $_avail visible; recorded in each run_manifest.json)"
+
+if [ "$SKIP_RUN" = "1" ]; then
+    for S in $SECS; do
+        M="$LUAD_RESULTS_DIR/stlearn/LUAD/$LUAD_TIER/$S/run_manifest.json"
+        [ -f "$M" ] || { echo "ERROR: --skip-run given but $M is missing -- $S never completed."; exit 1; }
+    done
+    step "skipping run_stlearn.py (--skip-run); run_manifest.json verified for:$SECS"
+fi
+
 for S in $SECS; do
+    [ "$SKIP_RUN" = "1" ] && continue
     NC=$(prep_json "[s for s in m['sections'] if s['section']=='$S'][0]['stlearn_grid']['n_col']")
     NR=$(prep_json "[s for s in m['sections'] if s['section']=='$S'][0]['stlearn_grid']['n_row']")
     step "stLearn $S   (grid ${NC} x ${NR})"
@@ -46,6 +103,7 @@ for S in $SECS; do
         --count-layer   counts \
         --lrs           "$ST_LRS" \
         --n-col "$NC" --n-row "$NR" \
+        --n-cpus "$STLEARN_NCPUS" \
         --distance 250 --n-pairs 10000 --n-perms 1000 --min-spots 20 \
         --seed "$LUAD_SEED" \
         --requested-lrs ""

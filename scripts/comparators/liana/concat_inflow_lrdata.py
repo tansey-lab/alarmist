@@ -103,10 +103,43 @@ def main():
     union = set.union(*feat_sets)
     log(f"features: union {len(union)}, intersection {len(inter)}, join={a.join}")
 
+    # pairwise=True is REQUIRED, not a nicety. anndata drops obsp by default, and
+    # run_mofaflex.py:369 calls sq.gr.spatial_autocorr, which hard-errors with
+    #   KeyError: Spatial connectivity key `spatial_connectivities` not found in `adata.obsp`
+    # the moment the SVI filter runs. Each part carries the li.ut.spatial_neighbors graph
+    # run_inflow.py:76 built over that section alone; pairwise=True stacks them BLOCK
+    # DIAGONALLY, which is exactly the right joint graph -- every edge stays inside its own
+    # section, so no neighbour is ever fabricated between two patients. Rebuilding the graph
+    # on the post-expand_coordinates coordinates would give the same thing (the expansion is
+    # a rigid per-sample translation and the sections end up ~3,300 um apart against a
+    # support radius of bandwidth*sqrt(-2*ln(cutoff)) ~= 28 um), so this preserves rather
+    # than approximates. Verified below by nnz bookkeeping, not assumed.
+    nnz_parts = [int(x.obsp["spatial_connectivities"].nnz)
+                 if "spatial_connectivities" in x.obsp else None for x in parts]
+    if any(n is None for n in nnz_parts):
+        raise SystemExit("STOP: a part has no obsp['spatial_connectivities'] -- run_inflow.py "
+                         "must have been changed. Refusing to write a graph-less joint object.")
+
     joint = ad.concat(parts, axis=0, join=a.join, index_unique=None, merge="first",
-                      uns_merge="first")
+                      uns_merge="first", pairwise=True)
     log(f"concatenated: {joint.shape[0]} cells x {joint.shape[1]} features")
     assert joint.obs_names.is_unique, "obs_names collided; prepped ids should be prefixed"
+
+    # ---- prove the joint graph is exactly the four per-section graphs, block diagonal ----
+    W = joint.obsp["spatial_connectivities"].tocsr()
+    if W.nnz != sum(nnz_parts):
+        raise SystemExit(f"STOP: joint graph has {W.nnz} edges, parts sum to {sum(nnz_parts)}. "
+                         "Edges were created or lost by the concatenation.")
+    off = 0
+    for x, n in zip(parts, nnz_parts):
+        blk = W[off:off + x.n_obs]
+        if blk.nnz and (blk.indices.min() < off or blk.indices.max() >= off + x.n_obs):
+            raise SystemExit(f"STOP: rows [{off},{off + x.n_obs}) have edges outside their own "
+                             "section -- the graph is not block diagonal.")
+        off += x.n_obs
+    log(f"obsp['spatial_connectivities']: {W.nnz:,} nnz, block diagonal, "
+        f"per-section {nnz_parts} (no cross-section edges)")
+    del W
 
     # Make sample a proper categorical in section order so expand_coordinates lays the grid
     # out deterministically.
@@ -158,6 +191,14 @@ def main():
         "n_features_used": int(joint.shape[1]),
         "features_dropped": sorted(union - inter) if a.join == "inner" else [],
         "n_cells": int(joint.shape[0]),
+        "obsp_spatial_connectivities": {
+            "carried_via": "anndata.concat(pairwise=True)",
+            "structure": "block diagonal, one block per section, no cross-section edges",
+            "nnz_per_section": dict(zip(order, nnz_parts)),
+            "nnz_joint": int(sum(nnz_parts)),
+            "why": ("run_mofaflex.py's SVI filter calls sq.gr.spatial_autocorr, which requires "
+                    "obsp['spatial_connectivities']; anndata drops obsp unless pairwise=True."),
+        },
         "expand_coordinates": {"function": "liana.utils.expand_coordinates",
                                "sample_key": a.sample_key, "n_cols": a.n_cols,
                                "margin": a.margin,

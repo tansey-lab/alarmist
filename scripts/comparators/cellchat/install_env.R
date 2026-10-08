@@ -16,7 +16,17 @@
 #   source scripts/comparators/cellchat/activate_env.sh
 #   Rscript scripts/comparators/cellchat/install_env.R [--cellchat-src /path/to/CellChat]
 SNAPSHOT <- "https://packagemanager.posit.co/cran/2024-06-01"
-options(repos = c(CRAN = SNAPSHOT), Ncpus = max(1, parallel::detectCores() - 2))
+# Ncpus: parallel::detectCores() reads the MACHINE, not the cgroup, so on a SLURM node it
+# returns 56 and this would launch 54 concurrent package builds inside an 8-CPU allocation --
+# each spawning its own gcc. Same class of bug as stLearn's os.cpu_count() (see
+# stlearn/DEVIATIONS.md). Prefer an explicit CELLCHAT_NCPUS, then SLURM's own answer, and only
+# fall back to the original expression off-cluster. Performance and memory only; no package
+# version is affected.
+.ncpus <- suppressWarnings(as.integer(Sys.getenv("CELLCHAT_NCPUS", "")))
+if (is.na(.ncpus) || .ncpus < 1)
+  .ncpus <- suppressWarnings(as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", "")))
+if (is.na(.ncpus) || .ncpus < 1) .ncpus <- max(1, parallel::detectCores() - 2)
+options(repos = c(CRAN = SNAPSHOT), Ncpus = .ncpus)
 
 args <- commandArgs(trailingOnly = TRUE)
 getarg <- function(f, d) { i <- which(args == f); if (!length(i)) d else args[i[1] + 1] }

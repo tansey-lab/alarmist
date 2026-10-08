@@ -267,7 +267,7 @@ Object slots (`@lrscore[[slot]]`), for each of `diffusion-Raw_smooth`, `contact-
 | `@score` | cells × interactions | LRscore. **Near-dense** — the dominant memory/disk cost |
 | `@res.list$result` | list per interaction | barcodes with p < `p.thresh` |
 | `@res.list$result.hq` | list per interaction | + passes `reads.thresh` / `sig.thresh` |
-| `@res.list$result.spx` | list per interaction | + spatially variable by SPARK-X (the headline tier) |
+| `@res.list$result.spx` | list per interaction | ⚠️ **NOT an extra filter — a RE-ORDERING of `result.hq`.** Verified 2026-08-18 on the completed `P17_AIS` `quant/reslist_*.rds`: for all three slots `result.spx` holds the *same* interactions as `result.hq` (146/146, 642/642, 68/68) with **byte-identical per-interaction cell sets**, only in a different order, and the package discards the SPARK-X adjusted p-values. See `cytosignal/DEVIATIONS.md` CS-2. |
 
 Persisted by `quant_io.R` into `<run>/quant/` — names alone are useless for comparison:
 
@@ -437,6 +437,17 @@ checkpoint means recompute, never replot.
 > the whole-transcriptome data used in the tutorial, we relaxed `removeLowQuality` to
 > `counts.thresh = 100` and `gene.thresh = 20`. Interactions were reported at the `result.spx`
 > level, that is, significant, quality-controlled and spatially variable by SPARK-X. For the
+
+⚠️ **CORRECTION (2026-08-18) — the sentence above is wrong and must not go into the paper as
+written.** "reported at the `result.spx` level, that is, significant, quality-controlled **and
+spatially variable by SPARK-X**" describes `result.spx` as a third filter stacked on `result.hq`.
+It is not one. `rankIntrSpatialVar` re-orders `result.hq` by SPARK-X adjusted p-value and throws
+the p-values away; the interaction set and every per-interaction cell set are unchanged. Measured
+on `P17_AIS`, all three slots: 146/146, 642/642, 68/68 interactions, identical cell sets.
+So the correct wording is *"reported at the `result.hq` level (significant and quality-controlled),
+ordered by SPARK-X spatial variability"*. This also drains the `result = hq = spx` column at
+:401-402 of meaning — `hq = spx` holds for **every** interaction, not just those two, so it is not
+evidence that a pair cleared an additional bar. Full evidence: `cytosignal/DEVIATIONS.md` CS-2.
 > two-condition comparison, we built one CytoSignal object per TMA core, merged them with
 > `mergeCytoSignal` and tested for differential interaction usage between high- and low-grade
 > cores with a negative-binomial mixed model as implemented in `runNEBULA` (`cpc_thresh = 0.001`),
@@ -3177,10 +3188,17 @@ Consolidated from every section. Ordered by how much they would change a claim.
 
 ### Repository hygiene
 
-- 🔴 **`scripts/comparators/` is not tracked in git.** `git ls-files` returns nothing and
-  `git check-ignore` says it is not ignored either — it is simply never added. Every
-  `run_manifest.json` records `git_sha: 95208de`, which pins the **package**, not the comparator
-  scripts that produced 44 GB of results. An edit can be confirmed to have the intended content, but
-  there is no way to prove no other line moved. **This is the highest-value single fix here.**
-- ⚠️ **CytoSignal has no `NOTES.md`, `DEVIATIONS.md` or `env.lock.yml`**, although `SKILL.md:71`
-  names it the reference implementation the other methods were matched against.
+- ⚠️ **`scripts/comparators/` is now mostly tracked, but 27 files are not.** *(Corrected
+  2026-09-10; this bullet previously said the whole tree was untracked and called it "the
+  highest-value single fix" — that was resolved by commit cd7b7c1.)* `git ls-files
+  scripts/comparators | wc -l` → **119** of 151 files on disk. The remaining **27** are
+  untracked-and-unignored, and they are not scratch: the entire `crossmethod/` runner
+  (11 files, incl. `NOTES.md` + `DEVIATIONS.md`), `cellchat/DEVIATIONS.md`,
+  `cytosignal/DEVIATIONS.md`, `cytosignal/replot_from_quant.R`, `build_env_iris.sh`, and the
+  `run_luad/sbatch/` job scripts — i.e. most of the iris port. Until they are committed, a
+  `run_manifest.json` `git_sha` still fails to pin the code that produced those results.
+  Re-check with `git ls-files --others --exclude-standard scripts/comparators`.
+- ⚠️ **CytoSignal has no `NOTES.md` or `env.lock.yml`**, although `SKILL.md:71` names it the
+  reference implementation the other methods were matched against. *(`DEVIATIONS.md` was created
+  2026-08-18 during the iris LUAD port — CS-1 the SPARK-X OOM, CS-2 the `result.spx` re-ordering
+  correction, CS-3 the quant-before-SPARK reordering of the runner.)*

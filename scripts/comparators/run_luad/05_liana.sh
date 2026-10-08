@@ -41,14 +41,37 @@ source "$HERE/_lib.sh"
 require_prep
 
 SKIP_MOFA=0
-for a in "$@"; do [ "$a" = "--skip-mofaflex" ] && SKIP_MOFA=1; done
+SKIP_INFLOW=0
+MOFA_EXTRA=""
+for a in "$@"; do
+    case "$a" in
+        --skip-mofaflex) SKIP_MOFA=1 ;;
+        # Forwarded to run_mofaflex.py. Step [6] (UMAP/Leiden over the factor scores) cannot
+        # complete in comp-liana: the env has no igraph, and at 1.68M cells UMAP's spectral
+        # init segfaults inside ARPACK. Nothing downstream depends on it.
+        --skip-clustering) MOFA_EXTRA="$MOFA_EXTRA --skip-clustering" ;;
+        # Resume switch. The four inflow fits are independent of the joint tail and take
+        # ~17 min; if only concat/MOFA-Flex needs re-running there is no reason to redo them.
+        # It refuses to skip unless all four outputs are actually on disk.
+        --skip-inflow)   SKIP_INFLOW=1 ;;
+    esac
+done
 
 BW=13.1454
 ROOT="$LUAD_RESULTS_DIR/liana/LUAD"
 
 banner "LIANA+ — inflow x4 + one joint MOFA-Flex"
 
+if [ "$SKIP_INFLOW" = "1" ]; then
+    for S in $LUAD_SECTIONS; do
+        F="$ROOT/$S/${LUAD_TIER}_inflow/data/inflow_lrdata.h5ad"
+        [ -f "$F" ] || { echo "ERROR: --skip-inflow given but $F is missing."; exit 1; }
+    done
+    step "skipping the four inflow fits (--skip-inflow); all four outputs verified on disk"
+fi
+
 for S in $LUAD_SECTIONS; do
+    [ "$SKIP_INFLOW" = "1" ] && continue
     step "inflow — $S"
     run "$PY_LIANA" "$SCRIPTS/liana/run_inflow.py" \
         --h5ad    "$LUAD_PREPPED_DIR/$S.prepped.h5ad" \
@@ -112,7 +135,8 @@ else
         --n-factors 20 --max-epochs 1000 --patience 50 \
         --seed "$LUAD_SEED" \
         --lr-of-interest \
-        --tag mofaflex_inflow_joint
+        --tag mofaflex_inflow_joint \
+        $MOFA_EXTRA          # deliberately unquoted: empty -> no arg, else --skip-clustering
 fi
 
 # ---------------------------------------------------------------------------------------

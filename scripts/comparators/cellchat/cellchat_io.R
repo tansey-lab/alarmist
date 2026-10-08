@@ -39,13 +39,17 @@ array3_to_long <- function(arr, third.name, value.name, drop.zero = TRUE) {
   df
 }
 
-save_cellchat_quant <- function(object, cond, out_dir, log = message) {
+# save_rds added 2026-08-20. Default TRUE => every existing caller is unchanged.
+# run_cellchat.R's --reuse-existing path passes FALSE: it has just READ this exact file, and
+# a resume feature must never rewrite the artefact it exists to protect -- a kill during the
+# 329 MB re-serialisation would destroy a completed condition.
+save_cellchat_quant <- function(object, cond, out_dir, log = message, save_rds = TRUE) {
   qdir <- file.path(out_dir, "quant"); odir <- file.path(out_dir, "objects")
   dir.create(qdir, showWarnings = FALSE, recursive = TRUE)
   dir.create(odir, showWarnings = FALSE, recursive = TRUE)
   p <- function(...) file.path(qdir, sprintf(...))
 
-  saveRDS(object, file.path(odir, sprintf("%s.rds", cond)), compress = TRUE)
+  if (save_rds) saveRDS(object, file.path(odir, sprintf("%s.rds", cond)), compress = TRUE)
 
   # ---- the full probability / p-value arrays (NOT just the significant subset) ----
   prob <- object@net$prob; pval <- object@net$pval

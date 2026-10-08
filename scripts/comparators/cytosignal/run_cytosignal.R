@@ -54,15 +54,47 @@ if (file.exists(ckpt) && save_rds == "save") {
 
 log("lrscore slots:", paste(names(cs@lrscore), collapse = ", "))
 log("inferSignif"); cs <- inferSignif(cs, p.thresh = 0.05, reads.thresh = 100, sig.thresh = 100)
-tryCatch({ log("rankIntrSpatialVar (SPARK)"); cs <- rankIntrSpatialVar(cs, numCores = 4) },
-         error = function(e) log("rankIntrSpatialVar FAILED:", conditionMessage(e)))
-if (save_rds == "save") saveRDS(purgeBeforeSave(cs), file.path(out_dir, "cs_result.rds")) else log("disk-safe: skip cs_result.rds")
-
-## -------- persist QUANTITATIVE outputs (both modes) --------
+## -------- interaction names (HOISTED above the SPARK step: save_lrscore_quant needs them,
+##          and the whole point below is to call it before SPARK can die) --------
 used_ii <- if (!is.null(cdb)) cdb$inter.index else inter.index
 intr_names <- setNames(paste(sub("-ligand$", "", used_ii$partner_a),
                              sub("-receptor$", "", used_ii$partner_b), sep = " - "),
                        used_ii$id_cp_interaction)
+
+## -------- BANK the quantitative outputs BEFORE rankIntrSpatialVar (added 2026-08-18) --------
+## On 2026-08-18 P17_LUAD was OOM-killed inside rankIntrSpatialVar after inferSignif had already
+## run to completion -- 6 h 42 min of finished work, four statements from disk, all discarded.
+## MEASURED, not inferred: sstat -j 8869477.0 reports MaxRSS 100,662,144 K = 95.9989 GiB against
+## a --mem=96G cgroup cap, i.e. 1.12 MiB of headroom left, so the kernel cgroup OOM killer
+## SIGKILLed the R process. The tryCatch below CANNOT help with that: it catches R conditions,
+## and a SIGKILL is not one. Neither can the checkpoint at :52 -- that is written BEFORE
+## inferSignif, so even `save` mode would have protected only the preceding ~53 min.
+## Ordering was the real defect. This call writes everything except the n_spx column;
+## save_lrscore_quant tolerates a missing result.spx (quant_io.R:45-47 -> cnt() returns
+## integer(0) -> g() fills 0L), and the summary CSV is sorted by -n_hq, not n_spx, so the
+## pre-SPARK file is already correctly ordered. The post-SPARK call below overwrites it with
+## n_spx filled in. Cost: one extra write of quant/ per section.
+log("banking quant/ BEFORE the SPARK step (n_spx will be 0 until the rewrite below)")
+save_lrscore_quant(cs, file.path(out_dir, "quant"), intr_names = intr_names, log = log)
+
+## -------- SPARK-X ranking -- SKIPPABLE via CS_SKIP_SPX=1 --------
+## What the step actually does, VERIFIED on the completed P17_AIS outputs rather than assumed:
+## result.spx is a RE-ORDERING of result.hq, not a filter. Across all three slots it holds the
+## same interactions (146/146, 642/642, 68/68) with byte-identical per-interaction cell sets,
+## only in a different order, and the package discards the SPARK-X adjusted p-values. So
+## skipping it costs the ordering, the n_spx column and the result.spx element -- no
+## significance call, no score matrix, no cell set, and not the NEBULA differential, which
+## rebuilds from input/ and never reads these outputs. It IS still a deviation from the authors'
+## documented step order; declare it if you use it. Default is OFF: the step runs.
+if (nzchar(Sys.getenv("CS_SKIP_SPX"))) {
+  log("rankIntrSpatialVar SKIPPED (CS_SKIP_SPX set); n_spx stays 0, result.spx absent")
+} else {
+  tryCatch({ log("rankIntrSpatialVar (SPARK)"); cs <- rankIntrSpatialVar(cs, numCores = 4) },
+           error = function(e) log("rankIntrSpatialVar FAILED:", conditionMessage(e)))
+}
+if (save_rds == "save") saveRDS(purgeBeforeSave(cs), file.path(out_dir, "cs_result.rds")) else log("disk-safe: skip cs_result.rds")
+
+## -------- rewrite quant/ with n_spx filled in (both modes) --------
 save_lrscore_quant(cs, file.path(out_dir, "quant"), intr_names = intr_names, log = log)
 
 ## -------- plots (only when small enough; heavy at >200k cells) --------

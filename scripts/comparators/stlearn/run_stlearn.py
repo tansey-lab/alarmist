@@ -181,6 +181,39 @@ _cats = list(grid.obs["cell_type"].cat.categories)
 _before = grid.obs["cell_type"].astype(str).tolist()
 grid.obs["cell_type"] = grid.obs["cell_type"].astype(object)
 
+# --- SECOND WORKAROUND, SAME VERSION GAP, DIFFERENT OBJECT (added 2026-08-18).
+# The obs coercion above is not sufficient. analysis.py:642-643 builds
+#     all_set = np.unique(adata.obs[label].values.astype(str))          -> numpy '<U', fine
+# but then at :670-671, ONLY IF a cell type exists in the deconvolution matrix without being
+# the DOMINANT type of any spot:
+#     if len(all_set) < adata.uns[label].shape[1]:
+#         all_set = adata.uns[label].columns.values.astype(str)
+# and `uns[label]` is a DataFrame stLearn itself built (analysis.py:175), so under pandas 3
+# its columns Index is Arrow-backed. `.astype(str)` on an already-str Arrow array is a NO-OP,
+# so all_set stays an ArrowStringArray and the @njit get_interaction_matrix (het.py:227)
+# raises "Cannot determine Numba type of <class 'pandas.arrays.ArrowStringArray'>".
+#
+# This is why the failure is PER SECTION and looks nondeterministic: P17_AIS has 19 dominant
+# types and 19 deconvolution columns, so the branch never fires and it ran to completion;
+# P17_LUAD has 18 dominant types against 19 columns, so it fires and dies ~4 h in.
+#
+# pd.Index(cols, dtype=object) is the one construction that survives pandas 3's string
+# inference (pd.Index(list) and pd.Index(np.asarray(cols, dtype=object)) both come back
+# Arrow-backed -- measured). Labels are byte-identical and the float64 proportions are
+# untouched; both are asserted below. The broader alternative,
+# pd.set_option("future.infer_string", False), was NOT used: it changes pandas behaviour for
+# the whole script including every CSV round-trip, and P17_AIS already proved every other
+# string->numba path in this workflow works as-is.
+_dcols = list(grid.uns["cell_type"].columns)
+grid.uns["cell_type"].columns = pd.Index(_dcols, dtype=object)
+_all_set_probe = grid.uns["cell_type"].columns.values.astype(str)
+assert isinstance(_all_set_probe, np.ndarray) and _all_set_probe.dtype.kind == "U", \
+    f"all_set is still {type(_all_set_probe).__name__}; numba will reject it"
+assert list(_all_set_probe) == _dcols, "deconvolution column labels changed"
+log(f"  uns['cell_type'].columns coerced to numpy {_all_set_probe.dtype} "
+    f"({len(_dcols)} deconvolution columns, {len(_all)} dominant labels"
+    f"{'; analysis.py:671 WILL fire' if len(_all) < len(_dcols) else ''})")
+
 log(f"run_cci(n_perms={a.n_perms}, spot_mixtures=True, cell_prop_cutoff=0.1)")
 st.tl.cci.run_cci(grid, "cell_type", min_spots=2, spot_mixtures=True, cell_prop_cutoff=0.1,
                   sig_spots=True, n_perms=a.n_perms, random_state=seed, n_cpus=n_cpus)
@@ -286,6 +319,9 @@ json.dump({
     "spot_size": [round(float(spot_x), 1), round(float(spot_y), 1)],
     "distance": a.distance, "n_pairs": a.n_pairs, "n_perms": a.n_perms,
     "min_spots": a.min_spots, "seed": seed,
+    # Provenance, not a tuning knob: run_cci's permutation p-values depend on the numba
+    # thread count (het.py draws inside a prange loop), so seed alone does not identify a run.
+    "n_cpus": n_cpus,
     "stlearn": st.__version__, "scanpy": sc.__version__, "python": platform.python_version(),
     "wall_min": round((time.time() - t0) / 60, 1),
 }, open(os.path.join(OUT, "run_manifest.json"), "w"), indent=2)

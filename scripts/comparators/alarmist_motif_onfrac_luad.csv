@@ -1,0 +1,9 @@
+motif,sample,patient,stage,on_fraction,n_on,n_total,source
+10,P17_AIS,P17,AIS,61.04,,,user-supplied 2026-08-20
+10,P17_LUAD,P17,LUAD,40.56,,,user-supplied 2026-08-20
+10,P21_AIS,P21,AIS,32.41,,,user-supplied 2026-08-20
+10,P21_LUAD,P21,LUAD,42.39,,,user-supplied 2026-08-20
+24,P17_AIS,P17,AIS,81.87,149313,182378,user-supplied 2026-08-20
+24,P17_LUAD,P17,LUAD,12.04,77162,640739,user-supplied 2026-08-20
+24,P21_AIS,P21,AIS,87.71,256880,292862,user-supplied 2026-08-20
+24,P21_LUAD,P21,LUAD,24.33,136273,560183,user-supplied 2026-08-20

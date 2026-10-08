@@ -151,9 +151,15 @@ for (slot in plot_slots) {
   ## plotIntrValue: ligand / receptor / score / null panels for one interaction
   for (ii in head(pick, 2)) {
     tryCatch({
-      png(file.path(pdir, sprintf("intrValue_%s_%s.png", tag, ii)), 1600, 1200, res = 150)
-      print(plotIntrValue(cs, intr = ii, slot.use = slot, signif.use = "result.spx",
-                          pt.size = 0.15, raster = TRUE)); dev.off()
+      ## plotIntrValue returns a NESTED list -- outputList[[intrName]] is itself 8 ggplots,
+      ## one per `type`. print()-ing it draws all 8 onto one device, so the PNG keeps only
+      ## the LAST panel and the other seven are silently lost. Combine them instead.
+      ## (Fixed 2026-08-20; latent because this script had never been run on iris.)
+      res <- plotIntrValue(cs, intr = ii, slot.use = slot, signif.use = "result.spx",
+                           pt.size = 0.15, raster = TRUE)
+      pl <- if (length(res) && is.list(res[[1]])) res[[1]] else res
+      png(file.path(pdir, sprintf("intrValue_%s_%s.png", tag, ii)), 2600, 1400, res = 150)
+      print(cowplot::plot_grid(plotlist = pl, nrow = 2, labels = names(pl), label_size = 9)); dev.off()
       log("  plotIntrValue ok:", ii)
     }, error = function(e) { try(dev.off(), silent = TRUE)
       log("  plotIntrValue FAILED", ii, ":", conditionMessage(e)) })
@@ -178,8 +184,15 @@ for (slot in plot_slots) {
 }
 
 ## -------- PERSIST the object if disk allows (skill: results must be re-readable) --------
-free_gb <- tryCatch(as.numeric(system(sprintf("df -g %s | tail -1 | awk '{print $4}'", pdir),
-                                      intern = TRUE)), error = function(e) NA)
+## `df -g` is a macOS flag. On Linux GNU coreutils rejects it ("df: invalid option -- 'g'"),
+## system(intern=TRUE) then returns character(0) with only a warning -- NOT an error, so the
+## tryCatch below never fires -- and free_gb becomes numeric(0). The `if` on the next line
+## then raises "missing value where TRUE/FALSE needed" and kills the script AFTER every
+## figure is written but BEFORE the manifest. Use -BG, and coerce length-0/NA to 0.
+## (Fixed 2026-08-20 on iris; the bug was latent because the GBM run was on macOS.)
+free_gb <- tryCatch(as.numeric(system(sprintf("df -BG %s | tail -1 | awk '{print $4}' | tr -d G", pdir),
+                                      intern = TRUE)), error = function(e) NA_real_)
+if (length(free_gb) != 1 || is.na(free_gb)) free_gb <- 0
 log("free disk:", free_gb, "GB")
 if (!is.na(free_gb) && free_gb >= 20) {
   tryCatch({ saveRDS(purgeBeforeSave(cs), file.path(out_dir, "cs_result.rds"))

@@ -103,6 +103,13 @@ def parse_args(argv=None):
     # reporting
     p.add_argument("--r2-floor", type=float, default=0.02, help="active-factor R2 floor (tutorial cell 38)")
     p.add_argument("--leiden-resolution", type=float, default=0.4)
+    p.add_argument("--skip-clustering", action="store_true",
+                   help="Skip step [6] (neighbours/UMAP/Leiden over the factor scores) "
+                        "and its four figures. Steps [7][8][9] do not depend on it: the "
+                        "only value they take from that block is focus_factors, which is "
+                        "computed above the guard. Required on an env without igraph, and "
+                        "on >1.66M cells where UMAP spectral init segfaults -- see "
+                        "liana/DEVIATIONS.md.")
     p.add_argument("--n-focus-factors", type=int, default=2)
     p.add_argument("--top-weights-n", type=int, default=10,
                    help="features per facet in top_weights.png (tutorial cell 43 uses 5)")
@@ -579,37 +586,59 @@ def main(argv=None):
             plot_dir / "top_weights.png", 24, _tw_h)
     print(f"    top_weights.png: top {args.top_weights_n} features per factor")
 
-    # ------------------------------------------- clustering / embedding (tutorial 45-52)
-    print("\n[6] factor-space clustering")
-    X = np.asarray(factor_adata.X, dtype="float64")
-    z = (X - X.mean(0)) / X.std(0)
-    factor_adata.obsm["X_clipped"] = np.clip(z, -5, 5)
-    sc.pp.neighbors(factor_adata, use_rep="X_clipped", random_state=args.seed)
-    sc.tl.umap(factor_adata, neighbors_key="neighbors", random_state=args.seed)
-    sc.tl.leiden(factor_adata, resolution=args.leiden_resolution, flavor="igraph",
-                 random_state=args.seed, n_iterations=2, directed=False)
-
-    sc.pl.umap(factor_adata, color=["leiden", *meta_keys], size=8, wspace=0.8, show=False)
-    save_current(plot_dir / "umap_leiden_annotations.png")
-
-    sc.pl.embedding(factor_adata, basis="spatial", color=["leiden", *meta_keys], s=8, wspace=0.3, show=False)
-    save_current(plot_dir / "spatial_leiden_annotations.png")
-
+    # focus_factors is HOISTED out of step [6]: steps [7]-[9] read it, so it must exist even
+    # when the clustering block is skipped. It is a pure slice of `factors`, no computation.
     focus_factors = factors[: args.n_focus_factors]
     print(f"    focus factors (top total R2): {focus_factors}")
 
-    absmax = float(np.nanpercentile(np.abs(factor_adata[:, factors].X), 99))
-    sc.pl.umap(factor_adata, color=focus_factors, cmap="RdBu_r", vcenter=0, vmin=-absmax, vmax=absmax,
-               size=8, ncols=2, wspace=0.1, show=False)
-    save_current(plot_dir / "umap_focus_factors.png")
+    # ------------------------------------------- clustering / embedding (tutorial 45-52)
+    # SKIPPABLE (--skip-clustering). Two independent reasons this block can be IMPOSSIBLE
+    # rather than merely slow. Both were hit on the LUAD joint fit (1,676,162 cells), iris,
+    # 2026-08-18:
+    #   1. sc.tl.leiden(flavor="igraph") needs the `igraph` package. scanpy calls
+    #      _utils.ensure_igraph() before any graph work and raises ImportError if it is
+    #      missing. comp-liana has no igraph, no leidenalg and no louvain (verified with
+    #      importlib.util.find_spec), so this line can never run in that env.
+    #   2. sc.tl.umap defaults to init_pos="spectral", which routes into umap's
+    #      _spectral_layout. That picks ARPACK eigsh whenever n < 2,000,000
+    #      (umap/spectral.py:497) with ncv = floor(sqrt(n)). At n = 1,676,162 the Lanczos
+    #      basis is n*ncv = 2,168,953,628 elements, past INT32_MAX, and scipy's C ARPACK
+    #      indexes it with a 32-bit multiply -> SIGSEGV. The window is narrow: the overflow
+    #      needs n >= 1,664,717 while umap only guards at 2,000,000.
+    # Nothing downstream reads anything this block produces, so it is an opt-out rather than
+    # a hard failure. See liana/DEVIATIONS.md for the full evidence.
+    if args.skip_clustering:
+        print("\n[6] factor-space clustering SKIPPED (--skip-clustering)")
+        print("    NOT WRITTEN: umap_leiden_annotations, spatial_leiden_annotations, "
+              "umap_focus_factors, spatial_focus_factors")
+    else:
+        print("\n[6] factor-space clustering")
+        X = np.asarray(factor_adata.X, dtype="float64")
+        z = (X - X.mean(0)) / X.std(0)
+        factor_adata.obsm["X_clipped"] = np.clip(z, -5, 5)
+        sc.pp.neighbors(factor_adata, use_rep="X_clipped", random_state=args.seed)
+        sc.tl.umap(factor_adata, neighbors_key="neighbors", random_state=args.seed)
+        sc.tl.leiden(factor_adata, resolution=args.leiden_resolution, flavor="igraph",
+                     random_state=args.seed, n_iterations=2, directed=False)
 
-    vals = np.hstack([np.asarray(factor_adata[:, f].X).flatten() for f in focus_factors])
-    p_low, p_high = np.nanpercentile(vals, 1), np.nanpercentile(vals, 99)
-    am = max(abs(p_low), abs(p_high))
-    norm = colors.TwoSlopeNorm(vcenter=0, vmin=-am, vmax=am)
-    sc.pl.embedding(factor_adata, basis="spatial", color=focus_factors, cmap="RdBu_r", norm=norm,
-                    s=10, ncols=2, wspace=0.15, show=False)
-    save_current(plot_dir / "spatial_focus_factors.png")
+        sc.pl.umap(factor_adata, color=["leiden", *meta_keys], size=8, wspace=0.8, show=False)
+        save_current(plot_dir / "umap_leiden_annotations.png")
+
+        sc.pl.embedding(factor_adata, basis="spatial", color=["leiden", *meta_keys], s=8, wspace=0.3, show=False)
+        save_current(plot_dir / "spatial_leiden_annotations.png")
+
+        absmax = float(np.nanpercentile(np.abs(factor_adata[:, factors].X), 99))
+        sc.pl.umap(factor_adata, color=focus_factors, cmap="RdBu_r", vcenter=0, vmin=-absmax, vmax=absmax,
+                   size=8, ncols=2, wspace=0.1, show=False)
+        save_current(plot_dir / "umap_focus_factors.png")
+
+        vals = np.hstack([np.asarray(factor_adata[:, f].X).flatten() for f in focus_factors])
+        p_low, p_high = np.nanpercentile(vals, 1), np.nanpercentile(vals, 99)
+        am = max(abs(p_low), abs(p_high))
+        norm = colors.TwoSlopeNorm(vcenter=0, vmin=-am, vmax=am)
+        sc.pl.embedding(factor_adata, basis="spatial", color=focus_factors, cmap="RdBu_r", norm=norm,
+                        s=10, ncols=2, wspace=0.15, show=False)
+        save_current(plot_dir / "spatial_focus_factors.png")
 
     # ---------------------------------------------- liana bridge (tutorial 55, 57, 59)
     print("\n[7] MOFA-Flex weights -> liana interaction table")
@@ -815,6 +844,7 @@ def main(argv=None):
         manifest["fit_seconds"] = fit_seconds
         manifest["wall_seconds"] = wall
         manifest["peak_rss_gb"] = peak_rss_gb()
+    manifest["clustering_skipped"] = bool(args.skip_clustering)
     manifest["model_path"] = str(save_path)
     manifest["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%S")
     with open(_mpath, "w") as fh:
