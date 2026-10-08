@@ -3596,3 +3596,54 @@ re-rendered to pick it up.
 Outputs: `figures_vessel_size/lumen_size_metrics`, `lumen_geometry.csv`,
 `figures_motif_profiles_diam/{size_vs_positive,size_kde}/`, `vessel_size_by_cluster_k10_diam/`;
 all synced to `download_20260902/`.
+
+## 2026-10-06 (later) — the z-clip dropped, and the labels now match the stored niche runs
+
+Two defects the user caught: the Jaccard / consensus / clustree / motif-correlation figures
+were computed on z CLIPPED at +/-5, while everything on disk
+(`vessel_niche_ring30_pervessel*`) was cut on unclipped z, so the singleton cluster that
+appears from K = 4 in the stored folders was invisible in those figures. Fixed by dropping the
+clip, after checking it changes nothing that matters.
+
+Clip sweep, smallest cluster per K (only 2 of the 5,700 z values exceed |z| = 10, both in
+P17_AIS__6 and P17_AIS__62):
+
+    clip    K3   K4   K5   K6   K7   K8   K9
+    none    53    1    1    1    1    1    1
+    12      51   13    3    9    8    2    2
+    10      47   13   12   13    3    8    8
+    8       51   12   12    9    9    9    8
+    5       49   43   37   12   11   13    9
+
+Clipping at 10 removes the 1-vessel cluster but still leaves a 3-vessel one at K = 7; only the
+heavy clip at 5 gives an even spread. The K choice, however, is the same everywhere -- min
+per-cluster Jaccard at K=3 is 0.90-0.91 and <= 0.6 from K=4 under no clip, clip 10 and clip 5
+alike, so all three choose K = 3. Unclipped is now the default in `niche_k_jaccard.py` and
+`plot_niche_motif_correlation.py`: one less free parameter, and the singleton is itself an
+argument for the small K.
+
+Second fix: `fit()` now reproduces `vessel_niche_cluster.autotuned_kmeans` exactly (10 restarts
+at random_state seed+i, keep the lowest inertia) instead of `KMeans(n_init=10)`. With that,
+the refit labels are IDENTICAL to the stored folders -- ARI = 1.000 at K = 3, 4 and 9 (it was
+0.95 / 0.96 / 0.89 before). Every figure in figures_niche_robustness now describes the
+clustering that is actually on disk.
+
+Unclipped results: min Jaccard K2 0.953, K3 0.905, K4 0.652, K5 0.166, K6 0.218, K7 0.376,
+K8 0.428, K9 0.529 -> still K = 3 (clusters n=141 J=0.96, n=110 J=0.98, n=49 J=0.91).
+Consensus within/between: K3 0.95/0.02, falling to 0.72-0.75 / 0.05-0.08 by K7-K9.
+The singleton P17_AIS__6 now shows up in the small-cluster table with Jaccard 0.65 (K=4)
+rising to 1.000 (K=9) -- the textbook "high Jaccard but tiny" case, resolved by the next two
+columns: n_sections = 1, top_section_frac = 1.00, 45 % Airway_epi. Artefact, not a rare niche.
+
+New figure: `niche_motif_best_match` -- rows K = 2..9, columns the four motifs, each cell the
+Pearson r of whichever niche matches that motif best at that K, annotated with which niche and
+its size (table: niche_motif_best_match.csv). It reads as: the SMC-stabilization motif always
+finds a ~105-110 vessel niche at r ~ 0.51-0.56 regardless of K; Tumor vasculature peaks at
+K = 3 (r = 0.41, the 49-vessel T-high niche) and degrades as that niche is split; Healthy
+alveolar improves slightly with K (0.26 -> 0.46) by carving out a 26-31 vessel subset;
+Vascular homeostasis never exceeds r = 0.21 at any K, because m23 is ON in 290 of 300 vessels
+and so has almost no variance to explain.
+
+**Slim variant added**: `niche_motif_best_match_slim` is the same K x motif best-match
+heatmap with only the r and the niche id in each cell (no cluster size); the annotated
+version `niche_motif_best_match` is kept.

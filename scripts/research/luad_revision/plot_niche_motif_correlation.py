@@ -2,7 +2,7 @@
 """Do the cell-type niches line up with the four vasculature motifs? One heatmap per K.
 
 For every K in the Jaccard scan, the niche labels are refit exactly as in `niche_k_jaccard.py`
-(ring proportions, z-scored, clipped at --clip, k-means seed 0) and each cluster is correlated
+(ring proportions, z-scored, not clipped, k-means seed 0) and each cluster is correlated
 with each motif's per-vessel ring positive fraction:
 
     r(cluster i, motif k) = Pearson r between the 0/1 membership of cluster i and f_k(v)
@@ -21,7 +21,9 @@ Colour: Reds, 0 to the largest |r| in the scan, shared by every panel. Negative 
 are left white -- the number is still printed in the cell.
 
 Outputs (figures_niche_robustness/): niche_motif_corr_k<K> for every K,
-    niche_motif_corr_all_k, niche_motif_corr.csv
+    niche_motif_corr_all_k, niche_motif_best_match (K x motif, each cell the r of whichever
+    niche matches that motif best at that K; _slim is the same without the cluster sizes),
+    niche_motif_corr.csv, niche_motif_best_match.csv
 
 Usage:
     /home/fanj2/.conda/envs/spatial/bin/python \
@@ -102,7 +104,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--kmin", type=int, default=2)
     ap.add_argument("--kmax", type=int, default=9)
-    ap.add_argument("--clip", type=float, default=5.0)
+    ap.add_argument("--clip", type=float, default=float("inf"),
+                    help="clip z at +/- this; default is no clipping, as in niche_k_jaccard")
     a = ap.parse_args()
     KS = list(range(a.kmin, a.kmax + 1))
 
@@ -156,6 +159,41 @@ def main():
     fig.suptitle("niche x motif correlation; box = that niche's best-matching motif",
                  x=.005, ha="left", fontsize=7.5)
     save(fig, "niche_motif_corr_all_k")
+
+    # ---- the best match per motif, every K in one heatmap --------------------------------
+    B = np.array([[Rs[k][:, j].max() for j in range(len(MOTIFS))] for k in KS])
+    who = np.array([[int(Rs[k][:, j].argmax()) for j in range(len(MOTIFS))] for k in KS])
+    for stem, with_n in (("niche_motif_best_match", True),
+                         ("niche_motif_best_match_slim", False)):
+        fig, ax = plt.subplots(figsize=(62 * MM, (16 + 8 * len(KS)) * MM))
+        im = ax.imshow(B, cmap="Reds", vmin=0, vmax=vmax, aspect="auto")
+        for r in range(len(KS)):
+            for c in range(len(MOTIFS)):
+                dark = B[r, c] > .62 * vmax
+                sub = f"niche {who[r, c]}" + (f", n={ns[KS[r]][who[r, c]]}" if with_n else "")
+                ax.text(c, r - .12, f"{B[r, c]:.2f}", ha="center", va="center", fontsize=6.4,
+                        color="white" if dark else "#333333")
+                ax.text(c, r + .22, sub, ha="center", va="center",
+                        fontsize=4.6 if with_n else 5.2,
+                        color="#f0f0f0" if dark else "#777777")
+        ax.set_xticks(range(len(MOTIFS)))
+        ax.set_xticklabels([LABEL[m] for m in MOTIFS], fontsize=6, rotation=38, ha="right",
+                           rotation_mode="anchor")
+        for t, m in zip(ax.get_xticklabels(), MOTIFS):
+            t.set_color(ANCHOR[m]); t.set_fontweight("bold")
+        ax.set_yticks(range(len(KS)))
+        ax.set_yticklabels([f"K = {k}" for k in KS])
+        ax.tick_params(length=0)
+        for sp in ax.spines.values():
+            sp.set_linewidth(.4); sp.set_color("#999999")
+        ax.set_title("best-matching niche per motif", loc="left", pad=4, fontsize=7.5)
+        cb = fig.colorbar(im, ax=ax, fraction=.045, pad=.04)
+        cb.set_label("Pearson r of that niche"); cb.outline.set_linewidth(.4)
+        save(fig, stem)
+    BT = pd.DataFrame([dict(k=k, motif=NAME[m], best_niche=int(who[i, j]),
+                            n_vessels=int(ns[k][who[i, j]]), best_r=B[i, j])
+                       for i, k in enumerate(KS) for j, m in enumerate(MOTIFS)])
+    BT.round(3).to_csv(f"{OUT}/niche_motif_best_match.csv", index=False)
 
     os.makedirs(OUT, exist_ok=True)
     R.round(3).to_csv(f"{OUT}/niche_motif_corr.csv", index=False)

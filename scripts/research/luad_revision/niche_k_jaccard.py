@@ -16,8 +16,14 @@ The rule, in the order it is applied:
      genuinely new structure or just an outlier being shaved off a large cluster's edge.
 
 Features are the per-vessel 30 um ring compositions of vessel_niche_ring30_pervessel
-(proportions over 19 cell types, z-scored, clipped at --clip because unclipped z lets one
-16-sigma peribronchial vessel own a cluster).
+(proportions over 19 cell types, z-scored, NOT clipped -- the same features the stored
+vessel_niche_ring30_pervessel* runs were cut with, so the labels here match those folders).
+--clip exists because one vessel (P17_AIS__6, 45 % Airway_epi in its ring against 0.36 %
+overall) sits at z = 16.2 and takes a cluster of its own from K = 4 on. Clipping removes that
+singleton (at 10 the smallest cluster at K=4 is 13, at 5 it is 43) but changes nothing that
+matters: the chosen K is 3 whether z is clipped at 5, at 10, or not at all, with the worst
+cluster's Jaccard 0.90-0.91 at K=3 and <= 0.6 from K=4 in every case. Unclipped is therefore
+the default -- one less free parameter, and the singleton is itself evidence for the small K.
 
 The same subsamples also give the consensus matrix at every K (how often each pair of vessels
 lands together), so the Jaccard numbers and the consensus panels are one experiment, not two.
@@ -75,8 +81,17 @@ def zscore(P, clip):
     return np.clip(Z, -clip, clip)
 
 
-def fit(Z, k, seed=0):
-    return KMeans(k, random_state=seed, n_init=10).fit_predict(Z)
+def fit(Z, k, seed=0, n_restarts=10):
+    """k-means exactly as vessel_niche_cluster.autotuned_kmeans runs it: `n_restarts`
+    restarts at random_state seed+i, keep the lowest inertia. Reproducing that procedure
+    rather than calling KMeans(n_init=10) is what makes the labels here identical
+    (ARI = 1.000 at K = 3, 4 and 9) to the stored vessel_niche_ring30_pervessel* runs."""
+    best = None
+    for i in range(n_restarts):
+        km = KMeans(k, random_state=seed + i).fit(Z)
+        if best is None or km.inertia_ < best.inertia_:
+            best = km
+    return best.labels_
 
 
 def contingency(a, b, ka, kb):
@@ -127,7 +142,8 @@ def main():
     ap.add_argument("--sub", type=int, default=100, help="subsamples per K")
     ap.add_argument("--frac", type=float, default=0.8)
     ap.add_argument("--thresh", type=float, default=0.75)
-    ap.add_argument("--clip", type=float, default=5.0)
+    ap.add_argument("--clip", type=float, default=float("inf"),
+                    help="clip z at +/- this; default is no clipping")
     ap.add_argument("--small", type=int, default=10, help="flag clusters with <= this many vessels")
     a = ap.parse_args()
 
